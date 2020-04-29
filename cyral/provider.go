@@ -1,13 +1,19 @@
 package cyral
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
 	provider := &schema.Provider{
-		/*Schema: map[string]*schema.Schema{
+		Schema: map[string]*schema.Schema{
 			"auth0_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -22,16 +28,14 @@ func Provider() *schema.Provider {
 				Required:  true,
 				Sensitive: true,
 			},
-		},*/
+		},
+
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_repository": resourceCyralRepository(),
 		},
-		DataSourcesMap: map[string]*schema.Resource{
-			"cyral_data_source_auth0": dataSourceCyralAuth0(),
-		},
 	}
 
-	/*provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
+	provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
 		terraformVersion := provider.TerraformVersion
 		if terraformVersion == "" {
 			// Terraform 0.12 introduced this field to the protocol
@@ -39,58 +43,61 @@ func Provider() *schema.Provider {
 			terraformVersion = "0.11+compatible"
 		}
 		return providerConfigure(d, terraformVersion)
-	}*/
+	}
 
 	return provider
 }
 
-/*
 func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	domain := d.Get("auth0_domain").(string)
-	clientID := d.Get("auth0_client_id").(string)
-	clientSecret := d.Get("auth0_client_secret").(string)
-	jwtToken, _ := readJWTToken(domain, clientID, clientSecret)
-
-	config := Config{
-		Auth0Domain:       domain,
-		Auth0ClientID:     clientID,
-		Auth0ClientSecret: clientSecret,
-		JWTToken:          jwtToken,
+	config := &Config{
+		Auth0Domain:       d.Get("auth0_domain").(string),
+		Auth0ClientID:     d.Get("auth0_client_id").(string),
+		Auth0ClientSecret: d.Get("auth0_client_secret").(string),
 		terraformVersion:  terraformVersion,
 	}
+
+	token, err := readJWTToken(config.Auth0Domain, config.Auth0ClientID, config.Auth0ClientSecret)
+	if err != nil {
+		return nil, nil
+	}
+
+	config.JWTToken = token
 
 	return config, nil
 }
 
 func readJWTToken(domain, clientID, clientSecret string) (string, error) {
-
 	url := fmt.Sprintf("https://%s/oauth/token", domain)
-	audienceURL := fmt.Sprintf("https://%s/api", domain)
-
+	audienceURL := fmt.Sprintf("https://%s/api/v2/", domain)
 	payloadStr := fmt.Sprintf("{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"audience\":\"%s\",\"grant_type\":\"client_credentials\"}",
 		clientID, clientSecret, audienceURL)
-
 	payload := strings.NewReader(payloadStr)
 
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
-
+		return "", fmt.Errorf("unable to create auth0 request, err: %v", err)
 	}
-	req.Header.Add("content-type", "application/json")
 
+	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-
+		return "", fmt.Errorf("unable execute auth0 request, err: %v", err)
 	}
+
 	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", fmt.Errorf("unable to read data from request body, err: %v", err)
+	}
 
-	log.Printf("[INFO] ========\nres")
-	log.Printf(fmt.Sprintf("[INFO] %s", res))
+	type Auth0Token struct {
+		AccessToken string `json:"access_token"`
+	}
+	token := &Auth0Token{}
+	err = json.Unmarshal(body, token)
+	if err != nil {
+		return "", fmt.Errorf("unable to get access token from json, err: %v", err)
+	}
 
-	log.Printf("[INFO] ========\nbody")
-	log.Printf(fmt.Sprintf("[INFO] %s", string(body)))
-
-	return "", nil
+	return token.AccessToken, nil
 }
-*/

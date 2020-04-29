@@ -1,6 +1,9 @@
 package cyral
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -42,6 +45,10 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("=============================== 1111111111111111111111111111111111111 ####################################")
+	config := m.(*Config)
+	log.Printf("=============================== 2222222222222222222222222222222222222 ####################################")
+	log.Printf(fmt.Sprintf("%v", config.JWTToken))
 	d.SetId("qq_coisa")
 	return nil
 }
