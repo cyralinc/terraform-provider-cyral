@@ -37,10 +37,12 @@ func resourceCyralRepository() *schema.Resource {
 }
 
 func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error {
+	d.SetId("qq_coisa")
 	return resourceCyralRepositoryRead(d, m)
 }
 
 func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
+	d.SetId("qq_coisa")
 	return nil
 }
 
