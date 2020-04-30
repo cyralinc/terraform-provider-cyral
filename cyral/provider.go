@@ -10,6 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+type Auth0Token struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+}
+
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
 	provider := &schema.Provider{
@@ -27,6 +32,14 @@ func Provider() *schema.Provider {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
+			},
+			"auth0_audience": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"control_plane": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
 			},
 		},
 
@@ -50,54 +63,55 @@ func Provider() *schema.Provider {
 
 func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
 	config := &Config{
-		Auth0Domain:       d.Get("auth0_domain").(string),
-		Auth0ClientID:     d.Get("auth0_client_id").(string),
-		Auth0ClientSecret: d.Get("auth0_client_secret").(string),
+		auth0Domain:       d.Get("auth0_domain").(string),
+		auth0ClientID:     d.Get("auth0_client_id").(string),
+		auth0ClientSecret: d.Get("auth0_client_secret").(string),
+		auth0Audience:     d.Get("auth0_audience").(string),
+		controlPlane:      d.Get("control_plane").(string),
 		terraformVersion:  terraformVersion,
 	}
 
-	token, err := readJWTToken(config.Auth0Domain, config.Auth0ClientID, config.Auth0ClientSecret)
+	token, err := readTokenInfo(config.auth0Domain, config.auth0ClientID,
+		config.auth0ClientSecret, config.auth0Audience)
 	if err != nil {
 		return nil, nil
 	}
 
-	config.JWTToken = token
+	config.token = token.AccessToken
+	config.tokenType = token.TokenType
 
 	return config, nil
 }
 
-func readJWTToken(domain, clientID, clientSecret string) (string, error) {
+func readTokenInfo(domain, clientID, clientSecret, audience string) (*Auth0Token, error) {
 	url := fmt.Sprintf("https://%s/oauth/token", domain)
-	audienceURL := fmt.Sprintf("https://%s/api/v2/", domain)
+	audienceURL := fmt.Sprintf("https://%s", audience)
 	payloadStr := fmt.Sprintf("{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"audience\":\"%s\",\"grant_type\":\"client_credentials\"}",
 		clientID, clientSecret, audienceURL)
 	payload := strings.NewReader(payloadStr)
 
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
-		return "", fmt.Errorf("unable to create auth0 request, err: %v", err)
+		return nil, fmt.Errorf("unable to create auth0 request, err: %v", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("unable execute auth0 request, err: %v", err)
+		return nil, fmt.Errorf("unable execute auth0 request, err: %v", err)
 	}
 
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return "", fmt.Errorf("unable to read data from request body, err: %v", err)
+		return nil, fmt.Errorf("unable to read data from request body, err: %v", err)
 	}
 
-	type Auth0Token struct {
-		AccessToken string `json:"access_token"`
-	}
 	token := &Auth0Token{}
 	err = json.Unmarshal(body, token)
 	if err != nil {
-		return "", fmt.Errorf("unable to get access token from json, err: %v", err)
+		return nil, fmt.Errorf("unable to get access token from json, err: %v", err)
 	}
 
-	return token.AccessToken, nil
+	return token, nil
 }
