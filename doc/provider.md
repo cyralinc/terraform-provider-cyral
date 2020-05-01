@@ -5,36 +5,21 @@ The provider is the base element and it must be used to inform application-wide 
 ## Usage
 
 ```hcl
-resource "cyral_repository" "SOME_SOURCE_NAME" {
-    host = ""
-    port = 0
-    type = ""
-    name = ""
-    require_tls = false
+provider "cyral" {
+    auth0_domain = ""
+    auth0_client_id = ""
+    auth0_client_secret = ""
+    auth0_audience = ""
+    control_plane = ""
 }
 ```
 
 ## Variables
 
-|  Name         |  Default  |  Description                                                                         | Required |
-|:--------------|:---------:|:-------------------------------------------------------------------------------------|:--------:|
-| `host`        |           | Repository host name (ex: `somerepo.cyral.com`)                                      | Yes      |
-| `port`        |           | Repository access port (ex: `3306`)                                                  | Yes      |
-| `type`        |           | Repository type (see the list of supported types below)                              | Yes      |
-| `name`        |           | Repository name that will be used internally in Control Plane (ex: `your_repo_name`) | Yes      |
-| `require_tls` | `false`   | Control plane host (ex: `yourcp.cyral.com`)                                          | No       |
-
-### Supported Repository Types
-
-All types below are case sensitive:
-
-- `bigquery`
-- `cassandra`
-- `dremio`
-- `galera`
-- `mariadb`
-- `mongodb`
-- `mysql`
-- `postgresql`
-- `snowflake`
-- `sqlserver`
+|  Name                 |  Default  |  Description                                                      | Required |
+|:----------------------|:---------:|:------------------------------------------------------------------|:--------:|
+| `auth0_domain`        |           | Auth0 domain name (ex: `dev-cyral.auth0.com`)                     | Yes      |
+| `auth0_client_id`     |           | Auth0 client id (ex: `1nrd81340lskf`)                             | Yes      |
+| `auth0_client_secret` |           | Auth0 client secret (ex: `klfd;3rf-0e13jklehgjlkhjf31J:LkfdsjfA`) | Yes      |
+| `auth0_audience`      |           | Auth0 audience (ex: `cyral-api.com`)                              | Yes      |
+| `control_plane`       |           | Control plane host (ex: `yourcp.cyral.com`)                       | Yes      |
