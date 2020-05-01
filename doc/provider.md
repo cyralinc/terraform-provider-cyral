@@ -7,11 +7,25 @@ The provider is the base element and it must be used to inform application-wide 
 ```hcl
 provider "cyral" {
     auth0_domain = ""
-    auth0_client_id = ""
-    auth0_client_secret = ""
     auth0_audience = ""
     control_plane = ""
 }
+```
+
+Auth0 authentication parameters (`client ID` and `client secret`) must be configured as environment variables **before** running Terraform command line. Fill the parameters with the corresponding values taken from the Auth0 application configuration and run the following commands to create the environment variables:
+
+- Linux/Mac
+
+```bash
+export AUTH0_CLIENT_ID=""
+export AUTH0_CLIENT_SECRET=""
+```
+
+- Windows
+
+```
+set AUTH0_CLIENT_ID=""
+set AUTH0_CLIENT_SECRET=""
 ```
 
 ## Variables
