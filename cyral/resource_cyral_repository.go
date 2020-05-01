@@ -77,6 +77,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
+
 	res, err := http.DefaultClient.Do(req)
 	if res.StatusCode == http.StatusConflict {
 		return fmt.Errorf("repository name already exists in control plane")
@@ -90,6 +91,11 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("unable to read data from request body; err: %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected response from createRepo; status code: %d; body: %q",
+			res.StatusCode, body)
 	}
 
 	jsonMap := map[string]string{}
@@ -161,7 +167,8 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from updateRepo; status code: %d", res.StatusCode)
+		return fmt.Errorf("unexpected response from updateRepo; status code: %d; body: %q",
+			res.StatusCode, res.Body)
 	}
 
 	return resourceCyralRepositoryRead(d, m)
@@ -178,10 +185,14 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
-	_, err = http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		return fmt.Errorf("unable execute deleteRepo request; err: %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected response from deleteRepo; status code: %d; body: %q", res.StatusCode, res.Body)
 	}
 
 	return nil
@@ -199,13 +210,15 @@ func resourceCyralRepositoryFindByID(config *Config, id string) (*resourceCyralR
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("unable execute new repo request; err: %v", err)
+		return nil, fmt.Errorf("unable to execute findRepoByID request; err: %v", err)
 	}
 
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
+		return nil, fmt.Errorf(
+			"unable to read data from request body at resourceCyralRepositoryFindByID; err: %v",
+			err)
 	}
 
 	// Not an error, nor any data was found
@@ -213,6 +226,11 @@ func resourceCyralRepositoryFindByID(config *Config, id string) (*resourceCyralR
 		return nil, nil
 	}
 
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(
+			"unexpected response from resourceCyralRepositoryFindByID; status code: %d; body: %q",
+			res.StatusCode, res.Body)
+	}
 	repoRespJSON := getRepoResponse{
 		Repo: map[string]interface{}{},
 	}
