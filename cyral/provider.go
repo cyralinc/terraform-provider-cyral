@@ -10,9 +10,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-type Auth0Token struct {
+type auth0TokenResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
+}
+type auth0TokenRequest struct {
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	Audience     string `json:"audience"`
+	GrantType    string `json:"grant_type"`
 }
 
 // Provider defines and initializes the Cyral provider
@@ -83,34 +89,42 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	return config, nil
 }
 
-func readTokenInfo(domain, clientID, clientSecret, audience string) (*Auth0Token, error) {
+func readTokenInfo(domain, clientID, clientSecret, audience string) (auth0TokenResponse, error) {
 	url := fmt.Sprintf("https://%s/oauth/token", domain)
 	audienceURL := fmt.Sprintf("https://%s", audience)
-	payloadStr := fmt.Sprintf("{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"audience\":\"%s\",\"grant_type\":\"client_credentials\"}",
-		clientID, clientSecret, audienceURL)
-	payload := strings.NewReader(payloadStr)
+	tokenReq := auth0TokenRequest{
+		Audience:     audienceURL,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		GrantType:    "client_credentials",
+	}
 
-	req, err := http.NewRequest("POST", url, payload)
+	payloadBytes, err := json.Marshal(tokenReq)
 	if err != nil {
-		return nil, fmt.Errorf("unable to create auth0 request, err: %v", err)
+		return auth0TokenResponse{}, fmt.Errorf("failed to encode readToken payload: %v", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
+	if err != nil {
+		return auth0TokenResponse{}, fmt.Errorf("unable to create auth0 request; err: %v", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("unable execute auth0 request, err: %v", err)
+		return auth0TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
 	}
 
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read data from request body, err: %v", err)
+		return auth0TokenResponse{}, fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
 
-	token := &Auth0Token{}
-	err = json.Unmarshal(body, token)
+	token := auth0TokenResponse{}
+	err = json.Unmarshal(body, &token)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get access token from json, err: %v", err)
+		return auth0TokenResponse{}, fmt.Errorf("unable to get access token from json; err: %v", err)
 	}
 
 	return token, nil
