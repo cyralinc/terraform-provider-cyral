@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -28,16 +29,6 @@ func Provider() *schema.Provider {
 			"auth0_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"auth0_client_id": &schema.Schema{
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
-			},
-			"auth0_client_secret": &schema.Schema{
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
 			},
 			"auth0_audience": &schema.Schema{
 				Type:     schema.TypeString,
@@ -68,10 +59,18 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
+	auth0ClientID, err := getEnv("AUTH0_CLIENT_ID")
+	if err != nil {
+		return nil, err
+	}
+	auth0ClientSecret, err := getEnv("AUTH0_CLIENT_SECRET")
+	if err != nil {
+		return nil, err
+	}
 	config := &Config{
 		auth0Domain:       d.Get("auth0_domain").(string),
-		auth0ClientID:     d.Get("auth0_client_id").(string),
-		auth0ClientSecret: d.Get("auth0_client_secret").(string),
+		auth0ClientID:     auth0ClientID,
+		auth0ClientSecret: auth0ClientSecret,
 		auth0Audience:     d.Get("auth0_audience").(string),
 		controlPlane:      d.Get("control_plane").(string),
 		terraformVersion:  terraformVersion,
@@ -87,6 +86,13 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config.tokenType = token.TokenType
 
 	return config, nil
+}
+
+func getEnv(key string) (string, error) {
+	if value, ok := os.LookupEnv(key); ok {
+		return value, nil
+	}
+	return "", fmt.Errorf("missing environment variable: %s", key)
 }
 
 func readTokenInfo(domain, clientID, clientSecret, audience string) (auth0TokenResponse, error) {
