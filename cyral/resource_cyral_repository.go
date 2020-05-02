@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	r "github.com/cyralinc/crud/repo"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -286,12 +285,22 @@ func getRepoData(config *Config, d *schema.ResourceData) (resourceCyralRepositor
 }
 
 func containsRepoType(repoType string) error {
-	repoTypes := r.GetRepoTypes()
-	mapRepoTypes := make(map[string]bool)
-	for _, r := range repoTypes {
-		mapRepoTypes[r] = true
+	// This code was copied here to remove dependency of CRUD,
+	// but we should move the CRUD code to CRUD-API (or somewhere
+	// else) in the future.
+	repoTypes := map[string]bool{
+		"bigquery":   true,
+		"cassandra":  true,
+		"dremio":     true,
+		"galera":     true,
+		"mariadb":    true,
+		"mongodb":    true,
+		"mysql":      true,
+		"postgresql": true,
+		"snowflake":  true,
+		"sqlserver":  true,
 	}
-	if mapRepoTypes[repoType] == false {
+	if repoTypes[repoType] == false {
 		return fmt.Errorf("repo type must be one of %v", repoTypes)
 	}
 	return nil
