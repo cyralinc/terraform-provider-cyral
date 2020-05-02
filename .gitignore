@@ -1,0 +1,5 @@
+# Local terraform testing files
+*.tf
+.terraform
+# Provider binary
+terraform-provider-cyral
