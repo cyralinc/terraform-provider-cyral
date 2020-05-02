@@ -7,7 +7,23 @@ Our provider uses the same naming conventions and organization as stated in Terr
 
 ## Usage Example
 
-The above code is just a simple example on how to use the Cyral Terraform Module. Refer to the 
+The code below is just a simple example of how to use the Cyral Terraform Module. Refer to the "Supported Elements" section for more information on resources and provider details.
+
+```hcl
+provider "cyral" {
+    auth0_domain = "some-name.auth0.com"
+    auth0_audience = "cyral-api.com"
+    control_plane = "some-cp.cyral.com"
+}
+
+resource "cyral_repository" "my_resource_name" {
+    host = "myrepo.cyral.com"
+    port = 3306
+    type = "mariadb"
+    name = "myrepo"
+    require_tls = true
+}
+```
 
 ## Supported Elements
 
