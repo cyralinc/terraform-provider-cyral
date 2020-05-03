@@ -66,24 +66,24 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	url := fmt.Sprintf("https://%s/repos", config.controlPlane)
 	payloadBytes, err := json.Marshal(repoData)
 	if err != nil {
-		return fmt.Errorf("failed to encode newRepo payload: %v", err)
+		return fmt.Errorf("failed to encode 'create repo' payload: %v", err)
 	}
 
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
 	if err != nil {
-		return fmt.Errorf("unable to create newRepo request; err: %v", err)
+		return fmt.Errorf("unable to create 'create repo' request; err: %v", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
 
 	res, err := http.DefaultClient.Do(req)
-	if res.StatusCode == http.StatusConflict {
-		return fmt.Errorf("repository name already exists in control plane")
+	if err != nil {
+		return fmt.Errorf("unable to execute 'create repo' request. Check the control plane address; err: %v", err)
 	}
 
-	if err != nil {
-		return fmt.Errorf("unable execute newRepo request; err: %v", err)
+	if res.StatusCode == http.StatusConflict {
+		return fmt.Errorf("repository name already exists in control plane")
 	}
 
 	defer res.Body.Close()
@@ -93,7 +93,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from createRepo; status code: %d; body: %q",
+		return fmt.Errorf("unexpected response from 'create repo' request; status code: %d; body: %q",
 			res.StatusCode, body)
 	}
 
@@ -119,7 +119,7 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if repoData == nil {
-		fmt.Errorf("repo not found; id: %s", d.Id())
+		return fmt.Errorf("repo not found; id: %s", d.Id())
 	}
 
 	d.Set("type", repoData.RepoType)
@@ -143,30 +143,27 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 	url := fmt.Sprintf("https://%s/repos/%s", config.controlPlane, d.Id())
 	payloadBytes, err := json.Marshal(repoData)
 	if err != nil {
-		return fmt.Errorf("failed to encode updateRepo payload: %v", err)
+		return fmt.Errorf("failed to encode 'update repo' payload: %v", err)
 	}
 
 	req, err := http.NewRequest(http.MethodPut, url, strings.NewReader(string(payloadBytes)))
 	if err != nil {
-		return fmt.Errorf("unable to create updateRepo request; err: %v", err)
+		return fmt.Errorf("unable to create 'update repo' request; err: %v", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
 	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("unable to execute 'update repo' request. Check the control plane address; err: %v", err)
+	}
+
 	if res.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("repository not found; id: %s", d.Id())
-	}
-	if res.StatusCode == http.StatusConflict {
+	} else if res.StatusCode == http.StatusConflict {
 		return fmt.Errorf("repository name already exists in control plane")
-	}
-
-	if err != nil {
-		return fmt.Errorf("unable execute updateRepo request; err: %v", err)
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from updateRepo; status code: %d; body: %q",
+	} else if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected response from 'update repo'; status code: %d; body: %q",
 			res.StatusCode, res.Body)
 	}
 
@@ -179,19 +176,18 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
-		return fmt.Errorf("unable to create deleteRepo request; err: %v", err)
+		return fmt.Errorf("unable to create 'delete repo' request; err: %v", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
 	res, err := http.DefaultClient.Do(req)
-
 	if err != nil {
-		return fmt.Errorf("unable execute deleteRepo request; err: %v", err)
+		return fmt.Errorf("unable execute 'delete repo' request. Check the control plane address; err: %v", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from deleteRepo; status code: %d; body: %q", res.StatusCode, res.Body)
+		return fmt.Errorf("unexpected response from 'delete repo' request; status code: %d; body: %q", res.StatusCode, res.Body)
 	}
 
 	return nil
@@ -209,7 +205,7 @@ func resourceCyralRepositoryFindByID(config *Config, id string) (*resourceCyralR
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("unable to execute findRepoByID request; err: %v", err)
+		return nil, fmt.Errorf("unable to execute findRepoByID request. Check the control plane address; err: %v", err)
 	}
 
 	defer res.Body.Close()
