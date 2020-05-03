@@ -79,7 +79,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	token, err := readTokenInfo(config.auth0Domain, config.auth0ClientID,
 		config.auth0ClientSecret, config.auth0Audience)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	config.token = token.AccessToken
