@@ -1,13 +1,6 @@
 package cyral
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -59,79 +52,12 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	auth0ClientID, err := getEnv("AUTH0_CLIENT_ID")
-	if err != nil {
-		return nil, err
-	}
-	auth0ClientSecret, err := getEnv("AUTH0_CLIENT_SECRET")
-	if err != nil {
-		return nil, err
-	}
 	config := &Config{
-		auth0Domain:       d.Get("auth0_domain").(string),
-		auth0ClientID:     auth0ClientID,
-		auth0ClientSecret: auth0ClientSecret,
-		auth0Audience:     d.Get("auth0_audience").(string),
-		controlPlane:      d.Get("control_plane").(string),
-		terraformVersion:  terraformVersion,
+		Auth0Domain:      d.Get("auth0_domain").(string),
+		Auth0Audience:    d.Get("auth0_audience").(string),
+		controlPlane:     d.Get("control_plane").(string),
+		terraformVersion: terraformVersion,
 	}
 
-	token, err := readTokenInfo(config.auth0Domain, config.auth0ClientID,
-		config.auth0ClientSecret, config.auth0Audience)
-	if err != nil {
-		return nil, err
-	}
-
-	config.token = token.AccessToken
-	config.tokenType = token.TokenType
-
-	return config, nil
-}
-
-func getEnv(key string) (string, error) {
-	if value, ok := os.LookupEnv(key); ok {
-		return value, nil
-	}
-	return "", fmt.Errorf("missing environment variable: %s", key)
-}
-
-func readTokenInfo(domain, clientID, clientSecret, audience string) (auth0TokenResponse, error) {
-	url := fmt.Sprintf("https://%s/oauth/token", domain)
-	audienceURL := fmt.Sprintf("https://%s", audience)
-	tokenReq := auth0TokenRequest{
-		Audience:     audienceURL,
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		GrantType:    "client_credentials",
-	}
-
-	payloadBytes, err := json.Marshal(tokenReq)
-	if err != nil {
-		return auth0TokenResponse{}, fmt.Errorf("failed to encode readToken payload: %v", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
-	if err != nil {
-		return auth0TokenResponse{}, fmt.Errorf("unable to create auth0 request; err: %v", err)
-	}
-
-	req.Header.Add("content-type", "application/json")
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return auth0TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
-	}
-
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return auth0TokenResponse{}, fmt.Errorf("unable to read data from request body; err: %v", err)
-	}
-
-	token := auth0TokenResponse{}
-	err = json.Unmarshal(body, &token)
-	if err != nil {
-		return auth0TokenResponse{}, fmt.Errorf("unable to get access token from json; err: %v", err)
-	}
-
-	return token, nil
+	return config.Client()
 }

@@ -53,17 +53,20 @@ func resourceCyralRepository() *schema.Resource {
 				Optional: true,
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 	}
 }
 
 func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error {
-	config := m.(*Config)
-	repoData, err := getRepoData(config, d)
+	c := m.(*CyralClient)
+	repoData, err := getRepoData(c, d)
 	if err != nil {
 		return err
 	}
 
-	url := fmt.Sprintf("https://%s/repos", config.controlPlane)
+	url := fmt.Sprintf("https://%s/repos", c.ControlPlane)
 	payloadBytes, err := json.Marshal(repoData)
 	if err != nil {
 		return fmt.Errorf("failed to encode 'create repo' payload: %v", err)
@@ -75,7 +78,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
+	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -104,15 +107,15 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	id := jsonMap["ID"]
-	config.repoID = id
+	c.Repository.Name = id
 	d.SetId(id)
 
 	return resourceCyralRepositoryRead(d, m)
 }
 
 func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
-	config := m.(*Config)
-	repoData, err := resourceCyralRepositoryFindByID(config, d.Id())
+	c := m.(*CyralClient)
+	repoData, err := resourceCyralRepositoryFindByID(c, d.Id())
 
 	if err != nil {
 		return err
@@ -134,13 +137,13 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error {
 	// TODO Warn users if they modify `require_tls` parameter in .tf, as it
 	// is not possible to change it once the repo is created.
-	config := m.(*Config)
-	repoData, err := getRepoData(config, d)
+	c := m.(*CyralClient)
+	repoData, err := getRepoData(c, d)
 	if err != nil {
 		return err
 	}
 
-	url := fmt.Sprintf("https://%s/repos/%s", config.controlPlane, d.Id())
+	url := fmt.Sprintf("https://%s/repos/%s", c.ControlPlane, d.Id())
 	payloadBytes, err := json.Marshal(repoData)
 	if err != nil {
 		return fmt.Errorf("failed to encode 'update repo' payload: %v", err)
@@ -152,7 +155,7 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 	}
 
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
+	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("unable to execute 'update repo' request. Check the control plane address; err: %v", err)
@@ -171,8 +174,8 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error {
-	config := m.(*Config)
-	url := fmt.Sprintf("https://%s/repos/%s", config.controlPlane, d.Id())
+	c := m.(*CyralClient)
+	url := fmt.Sprintf("https://%s/repos/%s", c.ControlPlane, d.Id())
 
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
@@ -180,7 +183,7 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 	}
 
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
+	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("unable execute 'delete repo' request. Check the control plane address; err: %v", err)
@@ -193,8 +196,8 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 	return nil
 }
 
-func resourceCyralRepositoryFindByID(config *Config, id string) (*resourceCyralRepositoryData, error) {
-	url := fmt.Sprintf("https://%s/repos/%s", config.controlPlane, id)
+func resourceCyralRepositoryFindByID(c *CyralClient, id string) (*resourceCyralRepositoryData, error) {
+	url := fmt.Sprintf("https://%s/repos/%s", c.ControlPlane, id)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -202,7 +205,7 @@ func resourceCyralRepositoryFindByID(config *Config, id string) (*resourceCyralR
 	}
 
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", config.tokenType, config.token))
+	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("unable to execute findRepoByID request. Check the control plane address; err: %v", err)
@@ -262,7 +265,7 @@ func validateGetRepoRequest(repoRespJSON getRepoResponse) error {
 	return nil
 }
 
-func getRepoData(config *Config, d *schema.ResourceData) (resourceCyralRepositoryData, error) {
+func getRepoData(c *CyralClient, d *schema.ResourceData) (resourceCyralRepositoryData, error) {
 	repoType := d.Get("type").(string)
 	err := containsRepoType(repoType)
 	if err != nil {
