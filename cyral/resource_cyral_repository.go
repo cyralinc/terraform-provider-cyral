@@ -105,7 +105,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	bodyRep := CreateRepoResponse{}
 	err = json.Unmarshal(body, &bodyRep)
 	if err != nil {
-		return fmt.Errorf("unable to get repo ID from json; err: %v", err)
+		return fmt.Errorf("unable to unmarshall json; err: %v", err)
 	}
 
 	c.Repository.Name = repoData.Name
