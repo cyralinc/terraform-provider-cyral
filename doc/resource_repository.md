@@ -10,7 +10,6 @@ resource "cyral_repository" "SOME_SOURCE_NAME" {
     port = 0
     type = ""
     name = ""
-    require_tls = false
 }
 ```
 
@@ -22,7 +21,6 @@ resource "cyral_repository" "SOME_SOURCE_NAME" {
 | `port`        |           | Repository access port (ex: `3306`)                                                  | Yes      |
 | `type`        |           | Repository type (see the list of supported types below)                              | Yes      |
 | `name`        |           | Repository name that will be used internally in Control Plane (ex: `your_repo_name`) | Yes      |
-| `require_tls` | `false`   | Control plane host (ex: `yourcp.cyral.com`)                                          | No       |
 
 ### Supported Repository Types
 

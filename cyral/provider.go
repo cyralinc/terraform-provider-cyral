@@ -33,8 +33,8 @@ func Provider() *schema.Provider {
 			},
 			"control_plane_api_port": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: true,
-				//Default:  8000,
+				Optional: true,
+				Default:  8000,
 			},
 		},
 
