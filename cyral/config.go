@@ -12,9 +12,10 @@ import (
 // Config contains the provider configuration parameters stored
 // during provider initialization.
 type Config struct {
-	Auth0Domain   string
-	Auth0Audience string
-	controlPlane  string
+	Auth0Domain         string
+	Auth0Audience       string
+	controlPlane        string
+	controlPlaneAPIPort int
 
 	terraformVersion string
 }
@@ -22,9 +23,10 @@ type Config struct {
 // CyralClient stores data for all existing resources. Also, this is
 // the struct that is passed along resources CRUD operations.
 type CyralClient struct {
-	Token        string
-	TokenType    string
-	ControlPlane string
+	Token               string
+	TokenType           string
+	ControlPlane        string
+	ControlPlaneAPIPort int
 
 	Repository Repository
 }
@@ -51,10 +53,11 @@ func (c *Config) Client() (interface{}, error) {
 	}
 
 	return &CyralClient{
-		ControlPlane: c.controlPlane,
-		Token:        token.AccessToken,
-		TokenType:    token.TokenType,
-		Repository:   Repository{},
+		ControlPlane:        c.controlPlane,
+		ControlPlaneAPIPort: c.controlPlaneAPIPort,
+		Token:               token.AccessToken,
+		TokenType:           token.TokenType,
+		Repository:          Repository{},
 	}, nil
 }
 

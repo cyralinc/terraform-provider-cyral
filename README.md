@@ -21,8 +21,19 @@ resource "cyral_repository" "my_resource_name" {
     port = 3306
     type = "mariadb"
     name = "myrepo"
-    require_tls = true
 }
+```
+
+## Supported Operations
+
+Terraform Cyral Provider was designed to be compatible with all existing Terraform operations. Thus it supports `apply`, `destroy`, `graph`, `import`, `refresh`, `show`, `taint`, `untaint`, etc.
+
+### Import
+
+Import operation identifies resources using property `name`. Thus, if you need to import the state of the resource `cyral_repository.my_resource_name` shown above, you will run:
+
+```shell
+terraform import cyral_repository.my_resource_name myrepo
 ```
 
 ## Supported Elements
