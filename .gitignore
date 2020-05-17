@@ -3,3 +3,4 @@
 .terraform
 # Provider binary
 terraform-provider-cyral
+out/
