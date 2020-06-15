@@ -86,6 +86,10 @@ func (c *Config) readTokenInfo(domain, clientID, clientSecret, audience string) 
 	if err != nil {
 		return auth0TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
 	}
+	if res.StatusCode != http.StatusOK {
+		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d.\n", res.StatusCode)
+		return auth0TokenResponse{}, fmt.Errorf(msg)
+	}
 
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)

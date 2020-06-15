@@ -17,3 +17,4 @@ clean:
 	$(GOCLEAN) -i github.com/cyralinc/terraform-provider-cyral/...
 
 test:
+	$(GOTEST) ./cyral
