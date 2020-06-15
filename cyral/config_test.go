@@ -3,14 +3,32 @@ package cyral
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"io/ioutil"
+	"net/http"
+	"os"
 	"strings"
 	"testing"
 )
 
-// FALTA: MOCK CLIENT (E ONDE ELE APARECE)
+func TestEnvVarAuth0ClientID(t *testing.T) {
+	c := Config{}
+	if _, err := c.Client(); err != nil {
+		if _, err2 := c.getEnv("AUTH0_CLIENT_ID"); err.Error() != err2.Error() {
+			t.Error("Expected error in env var: AUTH0_CLIENT_ID")
+		}
+	}
+}
+func TestEnvVarAuth0ClientSecret(t *testing.T) {
+	c := Config{}
+	os.Setenv("AUTH0_CLIENT_ID", "bla")
+	if _, err := c.Client(); err != nil {
+		if _, err2 := c.getEnv("AUTH0_CLIENT_SECRET"); err.Error() != err2.Error() {
+			t.Error("Expected error in env var: AUTH0_CLIENT_SECRET")
+		}
+	}
+}
 
+// FALTA: MOCK CLIENT (E ONDE ELE APARECE)
 
 /*
 //rascunho
@@ -50,54 +68,47 @@ func (confAddr *Config) discoverTokenError(clientID, clientSecret string) error 
 	payloadBytes, err := json.Marshal(tokenReq)
 	if err != nil {
 		return fmt.Errorf("Token error, failed to encode readToken payload: %v.\n", err)
-	} else {
-		req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
-		if err != nil {
-			return fmt.Errorf("Token error, unable to create auth0 request; err: %v", err)
-		} else {
-			req.Header.Add("content-type", "application/json")
-			//***********************
-			res, err := http.DefaultClient.Do(req)
-			if err != nil {
-				return fmt.Errorf("Token error, unable execute auth0 request; err: %v", err)
-			} else {
-				defer res.Body.Close() ///*****************
-				body, err := ioutil.ReadAll(res.Body)
-				if err != nil {
-					return fmt.Errorf("Token error, unable to read data from request body; err: %v", err)
-				} else {
-					token := auth0TokenResponse{}
-					err = json.Unmarshal(body, &token)
-					//if err != nil {
-						return fmt.Errorf("Token error, unable to get access token from json; err: %v", err)
-					//}
-				}
-			}
-		}
 	}
+	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
+	if err != nil {
+		return fmt.Errorf("Token error, unable to create auth0 request; err: %v", err)
+	}
+	req.Header.Add("content-type", "application/json")
+	//***********************
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("Token error, unable execute auth0 request; err: %v", err)
+	}
+	defer res.Body.Close() ///*****************
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("Token error, unable to read data from request body; err: %v", err)
+	}
+	token := auth0TokenResponse{}
+	err = json.Unmarshal(body, &token)
+	//if err != nil {
+	return fmt.Errorf("Token error, unable to get access token from json; err: %v", err)
+	//}
 }
 
 func (confAddr *Config) checkEnvVar(envVar string) (string, error) {
 	varValue, err := confAddr.getEnv(envVar)
 	if err != nil {
 		return "", err
-	} else {
-		return varValue, nil
 	}
+	return varValue, nil
 }
 
 func (confAddr *Config) traceProblem() error {
 	auth0ClientID, err := confAddr.checkEnvVar("AUTH0_CLIENT_ID")
 	if err != nil {
 		return err
-	} else {
-		auth0ClientSecret, err := confAddr.checkEnvVar("AUTH0_CLIENT_SECRET")
-		if err != nil {
-			return err
-		} else {
-			return confAddr.discoverTokenError(auth0ClientID, auth0ClientSecret)
-		}
 	}
+	auth0ClientSecret, err := confAddr.checkEnvVar("AUTH0_CLIENT_SECRET")
+	if err != nil {
+		return err
+	}
+	return confAddr.discoverTokenError(auth0ClientID, auth0ClientSecret)
 }
 
 func TestClient(t *testing.T) {
