@@ -5,3 +5,5 @@
 terraform-provider-cyral
 # HTML detailed test coverage exibition file
 cover.out
+# PEM files created during tests
+*.pem

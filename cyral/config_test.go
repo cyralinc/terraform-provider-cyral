@@ -5,16 +5,33 @@ package cyral
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
-	//"net/http/httptest"
 )
 
 func invalidHTTPrequest() error {
-
-	c := Config{Auth0Domain: "Auth0DomainValue", Auth0Audience: "Auth0AudienceValue"}
 	os.Setenv("AUTH0_CLIENT_ID", "Auth0ClientIDvalue")
 	os.Setenv("AUTH0_CLIENT_SECRET", "Auth0ClientIDsecret")
+
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "Hello, client")
+	}))
+
+	c := Config{Auth0Domain: ts.URL[8:len(ts.URL)], Auth0Audience: "cyral"}
+	// Pass TLS certificate "cert.pem", "key.pem"
+	// ts.Config.TLSConfig.Certificates
+	// See: https://golang.org/pkg/net/http/httptest/#Server.Certificate
+	ts.URL = ts.URL + "/oauth/token"
+	defer ts.Close()
+
+	_, err := c.Client()
+
+	return err
+
+	//_, err := c.Client()
+	//return err
 
 	// readTokenInfo() call: will always be correct in type matching
 
@@ -43,23 +60,21 @@ func invalidHTTPrequest() error {
 	// statement req.Header.Add will never fail since it always receives right
 	// arguments for execution
 
-	if _, err := c.Client(); err != nil {
+	/*if _, err := c.Client(); err != nil {
 		return err
 	}
-	return nil
+	return nil*/
 }
 
 func absentEnvVarAuth0ClientID() error {
 	c := Config{}
 
 	// Remove env var AUTH0_CLIENT_ID, if present
-	if _, err := c.getEnv("AUTH0_CLIENT_ID"); err == nil {
-		os.Unsetenv("AUTH0_CLIENT_ID")
-	}
+	os.Unsetenv("AUTH0_CLIENT_ID")
 
-	_, err2 := c.Client()
+	_, err := c.Client()
 
-	if _, err := c.getEnv("AUTH0_CLIENT_ID"); err2.Error() != err.Error() {
+	if _, err2 := c.getEnv("AUTH0_CLIENT_ID"); err2.Error() != err.Error() {
 		return fmt.Errorf("Unexpected behavior in Client() function.\n")
 	}
 	return nil
@@ -70,13 +85,11 @@ func absentEnvVarAuth0ClientSecret() error {
 	os.Setenv("AUTH0_CLIENT_ID", "Auth0ClientIDvalue")
 
 	// Remove env var AUTH0_CLIENT_SECRET, if present
-	if _, err := c.getEnv("AUTH0_CLIENT_SECRET"); err == nil {
-		os.Unsetenv("AUTH0_CLIENT_SECRET")
-	}
+	os.Unsetenv("AUTH0_CLIENT_SECRET")
 
-	_, err2 := c.Client()
+	_, err := c.Client()
 
-	if _, err := c.getEnv("AUTH0_CLIENT_SECRET"); err2.Error() != err.Error() {
+	if _, err2 := c.getEnv("AUTH0_CLIENT_SECRET"); err2.Error() != err.Error() {
 		return fmt.Errorf("Unexpected behavior in Client() function.\n")
 	}
 	return nil
@@ -92,12 +105,7 @@ func TestClient(t *testing.T) {
 	}
 
 	if err := invalidHTTPrequest(); err != nil {
-		//t.Error(err)
-		t.Log(err)
+		t.Error(err)
 	}
 
 }
-
-// getEnv() function: as defined, will never fail, since it is only
-// another way to print os.LookupEnv() results, and os.LookupEnv() is already
-// officialy tested.
