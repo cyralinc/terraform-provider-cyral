@@ -3,5 +3,3 @@
 .terraform
 # Provider binary
 terraform-provider-cyral
-# HTML detailed test coverage exibition file
-cover.out
