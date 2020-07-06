@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -19,7 +20,9 @@ func absentEnvVarAuth0ClientID() error {
 	_, err := c.Client()
 
 	if _, err2 := c.getEnv("AUTH0_CLIENT_ID"); err2.Error() != err.Error() {
-		return fmt.Errorf("Unexpected behavior in Client() function.\n")
+		return fmt.Errorf(
+			"unexpected behavior in Client() when AUTH0_CLIENT_ID is empty; err: %v",
+			err.Error())
 	}
 	return nil
 }
@@ -34,13 +37,14 @@ func absentEnvVarAuth0ClientSecret() error {
 	_, err := c.Client()
 
 	if _, err2 := c.getEnv("AUTH0_CLIENT_SECRET"); err2.Error() != err.Error() {
-		return fmt.Errorf("Unexpected behavior in Client() function.\n")
+		return fmt.Errorf(
+			"unexpected behavior in Client() when AUTH0_CLIENT_SECRET is empty; err: %v",
+			err.Error())
 	}
 	return nil
 }
 
 func invalidAuth0DomainFormat() error {
-
 	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
 	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
 	c := Config{
@@ -48,8 +52,9 @@ func invalidAuth0DomainFormat() error {
 	}
 
 	if _, err := c.Client(); err == nil {
-		msg := "Unexpected Client() behavior when receives invalid Auth0 domain format"
-		return fmt.Errorf(msg)
+		return fmt.Errorf(
+			"unexpected behavior in Client() when Auth0 domain has invalid format; err: %v",
+			err.Error())
 	}
 
 	return nil
@@ -63,15 +68,15 @@ func invalidAuth0DomainValue() error {
 	}
 
 	if _, err := c.Client(); err == nil {
-		msg := "Unexpected Client() behavior when receives invalid Auth0 domain value"
-		return fmt.Errorf(msg)
+		return fmt.Errorf(
+			"unexpected behavior in Client() when Auth0 domain has invalid value; err: %v",
+			err.Error())
 	}
 
 	return nil
 }
 
 func serverDown() error {
-
 	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
 	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
 
@@ -86,14 +91,15 @@ func serverDown() error {
 	ts.Close()
 
 	if _, err := c.Client(); err == nil {
-		return fmt.Errorf("Unexpected behavior in Client() function.\n")
+		return fmt.Errorf(
+			"unexpected behavior in Client() when server is down; err: %v",
+			err.Error())
 	}
 
 	return nil
 }
 
 func timeoutResponse() error {
-
 	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
 	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
 
@@ -103,9 +109,7 @@ func timeoutResponse() error {
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		for {
-
 		}
-
 	}))
 	defer ts.Close()
 
@@ -113,14 +117,13 @@ func timeoutResponse() error {
 	ts.URL = ts.URL + "/oauth/token"
 
 	if _, err := c.Client(); err == nil {
-		return fmt.Errorf("Unexpected behavior in Client() function.\n")
+		return fmt.Errorf("error in timeoutResponse(); err: %v", err.Error())
 	}
 
 	return nil
 }
 
 func reqOK() error {
-
 	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
 	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
 
@@ -129,7 +132,7 @@ func reqOK() error {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(201)
+		w.WriteHeader(http.StatusOK)
 		w.Header().Add("content-type", "application/json")
 
 		tokenRes := auth0TokenResponse{
@@ -145,14 +148,13 @@ func reqOK() error {
 	ts.URL = ts.URL + "/oauth/token"
 
 	if _, err := c.Client(); err != nil {
-		return fmt.Errorf("Unexpected behavior in Client() function.\n")
+		return fmt.Errorf("error in reqOK(); err: %v", err.Error())
 	}
 
 	return nil
 }
 
-func requisitionContentProblem() error {
-
+func reqFail() error {
 	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
 	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
 
@@ -161,59 +163,24 @@ func requisitionContentProblem() error {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// General requisition error test: 4xx family
-		w.WriteHeader(401)
+		// Any response different than 200 (http.StatusOK) is an error.
+		w.WriteHeader(http.StatusBadRequest)
 	}))
-	defer ts.Close()
 
 	c := Config{Auth0Domain: ts.URL[8:len(ts.URL)], Auth0Audience: "exampleAud"}
 	ts.URL = ts.URL + "/oauth/token"
 
 	if _, err := c.Client(); err != nil {
-		if err.Error()[0:36] == "unable to get access token from json" {
-			return fmt.Errorf("Absent error warning for requisition values errors condition.")
+		if !strings.Contains(err.Error(), fmt.Sprintf("status code %d", http.StatusBadRequest)) {
+			return fmt.Errorf("error in reqFail(); err: %v", err.Error())
 		}
-
-		return nil
 	}
-
-	return fmt.Errorf("Unexpected behavior in Client() function.\n")
-}
-
-func serverInternalError() error {
-
-	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
-	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
-
-	// Disables client's certificate authority validation, in order to
-	// successfully mock https requests
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
-	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Any server error: 5xx family
-		w.WriteHeader(500)
-	}))
 	defer ts.Close()
 
-	c := Config{Auth0Domain: ts.URL[8:len(ts.URL)], Auth0Audience: "exampleAud"}
-	ts.URL = ts.URL + "/oauth/token"
-
-	if _, err := c.Client(); err != nil {
-
-		if err.Error()[0:36] == fmt.Errorf("unable to get access token from json").Error() {
-			return fmt.Errorf("Absent error warning for internal server errors condition.\n")
-		}
-		return nil
-	}
-
-	return fmt.Errorf("Unexpected behavior in Client() function")
+	return nil
 }
-
-// Validation of server certficate also works but its not used in here
-// due to always logging behavior, making unclean results for go test commmand
 
 func TestClient(t *testing.T) {
-
 	if err := absentEnvVarAuth0ClientID(); err != nil {
 		t.Error(err)
 	}
@@ -234,22 +201,11 @@ func TestClient(t *testing.T) {
 		t.Error(err)
 	}
 
-	// Needs thread / goroutine to stop after certain time if it doesnt
-	// timeout (as is behaving)
-	/*if err := timeoutResponse(); err != nil {
-		t.Error(err)
-	}*/
-
 	if err := reqOK(); err != nil {
 		t.Error(err)
 	}
 
-	if err := serverInternalError(); err != nil {
+	if err := reqFail(); err != nil {
 		t.Error(err)
 	}
-
-	if err := requisitionContentProblem(); err != nil {
-		t.Error(err)
-	}
-
 }

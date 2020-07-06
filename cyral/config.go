@@ -3,7 +3,6 @@ package cyral
 import (
 	"encoding/json"
 	"fmt"
-	"http"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -88,7 +87,7 @@ func (c *Config) readTokenInfo(domain, clientID, clientSecret, audience string) 
 		return auth0TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("Auth0 requisition fail: %s, response status code %d.\n", err.Error(), http.StatusCode)
+		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d.\n", res.StatusCode)
 		return auth0TokenResponse{}, fmt.Errorf(msg)
 	}
 
