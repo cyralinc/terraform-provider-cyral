@@ -41,6 +41,10 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Provider](./doc/provider.md)
 - [Resource Repository](./doc/resource_repository.md)
 
+## Prerequisites
+
+Our existing provider was created to support Terraform v0.12. Therefore, this version of Terraform must be installed in your environment. In the future, we plan to add support for newer versions as well.
+
 ## Build Instructions
 
 In order to build and distribute this provider, follow the steps below:
