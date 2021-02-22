@@ -27,7 +27,7 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"control_plane_url": &schema.Schema{
+			"control_plane": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
