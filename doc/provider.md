@@ -8,7 +8,7 @@ The provider is the base element and it must be used to inform application-wide 
 provider "cyral" {
     auth0_domain = ""
     auth0_audience = ""
-    control_plane_url = ""
+    control_plane = ""
 }
 ```
 
