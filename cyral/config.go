@@ -9,13 +9,14 @@ import (
 	"strings"
 )
 
+const controlPlaneAPIPort = 8000
+
 // Config contains the provider configuration parameters stored
 // during provider initialization.
 type Config struct {
-	Auth0Domain         string
-	Auth0Audience       string
-	controlPlane        string
-	controlPlaneAPIPort int
+	Auth0Domain   string
+	Auth0Audience string
+	controlPlane  string
 
 	terraformVersion string
 }
@@ -54,7 +55,7 @@ func (c *Config) Client() (interface{}, error) {
 
 	return &CyralClient{
 		ControlPlane:        c.controlPlane,
-		ControlPlaneAPIPort: c.controlPlaneAPIPort,
+		ControlPlaneAPIPort: controlPlaneAPIPort,
 		Token:               token.AccessToken,
 		TokenType:           token.TokenType,
 		Repository:          Repository{},
