@@ -68,7 +68,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	url := fmt.Sprintf("https://%s:%d/v1/repos", c.ControlPlane, c.ControlPlaneAPIPort)
+	url := fmt.Sprintf("https://%s/v1/repos", c.ControlPlane)
 	payloadBytes, err := json.Marshal(repoData)
 	if err != nil {
 		return fmt.Errorf("failed to encode 'create repo' payload: %v", err)
@@ -148,7 +148,7 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 		return fmt.Errorf("unable to find repo by name during update operation: %v", err)
 	}
 
-	url := fmt.Sprintf("https://%s:%d/v1/repos/%s", c.ControlPlane, c.ControlPlaneAPIPort, repoDataFromCP.ID)
+	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repoDataFromCP.ID)
 	payloadBytes, err := json.Marshal(repoDataFromResource)
 	if err != nil {
 		return fmt.Errorf("failed to encode 'update repo' payload: %v", err)
@@ -189,7 +189,7 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 		return fmt.Errorf("unable to find repo by name during delete operation: %v", err)
 	}
 
-	url := fmt.Sprintf("https://%s:%d/v1/repos/%s", c.ControlPlane, c.ControlPlaneAPIPort, repoData.ID)
+	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repoData.ID)
 
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
@@ -211,7 +211,7 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceCyralRepositoryFindByName(c *CyralClient, name string) (*RepoCompoundData, error) {
-	url := fmt.Sprintf("https://%s:%d/v1/repos?name=%s", c.ControlPlane, c.ControlPlaneAPIPort, name)
+	url := fmt.Sprintf("https://%s/v1/repos?name=%s", c.ControlPlane, name)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {

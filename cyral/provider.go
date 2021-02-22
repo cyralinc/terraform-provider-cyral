@@ -27,7 +27,7 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"control_plane": &schema.Schema{
+			"control_plane_url": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -55,7 +55,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config := &Config{
 		Auth0Domain:      d.Get("auth0_domain").(string),
 		Auth0Audience:    d.Get("auth0_audience").(string),
-		controlPlane:     d.Get("control_plane").(string),
+		controlPlane:     d.Get("control_plane_url").(string),
 		terraformVersion: terraformVersion,
 	}
 

@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-const controlPlaneAPIPort = 8000
-
 // Config contains the provider configuration parameters stored
 // during provider initialization.
 type Config struct {
@@ -24,10 +22,9 @@ type Config struct {
 // CyralClient stores data for all existing resources. Also, this is
 // the struct that is passed along resources CRUD operations.
 type CyralClient struct {
-	Token               string
-	TokenType           string
-	ControlPlane        string
-	ControlPlaneAPIPort int
+	Token        string
+	TokenType    string
+	ControlPlane string
 
 	Repository Repository
 }
@@ -54,11 +51,10 @@ func (c *Config) Client() (interface{}, error) {
 	}
 
 	return &CyralClient{
-		ControlPlane:        c.controlPlane,
-		ControlPlaneAPIPort: controlPlaneAPIPort,
-		Token:               token.AccessToken,
-		TokenType:           token.TokenType,
-		Repository:          Repository{},
+		ControlPlane: c.controlPlane,
+		Token:        token.AccessToken,
+		TokenType:    token.TokenType,
+		Repository:   Repository{},
 	}, nil
 }
 
