@@ -55,7 +55,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config := &Config{
 		Auth0Domain:      d.Get("auth0_domain").(string),
 		Auth0Audience:    d.Get("auth0_audience").(string),
-		controlPlane:     d.Get("control_plane_url").(string),
+		controlPlane:     d.Get("control_plane").(string),
 		terraformVersion: terraformVersion,
 	}
 
