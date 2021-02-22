@@ -9,7 +9,6 @@ provider "cyral" {
     auth0_domain = ""
     auth0_audience = ""
     control_plane = ""
-    control_plane_api_port = 8000
 }
 ```
 
@@ -37,5 +36,4 @@ set AUTH0_CLIENT_SECRET=""
 | `auth0_client_id`        |           | Auth0 client id (ex: `1nrd81340lskf`)                             | Yes      |
 | `auth0_client_secret`    |           | Auth0 client secret (ex: `klfd;3rf-0e13jklehgjlkhjf31J:LkfdsjfA`) | Yes      |
 | `auth0_audience`         |           | Auth0 audience (ex: `cyral-api.com`)                              | Yes      |
-| `control_plane`          |           | Control plane host (ex: `yourcp.cyral.com`)                       | Yes      |
-| `control_plane_api_port` | 8000      | Control plane API port                                            | No       |
+| `control_plane`          |           | Control plane host and API port (ex: `yourcp.cyral.com:8000`)     | Yes      |

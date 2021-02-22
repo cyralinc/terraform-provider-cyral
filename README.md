@@ -13,7 +13,7 @@ The code below is just a simple example of how to use the Cyral Terraform Module
 provider "cyral" {
     auth0_domain = "some-name.auth0.com"
     auth0_audience = "cyral-api.com"
-    control_plane = "some-cp.cyral.com"
+    control_plane = "some-cp.cyral.com:8000"
 }
 
 resource "cyral_repository" "my_resource_name" {
