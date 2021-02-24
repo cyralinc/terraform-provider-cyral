@@ -15,8 +15,6 @@ type Config struct {
 	Auth0Domain   string
 	Auth0Audience string
 	controlPlane  string
-
-	terraformVersion string
 }
 
 // CyralClient stores data for all existing resources. Also, this is
