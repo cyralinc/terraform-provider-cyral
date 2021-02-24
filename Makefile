@@ -11,7 +11,7 @@ PROTOC=protoc
 # git clone the provider and run make on the same directory and avoid
 # copying the source files to directories not initialized by git.
 vVERSION:=$(shell git tag --sort v:refname | tail -n1)
-VERSION:=$(shell git tag --sort v:refname | tail -n1 | grep -oP '\s*[0-9\.]+')
+VERSION:=$(shell git tag --sort v:refname | tail -n1 | sed 's/v//g')
 
 HOSTNAME=cyral.com
 NAMESPACE=terraform
