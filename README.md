@@ -43,7 +43,7 @@ terraform import cyral_repository.my_resource_name myrepo
 
 ## Prerequisites
 
-Our existing provider was created to support Terraform v0.12. Therefore, this version of Terraform must be installed in your environment. In the future, we plan to add support for newer versions as well.
+Our existing provider supports Terraform `v0.12`, `v0.13` and `v0.14`. There are special actions to be taken in order to use this provider with Terraform `v0.12` as described in the `Deployment` section.
 
 ## Build Instructions
 
@@ -51,10 +51,29 @@ In order to build and distribute this provider, follow the steps below:
 
  1. Clone [terraform-provider-cyral](https://github.com/cyralinc/terraform-provider-cyral) repo from GitHub;
 
- 2. Go to the root of the cloned repo using Linux shell and execute `make`. A binary file named `terraform-provider-cyral` must be created in the same directory. It corresponds to the provider that will be used to deploy to Terraform.
+ 2. Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and 14.
+
 
 ## Deployment
 
-Copy the binary file created in the "Build Instructions" session to the root of the folder containing those `.tf` files that will be used in your Terraform session.
+### Terraform v0.12
 
-Next, run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
+Copy the desired binary file created in directory `out` (see "Build Instructions") to the root folder containing those `.tf` files that will be used to handle Cyral Terraform provider resources.
+
+Run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
+
+### Terraform v0.13
+
+If you **are** running the provider with the same user and machine you built the provider using steps in `Build Instructions`, you should just run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
+
+If you **are not** running the provider with the same user *or* are not in the same machine that you built the provider, you must copy the binaries in directory `out` to the local registry as follows:
+
+```bash
+cd terraform-provider-cyral
+cp out/${OS_ARCH}/${BINARY} ~/.terraform.d/plugins/cyral.com/terraform/cyral/${VERSION}/${OS_ARCH}
+```
+
+Where:
+* **OS_ARCH** corresponds to the distribution (`darwin_amd64` or `linux_amd64`);
+* **BINARY** corresponds to the binary name. Ex: `terraform-provider-cyral_v0.1.0`;
+* **VERSION** corresponds to the version number withouth `v`. Ex: `0.1.0`.
