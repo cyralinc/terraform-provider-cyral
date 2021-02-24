@@ -2,7 +2,7 @@ version: "2"
 
 services:
   app:
-    image: golang:1.14-alpine
+    image: golang:1.14
     container_name: terraform_provider_cyral
     volumes:
       - .:/go/src/cyral
