@@ -7,7 +7,7 @@ Our provider uses the same naming conventions and organization as stated in Terr
 
 ## Usage Example
 
-The code below is just a simple example of how to use the Cyral Terraform Module. Refer to the "Supported Elements" section for more information on resources and provider details.
+The code below is just a simple example of how to use the Cyral Terraform Module. In order to use this provider with Terraform `v0.13` and `v0.14`, a `terraform` block is also required, besides the `provider` and `resource` blocks. Refer to the "Supported Elements" section for more information on resources and provider details.   
 
 ```hcl
 provider "cyral" {
