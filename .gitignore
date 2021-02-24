@@ -2,4 +2,5 @@
 *.tf
 .terraform
 # Provider binary
-terraform-provider-cyral
+terraform-provider-cyral*
+out/

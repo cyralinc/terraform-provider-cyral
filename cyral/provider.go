@@ -1,7 +1,10 @@
 package cyral
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type auth0TokenResponse struct {
@@ -17,7 +20,7 @@ type auth0TokenRequest struct {
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
-	provider := &schema.Provider{
+	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"auth0_domain": &schema.Schema{
 				Type:     schema.TypeString,
@@ -36,28 +39,29 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_repository": resourceCyralRepository(),
 		},
+		ConfigureContextFunc: providerConfigure,
 	}
-
-	provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
-		terraformVersion := provider.TerraformVersion
-		if terraformVersion == "" {
-			// Terraform 0.12 introduced this field to the protocol
-			// We can therefore assume that if it's missing it's 0.10 or 0.11
-			terraformVersion = "0.11+compatible"
-		}
-		return providerConfigure(d, terraformVersion)
-	}
-
-	return provider
 }
 
-func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	config := &Config{
-		Auth0Domain:      d.Get("auth0_domain").(string),
-		Auth0Audience:    d.Get("auth0_audience").(string),
-		controlPlane:     d.Get("control_plane").(string),
-		terraformVersion: terraformVersion,
+		Auth0Domain:   d.Get("auth0_domain").(string),
+		Auth0Audience: d.Get("auth0_audience").(string),
+		controlPlane:  d.Get("control_plane").(string),
 	}
 
-	return config.Client()
+	var diags diag.Diagnostics
+
+	var c, err = config.Client()
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to create Cyral client",
+			Detail:   err.Error(),
+		})
+
+		return nil, diags
+	}
+
+	return c, diags
 }
