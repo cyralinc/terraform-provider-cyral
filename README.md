@@ -89,7 +89,7 @@ Copy the desired binary file created in directory `out` (see "Build Instructions
 
 Run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
-### Terraform v0.13
+### Terraform v0.13 and v0.14
 
 If you **are** running the provider with the same user and machine you built the provider using steps in `Build Instructions`, you should just run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
