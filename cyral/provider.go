@@ -22,6 +22,18 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"client_id": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("CYRAL_TF_CLIENT_ID", nil),
+			},
+			"client_secret": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("CYRAL_TF_CLIENT_SECRET", nil),
+			},
 			"control_plane": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -38,22 +50,22 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	auth0ClientID, err := getEnv("AUTH0_CLIENT_ID")
-	if err != nil {
+	clientID := d.Get("client_id").(string)
+	if clientID == "" {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Unable to read environment variable",
-			Detail:   err.Error(),
+			Detail:   "Unable to read environment variable CYRAL_TF_CLIENT_ID",
 		})
 
 		return nil, diags
 	}
-	auth0ClientSecret, err := getEnv("AUTH0_CLIENT_SECRET")
-	if err != nil {
+	clientSecret := d.Get("client_secret").(string)
+	if clientSecret == "" {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Unable to read environment variable",
-			Detail:   err.Error(),
+			Detail:   "Unable to read environment variable CYRAL_TF_CLIENT_SECRET",
 		})
 
 		return nil, diags
@@ -62,7 +74,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	auth0Audience := d.Get("auth0_audience").(string)
 	controlPlane := d.Get("control_plane").(string)
 
-	c, err := client.NewClient(auth0ClientID, auth0ClientSecret, auth0Domain, auth0Audience,
+	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 		controlPlane)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{

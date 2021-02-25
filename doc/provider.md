@@ -8,6 +8,8 @@ The provider is the base element and it must be used to inform application-wide 
 
 ```hcl
 provider "cyral" {
+    client_id = ""     # optional
+    client_secret = "" # optional
     auth0_domain = ""
     auth0_audience = ""
     control_plane = ""
@@ -26,6 +28,8 @@ terraform {
 }
 
 provider "cyral" {
+    client_id = ""     # optional
+    client_secret = "" # optional
     auth0_domain = ""
     auth0_audience = ""
     control_plane = ""
@@ -34,28 +38,28 @@ provider "cyral" {
 
 ----
 
-Auth0 authentication parameters (`client ID` and `client secret`) must be configured as environment variables **before** running Terraform command line. Fill the parameters with the corresponding values taken from the Auth0 application configuration and run the following commands to create the environment variables:
+Authentication parameters `client_id` and `client_secret` are defined as optional in the provider body once they can be set through environment variables in order to avoid storing secrets in source code repositories. The environment variables corresponds to `CYRAL_TF_CLIENT_ID` and `CYRAL_TF_CLIENT_SECRET` respectivelly and can be defined as follows:
 
 - Linux/Mac
 
 ```bash
-export AUTH0_CLIENT_ID=""
-export AUTH0_CLIENT_SECRET=""
+export CYRAL_TF_CLIENT_ID=""
+export CYRAL_TF_CLIENT_SECRET=""
 ```
 
 - Windows
 
 ```
-set AUTH0_CLIENT_ID=""
-set AUTH0_CLIENT_SECRET=""
+set CYRAL_TF_CLIENT_ID=""
+set CYRAL_TF_CLIENT_SECRET=""
 ```
 
 ## Variables
 
-|  Name                    |  Default  |  Description                                                      | Required |
-|:-------------------------|:---------:|:------------------------------------------------------------------|:--------:|
-| `auth0_domain`           |           | Auth0 domain name (ex: `dev-cyral.auth0.com`)                     | Yes      |
-| `auth0_client_id`        |           | Auth0 client id (ex: `1nrd81340lskf`)                             | Yes      |
-| `auth0_client_secret`    |           | Auth0 client secret (ex: `klfd;3rf-0e13jklehgjlkhjf31J:LkfdsjfA`) | Yes      |
-| `auth0_audience`         |           | Auth0 audience (ex: `cyral-api.com`)                              | Yes      |
-| `control_plane`          |           | Control plane host and API port (ex: `some-cp.cyral.com:8000`)    | Yes      |
+|  Name             |  Default  |  Description                                                      | Required |
+|:------------------|:---------:|:------------------------------------------------------------------|:--------:|
+| `auth0_audience`  |           | Auth0 audience (ex: `cyral-api.com`)                              | Yes      |
+| `auth0_domain`    |           | Auth0 domain name (ex: `dev-cyral.auth0.com`)                     | Yes      |
+| `client_id`       |           | Client id (ex: `abcdef1234567`)                                   | No       |
+| `client_secret`   |           | Client secret (ex: `0123456789QWERTYUIOPASDFGHJKLZXCVBNM`)        | No       |
+| `control_plane`   |           | Control plane host and API port (ex: `some-cp.cyral.com:8000`)    | Yes      |

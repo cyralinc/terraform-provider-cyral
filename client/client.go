@@ -38,9 +38,9 @@ type Repository struct {
 }
 
 // NewClient configures and returns a fully initialized Client.
-func NewClient(auth0ClientID, auth0ClientSecret, auth0Domain, auth0Audience,
+func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 	controlPlane string) (*Client, error) {
-	token, err := readTokenInfo(auth0Domain, auth0ClientID, auth0ClientSecret, auth0Audience)
+	token, err := readTokenInfo(auth0Domain, clientID, clientSecret, auth0Audience)
 	if err != nil {
 		return nil, err
 	}
