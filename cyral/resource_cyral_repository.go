@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -62,7 +63,7 @@ func resourceCyralRepository() *schema.Resource {
 }
 
 func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error {
-	c := m.(*CyralClient)
+	c := m.(*client.Client)
 	repoData, err := getRepoDataFromResource(c, d)
 	if err != nil {
 		return err
@@ -115,7 +116,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
-	c := m.(*CyralClient)
+	c := m.(*client.Client)
 
 	repoData, err := resourceCyralRepositoryFindByName(c, d.Id())
 
@@ -136,7 +137,7 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error {
-	c := m.(*CyralClient)
+	c := m.(*client.Client)
 
 	repoDataFromResource, err := getRepoDataFromResource(c, d)
 	if err != nil {
@@ -182,7 +183,7 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error {
-	c := m.(*CyralClient)
+	c := m.(*client.Client)
 
 	repoData, err := resourceCyralRepositoryFindByName(c, d.Id())
 	if err != nil {
@@ -210,7 +211,7 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 	return nil
 }
 
-func resourceCyralRepositoryFindByName(c *CyralClient, name string) (*RepoCompoundData, error) {
+func resourceCyralRepositoryFindByName(c *client.Client, name string) (*RepoCompoundData, error) {
 	url := fmt.Sprintf("https://%s/v1/repos?name=%s", c.ControlPlane, name)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -270,7 +271,7 @@ func findRepoByName(resp GetRepoByNameResponse, name string) *RepoCompoundData {
 	return nil
 }
 
-func getRepoDataFromResource(c *CyralClient, d *schema.ResourceData) (RepoData, error) {
+func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
 	repoType := d.Get("type").(string)
 	err := containsRepoType(repoType)
 	if err != nil {

@@ -39,4 +39,5 @@ clean:
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
 test:
+	$(GOTEST) ./client
 	$(GOTEST) ./cyral

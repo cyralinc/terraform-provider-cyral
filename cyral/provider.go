@@ -2,21 +2,13 @@ package cyral
 
 import (
 	"context"
+	"fmt"
+	"os"
 
+	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
-
-type auth0TokenResponse struct {
-	AccessToken string `json:"access_token"`
-	TokenType   string `json:"token_type"`
-}
-type auth0TokenRequest struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	Audience     string `json:"audience"`
-	GrantType    string `json:"grant_type"`
-}
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
@@ -44,15 +36,34 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	config := &Config{
-		Auth0Domain:   d.Get("auth0_domain").(string),
-		Auth0Audience: d.Get("auth0_audience").(string),
-		controlPlane:  d.Get("control_plane").(string),
-	}
-
 	var diags diag.Diagnostics
 
-	var c, err = config.Client()
+	auth0ClientID, err := getEnv("AUTH0_CLIENT_ID")
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to read environment variable",
+			Detail:   err.Error(),
+		})
+
+		return nil, diags
+	}
+	auth0ClientSecret, err := getEnv("AUTH0_CLIENT_SECRET")
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to read environment variable",
+			Detail:   err.Error(),
+		})
+
+		return nil, diags
+	}
+	auth0Domain := d.Get("auth0_domain").(string)
+	auth0Audience := d.Get("auth0_audience").(string)
+	controlPlane := d.Get("control_plane").(string)
+
+	c, err := client.NewClient(auth0ClientID, auth0ClientSecret, auth0Domain, auth0Audience,
+		controlPlane)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -64,4 +75,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 
 	return c, diags
+}
+
+func getEnv(key string) (string, error) {
+	if value, ok := os.LookupEnv(key); ok {
+		return value, nil
+	}
+	return "", fmt.Errorf("missing environment variable: %s", key)
 }

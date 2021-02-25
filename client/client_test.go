@@ -1,4 +1,4 @@
-package cyral
+package client
 
 import (
 	"crypto/tls"
@@ -6,52 +6,19 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 )
 
-func absentEnvVarAuth0ClientID() error {
-	c := Config{}
-
-	// Remove env var AUTH0_CLIENT_ID, if present
-	os.Unsetenv("AUTH0_CLIENT_ID")
-
-	_, err := c.Client()
-
-	if _, err2 := c.getEnv("AUTH0_CLIENT_ID"); err2.Error() != err.Error() {
-		return fmt.Errorf(
-			"unexpected behavior in Client() when AUTH0_CLIENT_ID is empty; err: %v",
-			err.Error())
-	}
-	return nil
-}
-
-func absentEnvVarAuth0ClientSecret() error {
-	c := Config{}
-	os.Setenv("AUTH0_CLIENT_ID", "Auth0ClientIDvalue")
-
-	// Remove env var AUTH0_CLIENT_SECRET, if present
-	os.Unsetenv("AUTH0_CLIENT_SECRET")
-
-	_, err := c.Client()
-
-	if _, err2 := c.getEnv("AUTH0_CLIENT_SECRET"); err2.Error() != err.Error() {
-		return fmt.Errorf(
-			"unexpected behavior in Client() when AUTH0_CLIENT_SECRET is empty; err: %v",
-			err.Error())
-	}
-	return nil
-}
-
 func invalidAuth0DomainFormat() error {
-	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
-	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
-	c := Config{
-		Auth0Domain: "^^^exampleInvalidDomain",
-	}
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		"^^^exampleInvalidDomain",
+		"ExampleAuth0Audience",
+		"SomeControlPlane")
 
-	if _, err := c.Client(); err == nil {
+	if err == nil {
 		return fmt.Errorf(
 			"unexpected behavior in Client() when Auth0 domain has invalid format; err: %v",
 			err.Error())
@@ -61,13 +28,14 @@ func invalidAuth0DomainFormat() error {
 }
 
 func invalidAuth0DomainValue() error {
-	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
-	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
-	c := Config{
-		Auth0Domain: "invalidDomain",
-	}
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		"invalidDomain",
+		"ExampleAuth0Audience",
+		"SomeControlPlane")
 
-	if _, err := c.Client(); err == nil {
+	if err == nil {
 		return fmt.Errorf(
 			"unexpected behavior in Client() when Auth0 domain has invalid value; err: %v",
 			err.Error())
@@ -77,20 +45,23 @@ func invalidAuth0DomainValue() error {
 }
 
 func serverDown() error {
-	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
-	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
-
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}))
 
-	c := Config{Auth0Domain: ts.URL[8:len(ts.URL)], Auth0Audience: "exampleAud"}
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		ts.URL[8:len(ts.URL)],
+		"exampleAud",
+		"SomeControlPlane")
+
 	ts.URL = ts.URL + "/oauth/token"
 
 	ts.Close()
 
-	if _, err := c.Client(); err == nil {
+	if err == nil {
 		return fmt.Errorf(
 			"unexpected behavior in Client() when server is down; err: %v",
 			err.Error())
@@ -100,9 +71,6 @@ func serverDown() error {
 }
 
 func timeoutResponse() error {
-	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
-	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
-
 	// Disables client's certificate authority validation, in order to
 	// successfully mock https requests
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -113,10 +81,16 @@ func timeoutResponse() error {
 	}))
 	defer ts.Close()
 
-	c := Config{Auth0Domain: ts.URL[8:len(ts.URL)], Auth0Audience: "exampleAud"}
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		ts.URL[8:len(ts.URL)],
+		"exampleAud",
+		"SomeControlPlane")
+
 	ts.URL = ts.URL + "/oauth/token"
 
-	if _, err := c.Client(); err == nil {
+	if err == nil {
 		return fmt.Errorf("error in timeoutResponse(); err: %v", err.Error())
 	}
 
@@ -124,9 +98,6 @@ func timeoutResponse() error {
 }
 
 func reqOK() error {
-	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
-	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
-
 	// Disables client's certificate authority validation, in order to
 	// successfully mock https requests
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -135,7 +106,7 @@ func reqOK() error {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("content-type", "application/json")
 
-		tokenRes := auth0TokenResponse{
+		tokenRes := Auth0TokenResponse{
 			AccessToken: "ExampleAcessToken",
 			TokenType:   "ExampleTokenType",
 		}
@@ -144,10 +115,15 @@ func reqOK() error {
 	}))
 	defer ts.Close()
 
-	c := Config{Auth0Domain: ts.URL[8:len(ts.URL)], Auth0Audience: "exampleAud"}
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		ts.URL[8:len(ts.URL)],
+		"exampleAud",
+		"SomeControlPlane")
 	ts.URL = ts.URL + "/oauth/token"
 
-	if _, err := c.Client(); err != nil {
+	if err != nil {
 		return fmt.Errorf("error in reqOK(); err: %v", err.Error())
 	}
 
@@ -155,9 +131,6 @@ func reqOK() error {
 }
 
 func reqFail() error {
-	os.Setenv("AUTH0_CLIENT_ID", "ExampleAuth0ClientIDvalue")
-	os.Setenv("AUTH0_CLIENT_SECRET", "ExampleAuth0ClientSecretValue")
-
 	// Disables client's certificate authority validation, in order to
 	// successfully mock https requests
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -167,10 +140,15 @@ func reqFail() error {
 		w.WriteHeader(http.StatusBadRequest)
 	}))
 
-	c := Config{Auth0Domain: ts.URL[8:len(ts.URL)], Auth0Audience: "exampleAud"}
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		ts.URL[8:len(ts.URL)],
+		"exampleAud",
+		"SomeControlPlane")
 	ts.URL = ts.URL + "/oauth/token"
 
-	if _, err := c.Client(); err != nil {
+	if err != nil {
 		if !strings.Contains(err.Error(), fmt.Sprintf("status code %d", http.StatusBadRequest)) {
 			return fmt.Errorf("error in reqFail(); err: %v", err.Error())
 		}
@@ -181,14 +159,6 @@ func reqFail() error {
 }
 
 func TestClient(t *testing.T) {
-	if err := absentEnvVarAuth0ClientID(); err != nil {
-		t.Error(err)
-	}
-
-	if err := absentEnvVarAuth0ClientSecret(); err != nil {
-		t.Error(err)
-	}
-
 	if err := invalidAuth0DomainFormat(); err != nil {
 		t.Error(err)
 	}
