@@ -74,20 +74,19 @@ func getAuth0Token(domain, clientID, clientSecret, audience string) (Auth0TokenR
 	if err != nil {
 		return Auth0TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
 	}
+	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d.\n", res.StatusCode)
 		return Auth0TokenResponse{}, fmt.Errorf(msg)
 	}
 
-	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return Auth0TokenResponse{}, fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
 
 	token := Auth0TokenResponse{}
-	err = json.Unmarshal(body, &token)
-	if err != nil {
+	if err := json.Unmarshal(body, &token); err != nil {
 		return Auth0TokenResponse{}, fmt.Errorf("unable to get access token from json; err: %v", err)
 	}
 

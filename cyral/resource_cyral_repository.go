@@ -91,11 +91,11 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 		return fmt.Errorf("unable to execute 'create repo' request. Check the control plane address; err: %v", err)
 	}
 
+	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict {
 		return fmt.Errorf("repository name already exists in control plane")
 	}
 
-	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("unable to read data from request body; err: %v", err)
@@ -107,14 +107,13 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 			res.StatusCode, body)
 	}
 
-	bodyRep := CreateRepoResponse{}
-	err = json.Unmarshal(body, &bodyRep)
-	if err != nil {
+	unmarshalledBody := CreateRepoResponse{}
+	if err := json.Unmarshal(body, &unmarshalledBody); err != nil {
 		return fmt.Errorf("unable to unmarshall json; err: %v", err)
 	}
-	log.Printf("[DEBUG] Response body (JSON): %#v", bodyRep)
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", unmarshalledBody)
 
-	d.SetId(bodyRep.ID)
+	d.SetId(unmarshalledBody.ID)
 
 	return resourceCyralRepositoryRead(d, m)
 }
@@ -160,16 +159,17 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 			"unexpected response from resourceCyralRepositoryRead; status code: %d; body: %q",
 			res.StatusCode, res.Body)
 	}
-	getRepoResp := GetRepoByIDResponse{}
-	err = json.Unmarshal(body, &getRepoResp)
-	if err != nil {
+
+	unmarshalledBody := GetRepoByIDResponse{}
+	if err := json.Unmarshal(body, &unmarshalledBody); err != nil {
 		return fmt.Errorf("unable to get repo json by name, err: %v", err)
 	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", unmarshalledBody)
 
-	d.Set("type", getRepoResp.Repo.RepoType)
-	d.Set("host", getRepoResp.Repo.Host)
-	d.Set("port", getRepoResp.Repo.Port)
-	d.Set("name", getRepoResp.Repo.Name)
+	d.Set("type", unmarshalledBody.Repo.RepoType)
+	d.Set("host", unmarshalledBody.Repo.Host)
+	d.Set("port", unmarshalledBody.Repo.Port)
+	d.Set("name", unmarshalledBody.Repo.Name)
 
 	log.Printf("[DEBUG] End resourceCyralRepositoryRead")
 
