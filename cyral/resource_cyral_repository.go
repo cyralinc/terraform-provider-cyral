@@ -63,15 +63,15 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	log.Printf("[DEBUG] Init resourceCyralRepositoryCreate")
 	c := m.(*client.Client)
 
-	repoData, err := getRepoDataFromResource(c, d)
+	dataFromResource, err := getRepoDataFromResource(c, d)
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] Resource info: %#v", repoData)
+	log.Printf("[DEBUG] Resource info: %#v", dataFromResource)
 
 	url := fmt.Sprintf("https://%s/v1/repos", c.ControlPlane)
 	log.Printf("[DEBUG] POST URL: %s", url)
-	payloadBytes, err := json.Marshal(repoData)
+	payloadBytes, err := json.Marshal(dataFromResource)
 	if err != nil {
 		return fmt.Errorf("failed to encode 'create repo' payload: %v", err)
 	}
@@ -114,7 +114,6 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	}
 	log.Printf("[DEBUG] Response body (JSON): %#v", bodyRep)
 
-	c.Repository.ID = bodyRep.ID
 	d.SetId(bodyRep.ID)
 
 	return resourceCyralRepositoryRead(d, m)
@@ -124,21 +123,53 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] Init resourceCyralRepositoryRead")
 	c := m.(*client.Client)
 
-	repoData, err := resourceCyralRepositoryFindByID(c, d.Id())
-	log.Printf("[DEBUG] Repo data: %#v", repoData)
+	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
 
+	log.Printf("[DEBUG] GET URL: %s", url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create new request; err: %v", err)
 	}
 
-	if repoData == nil {
-		return fmt.Errorf("repo not found; name: %s", d.Id())
+	log.Printf("[DEBUG] Executing GET")
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
+	log.Printf("[DEBUG] GET request: %#v", req)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("unable to execute request at resourceCyralRepositoryRead."+
+			" Check the control plane address; err: %v", err)
 	}
 
-	d.Set("type", repoData.RepoType)
-	d.Set("host", repoData.Host)
-	d.Set("port", repoData.Port)
-	d.Set("name", repoData.Name)
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf(
+			"unable to read data from request body at resourceCyralRepositoryRead; err: %v",
+			err)
+	}
+	log.Printf("[DEBUG] Response body: %s", string(body))
+
+	// Not an error, nor any data was found
+	if res.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("repo not found; id: %s", d.Id())
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf(
+			"unexpected response from resourceCyralRepositoryRead; status code: %d; body: %q",
+			res.StatusCode, res.Body)
+	}
+	getRepoResp := GetRepoByIDResponse{}
+	err = json.Unmarshal(body, &getRepoResp)
+	if err != nil {
+		return fmt.Errorf("unable to get repo json by name, err: %v", err)
+	}
+
+	d.Set("type", getRepoResp.Repo.RepoType)
+	d.Set("host", getRepoResp.Repo.Host)
+	d.Set("port", getRepoResp.Repo.Port)
+	d.Set("name", getRepoResp.Repo.Name)
 
 	log.Printf("[DEBUG] End resourceCyralRepositoryRead")
 
@@ -149,18 +180,13 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 	log.Printf("[DEBUG] Init resourceCyralRepositoryUpdate")
 	c := m.(*client.Client)
 
-	repoDataFromResource, err := getRepoDataFromResource(c, d)
+	dataFromResource, err := getRepoDataFromResource(c, d)
 	if err != nil {
 		return err
 	}
 
-	repoDataFromCP, err := resourceCyralRepositoryFindByID(c, d.Id())
-	if err != nil {
-		return fmt.Errorf("unable to find repo by name during update operation: %v", err)
-	}
-
-	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repoDataFromCP.ID)
-	payloadBytes, err := json.Marshal(repoDataFromResource)
+	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
+	payloadBytes, err := json.Marshal(dataFromResource)
 	if err != nil {
 		return fmt.Errorf("failed to encode 'update repo' payload: %v", err)
 	}
@@ -193,12 +219,7 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 	log.Printf("[DEBUG] Init resourceCyralRepositoryDelete")
 	c := m.(*client.Client)
 
-	repoData, err := resourceCyralRepositoryFindByID(c, d.Id())
-	if err != nil {
-		return fmt.Errorf("unable to find repo by name during delete operation: %v", err)
-	}
-
-	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repoData.ID)
+	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
 	log.Printf("[DEBUG] DELETE URL: %s", url)
 
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
@@ -220,58 +241,6 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 	log.Printf("[DEBUG] End resourceCyralRepositoryDelete")
 
 	return nil
-}
-
-func resourceCyralRepositoryFindByID(c *client.Client, id string) (*RepoData, error) {
-	log.Printf("[DEBUG] Init resourceCyralRepositoryFindByID")
-	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, id)
-
-	log.Printf("[DEBUG] GET URL: %s", url)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create new request; err: %v", err)
-	}
-
-	log.Printf("[DEBUG] Executing GET")
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
-	log.Printf("[DEBUG] GET request: %#v", req)
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("unable to execute request at resourceCyralRepositoryFindByID."+
-			" Check the control plane address; err: %v", err)
-	}
-
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"unable to read data from request body at resourceCyralRepositoryFindByID; err: %v",
-			err)
-	}
-	log.Printf("[DEBUG] Response body: %s", string(body))
-
-	// Not an error, nor any data was found
-	if res.StatusCode == http.StatusNotFound {
-		return nil, nil
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf(
-			"unexpected response from resourceCyralRepositoryFindByID; status code: %d; body: %q",
-			res.StatusCode, res.Body)
-	}
-	getRepoResp := GetRepoByIDResponse{}
-	err = json.Unmarshal(body, &getRepoResp)
-	if err != nil {
-		return nil, fmt.Errorf("unable to get repo json by name, err: %v", err)
-	}
-	// Set manually the ID as it is not part of the GET response
-	getRepoResp.Repo.ID = id
-	log.Printf("[DEBUG] Response body (JSON): %#v", getRepoResp)
-
-	log.Printf("[DEBUG] End resourceCyralRepositoryFindByID")
-	return &getRepoResp.Repo, nil
 }
 
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {

@@ -28,13 +28,6 @@ type Client struct {
 	Token        string
 	TokenType    string
 	ControlPlane string
-
-	Repository Repository
-}
-
-// Repository struct stores data for resource repository.
-type Repository struct {
-	ID string
 }
 
 // NewClient configures and returns a fully initialized Client.
@@ -51,7 +44,6 @@ func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 			ControlPlane: controlPlane,
 			Token:        token.AccessToken,
 			TokenType:    token.TokenType,
-			Repository:   Repository{},
 		}, nil
 	}
 	return nil, fmt.Errorf("unsupported auth provider: keycloak. Please set 'auth_provider = \"auth0\"")
