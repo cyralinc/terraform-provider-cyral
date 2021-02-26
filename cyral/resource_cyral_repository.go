@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 
@@ -15,16 +16,12 @@ type CreateRepoResponse struct {
 	ID string `json:"ID"`
 }
 
-type GetRepoByNameResponse struct {
-	Repos []RepoCompoundData `json:"repos"`
-}
-
-type RepoCompoundData struct {
-	ID   string   `json:"id"`
+type GetRepoByIDResponse struct {
 	Repo RepoData `json:"repo"`
 }
 
 type RepoData struct {
+	ID       string `json:"id"`
 	RepoType string `json:"type"`
 	Name     string `json:"name"`
 	Host     string `json:"repoHost"`
@@ -63,18 +60,23 @@ func resourceCyralRepository() *schema.Resource {
 }
 
 func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] Init resourceCyralRepositoryCreate")
 	c := m.(*client.Client)
+
 	repoData, err := getRepoDataFromResource(c, d)
 	if err != nil {
 		return err
 	}
+	log.Printf("[DEBUG] Resource info: %#v", repoData)
 
 	url := fmt.Sprintf("https://%s/v1/repos", c.ControlPlane)
+	log.Printf("[DEBUG] POST URL: %s", url)
 	payloadBytes, err := json.Marshal(repoData)
 	if err != nil {
 		return fmt.Errorf("failed to encode 'create repo' payload: %v", err)
 	}
 
+	log.Printf("[DEBUG] POST payload: %s", string(payloadBytes))
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
 	if err != nil {
 		return fmt.Errorf("unable to create 'create repo' request; err: %v", err)
@@ -83,6 +85,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 
+	log.Printf("[DEBUG] Executing POST")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("unable to execute 'create repo' request. Check the control plane address; err: %v", err)
@@ -97,6 +100,7 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	if err != nil {
 		return fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
+	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	if res.StatusCode != http.StatusCreated {
 		return fmt.Errorf("unexpected response from 'create repo' request; status code: %d; body: %q",
@@ -108,17 +112,20 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	if err != nil {
 		return fmt.Errorf("unable to unmarshall json; err: %v", err)
 	}
+	log.Printf("[DEBUG] Response body (JSON): %#v", bodyRep)
 
-	c.Repository.Name = repoData.Name
-	d.SetId(repoData.Name)
+	c.Repository.ID = bodyRep.ID
+	d.SetId(bodyRep.ID)
 
 	return resourceCyralRepositoryRead(d, m)
 }
 
 func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] Init resourceCyralRepositoryRead")
 	c := m.(*client.Client)
 
-	repoData, err := resourceCyralRepositoryFindByName(c, d.Id())
+	repoData, err := resourceCyralRepositoryFindByID(c, d.Id())
+	log.Printf("[DEBUG] Repo data: %#v", repoData)
 
 	if err != nil {
 		return err
@@ -128,15 +135,18 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("repo not found; name: %s", d.Id())
 	}
 
-	d.Set("type", repoData.Repo.RepoType)
-	d.Set("host", repoData.Repo.Host)
-	d.Set("port", repoData.Repo.Port)
-	d.Set("name", repoData.Repo.Name)
+	d.Set("type", repoData.RepoType)
+	d.Set("host", repoData.Host)
+	d.Set("port", repoData.Port)
+	d.Set("name", repoData.Name)
+
+	log.Printf("[DEBUG] End resourceCyralRepositoryRead")
 
 	return nil
 }
 
 func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] Init resourceCyralRepositoryUpdate")
 	c := m.(*client.Client)
 
 	repoDataFromResource, err := getRepoDataFromResource(c, d)
@@ -144,7 +154,7 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 
-	repoDataFromCP, err := resourceCyralRepositoryFindByName(c, d.Id())
+	repoDataFromCP, err := resourceCyralRepositoryFindByID(c, d.Id())
 	if err != nil {
 		return fmt.Errorf("unable to find repo by name during update operation: %v", err)
 	}
@@ -176,21 +186,20 @@ func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error 
 			res.StatusCode, res.Body)
 	}
 
-	// Name may have been changed by user, so we must update the tf state
-	d.SetId(repoDataFromResource.Name)
-
 	return resourceCyralRepositoryRead(d, m)
 }
 
 func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] Init resourceCyralRepositoryDelete")
 	c := m.(*client.Client)
 
-	repoData, err := resourceCyralRepositoryFindByName(c, d.Id())
+	repoData, err := resourceCyralRepositoryFindByID(c, d.Id())
 	if err != nil {
 		return fmt.Errorf("unable to find repo by name during delete operation: %v", err)
 	}
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repoData.ID)
+	log.Printf("[DEBUG] DELETE URL: %s", url)
 
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
@@ -208,22 +217,28 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 		return fmt.Errorf("unexpected response from 'delete repo' request; status code: %d; body: %q", res.StatusCode, res.Body)
 	}
 
+	log.Printf("[DEBUG] End resourceCyralRepositoryDelete")
+
 	return nil
 }
 
-func resourceCyralRepositoryFindByName(c *client.Client, name string) (*RepoCompoundData, error) {
-	url := fmt.Sprintf("https://%s/v1/repos?name=%s", c.ControlPlane, name)
+func resourceCyralRepositoryFindByID(c *client.Client, id string) (*RepoData, error) {
+	log.Printf("[DEBUG] Init resourceCyralRepositoryFindByID")
+	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, id)
 
+	log.Printf("[DEBUG] GET URL: %s", url)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create new request; err: %v", err)
 	}
 
+	log.Printf("[DEBUG] Executing GET")
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
+	log.Printf("[DEBUG] GET request: %#v", req)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("unable to execute request at resourceCyralRepositoryFindByName."+
+		return nil, fmt.Errorf("unable to execute request at resourceCyralRepositoryFindByID."+
 			" Check the control plane address; err: %v", err)
 	}
 
@@ -231,9 +246,10 @@ func resourceCyralRepositoryFindByName(c *client.Client, name string) (*RepoComp
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"unable to read data from request body at resourceCyralRepositoryFindByName; err: %v",
+			"unable to read data from request body at resourceCyralRepositoryFindByID; err: %v",
 			err)
 	}
+	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	// Not an error, nor any data was found
 	if res.StatusCode == http.StatusNotFound {
@@ -242,33 +258,20 @@ func resourceCyralRepositoryFindByName(c *client.Client, name string) (*RepoComp
 
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf(
-			"unexpected response from resourceCyralRepositoryFindByName; status code: %d; body: %q",
+			"unexpected response from resourceCyralRepositoryFindByID; status code: %d; body: %q",
 			res.StatusCode, res.Body)
 	}
-	getRepoByNameResp := GetRepoByNameResponse{
-		Repos: []RepoCompoundData{},
-	}
-	err = json.Unmarshal(body, &getRepoByNameResp)
+	getRepoResp := GetRepoByIDResponse{}
+	err = json.Unmarshal(body, &getRepoResp)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get repo json by name, err: %v", err)
 	}
+	// Set manually the ID as it is not part of the GET response
+	getRepoResp.Repo.ID = id
+	log.Printf("[DEBUG] Response body (JSON): %#v", getRepoResp)
 
-	r := findRepoByName(getRepoByNameResp, name)
-	if r == nil {
-		return nil, fmt.Errorf("unable to find repo named '%s' in response %v",
-			name, getRepoByNameResp)
-	}
-
-	return r, nil
-}
-
-func findRepoByName(resp GetRepoByNameResponse, name string) *RepoCompoundData {
-	for _, r := range resp.Repos {
-		if r.Repo.Name == name {
-			return &r
-		}
-	}
-	return nil
+	log.Printf("[DEBUG] End resourceCyralRepositoryFindByID")
+	return &getRepoResp.Repo, nil
 }
 
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
@@ -279,6 +282,7 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 	}
 
 	return RepoData{
+		ID:       d.Id(),
 		RepoType: repoType,
 		Host:     d.Get("host").(string),
 		Name:     d.Get("name").(string),
@@ -298,8 +302,10 @@ func containsRepoType(repoType string) error {
 		"mariadb":    true,
 		"mongodb":    true,
 		"mysql":      true,
+		"oracle":     true,
 		"postgresql": true,
 		"snowflake":  true,
+		"s3":         true,
 		"sqlserver":  true,
 	}
 	if repoTypes[repoType] == false {

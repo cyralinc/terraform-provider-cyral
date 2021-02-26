@@ -34,26 +34,30 @@ type Client struct {
 
 // Repository struct stores data for resource repository.
 type Repository struct {
-	Name string
+	ID string
 }
 
 // NewClient configures and returns a fully initialized Client.
 func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-	controlPlane string) (*Client, error) {
-	token, err := readTokenInfo(auth0Domain, clientID, clientSecret, auth0Audience)
-	if err != nil {
-		return nil, err
-	}
+	controlPlane string, keycloakProvider bool) (*Client, error) {
 
-	return &Client{
-		ControlPlane: controlPlane,
-		Token:        token.AccessToken,
-		TokenType:    token.TokenType,
-		Repository:   Repository{},
-	}, nil
+	if !keycloakProvider {
+		token, err := getAuth0Token(auth0Domain, clientID, clientSecret, auth0Audience)
+		if err != nil {
+			return nil, err
+		}
+
+		return &Client{
+			ControlPlane: controlPlane,
+			Token:        token.AccessToken,
+			TokenType:    token.TokenType,
+			Repository:   Repository{},
+		}, nil
+	}
+	return nil, fmt.Errorf("unsupported auth provider: keycloak. Please set 'auth_provider = \"auth0\"")
 }
 
-func readTokenInfo(domain, clientID, clientSecret, audience string) (Auth0TokenResponse, error) {
+func getAuth0Token(domain, clientID, clientSecret, audience string) (Auth0TokenResponse, error) {
 	url := fmt.Sprintf("https://%s/oauth/token", domain)
 	audienceURL := fmt.Sprintf("https://%s", audience)
 	tokenReq := Auth0TokenRequest{

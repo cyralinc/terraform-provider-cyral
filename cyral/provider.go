@@ -2,23 +2,31 @@ package cyral
 
 import (
 	"context"
-	"fmt"
-	"os"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	keycloak = "keycloak"
+	auth0    = "auth0"
+)
+
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"auth0_domain": &schema.Schema{
+			"auth_provider": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  keycloak,
+			},
+			"auth0_audience": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"auth0_audience": &schema.Schema{
+			"auth0_domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -50,6 +58,8 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	keycloakProvider := d.Get("auth_provider").(string) == keycloak
+
 	clientID := d.Get("client_id").(string)
 	if clientID == "" {
 		diags = append(diags, diag.Diagnostic{
@@ -75,7 +85,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	controlPlane := d.Get("control_plane").(string)
 
 	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-		controlPlane)
+		controlPlane, keycloakProvider)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -87,11 +97,4 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 
 	return c, diags
-}
-
-func getEnv(key string) (string, error) {
-	if value, ok := os.LookupEnv(key); ok {
-		return value, nil
-	}
-	return "", fmt.Errorf("missing environment variable: %s", key)
 }

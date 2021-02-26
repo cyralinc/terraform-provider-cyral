@@ -16,7 +16,8 @@ func invalidAuth0DomainFormat() error {
 		"ExampleAuth0ClientSecretValue",
 		"^^^exampleInvalidDomain",
 		"ExampleAuth0Audience",
-		"SomeControlPlane")
+		"SomeControlPlane",
+		false)
 
 	if err == nil {
 		return fmt.Errorf(
@@ -33,7 +34,8 @@ func invalidAuth0DomainValue() error {
 		"ExampleAuth0ClientSecretValue",
 		"invalidDomain",
 		"ExampleAuth0Audience",
-		"SomeControlPlane")
+		"SomeControlPlane",
+		false)
 
 	if err == nil {
 		return fmt.Errorf(
@@ -55,7 +57,8 @@ func serverDown() error {
 		"ExampleAuth0ClientSecretValue",
 		ts.URL[8:len(ts.URL)],
 		"exampleAud",
-		"SomeControlPlane")
+		"SomeControlPlane",
+		false)
 
 	ts.URL = ts.URL + "/oauth/token"
 
@@ -86,7 +89,8 @@ func timeoutResponse() error {
 		"ExampleAuth0ClientSecretValue",
 		ts.URL[8:len(ts.URL)],
 		"exampleAud",
-		"SomeControlPlane")
+		"SomeControlPlane",
+		false)
 
 	ts.URL = ts.URL + "/oauth/token"
 
@@ -120,7 +124,8 @@ func reqOK() error {
 		"ExampleAuth0ClientSecretValue",
 		ts.URL[8:len(ts.URL)],
 		"exampleAud",
-		"SomeControlPlane")
+		"SomeControlPlane",
+		false)
 	ts.URL = ts.URL + "/oauth/token"
 
 	if err != nil {
@@ -145,7 +150,8 @@ func reqFail() error {
 		"ExampleAuth0ClientSecretValue",
 		ts.URL[8:len(ts.URL)],
 		"exampleAud",
-		"SomeControlPlane")
+		"SomeControlPlane",
+		false)
 	ts.URL = ts.URL + "/oauth/token"
 
 	if err != nil {
