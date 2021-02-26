@@ -1,6 +1,8 @@
 # Local terraform testing files
 *.tf
 .terraform
+.terraform.lock.hcl
+terraform.tfstate*
 # Provider binary
 terraform-provider-cyral*
 out/
