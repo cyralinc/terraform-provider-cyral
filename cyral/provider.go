@@ -2,35 +2,68 @@ package cyral
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type auth0TokenResponse struct {
-	AccessToken string `json:"access_token"`
-	TokenType   string `json:"token_type"`
-}
-type auth0TokenRequest struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	Audience     string `json:"audience"`
-	GrantType    string `json:"grant_type"`
-}
+const (
+	keycloak = "keycloak"
+	auth0    = "auth0"
+)
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"auth0_domain": &schema.Schema{
+			"auth_provider": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  keycloak,
+			},
+			"auth0_audience": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"auth0_audience": &schema.Schema{
+			"auth0_domain": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"control_plane": &schema.Schema{
+			"auth0_client_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_ID", nil),
+				ConflictsWith: []string{"client_id"},
+				Deprecated: "use provider variable 'client_id' or environment variable " +
+					"'CYRAL_TF_CLIENT_ID' instead of 'auth0_client_id'",
+			},
+			"auth0_client_secret": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
+				ConflictsWith: []string{"client_secret"},
+				Deprecated: "use provider variable 'client_secret' or environment variable " +
+					"'CYRAL_TF_CLIENT_SECRET' instead of 'auth0_client_secret'",
+			},
+			"client_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				ConflictsWith: []string{"auth0_client_id"},
+				DefaultFunc:   schema.EnvDefaultFunc("CYRAL_TF_CLIENT_ID", nil),
+			},
+			"client_secret": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				ConflictsWith: []string{"auth0_client_secret"},
+				DefaultFunc:   schema.EnvDefaultFunc("CYRAL_TF_CLIENT_SECRET", nil),
+			},
+			"control_plane": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -44,15 +77,19 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	config := &Config{
-		Auth0Domain:   d.Get("auth0_domain").(string),
-		Auth0Audience: d.Get("auth0_audience").(string),
-		controlPlane:  d.Get("control_plane").(string),
+	keycloakProvider := d.Get("auth_provider").(string) == keycloak
+
+	clientID, clientSecret, diags := getCredentials(d, keycloakProvider)
+	if clientID == "" || clientSecret == "" {
+		return nil, diags
 	}
 
-	var diags diag.Diagnostics
+	auth0Domain := d.Get("auth0_domain").(string)
+	auth0Audience := d.Get("auth0_audience").(string)
+	controlPlane := d.Get("control_plane").(string)
 
-	var c, err = config.Client()
+	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
+		controlPlane, keycloakProvider)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -64,4 +101,33 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 
 	return c, diags
+}
+
+func getCredentials(d *schema.ResourceData, keycloakProvider bool) (string, string, diag.Diagnostics) {
+	var clientID, clientSecret string
+
+	getVar := func(providerVar, envVar string, diags *diag.Diagnostics) string {
+		value := d.Get(providerVar).(string)
+		if value == "" {
+			(*diags) = append((*diags), diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Unable to read credentials",
+				Detail:   fmt.Sprintf("use provider variable '%s' or environment variable '%s'", providerVar, envVar),
+			})
+		}
+		return value
+	}
+	var diags diag.Diagnostics
+
+	clientID = getVar("client_id", "CYRAL_TF_CLIENT_ID", &diags)
+	clientSecret = getVar("client_secret", "CYRAL_TF_CLIENT_SECRET", &diags)
+
+	// Backwards compatibility code to allow users to migrate to new variables and see
+	// a deprecation warning. The code below must be removed in next versions.
+	if !keycloakProvider && clientID == "" && clientSecret == "" {
+		diags = nil
+		clientID = getVar("auth0_client_id", "AUTH0_CLIENT_ID", &diags)
+		clientSecret = getVar("auth0_client_secret", "AUTH0_CLIENT_SECRET", &diags)
+	}
+	return clientID, clientSecret, diags
 }
