@@ -3,6 +3,7 @@ package cyral
 import (
 	"context"
 
+	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -38,8 +39,29 @@ func resourceDatamap() *schema.Resource {
 }
 
 func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*client.Client)
+
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
+
+	labels := d.Get("labels").([]interface{})
+	datamapLabels := []client.DatamapLabel{}
+
+	for _, label := range labels {
+		l := label.(map[string]interface{})
+
+		dl := client.DatamapLabel{
+			Repo:       l["repo"].(string),
+			Attributes: l["attributes"].([]string),
+		}
+
+		datamapLabels = append(datamapLabels, dl)
+	}
+
+	_, err := c.CreateDatamap(datamapLabels)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }

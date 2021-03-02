@@ -243,3 +243,24 @@ func (c *Client) DeleteResource(url string) error {
 
 	return nil
 }
+
+func (c *Client) doRequest(req *http.Request) ([]byte, error) {
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected response from request; status: %d, body: %s", res.StatusCode, body)
+	}
+
+	return body, err
+}
