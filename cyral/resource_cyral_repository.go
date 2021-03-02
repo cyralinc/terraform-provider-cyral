@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -30,25 +32,25 @@ type RepoData struct {
 
 func resourceCyralRepository() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCyralRepositoryCreate,
-		Read:   resourceCyralRepositoryRead,
-		Update: resourceCyralRepositoryUpdate,
-		Delete: resourceCyralRepositoryDelete,
+		CreateContext: resourceCyralRepositoryCreate,
+		ReadContext:   resourceCyralRepositoryRead,
+		UpdateContext: resourceCyralRepositoryUpdate,
+		DeleteContext: resourceCyralRepositoryDelete,
 
 		Schema: map[string]*schema.Schema{
-			"type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"host": &schema.Schema{
+			"host": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -59,13 +61,13 @@ func resourceCyralRepository() *schema.Resource {
 	}
 }
 
-func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCyralRepositoryCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceCyralRepositoryCreate")
 	c := m.(*client.Client)
 
 	dataFromResource, err := getRepoDataFromResource(c, d)
 	if err != nil {
-		return err
+		return createError("Unable to create repository", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Resource info: %#v", dataFromResource)
 
@@ -73,13 +75,15 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	log.Printf("[DEBUG] POST URL: %s", url)
 	payloadBytes, err := json.Marshal(dataFromResource)
 	if err != nil {
-		return fmt.Errorf("failed to encode 'create repo' payload: %v", err)
+		return createError("Unable to create repository",
+			fmt.Sprintf("failed to encode 'create repo' payload: %v", err))
 	}
 
 	log.Printf("[DEBUG] POST payload: %s", string(payloadBytes))
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
 	if err != nil {
-		return fmt.Errorf("unable to create 'create repo' request; err: %v", err)
+		return createError("Unable to create repository",
+			fmt.Sprintf("unable to create 'create repo' request; err: %v", err))
 	}
 
 	req.Header.Add("content-type", "application/json")
@@ -88,37 +92,42 @@ func resourceCyralRepositoryCreate(d *schema.ResourceData, m interface{}) error 
 	log.Printf("[DEBUG] Executing POST")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("unable to execute 'create repo' request. Check the control plane address; err: %v", err)
+		return createError("Unable to create repository",
+			fmt.Sprintf("unable to execute 'create repo' request. Check the control plane address; err: %v", err))
 	}
 
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict {
-		return fmt.Errorf("repository name already exists in control plane")
+		return createError("Unable to create repository",
+			fmt.Sprintf("repository name already exists in control plane"))
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf("unable to read data from request body; err: %v", err)
+		return createError("Unable to create repository",
+			fmt.Sprintf("unable to read data from request body; err: %v", err))
 	}
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	if res.StatusCode != http.StatusCreated {
-		return fmt.Errorf("unexpected response from 'create repo' request; status code: %d; body: %q",
-			res.StatusCode, body)
+		return createError("Unable to create repository",
+			fmt.Sprintf("unexpected response from 'create repo' request; status code: %d; body: %q",
+				res.StatusCode, body))
 	}
 
 	unmarshalledBody := CreateRepoResponse{}
 	if err := json.Unmarshal(body, &unmarshalledBody); err != nil {
-		return fmt.Errorf("unable to unmarshall json; err: %v", err)
+		return createError("Unable to create repository",
+			fmt.Sprintf("unable to unmarshall json; err: %v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", unmarshalledBody)
 
 	d.SetId(unmarshalledBody.ID)
 
-	return resourceCyralRepositoryRead(d, m)
+	return resourceCyralRepositoryRead(ctx, d, m)
 }
 
-func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
+func resourceCyralRepositoryRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceCyralRepositoryRead")
 	c := m.(*client.Client)
 
@@ -127,7 +136,8 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] GET URL: %s", url)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("unable to create new request; err: %v", err)
+		return createError("Unable to read repository",
+			fmt.Sprintf("unable to create new request; err: %v", err))
 	}
 
 	log.Printf("[DEBUG] Executing GET")
@@ -136,33 +146,34 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] GET request: %#v", req)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("unable to execute request at resourceCyralRepositoryRead."+
-			" Check the control plane address; err: %v", err)
+		return createError("Unable to read repository",
+			fmt.Sprintf("unable to execute request at resourceCyralRepositoryRead."+
+				" Check the control plane address; err: %v", err))
 	}
 
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf(
-			"unable to read data from request body at resourceCyralRepositoryRead; err: %v",
-			err)
+		return createError("Unable to read repository",
+			fmt.Sprintf("unable to read data from request body at resourceCyralRepositoryRead; err: %v", err))
 	}
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	// Not an error, nor any data was found
 	if res.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("repo not found; id: %s", d.Id())
+		return createError("Unable to read repository",
+			fmt.Sprintf("repo not found; id: %s", d.Id()))
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf(
-			"unexpected response from resourceCyralRepositoryRead; status code: %d; body: %q",
-			res.StatusCode, res.Body)
+		return createError("Unable to read repository",
+			fmt.Sprintf("unexpected response from resourceCyralRepositoryRead; status code: %d; body: %q", res.StatusCode, res.Body))
 	}
 
 	unmarshalledBody := GetRepoByIDResponse{}
 	if err := json.Unmarshal(body, &unmarshalledBody); err != nil {
-		return fmt.Errorf("unable to get repo json by id, err: %v", err)
+		return createError("Unable to read repository",
+			fmt.Sprintf("unable to get repo json by id, err: %v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", unmarshalledBody)
 
@@ -173,49 +184,55 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[DEBUG] End resourceCyralRepositoryRead")
 
-	return nil
+	return diag.Diagnostics{}
 }
 
-func resourceCyralRepositoryUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCyralRepositoryUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceCyralRepositoryUpdate")
 	c := m.(*client.Client)
 
 	dataFromResource, err := getRepoDataFromResource(c, d)
 	if err != nil {
-		return err
+		return createError("Unable to update repository", fmt.Sprintf("%v", err))
 	}
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
 	payloadBytes, err := json.Marshal(dataFromResource)
 	if err != nil {
-		return fmt.Errorf("failed to encode 'update repo' payload: %v", err)
+		return createError("Unable to update repository",
+			fmt.Sprintf("failed to encode 'update repo' payload: %v", err))
 	}
 
 	req, err := http.NewRequest(http.MethodPut, url, strings.NewReader(string(payloadBytes)))
 	if err != nil {
-		return fmt.Errorf("unable to create 'update repo' request; err: %v", err)
+		return createError("Unable to update repository",
+			fmt.Sprintf("unable to create 'update repo' request; err: %v", err))
 	}
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("unable to execute 'update repo' request. Check the control plane address; err: %v", err)
+		return createError("Unable to update repository",
+			fmt.Sprintf("unable to execute 'update repo' request. Check the control plane address; err: %v", err))
 	}
 
 	if res.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("repository not found; id: %s", d.Id())
+		return createError("Unable to update repository",
+			fmt.Sprintf("repository not found; id: %s", d.Id()))
 	} else if res.StatusCode == http.StatusConflict {
-		return fmt.Errorf("repository name already exists in control plane")
+		return createError("Unable to update repository",
+			fmt.Sprintf("repository name already exists in control plane"))
 	} else if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from 'update repo'; status code: %d; body: %q",
-			res.StatusCode, res.Body)
+		return createError("Unable to update repository",
+			fmt.Sprintf("unexpected response from 'update repo'; status code: %d; body: %q",
+				res.StatusCode, res.Body))
 	}
 
-	return resourceCyralRepositoryRead(d, m)
+	return resourceCyralRepositoryRead(ctx, d, m)
 }
 
-func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCyralRepositoryDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceCyralRepositoryDelete")
 	c := m.(*client.Client)
 
@@ -224,23 +241,26 @@ func resourceCyralRepositoryDelete(d *schema.ResourceData, m interface{}) error 
 
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
-		return fmt.Errorf("unable to create 'delete repo' request; err: %v", err)
+		return createError("Unable to delete repository",
+			fmt.Sprintf("unable to create 'delete repo' request; err: %v", err))
 	}
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("unable execute 'delete repo' request. Check the control plane address; err: %v", err)
+		return createError("Unable to delete repository",
+			fmt.Sprintf("unable execute 'delete repo' request. Check the control plane address; err: %v", err))
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from 'delete repo' request; status code: %d; body: %q", res.StatusCode, res.Body)
+		return createError("Unable to delete repository",
+			fmt.Sprintf("unexpected response from 'delete repo' request; status code: %d; body: %q", res.StatusCode, res.Body))
 	}
 
 	log.Printf("[DEBUG] End resourceCyralRepositoryDelete")
 
-	return nil
+	return diag.Diagnostics{}
 }
 
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
