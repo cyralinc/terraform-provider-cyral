@@ -162,7 +162,7 @@ func resourceCyralRepositoryRead(d *schema.ResourceData, m interface{}) error {
 
 	unmarshalledBody := GetRepoByIDResponse{}
 	if err := json.Unmarshal(body, &unmarshalledBody); err != nil {
-		return fmt.Errorf("unable to get repo json by name, err: %v", err)
+		return fmt.Errorf("unable to get repo json by id, err: %v", err)
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", unmarshalledBody)
 
