@@ -13,7 +13,27 @@ func resourceDatamap() *schema.Resource {
 		ReadContext:   resourceDatamapRead,
 		UpdateContext: resourceDatamapUpdate,
 		DeleteContext: resourceDatamapDelete,
-		Schema:        map[string]*schema.Schema{},
+		Schema: map[string]*schema.Schema{
+			"labels": {
+				Type:     schema.TypeList,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"repo": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"attributes": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
