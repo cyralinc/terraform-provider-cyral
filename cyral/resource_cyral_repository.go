@@ -67,8 +67,7 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	response := CreateRepoResponse{}
-	err = c.CreateResource(resourceData, "repos", &response)
-	if err != nil {
+	if err = c.CreateResource(resourceData, "repos", &response); err != nil {
 		return createError("Unable to create repository", fmt.Sprintf("%v", err))
 	}
 
@@ -84,8 +83,7 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m inter
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
 
 	response := GetRepoByIDResponse{}
-	err := c.ReadResource(d.Id(), url, &response)
-	if err != nil {
+	if err := c.ReadResource(d.Id(), url, &response); err != nil {
 		return createError("Unable to read repository", fmt.Sprintf("%v", err))
 	}
 
@@ -109,11 +107,10 @@ func resourceRepositoryUpdate(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
-	err = c.UpdateResource(resourceData, url)
-
-	if err != nil {
+	if err = c.UpdateResource(resourceData, url); err != nil {
 		return createError("Unable to update repository", fmt.Sprintf("%v", err))
 	}
+
 	log.Printf("[DEBUG] End resourceRepositoryUpdate")
 
 	return resourceRepositoryRead(ctx, d, m)
@@ -124,8 +121,7 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
-	err := c.DeleteResource(url)
-	if err != nil {
+	if err := c.DeleteResource(url); err != nil {
 		return createError("Unable to delete sidecar", fmt.Sprintf("%v", err))
 	}
 
@@ -136,8 +132,8 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
 	repoType := d.Get("type").(string)
-	err := containsRepoType(repoType)
-	if err != nil {
+
+	if err := containsRepoType(repoType); err != nil {
 		return RepoData{}, err
 	}
 

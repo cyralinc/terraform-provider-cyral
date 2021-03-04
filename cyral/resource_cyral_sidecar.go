@@ -49,8 +49,7 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 	}
 
 	response := CreateSidecarResponse{}
-	err = c.CreateResource(resourceData, "sidecars", &response)
-	if err != nil {
+	if err := c.CreateResource(resourceData, "sidecars", &response); err != nil {
 		return createError("Unable to create sidecar", fmt.Sprintf("%v", err))
 	}
 
@@ -66,8 +65,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
 	response := SidecarData{}
-	err := c.ReadResource(d.Id(), url, &response)
-	if err != nil {
+	if err := c.ReadResource(d.Id(), url, &response); err != nil {
 		return createError("Unable to read sidecar", fmt.Sprintf("%v", err))
 	}
 
@@ -88,9 +86,7 @@ func resourceSidecarUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	}
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
-	err = c.UpdateResource(resourceData, url)
-
-	if err != nil {
+	if err = c.UpdateResource(resourceData, url); err != nil {
 		return createError("Unable to update sidecar", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] End resourceSidecarUpdate")
@@ -103,8 +99,7 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
-	err := c.DeleteResource(url)
-	if err != nil {
+	if err := c.DeleteResource(url); err != nil {
 		return createError("Unable to delete sidecar", fmt.Sprintf("%v", err))
 	}
 
