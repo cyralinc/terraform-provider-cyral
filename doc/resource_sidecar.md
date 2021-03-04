@@ -14,4 +14,4 @@ resource "cyral_sidecar" "SOME_SOURCE_NAME" {
 
 |  Name         |  Default  |  Description                                                                         | Required |
 |:--------------|:---------:|:-------------------------------------------------------------------------------------|:--------:|
-| `name`        |           | Repository name that will be used internally in Control Plane (ex: `your_repo_name`) | Yes      |
+| `name`        |           | Sidecar name that will be used internally in Control Plane (ex: `your_sidecar_name`) | Yes      |
