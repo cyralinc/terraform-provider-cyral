@@ -70,7 +70,8 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"cyral_repository": resourceCyralRepository(),
+			"cyral_repository": resourceRepository(),
+			"cyral_sidecar":    resourceSidecar(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -130,4 +131,16 @@ func getCredentials(d *schema.ResourceData, keycloakProvider bool) (string, stri
 		clientSecret = getVar("auth0_client_secret", "AUTH0_CLIENT_SECRET", &diags)
 	}
 	return clientID, clientSecret, diags
+}
+
+func createError(summary, detail string) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Error,
+		Summary:  summary,
+		Detail:   detail,
+	})
+
+	return diags
 }
