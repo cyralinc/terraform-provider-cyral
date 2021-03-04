@@ -70,8 +70,8 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"cyral_repository": resourceCyralRepository(),
-			//"cyral_sidecar":    resourceCyralSidecar(),
+			"cyral_repository": resourceRepository(),
+			"cyral_sidecar":    resourceSidecar(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
