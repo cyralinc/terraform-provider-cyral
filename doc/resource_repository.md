@@ -1,6 +1,6 @@
 # Repository
 
-The resource repository enable CRUD operations in Cyral repositories, allowing users to Create, Read, Update and delete repos.
+This resource provides CRUD operations in Cyral repositories, allowing users to Create, Read, Update and Delete repos.
 
 ## Usage
 
@@ -33,6 +33,8 @@ All types below are case sensitive:
 - `mariadb`
 - `mongodb`
 - `mysql`
+- `oracle`
 - `postgresql`
+- `s3`
 - `snowflake`
 - `sqlserver`

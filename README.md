@@ -18,11 +18,15 @@ provider "cyral" {
     control_plane = "some-cp.cyral.com:8000"
 }
 
-resource "cyral_repository" "my_resource_name" {
+resource "cyral_repository" "my_repo_name" {
     host = "myrepo.cyral.com"
     port = 3306
     type = "mariadb"
     name = "myrepo"
+}
+
+resource "cyral_sidecar" "my_sidecar_name" {
+    name = "mysidecar"
 }
 ```
 
@@ -43,11 +47,15 @@ provider "cyral" {
     control_plane = "some-cp.cyral.com:8000"
 }
 
-resource "cyral_repository" "my_resource_name" {
+resource "cyral_repository" "my_repo_name" {
     host = "myrepo.cyral.com"
     port = 3306
     type = "mariadb"
     name = "myrepo"
+}
+
+resource "cyral_sidecar" "my_sidecar_name" {
+    name = "mysidecar"
 }
 ```
 
@@ -67,6 +75,7 @@ terraform import cyral_repository.my_resource_name myrepo
 
 - [Provider](./doc/provider.md)
 - [Resource Repository](./doc/resource_repository.md)
+- [Resource Sidecar](./doc/resource_sidecar.md)
 
 ## Prerequisites
 
