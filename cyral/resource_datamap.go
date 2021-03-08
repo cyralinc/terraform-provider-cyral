@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"context"
+	"time"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,6 +16,11 @@ func resourceDatamap() *schema.Resource {
 		UpdateContext: resourceDatamapUpdate,
 		DeleteContext: resourceDatamapDelete,
 		Schema: map[string]*schema.Schema{
+			"last_updated": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"labels": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -48,11 +54,11 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 	datamapLabels := []client.DatamapLabel{}
 
 	for _, label := range labels {
-		l := label.(map[string]interface{})
+		labelMap := label.(map[string]interface{})
 
 		dl := client.DatamapLabel{
-			Repo:       l["repo"].(string),
-			Attributes: l["attributes"].([]string),
+			Repo:       labelMap["repo"].(string),
+			Attributes: labelMap["attributes"].([]string),
 		}
 
 		datamapLabels = append(datamapLabels, dl)
@@ -109,6 +115,31 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 }
 
 func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*client.Client)
+
+	if d.HasChange("labels") {
+		labels := d.Get("labels").([]interface{})
+		datamapLabels := []client.DatamapLabel{}
+
+		for _, label := range labels {
+			labelMap := label.(map[string]interface{})
+
+			dl := client.DatamapLabel{
+				Repo:       labelMap["repo"].(string),
+				Attributes: labelMap["attributes"].([]string),
+			}
+
+			datamapLabels = append(datamapLabels, dl)
+		}
+
+		_, err := c.UpdateDatamap(datamapLabels)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.Set("last_updated", time.Now().Format(time.RFC850))
+	}
+
 	return resourceDatamapRead(ctx, d, m)
 }
 
