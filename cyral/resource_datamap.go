@@ -68,9 +68,30 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 	for _, label := range labels {
 		labelMap := label.(map[string]interface{})
 
+		labelInfoList := labelMap["label_info"].([]interface{})
+		labelInfos := []client.LabelInfo{}
+
+		for _, labelInfo := range labelInfoList {
+			labelInfoMap := labelInfo.(map[string]interface{})
+
+			attrs := labelInfoMap["attributes"].([]interface{})
+			attributes := []string{}
+
+			for _, attr := range attrs {
+				attributes = append(attributes, attr.(string))
+			}
+
+			li := client.LabelInfo{
+				Repo:       labelInfoMap["repo"].(string),
+				Attributes: attributes,
+			}
+
+			labelInfos = append(labelInfos, li)
+		}
+
 		dl := client.DatamapLabel{
-			Repo:       labelMap["repo"].(string),
-			Attributes: labelMap["attributes"].([]string),
+			Name: labelMap["label_id"].(string),
+			Info: labelInfos,
 		}
 
 		datamapLabels = append(datamapLabels, dl)
@@ -96,8 +117,20 @@ func flattenDatamapLabels(datamapLabels *[]client.DatamapLabel) []interface{} {
 		for i, datamapLabel := range *datamapLabels {
 			dmLabel := make(map[string]interface{})
 
-			dmLabel["repo"] = datamapLabel.Repo
-			dmLabel["attributes"] = datamapLabel.Attributes
+			dmLabel["name"] = datamapLabel.Name
+
+			labelInfos := make([]interface{}, len(datamapLabel.Info), len(datamapLabel.Info))
+
+			for i, labelInfo := range datamapLabel.Info {
+				li := make(map[string]interface{})
+
+				li["repo"] = labelInfo.Repo
+				li["attributes"] = labelInfo.Attributes
+
+				labelInfos[i] = li
+			}
+
+			dmLabel["info"] = labelInfos
 			dmLabels[i] = dmLabel
 		}
 
@@ -136,14 +169,34 @@ func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		for _, label := range labels {
 			labelMap := label.(map[string]interface{})
 
+			labelInfoList := labelMap["label_info"].([]interface{})
+			labelInfos := []client.LabelInfo{}
+
+			for _, labelInfo := range labelInfoList {
+				labelInfoMap := labelInfo.(map[string]interface{})
+
+				attrs := labelInfoMap["attributes"].([]interface{})
+				attributes := []string{}
+
+				for _, attr := range attrs {
+					attributes = append(attributes, attr.(string))
+				}
+
+				li := client.LabelInfo{
+					Repo:       labelInfoMap["repo"].(string),
+					Attributes: attributes,
+				}
+
+				labelInfos = append(labelInfos, li)
+			}
+
 			dl := client.DatamapLabel{
-				Repo:       labelMap["repo"].(string),
-				Attributes: labelMap["attributes"].([]string),
+				Name: labelMap["label_id"].(string),
+				Info: labelInfos,
 			}
 
 			datamapLabels = append(datamapLabels, dl)
 		}
-
 		_, err := c.UpdateDatamap(datamapLabels)
 		if err != nil {
 			return diag.FromErr(err)

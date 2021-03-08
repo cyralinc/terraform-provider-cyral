@@ -22,8 +22,7 @@ func (c *Client) GetDatamapByLabel(label string) (*Datamap, error) {
 	}
 
 	datamap := Datamap{}
-	err = json.Unmarshal(body, &datamap)
-	if err != nil {
+	if err := json.Unmarshal(body, &datamap); err != nil {
 		return nil, err
 	}
 
@@ -45,8 +44,7 @@ func (c *Client) GetDatamap() (*Datamap, error) {
 	}
 
 	datamap := Datamap{}
-	err = json.Unmarshal(body, &datamap)
-	if err != nil {
+	if err := json.Unmarshal(body, &datamap); err != nil {
 		return nil, err
 	}
 
@@ -56,6 +54,7 @@ func (c *Client) GetDatamap() (*Datamap, error) {
 // CreateDatamap creates a datamap
 func (c *Client) CreateDatamap(datamapLabels []DatamapLabel) (*Datamap, error) {
 	payloadBytes, err := json.Marshal(datamapLabels)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode 'create datamap' payload; err: %v", err)
 	}
@@ -72,11 +71,12 @@ func (c *Client) CreateDatamap(datamapLabels []DatamapLabel) (*Datamap, error) {
 		return nil, err
 	}
 
-	if err = json.Unmarshal(body, nil); err != nil {
+	datamap := Datamap{}
+	if err := json.Unmarshal(body, &datamap); err != nil {
 		return nil, fmt.Errorf("unable to unmarshall json; err: %v", err)
 	}
 
-	return nil, nil
+	return &datamap, nil
 }
 
 // UpdateDatamap - Updates a datamap
@@ -99,8 +99,7 @@ func (c *Client) UpdateDatamap(datamapLabels []DatamapLabel) (*Datamap, error) {
 	}
 
 	datamap := Datamap{}
-	err = json.Unmarshal(body, &datamap)
-	if err != nil {
+	if err := json.Unmarshal(body, &datamap); err != nil {
 		return nil, err
 	}
 
@@ -116,8 +115,7 @@ func (c *Client) DeleteDatamapLabel(label string) error {
 		return err
 	}
 
-	_, err = c.doRequest(req)
-	if err != nil {
+	if _, err := c.doRequest(req); err != nil {
 		return err
 	}
 
@@ -140,8 +138,7 @@ func (c *Client) DeleteDatamap() error {
 		return err
 	}
 
-	_, err = c.doRequest(req)
-	if err != nil {
+	if _, err := c.doRequest(req); err != nil {
 		return err
 	}
 
