@@ -106,3 +106,51 @@ func (c *Client) UpdateDatamap(datamapLabels []DatamapLabel) (*Datamap, error) {
 
 	return &datamap, nil
 }
+
+// DeleteDatamapLabel - Deletes a certain label of the datamap
+func (c *Client) DeleteDatamapLabel(label string) error {
+	url := fmt.Sprintf("https://%s/v1/datamaps?label=%s", c.ControlPlane, label)
+
+	req, err := http.NewRequest(http.MethodDelete, url, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.doRequest(req)
+	if err != nil {
+		return err
+	}
+
+	// NOTE: I think this does not apply here,
+	// 		 since the delete api does not return a response body
+	//
+	// if string(body) != "Deleted datamap" {
+	// 	return errors.New(string(body))
+	// }
+
+	return nil
+}
+
+// DeleteDatamap - Deletes the complete datamap
+func (c *Client) DeleteDatamap() error {
+	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
+
+	req, err := http.NewRequest(http.MethodDelete, url, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.doRequest(req)
+	if err != nil {
+		return err
+	}
+
+	// NOTE: I think this does not apply here,
+	// 		 since the delete api does not return a response body
+	//
+	// if string(body) != "Deleted datamap" {
+	// 	return errors.New(string(body))
+	// }
+
+	return nil
+}
