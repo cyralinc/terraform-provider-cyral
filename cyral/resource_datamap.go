@@ -26,15 +26,27 @@ func resourceDatamap() *schema.Resource {
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"repo": {
+						"label_id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"attributes": {
+						"label_info": {
 							Type:     schema.TypeList,
 							Required: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"repo": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"attributes": {
+										Type:     schema.TypeList,
+										Required: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
 							},
 						},
 					},
