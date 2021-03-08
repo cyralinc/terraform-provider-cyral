@@ -1,7 +1,8 @@
 package client
 
 type Datamap struct {
-	Labels []DatamapLabel `json:"items,omitempty"`
+	// ID     string         `json:"id"`
+	Labels []DatamapLabel `json:"labels,omitempty"`
 }
 
 type DatamapLabel struct {

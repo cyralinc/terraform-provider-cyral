@@ -7,6 +7,52 @@ import (
 	"strings"
 )
 
+// GetDatamapByLabel - Returns the datamap filtered by a specific label
+func (c *Client) GetDatamapByLabel(label string) (*Datamap, error) {
+	url := fmt.Sprintf("https://%s/v1/datamaps?label=%s", c.ControlPlane, label)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	datamap := Datamap{}
+	err = json.Unmarshal(body, &datamap)
+	if err != nil {
+		return nil, err
+	}
+
+	return &datamap, nil
+}
+
+// GetDatamap - Returns the complete datamap
+func (c *Client) GetDatamap() (*Datamap, error) {
+	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	datamap := Datamap{}
+	err = json.Unmarshal(body, &datamap)
+	if err != nil {
+		return nil, err
+	}
+
+	return &datamap, nil
+}
+
 // CreateDatamap creates a datamap
 func (c *Client) CreateDatamap(datamapLabels []DatamapLabel) (*Datamap, error) {
 	payloadBytes, err := json.Marshal(datamapLabels)
