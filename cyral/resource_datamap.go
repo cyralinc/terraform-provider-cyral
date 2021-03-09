@@ -3,6 +3,7 @@ package cyral
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -96,7 +97,7 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(err)
 	}
 
-	// d.SetId(strconv.Itoa(datamap.ID))
+	d.SetId(time.Now().Format(time.RFC850))
 
 	return resourceDatamapRead(ctx, d, m)
 }
