@@ -2,7 +2,7 @@ package cyral
 
 import (
 	"context"
-	"time"
+	"log"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -59,17 +59,14 @@ func resourceDatamap() *schema.Resource {
 func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
 
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
 	labels := d.Get("labels").([]interface{})
-	datamapLabels := []client.DatamapLabel{}
+	sensitiveData := client.SensitiveData{}
 
 	for _, label := range labels {
 		labelMap := label.(map[string]interface{})
 
 		labelInfoList := labelMap["label_info"].([]interface{})
-		labelInfos := []client.LabelInfo{}
+		repoAttrsList := []*client.RepoAttrs{}
 
 		for _, labelInfo := range labelInfoList {
 			labelInfoMap := labelInfo.(map[string]interface{})
@@ -81,57 +78,51 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 				attributes = append(attributes, attr.(string))
 			}
 
-			li := client.LabelInfo{
-				Repo:       labelInfoMap["repo"].(string),
+			li := client.RepoAttrs{
+				Name:       labelInfoMap["repo"].(string),
 				Attributes: attributes,
 			}
 
-			labelInfos = append(labelInfos, li)
+			repoAttrsList = append(repoAttrsList, &li)
 		}
 
-		dl := client.DatamapLabel{
-			Name: labelMap["label_id"].(string),
-			Info: labelInfos,
-		}
-
-		datamapLabels = append(datamapLabels, dl)
+		sensitiveData[labelMap["label_id"].(string)] = repoAttrsList
 	}
 
-	// datamap, err := c.CreateDatamap(datamapLabels)
-	_, err := c.CreateDatamap(datamapLabels)
-	if err != nil {
+	sd := client.MakeStrForSD(sensitiveData)
+	log.Printf("[DEBUG] resourceDatamapCreate --- sensitiveData: %s", sd)
+
+	if err := c.CreateDatamap(sensitiveData); err != nil {
 		return diag.FromErr(err)
 	}
 
 	// d.SetId(strconv.Itoa(datamap.ID))
 
-	resourceDatamapRead(ctx, d, m)
-
-	return diags
+	return resourceDatamapRead(ctx, d, m)
 }
 
-func flattenDatamapLabels(datamapLabels *[]client.DatamapLabel) []interface{} {
+func flattenDatamapLabels(datamapLabels *client.SensitiveData) []interface{} {
 	if datamapLabels != nil {
 		dmLabels := make([]interface{}, len(*datamapLabels), len(*datamapLabels))
 
-		for i, datamapLabel := range *datamapLabels {
+		for label, repoAttrsList := range *datamapLabels {
 			dmLabel := make(map[string]interface{})
 
-			dmLabel["name"] = datamapLabel.Name
+			dmLabel["label_id"] = label
 
-			labelInfos := make([]interface{}, len(datamapLabel.Info), len(datamapLabel.Info))
+			repoAttrs := make([]interface{}, len(repoAttrsList), len(repoAttrsList))
 
-			for i, labelInfo := range datamapLabel.Info {
+			for i, repoAttr := range repoAttrsList {
 				li := make(map[string]interface{})
 
-				li["repo"] = labelInfo.Repo
-				li["attributes"] = labelInfo.Attributes
+				li["repo"] = repoAttr.Name
+				li["attributes"] = repoAttr.Attributes
 
-				labelInfos[i] = li
+				repoAttrs[i] = li
 			}
 
-			dmLabel["info"] = labelInfos
-			dmLabels[i] = dmLabel
+			dmLabel["label_info"] = repoAttrs
+			dmLabels = append(dmLabels, dmLabel)
 		}
 
 		return dmLabels
@@ -151,59 +142,67 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
-	datamapLabels := flattenDatamapLabels(&datamap.Labels)
+	sd := client.MakeStrForSD(datamap.SensitiveData)
+	log.Printf("[DEBUG] resourceDatamapRead --- sensitiveData: %s", sd)
+
+	datamapLabels := flattenDatamapLabels(&datamap.SensitiveData)
+	log.Printf("[DEBUG] resourceDatamapRead --- datamapLabels: %s", datamapLabels)
+
 	if err := d.Set("labels", datamapLabels); err != nil {
+		log.Printf("[DEBUG] resourceDatamapRead --- ERRO d.Set(\"labels\", datamapLabels): %v", err)
 		return diag.FromErr(err)
 	}
+
+	log.Print("[DEBUG] resourceDatamapRead --- NORMAL")
 
 	return diags
 }
 
 func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
+	// c := m.(*client.Client)
 
-	if d.HasChange("labels") {
-		labels := d.Get("labels").([]interface{})
-		datamapLabels := []client.DatamapLabel{}
+	// if d.HasChange("labels") {
+	// 	labels := d.Get("labels").([]interface{})
+	// 	datamapLabels := []client.DatamapLabel{}
 
-		for _, label := range labels {
-			labelMap := label.(map[string]interface{})
+	// 	for _, label := range labels {
+	// 		labelMap := label.(map[string]interface{})
 
-			labelInfoList := labelMap["label_info"].([]interface{})
-			labelInfos := []client.LabelInfo{}
+	// 		labelInfoList := labelMap["label_info"].([]interface{})
+	// 		labelInfos := []client.LabelInfo{}
 
-			for _, labelInfo := range labelInfoList {
-				labelInfoMap := labelInfo.(map[string]interface{})
+	// 		for _, labelInfo := range labelInfoList {
+	// 			labelInfoMap := labelInfo.(map[string]interface{})
 
-				attrs := labelInfoMap["attributes"].([]interface{})
-				attributes := []string{}
+	// 			attrs := labelInfoMap["attributes"].([]interface{})
+	// 			attributes := []string{}
 
-				for _, attr := range attrs {
-					attributes = append(attributes, attr.(string))
-				}
+	// 			for _, attr := range attrs {
+	// 				attributes = append(attributes, attr.(string))
+	// 			}
 
-				li := client.LabelInfo{
-					Repo:       labelInfoMap["repo"].(string),
-					Attributes: attributes,
-				}
+	// 			li := client.LabelInfo{
+	// 				Repo:       labelInfoMap["repo"].(string),
+	// 				Attributes: attributes,
+	// 			}
 
-				labelInfos = append(labelInfos, li)
-			}
+	// 			labelInfos = append(labelInfos, li)
+	// 		}
 
-			dl := client.DatamapLabel{
-				Name: labelMap["label_id"].(string),
-				Info: labelInfos,
-			}
+	// 		dl := client.DatamapLabel{
+	// 			Name: labelMap["label_id"].(string),
+	// 			Info: labelInfos,
+	// 		}
 
-			datamapLabels = append(datamapLabels, dl)
-		}
-		_, err := c.UpdateDatamap(datamapLabels)
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	// 		datamapLabels = append(datamapLabels, dl)
+	// 	}
+	// 	_, err := c.UpdateDatamap(datamapLabels)
+	// 	if err != nil {
+	// 		return diag.FromErr(err)
+	// 	}
 
-		d.Set("last_updated", time.Now().Format(time.RFC850))
-	}
+	// 	d.Set("last_updated", time.Now().Format(time.RFC850))
+	// }
 
 	return resourceDatamapRead(ctx, d, m)
 }

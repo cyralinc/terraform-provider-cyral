@@ -259,9 +259,13 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
 
+	log.Printf("[DEBUG] doRequest ------ Response body: %s", string(body))
+
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected response from request; status: %d, body: %s", res.StatusCode, body)
 	}
+
+	log.Printf("[DEBUG] doRequest ------ res.StatusCode: %v", res.StatusCode)
 
 	return body, err
 }
