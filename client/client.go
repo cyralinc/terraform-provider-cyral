@@ -245,7 +245,8 @@ func (c *Client) DeleteResource(url string) error {
 }
 
 func (c *Client) doRequest(req *http.Request) ([]byte, error) {
-	req.Header.Set("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
