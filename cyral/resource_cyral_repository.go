@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -66,8 +67,10 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, m int
 		return createError("Unable to create repository", fmt.Sprintf("%v", err))
 	}
 
+	url := fmt.Sprintf("https://%s/v1/repos", c.ControlPlane)
+
 	response := CreateRepoResponse{}
-	if err = c.CreateResource(resourceData, "repos", &response); err != nil {
+	if err = c.CreateResource(url, http.MethodPost, resourceData, &response); err != nil {
 		return createError("Unable to create repository", fmt.Sprintf("%v", err))
 	}
 
@@ -83,8 +86,9 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m inter
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
 
 	response := GetRepoByIDResponse{}
-	if err := c.ReadResource(d.Id(), url, &response); err != nil {
-		return createError("Unable to read repository", fmt.Sprintf("%v", err))
+	if err := c.ReadResource(url, &response); err != nil {
+		return createError(fmt.Sprintf("Unable to read repository. RepositoryID: %s",
+			d.Id()), fmt.Sprintf("%v", err))
 	}
 
 	d.Set("type", response.Repo.RepoType)
