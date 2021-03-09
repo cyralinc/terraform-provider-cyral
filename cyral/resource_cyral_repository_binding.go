@@ -75,7 +75,7 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
 	}
 
-	d.SetId(resourceData.SidecarID)
+	d.SetId(fmt.Sprintf("%s-%s", resourceData.SidecarID, resourceData.RepositoryID))
 	d.Set("sidecar_id", resourceData.SidecarID)
 	d.Set("repository_id", resourceData.RepositoryID)
 
