@@ -73,7 +73,7 @@ resource "cyral_repository" "mariadb_repo" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    deployment_method = "cloudformation"
+    deployment_method = "cloudFormation"
     publicly_accessible = true
 }
 
@@ -116,6 +116,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Repository](./doc/resource_repository.md)
+- [Resource Repository Binding](./doc/resource_repository_binding.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
 
 ## Prerequisites

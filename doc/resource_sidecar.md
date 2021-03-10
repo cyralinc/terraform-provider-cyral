@@ -5,7 +5,7 @@ This resource provides CRUD operations in Cyral sidecars, allowing users to Crea
 ## Usage
 
 ```hcl
-resource "cyral_sidecar" "SOME_SOURCE_NAME" {
+resource "cyral_sidecar" "SOME_RESOURCE_NAME" {
     name = ""
     deployment_method = ""
     log_integration_id = ""

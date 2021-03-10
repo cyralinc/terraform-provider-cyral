@@ -5,7 +5,7 @@ This resource provides CRUD operations in Cyral repositories, allowing users to 
 ## Usage
 
 ```hcl
-resource "cyral_repository" "SOME_SOURCE_NAME" {
+resource "cyral_repository" "SOME_RESOURCE_NAME" {
     host = ""
     port = 0
     type = ""
