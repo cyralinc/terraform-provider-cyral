@@ -74,63 +74,21 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	sensitiveData := getSensitiveDataFromResource(d)
 
-	sd := makeStrForSD(sensitiveData)
-	log.Printf("[DEBUG] resourceDatamapCreate --- sensitiveData: %s", sd)
+	sd := sensitiveData.String()
+	log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
 
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
 	if err := c.UpdateResource(sensitiveData, url); err != nil {
 		return createError("Unable to create datamap", fmt.Sprintf("%v", err))
 	}
 
-	// if err := c.UpsertDatamap(sensitiveData); err != nil {
-	// 	return diag.FromErr(err)
-	// }
-
 	d.SetId(time.Now().Format(time.RFC850))
 
 	return resourceDatamapRead(ctx, d, m)
 }
 
-func flattenDatamapLabels(datamapLabels *SensitiveData) []interface{} {
-	if datamapLabels != nil {
-		dmLabels := make([]interface{}, len(*datamapLabels), len(*datamapLabels))
-
-		for label, repoAttrsList := range *datamapLabels {
-			dmLabel := make(map[string]interface{})
-
-			dmLabel["label_id"] = label
-
-			repoAttrs := make([]interface{}, len(repoAttrsList), len(repoAttrsList))
-
-			for i, repoAttr := range repoAttrsList {
-				li := make(map[string]interface{})
-
-				li["repo"] = repoAttr.Name
-				li["attributes"] = repoAttr.Attributes
-
-				repoAttrs[i] = li
-			}
-
-			dmLabel["label_info"] = repoAttrs
-			dmLabels = append(dmLabels, dmLabel)
-		}
-
-		return dmLabels
-	}
-
-	return make([]interface{}, 0)
-}
-
 func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
-
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
-	// datamap, err := c.GetDatamap()
-	// if err != nil {
-	// 	return diag.FromErr(err)
-	// }
 
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
 
@@ -141,20 +99,17 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	datamap := DataMap{SensitiveData: response}
 
-	sd := makeStrForSD(datamap.SensitiveData)
-	log.Printf("[DEBUG] resourceDatamapRead --- sensitiveData: %s", sd)
+	sd := datamap.SensitiveData.String()
+	log.Printf("[DEBUG] resourceDatamapRead - sensitiveData: %s", sd)
 
-	datamapLabels := flattenDatamapLabels(&datamap.SensitiveData)
-	log.Printf("[DEBUG] resourceDatamapRead --- datamapLabels: %s", datamapLabels)
+	datamapLabels := flattenSensitiveData(&datamap.SensitiveData)
+	log.Printf("[DEBUG] resourceDatamapRead - datamapLabels: %s", datamapLabels)
 
 	if err := d.Set("labels", datamapLabels); err != nil {
-		log.Printf("[DEBUG] resourceDatamapRead --- ERRO d.Set(\"labels\", datamapLabels): %v", err)
 		return diag.FromErr(err)
 	}
 
-	log.Print("[DEBUG] resourceDatamapRead --- NORMAL")
-
-	return diags
+	return diag.Diagnostics{}
 }
 
 func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -163,16 +118,13 @@ func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	if d.HasChange("labels") {
 		sensitiveData := getSensitiveDataFromResource(d)
 
-		sd := makeStrForSD(sensitiveData)
-		log.Printf("[DEBUG] resourceDatamapCreate --- sensitiveData: %s", sd)
+		sd := sensitiveData.String()
+		log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
 
 		url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
 		if err := c.UpdateResource(sensitiveData, url); err != nil {
 			return createError("Unable to update datamap", fmt.Sprintf("%v", err))
 		}
-		// if err := c.UpsertDatamap(sensitiveData); err != nil {
-		// 	return diag.FromErr(err)
-		// }
 
 		d.Set("last_updated", time.Now().Format(time.RFC850))
 	}
@@ -183,24 +135,16 @@ func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interf
 func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
 
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
 	if err := c.DeleteResource(url); err != nil {
 		return createError("Unable to delete datamap", fmt.Sprintf("%v", err))
 	}
 
-	// err := c.DeleteDatamap()
-	// if err != nil {
-	// 	return diag.FromErr(err)
-	// }
-
 	// d.SetId("") is automatically called assuming delete returns no errors, but
 	// it is added here for explicitness.
 	d.SetId("")
 
-	return diags
+	return diag.Diagnostics{}
 
 }
 
@@ -224,12 +168,12 @@ func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
 				attributes = append(attributes, attr.(string))
 			}
 
-			li := RepoAttrs{
+			repoAttr := RepoAttrs{
 				Name:       labelInfoMap["repo"].(string),
 				Attributes: attributes,
 			}
 
-			repoAttrsList = append(repoAttrsList, &li)
+			repoAttrsList = append(repoAttrsList, &repoAttr)
 		}
 
 		sensitiveData[labelMap["label_id"].(string)] = repoAttrsList
@@ -238,43 +182,52 @@ func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
 	return sensitiveData
 }
 
-// // upsertDatamap creates or updates a datamap
-// func upsertDatamap(sensitiveData SensitiveData) error {
-// 	payloadBytes, err := json.Marshal(sensitiveData)
+func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
+	if sensitiveData != nil {
+		labels := make([]interface{}, len(*sensitiveData), len(*sensitiveData))
 
-// 	if err != nil {
-// 		return fmt.Errorf("failed to encode 'create/update datamap' payload; err: %v", err)
-// 	}
+		for label, repoAttrsList := range *sensitiveData {
+			labelMap := make(map[string]interface{})
 
-// 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
+			labelMap["label_id"] = label
 
-// 	req, err := http.NewRequest(http.MethodPut, url, strings.NewReader(string(payloadBytes)))
-// 	if err != nil {
-// 		return fmt.Errorf("unable to create 'create/update datamap' request; err: %v", err)
-// 	}
+			labelInfoList := make([]interface{}, len(repoAttrsList), len(repoAttrsList))
 
-// 	if _, err := c.doRequest(req); err != nil {
-// 		return err
-// 	}
+			for i, repoAttr := range repoAttrsList {
+				labelInfoMap := make(map[string]interface{})
 
-// 	return nil
-// }
+				labelInfoMap["repo"] = repoAttr.Name
+				labelInfoMap["attributes"] = repoAttr.Attributes
 
-func makeStrForSD(sensitiveData SensitiveData) string {
+				labelInfoList[i] = labelInfoMap
+			}
+
+			labelMap["label_info"] = labelInfoList
+			labels = append(labels, labelMap)
+		}
+
+		return labels
+	}
+
+	return make([]interface{}, 0)
+}
+
+func (sensitiveData SensitiveData) String() string {
 	var sd string
 
-	for key, value := range sensitiveData {
-		s1 := fmt.Sprintf("map[%s]", key)
+	for label, repoAttrsList := range sensitiveData {
+		s1 := fmt.Sprintf("map[%s]", label)
 		sd = sd + s1
-		for _, r := range value {
-			s2 := fmt.Sprintf("repo: %s, attributes: [ ", r.Name)
+		for _, repoAttr := range repoAttrsList {
+			s2 := fmt.Sprintf("repo: %s, attributes: [ ", repoAttr.Name)
 			sd += s2
-			for _, attr := range r.Attributes {
+			for _, attr := range repoAttr.Attributes {
 				s3 := fmt.Sprintf("%s ", attr)
 				sd += s3
 			}
 			sd += "]"
 		}
+		sd += "\n"
 	}
 
 	return sd
