@@ -69,10 +69,10 @@ resource "cyral_sidecar" "my_sidecar_name" {
 }
 
 resource "cyral_datamap" "my_datamap_name" {
-    labels {
-        label_id = "CNN"
-        label_info {
-            repo = "myrepo"
+    mapping {
+        label = "CNN"
+        data_location {
+            repo = cyral_repository.my_repo_name.name
             attributes = ["applications.customers.credit_card_number"]
         }
     }
