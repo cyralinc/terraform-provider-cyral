@@ -14,11 +14,8 @@ import (
 type RepoBindingData struct {
 	SidecarID    string
 	RepositoryID string
-	TCPListeners TCPListener `json:"tcpListeners"`
-}
-
-type TCPListener struct {
-	Listeners []Listener `json:"listeners"`
+	Enabled      bool
+	Listener     Listener `json:"listener"`
 }
 
 type Listener struct {
@@ -34,6 +31,11 @@ func resourceRepositoryBinding() *schema.Resource {
 		DeleteContext: resourceRepositoryBindingDelete,
 
 		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"sidecar_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -100,13 +102,12 @@ func resourceRepositoryBindingRead(ctx context.Context, d *schema.ResourceData, 
 			sidecarID, repositoryID), fmt.Sprintf("%v", err))
 	}
 
+	d.Set("enabled", response.Enabled)
 	d.Set("sidecar_id", response.SidecarID)
 	d.Set("repository_id", response.RepositoryID)
-	if len(response.TCPListeners.Listeners) > 0 {
-		d.Set("listener_port", response.TCPListeners.Listeners[0].Port)
-		if host := response.TCPListeners.Listeners[0].Host; host != "" {
-			d.Set("listener_host", response.TCPListeners.Listeners[0].Host)
-		}
+	d.Set("listener_port", response.Listener.Port)
+	if host := response.Listener.Host; host != "" {
+		d.Set("listener_host", response.Listener.Host)
 	}
 	log.Printf("[DEBUG] End resourceRepositoryBindingRead")
 
@@ -155,15 +156,12 @@ func resourceRepositoryBindingDelete(ctx context.Context, d *schema.ResourceData
 
 func getRepoBindingDataFromResource(c *client.Client, d *schema.ResourceData) (RepoBindingData, error) {
 	return RepoBindingData{
+		Enabled:      d.Get("enabled").(bool),
 		SidecarID:    d.Get("sidecar_id").(string),
 		RepositoryID: d.Get("repository_id").(string),
-		TCPListeners: TCPListener{
-			Listeners: []Listener{
-				{
-					Host: d.Get("listener_host").(string),
-					Port: d.Get("listener_port").(int),
-				},
-			},
+		Listener: Listener{
+			Host: d.Get("listener_host").(string),
+			Port: d.Get("listener_port").(int),
 		},
 	}, nil
 }
