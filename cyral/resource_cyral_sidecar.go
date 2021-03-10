@@ -50,31 +50,6 @@ func resourceSidecar() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"key_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
-			"aws_region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
-			"vpc": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
-			"subnets": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
-			"publicly_accessible": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
 			"log_integration_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -84,6 +59,34 @@ func resourceSidecar() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "default",
+			},
+			"aws_configuration": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"aws_region": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"vpc": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"subnets": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"publicly_accessible": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+					},
+				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -127,13 +130,17 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	d.Set("name", response.Name)
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
-	d.Set("key_name", response.SidecarProperty.KeyName)
-	d.Set("aws_region", response.SidecarProperty.AWSRegion)
-	d.Set("vpc", response.SidecarProperty.VPC)
-	d.Set("subnets", response.SidecarProperty.Subnets)
-	d.Set("publicly_accessible", response.SidecarProperty.PubliclyAccessible)
 	d.Set("log_integration_id", response.SidecarProperty.LogIntegrationID)
 	d.Set("metrics_integration_id", response.SidecarProperty.MetricsIntegrationID)
+	awsConfiguration := make([]map[string]interface{}, 0)
+	ac := make(map[string]interface{})
+	ac["key_name"] = response.SidecarProperty.KeyName
+	ac["aws_region"] = response.SidecarProperty.AWSRegion
+	ac["vpc"] = response.SidecarProperty.VPC
+	ac["subnets"] = response.SidecarProperty.Subnets
+	ac["publicly_accessible"] = response.SidecarProperty.PubliclyAccessible
+	awsConfiguration = append(awsConfiguration, ac)
+	d.Set("aws_configuration", awsConfiguration)
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -174,77 +181,45 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 
 func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (SidecarData, error) {
 	deploymentMethod := d.Get("deployment_method").(string)
-	if err := validateDeploymentMethod(deploymentMethod); err != nil {
+	if err := client.ValidateDeploymentMethod(deploymentMethod); err != nil {
 		return SidecarData{}, err
 	}
-	awsRegion := d.Get("aws_region").(string)
-	if awsRegion != "" {
-		if err := validateAWSRegion(awsRegion); err != nil {
-			return SidecarData{}, err
-		}
+
+	sp := SidecarProperty{
+		DeploymentMethod:     deploymentMethod,
+		LogIntegrationID:     d.Get("log_integration_id").(string),
+		MetricsIntegrationID: d.Get("metrics_integration_id").(string),
 	}
-	logIntegrationID := d.Get("log_integration_id").(string)
-	metricsIntegrationID := d.Get("metrics_integration_id").(string)
+
+	if v, ok := d.GetOk("aws_configuration"); ok {
+		vL := v.(*schema.Set).List()
+		for _, v := range vL {
+			configMap := v.(map[string]interface{})
+			if v, ok := configMap["key_name"].(string); ok && v != "" {
+				sp.KeyName = v
+			}
+			if v, ok := configMap["vpc"].(string); ok && v != "" {
+				sp.VPC = v
+			}
+			if v, ok := configMap["subnets"].(string); ok && v != "" {
+				sp.Subnets = v
+			}
+			if v, ok := configMap["publicly_accessible"].(bool); ok {
+				sp.PubliclyAccessible = strconv.FormatBool(v)
+			}
+			if v, ok := configMap["aws_region"].(string); ok && v != "" {
+				if err := client.ValidateAWSRegion(v); err != nil {
+					return SidecarData{}, err
+				}
+				sp.AWSRegion = v
+			}
+		}
+
+	}
 
 	return SidecarData{
-		ID:   d.Id(),
-		Name: d.Get("name").(string),
-		SidecarProperty: SidecarProperty{
-			DeploymentMethod:     deploymentMethod,
-			KeyName:              d.Get("key_name").(string),
-			AWSRegion:            awsRegion,
-			VPC:                  d.Get("vpc").(string),
-			Subnets:              d.Get("subnets").(string),
-			PubliclyAccessible:   strconv.FormatBool(d.Get("publicly_accessible").(bool)),
-			LogIntegrationID:     logIntegrationID,
-			MetricsIntegrationID: metricsIntegrationID,
-		},
+		ID:              d.Id(),
+		Name:            d.Get("name").(string),
+		SidecarProperty: sp,
 	}, nil
-}
-
-func validateDeploymentMethod(param string) error {
-	validValues := map[string]bool{
-		"docker":         true,
-		"cloudformation": true,
-		"terraform":      true,
-		"helm":           true,
-		"helm3":          true,
-		"automated":      true,
-		"custom":         true,
-		"terraformGKE":   true,
-	}
-	if validValues[param] == false {
-		return fmt.Errorf("deployment method must be one of %v", validValues)
-	}
-	return nil
-}
-
-func validateAWSRegion(param string) error {
-	validValues := map[string]bool{
-		"us-east-2":      true,
-		"us-east-1":      true,
-		"us-west-1":      true,
-		"us-west-2":      true,
-		"af-south-1":     true,
-		"ap-east-1":      true,
-		"ap-south-1":     true,
-		"ap-northeast-3": true,
-		"ap-northeast-2": true,
-		"ap-southeast-1": true,
-		"ap-southeast-2": true,
-		"ap-northeast-1": true,
-		"ca-central-1":   true,
-		"eu-central-1":   true,
-		"eu-west-1":      true,
-		"eu-west-2":      true,
-		"eu-south-1":     true,
-		"eu-west-3":      true,
-		"eu-north-1":     true,
-		"me-south-1":     true,
-		"sa-east-1":      true,
-	}
-	if validValues[param] == false {
-		return fmt.Errorf("AWS region must be one of %v", validValues)
-	}
-	return nil
 }
