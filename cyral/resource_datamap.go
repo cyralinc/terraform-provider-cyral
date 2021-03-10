@@ -15,7 +15,7 @@ type DataMap struct {
 	SensitiveData SensitiveData `json:"sensitiveData" yaml:"sensitiveData"`
 }
 
-type SensitiveData map[string][]*RepoAttrs
+type SensitiveData map[string][]RepoAttrs
 
 type RepoAttrs struct {
 	Name       string   `json:"repo" yaml:"repo"`
@@ -34,16 +34,16 @@ func resourceDatamap() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"labels": {
+			"mapping": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"label_id": {
+						"label": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"label_info": {
+						"data_location": {
 							Type:     schema.TypeList,
 							Required: true,
 							Elem: &schema.Resource{
@@ -108,7 +108,7 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 	datamapLabels := flattenSensitiveData(&datamap.SensitiveData)
 	log.Printf("[DEBUG] resourceDatamapRead - datamapLabels: %s", datamapLabels)
 
-	if err := d.Set("labels", datamapLabels); err != nil {
+	if err := d.Set("mapping", datamapLabels); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -118,7 +118,7 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
 
-	if d.HasChange("labels") {
+	if d.HasChange("mapping") {
 		sensitiveData := getSensitiveDataFromResource(d)
 
 		sd := sensitiveData.String()
@@ -147,14 +147,13 @@ func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
-	labels := d.Get("labels").([]interface{})
+	mappings := d.Get("mapping").([]interface{})
 	sensitiveData := make(SensitiveData)
 
-	for _, label := range labels {
-		labelMap := label.(map[string]interface{})
+	for _, m := range mappings {
+		labelMap := m.(map[string]interface{})
 
-		labelInfoList := labelMap["label_info"].([]interface{})
-		repoAttrsList := []*RepoAttrs{}
+		labelInfoList := labelMap["data_location"].([]interface{})
 
 		for _, labelInfo := range labelInfoList {
 			labelInfoMap := labelInfo.(map[string]interface{})
@@ -171,10 +170,8 @@ func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
 				Attributes: attributes,
 			}
 
-			repoAttrsList = append(repoAttrsList, &repoAttr)
+			sensitiveData[labelMap["label"].(string)] = append(sensitiveData[labelMap["label"].(string)], repoAttr)
 		}
-
-		sensitiveData[labelMap["label_id"].(string)] = repoAttrsList
 	}
 
 	return sensitiveData
@@ -187,7 +184,7 @@ func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
 		for label, repoAttrsList := range *sensitiveData {
 			labelMap := make(map[string]interface{})
 
-			labelMap["label_id"] = label
+			labelMap["label"] = label
 
 			labelInfoList := make([]interface{}, len(repoAttrsList), len(repoAttrsList))
 
@@ -200,7 +197,7 @@ func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
 				labelInfoList[i] = labelInfoMap
 			}
 
-			labelMap["label_info"] = labelInfoList
+			labelMap["data_location"] = labelInfoList
 			labels = append(labels, labelMap)
 		}
 
