@@ -1,6 +1,10 @@
 package client
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/aws/aws-sdk-go/aws/endpoints"
+)
 
 // ValidateRepoType checks if a given repository type is valid.
 func ValidateRepoType(param string) error {
@@ -47,31 +51,26 @@ func ValidateDeploymentMethod(param string) error {
 
 // ValidateAWSRegion checks if a given aws region value is valid.
 func ValidateAWSRegion(param string) error {
-	validValues := map[string]bool{
-		"us-east-2":      true,
-		"us-east-1":      true,
-		"us-west-1":      true,
-		"us-west-2":      true,
-		"af-south-1":     true,
-		"ap-east-1":      true,
-		"ap-south-1":     true,
-		"ap-northeast-3": true,
-		"ap-northeast-2": true,
-		"ap-southeast-1": true,
-		"ap-southeast-2": true,
-		"ap-northeast-1": true,
-		"ca-central-1":   true,
-		"eu-central-1":   true,
-		"eu-west-1":      true,
-		"eu-west-2":      true,
-		"eu-south-1":     true,
-		"eu-west-3":      true,
-		"eu-north-1":     true,
-		"me-south-1":     true,
-		"sa-east-1":      true,
+	resolver := endpoints.DefaultResolver()
+	partitions := resolver.(endpoints.EnumPartitions).Partitions()
+
+	validValues := map[string]bool{}
+
+	for _, p := range partitions {
+		// Only regions that support EC2 are valid for deployment
+		if _, ok := p.Services()["ec2"]; ok {
+			for id := range p.Regions() {
+				validValues[id] = true
+			}
+		}
 	}
+
 	if validValues[param] == false {
-		return fmt.Errorf("AWS region must be one of %v", validValues)
+		keys := make([]string, 0, len(validValues))
+		for k := range validValues {
+			keys = append(keys, k)
+		}
+		return fmt.Errorf("AWS region must be one of %v", keys)
 	}
 	return nil
 }
