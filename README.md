@@ -28,6 +28,16 @@ resource "cyral_repository" "my_repo_name" {
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
 }
+
+resource "cyral_datamap" "my_datamap_name" {
+    labels {
+        label_id = "CNN"
+        label_info {
+            repo = "myrepo"
+            attributes = ["applications.customers.credit_card_number"]
+        }
+    }
+}
 ```
 
 ### Terraform v0.13 and v0.14
@@ -56,6 +66,16 @@ resource "cyral_repository" "my_repo_name" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
+}
+
+resource "cyral_datamap" "my_datamap_name" {
+    labels {
+        label_id = "CNN"
+        label_info {
+            repo = "myrepo"
+            attributes = ["applications.customers.credit_card_number"]
+        }
+    }
 }
 ```
 
