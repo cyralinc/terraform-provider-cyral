@@ -143,12 +143,7 @@ func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interf
 		return createError("Unable to delete datamap", fmt.Sprintf("%v", err))
 	}
 
-	// d.SetId("") is automatically called assuming delete returns no errors, but
-	// it is added here for explicitness.
-	d.SetId("")
-
 	return diag.Diagnostics{}
-
 }
 
 func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {

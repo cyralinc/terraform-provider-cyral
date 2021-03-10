@@ -94,6 +94,7 @@ terraform import cyral_repository.my_resource_name myrepo
 ## Supported Elements
 
 - [Provider](./doc/provider.md)
+- [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Repository](./doc/resource_repository.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
 
