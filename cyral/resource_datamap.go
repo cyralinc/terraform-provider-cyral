@@ -66,6 +66,9 @@ func resourceDatamap() *schema.Resource {
 				},
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 	}
 }
 
@@ -82,7 +85,7 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 		return createError("Unable to create datamap", fmt.Sprintf("%v", err))
 	}
 
-	d.SetId(time.Now().Format(time.RFC850))
+	d.SetId("datamap")
 
 	return resourceDatamapRead(ctx, d, m)
 }
