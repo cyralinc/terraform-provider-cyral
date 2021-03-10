@@ -28,6 +28,16 @@ resource "cyral_repository" "my_repo_name" {
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
 }
+
+resource "cyral_datamap" "my_datamap_name" {
+    labels {
+        label_id = "CNN"
+        label_info {
+            repo = "myrepo"
+            attributes = ["applications.customers.credit_card_number"]
+        }
+    }
+}
 ```
 
 ### Terraform v0.13 and v0.14
@@ -57,6 +67,16 @@ resource "cyral_repository" "my_repo_name" {
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
 }
+
+resource "cyral_datamap" "my_datamap_name" {
+    mapping {
+        label = "CNN"
+        data_location {
+            repo = cyral_repository.my_repo_name.name
+            attributes = ["applications.customers.credit_card_number"]
+        }
+    }
+}
 ```
 
 ## Supported Operations
@@ -74,6 +94,7 @@ terraform import cyral_repository.my_resource_name myrepo
 ## Supported Elements
 
 - [Provider](./doc/provider.md)
+- [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Repository](./doc/resource_repository.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
 

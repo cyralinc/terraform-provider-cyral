@@ -70,6 +70,7 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"cyral_datamap":    resourceDatamap(),
 			"cyral_repository": resourceRepository(),
 			"cyral_sidecar":    resourceSidecar(),
 		},
