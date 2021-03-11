@@ -43,76 +43,65 @@ func resourcePolicy() *schema.Resource {
 		UpdateContext: resourcePolicyUpdate,
 		DeleteContext: resourcePolicyDelete,
 		Schema: map[string]*schema.Schema{
-			"data": {
-				Type:     schema.TypeList,
-				Required: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			"created": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
-			"meta": {
+			"last_updated": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true, // TODO: is this correct?
+			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"properties": {
 				Type:     schema.TypeSet,
-				Required: true,
-				MaxItems: 1,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"created": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Optional: true, // TODO: is this correct?
-						},
-						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"lastUpdated": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"properties": {
-							Type: schema.TypeSet,
-							// TODO: is this optional?
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"description": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-								},
-							},
-						},
-						"tags": {
-							Type:     schema.TypeList,
-							Required: true, // TODO: is this correct?
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-						"version": {
+						"description": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 					},
 				},
 			},
-			"whitelistedUsers": {
-				Type: schema.TypeList,
-				// TODO: is this optional?
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			// TODO: this field is changed at every `terraform apply`
+			// "version": {
+			// 	Type:     schema.TypeString,
+			// 	Optional: true,
+			// },
+			"data": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"whitelisted_users": {
+				Type:     schema.TypeList,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -147,6 +136,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
+	d.Set("created", time.Now().Format(time.RFC850))
 
 	log.Printf("[DEBUG] End resourcePolicyCreate")
 
@@ -154,6 +144,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	log.Printf("[DEBUG] Init resourcePolicyRead")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
@@ -172,14 +163,23 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	// sd := datamap.SensitiveData.String()
 	// log.Printf("[DEBUG] resourceDatamapRead - sensitiveData: %s", sd)
 
-	//TODO
-	policy := flattenPolicy(&response)
-	log.Printf("[DEBUG] resourcePolicyRead - policy: %s", policy)
+	propertiesList := flattenProperties(response.Meta)
+	log.Printf("[DEBUG] resourcePolicyRead - policy: %s", propertiesList...)
 
+	d.Set("name", response.Meta.Name)
+	d.Set("version", response.Meta.Version)
+	d.Set("type", response.Meta.Type)
+	d.Set("enabled", response.Meta.Enabled)
+	d.Set("description", response.Meta.Description)
+	d.Set("properties", propertiesList)
+	d.Set("data", response.Data)
+	d.Set("tags", response.Meta.Tags)
+	d.Set("whitelisted_users", response.WhitelistedUsers)
 	// if err := d.Set("mapping", datamapLabels); err != nil {
 	// 	return createError("Unable to read policy", fmt.Sprintf("%v", err))
 	// }
 
+	log.Printf("[DEBUG] End resourcePolicyRead")
 	return diag.Diagnostics{}
 }
 
@@ -187,21 +187,19 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 	log.Printf("[DEBUG] Init resourcePolicyUpdate")
 	c := m.(*client.Client)
 
-	if d.HasChange("mapping") {
-		policy := getPolicyInfoFromResource(d)
+	policy := getPolicyInfoFromResource(d)
 
-		// sd := sensitiveData.String()
-		// log.Printf("[DEBUG] resourcePolicyUpdate - sensitiveData: %s", sd)
+	// sd := sensitiveData.String()
+	// log.Printf("[DEBUG] resourcePolicyUpdate - sensitiveData: %s", sd)
 
-		url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
+	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
 
-		_, err := c.DoRequest(url, http.MethodPut, policy)
-		if err != nil {
-			return createError("Unable to update policy", fmt.Sprintf("%v", err))
-		}
-
-		d.Set("last_updated", time.Now().Format(time.RFC850))
+	_, err := c.DoRequest(url, http.MethodPut, policy)
+	if err != nil {
+		return createError("Unable to update policy", fmt.Sprintf("%v", err))
 	}
+
+	d.Set("last_updated", time.Now().Format(time.RFC850))
 
 	log.Printf("[DEBUG] End resourcePolicyUpdate")
 
@@ -223,11 +221,79 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	return diag.Diagnostics{}
 }
 
+func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
+	interfaceList := d.Get(field).([]interface{})
+	strList := []string{}
+
+	for _, v := range interfaceList {
+		strList = append(strList, v.(string))
+	}
+
+	return strList
+}
+
 func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
-	var policy Policy
+
+	data := getStrListFromSchemaField(d, "data")
+	tags := getStrListFromSchemaField(d, "tags")
+	whitelistedUsers := getStrListFromSchemaField(d, "whitelisted_users")
+
+	propertiesList := d.Get("properties").(*schema.Set).List()
+	properties := make(map[string]string)
+	for _, property := range propertiesList {
+		propertyMap := property.(map[string]interface{})
+
+		name := propertyMap["name"].(string)
+		properties[name] = propertyMap["description"].(string)
+	}
+
+	policy := Policy{
+		Data: data,
+		Meta: &PolicyMetadata{
+			Tags:       tags,
+			Properties: properties,
+		},
+		WhitelistedUsers: whitelistedUsers,
+	}
+
+	if v, ok := d.Get("name").(string); ok {
+		policy.Meta.Name = v
+	}
+
+	if v, ok := d.Get("version").(string); ok {
+		policy.Meta.Version = v
+	}
+
+	if v, ok := d.Get("type").(string); ok {
+		policy.Meta.Type = v
+	}
+
+	if v, ok := d.Get("enabled").(bool); ok {
+		policy.Meta.Enabled = v
+	}
+
+	if v, ok := d.Get("description").(string); ok {
+		policy.Meta.Description = v
+	}
+
 	return policy
 }
 
-func flattenPolicy(policy *Policy) []interface{} {
+func flattenProperties(policyMetadata *PolicyMetadata) []interface{} {
+	if policyMetadata != nil {
+
+		propertiesList := make([]map[string]interface{},
+			len(policyMetadata.Properties), len(policyMetadata.Properties))
+
+		for name, description := range policyMetadata.Properties {
+			propertyMap := make(map[string]interface{})
+
+			propertyMap["name"] = name
+			propertyMap["description"] = description
+			propertiesList = append(propertiesList, propertyMap)
+		}
+
+	}
+
 	return make([]interface{}, 0)
 }
