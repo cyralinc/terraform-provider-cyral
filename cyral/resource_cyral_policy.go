@@ -18,6 +18,22 @@ type CreatePolicyResponse struct {
 }
 
 type Policy struct {
+	Meta             *PolicyMetadata `json:"meta" yaml:"meta"`
+	Data             []string        `json:"data,omitempty" yaml:"data,omitempty,flow"`
+	WhitelistedUsers []string        `json:"whitelistedUsers,omitempty" yaml:"whitelistedUsers,omitempty"`
+}
+
+type PolicyMetadata struct {
+	ID          string            `json:"id" yaml:"id"`
+	Name        string            `json:"name" yaml:"name"`
+	Version     string            `json:"version" yaml:"version"`
+	Created     time.Time         `json:"created" yaml:"created"`
+	LastUpdated time.Time         `json:"lastUpdated" yaml:"lastUpdated"`
+	Type        string            `json:"type" yaml:"type"`
+	Tags        []string          `json:"tags" yaml:"tags"`
+	Enabled     bool              `json:"enabled" yaml:"enabled"`
+	Description string            `json:"description" yaml:"description"`
+	Properties  map[string]string `json:"properties" yaml:"properties"`
 }
 
 func resourcePolicy() *schema.Resource {
@@ -26,7 +42,82 @@ func resourcePolicy() *schema.Resource {
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
 		DeleteContext: resourcePolicyDelete,
-		Schema:        map[string]*schema.Schema{},
+		Schema: map[string]*schema.Schema{
+			"data": {
+				Type:     schema.TypeList,
+				Required: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"meta": {
+				Type:     schema.TypeSet,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"created": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true, // TODO: is this correct?
+						},
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"lastUpdated": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"properties": {
+							Type: schema.TypeSet,
+							// TODO: is this optional?
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"description": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"tags": {
+							Type:     schema.TypeList,
+							Required: true, // TODO: is this correct?
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"version": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"whitelistedUsers": {
+				Type: schema.TypeList,
+				// TODO: is this optional?
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
