@@ -2,8 +2,10 @@ package cyral
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
@@ -84,7 +86,9 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 	log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
 
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
-	if err := c.UpdateResource(sensitiveData, url); err != nil {
+
+	_, err := c.DoRequest(url, http.MethodPut, sensitiveData)
+	if err != nil {
 		return createError("Unable to create datamap", fmt.Sprintf("%v", err))
 	}
 
@@ -98,10 +102,16 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
 
-	response := make(SensitiveData)
-	if err := c.ReadResource(url, &response); err != nil {
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
 		return createError("Unable to read datamap", fmt.Sprintf("%v", err))
 	}
+
+	response := make(SensitiveData)
+	if err := json.Unmarshal(body, &response); err != nil {
+		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	datamap := DataMap{SensitiveData: response}
 
@@ -119,6 +129,7 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 }
 
 func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	log.Printf("[DEBUG] Init resourceDatamapUpdate")
 	c := m.(*client.Client)
 
 	if d.HasChange("mapping") {
@@ -128,26 +139,33 @@ func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		}
 
 		sd := sensitiveData.String()
-		log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
+		log.Printf("[DEBUG] resourceDatamapUpdate - sensitiveData: %s", sd)
 
 		url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
-		if err := c.UpdateResource(sensitiveData, url); err != nil {
+
+		if _, err := c.DoRequest(url, http.MethodPut, sensitiveData); err != nil {
 			return createError("Unable to update datamap", fmt.Sprintf("%v", err))
 		}
 
 		d.Set("last_updated", time.Now().Format(time.RFC850))
 	}
 
+	log.Printf("[DEBUG] End resourceDatamapUpdate")
+
 	return resourceDatamapRead(ctx, d, m)
 }
 
 func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	log.Printf("[DEBUG] Init resourceDatamapDelete")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
-	if err := c.DeleteResource(url); err != nil {
+
+	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
 		return createError("Unable to delete datamap", fmt.Sprintf("%v", err))
 	}
+
+	log.Printf("[DEBUG] End resourceDatamapDelete")
 
 	return diag.Diagnostics{}
 }

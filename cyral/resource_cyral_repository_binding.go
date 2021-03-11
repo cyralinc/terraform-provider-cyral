@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -72,8 +73,7 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
 		resourceData.SidecarID, resourceData.RepositoryID)
 
-	err = c.CreateResource(url, http.MethodPut, resourceData, nil)
-	if err != nil {
+	if _, err := c.DoRequest(url, http.MethodPut, resourceData); err != nil {
 		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
 	}
 
@@ -90,17 +90,24 @@ func resourceRepositoryBindingRead(ctx context.Context, d *schema.ResourceData, 
 
 	sidecarID := d.Get("sidecar_id").(string)
 	repositoryID := d.Get("repository_id").(string)
+
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane, sidecarID, repositoryID)
+
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return createError(fmt.Sprintf("Unable to read repository. SidecarID: %s, RepositoryID: %s",
+			sidecarID, repositoryID), fmt.Sprintf("%v", err))
+	}
 
 	response := RepoBindingData{
 		SidecarID:    sidecarID,
 		RepositoryID: repositoryID,
 	}
-	err := c.ReadResource(url, &response)
-	if err != nil {
-		return createError(fmt.Sprintf("Unable to read repository. SidecarID: %s, RepositoryID: %s",
+	if err := json.Unmarshal(body, &response); err != nil {
+		return createError(fmt.Sprintf("Unable to unmarshall JSON. SidecarID: %s, RepositoryID: %s",
 			sidecarID, repositoryID), fmt.Sprintf("%v", err))
 	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("enabled", response.Enabled)
 	d.Set("sidecar_id", response.SidecarID)
@@ -126,11 +133,10 @@ func resourceRepositoryBindingUpdate(ctx context.Context, d *schema.ResourceData
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
 		resourceData.SidecarID, resourceData.RepositoryID)
 
-	err = c.UpdateResource(resourceData, url)
-
-	if err != nil {
+	if _, err = c.DoRequest(url, http.MethodPut, resourceData); err != nil {
 		return createError("Unable to update repository", fmt.Sprintf("%v", err))
 	}
+
 	log.Printf("[DEBUG] End resourceRepositoryBindingUpdate")
 
 	return resourceRepositoryBindingRead(ctx, d, m)
@@ -142,10 +148,10 @@ func resourceRepositoryBindingDelete(ctx context.Context, d *schema.ResourceData
 
 	sidecarID := d.Get("sidecar_id").(string)
 	repositoryID := d.Get("repository_id").(string)
+
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane, sidecarID, repositoryID)
 
-	err := c.DeleteResource(url)
-	if err != nil {
+	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
 		return createError("Unable to delete sidecar", fmt.Sprintf("%v", err))
 	}
 

@@ -94,24 +94,29 @@ func getAuth0Token(domain, clientID, clientSecret, audience string) (Auth0TokenR
 	return token, nil
 }
 
-// CreateResource calls a POST or PUT api to create a given resource and returns
-// the unmarshalled body based on the response interface provided.
-func (c *Client) CreateResource(url, httpMethod string, resourceData, response interface{}) error {
+// DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
+// filling the response parameter (if not nil) with the response body.
+func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, error) {
 	log.Printf("[DEBUG] Resource info: %#v", resourceData)
-	if httpMethod != http.MethodPost && httpMethod != http.MethodPut {
-		return fmt.Errorf("HTTP method %s not supported. Please use POST or PUT.", httpMethod)
-	}
 	log.Printf("[DEBUG] %s URL: %s", httpMethod, url)
 
-	payloadBytes, err := json.Marshal(resourceData)
-	if err != nil {
-		return fmt.Errorf("failed to encode payload: %v", err)
-	}
+	var req *http.Request
 
-	log.Printf("[DEBUG] %s payload: %s", httpMethod, string(payloadBytes))
-	req, err := http.NewRequest(httpMethod, url, strings.NewReader(string(payloadBytes)))
-	if err != nil {
-		return fmt.Errorf("unable to create request; err: %v", err)
+	if resourceData != nil {
+		payloadBytes, err := json.Marshal(resourceData)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encode payload: %v", err)
+		}
+		payload := string(payloadBytes)
+		log.Printf("[DEBUG] %s payload: %s", httpMethod, payload)
+		if req, err = http.NewRequest(httpMethod, url, strings.NewReader(payload)); err != nil {
+			return nil, fmt.Errorf("unable to create request; err: %v", err)
+		}
+	} else {
+		var err error
+		if req, err = http.NewRequest(httpMethod, url, nil); err != nil {
+			return nil, fmt.Errorf("unable to create request; err: %v", err)
+		}
 	}
 
 	req.Header.Add("content-type", "application/json")
@@ -120,129 +125,30 @@ func (c *Client) CreateResource(url, httpMethod string, resourceData, response i
 	log.Printf("[DEBUG] Executing %s", httpMethod)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
+		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
 	}
 
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict ||
 		strings.Contains(strings.ToLower(res.Status), "already exists") {
-		return fmt.Errorf("resource already exists in control plane")
+		return nil, fmt.Errorf("resource possibly exists in the control plane. Response status: %s", res.Status)
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf("unable to read data from request body; err: %v", err)
+		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
-	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
-		return fmt.Errorf("unexpected response from CreateResource request; status code: %d; body: %q",
-			res.StatusCode, body)
-	}
-
-	if response != nil {
-		if err := json.Unmarshal(body, response); err != nil {
-			return fmt.Errorf("unable to unmarshall json; err: %v", err)
-		}
-		log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
-	}
-	return nil
-}
-
-// ReadResource calls a GET api to read a given url and returns
-// the unmarshalled body based on the response interface provided.
-func (c *Client) ReadResource(url string, response interface{}) error {
-	log.Printf("[DEBUG] GET URL: %s", url)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return fmt.Errorf("unable to create new request; err: %v", err)
-	}
-
-	log.Printf("[DEBUG] Executing GET")
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
-	log.Printf("[DEBUG] GET request: %#v", req)
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("unable to execute request at ReadResource."+
-			" Check the control plane address; err: %v", err)
-	}
-
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return fmt.Errorf("unable to read data from request body at ReadResource; err: %v", err)
-	}
-	log.Printf("[DEBUG] Response body: %s", string(body))
-
-	// Not an error, nor any data was found
 	if res.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("resource not found")
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from ReadResource; status code: %d; body: %q", res.StatusCode, res.Body)
-	}
-
-	if err := json.Unmarshal(body, &response); err != nil {
-		return fmt.Errorf("unable to unmarshall response, err: %v", err)
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
-
-	return nil
-}
-
-// UpdateResource runs a PUT request on a given url and resource data.
-func (c *Client) UpdateResource(resourceData interface{}, url string) error {
-	payloadBytes, err := json.Marshal(resourceData)
-	if err != nil {
-		return fmt.Errorf("failed to encode payload: %v", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPut, url, strings.NewReader(string(payloadBytes)))
-	if err != nil {
-		return fmt.Errorf("unable to create request; err: %v", err)
-	}
-
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
-	}
-
-	if res.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("resource not found; %v", resourceData)
+		return nil, fmt.Errorf("resource not found; %v", resourceData)
 	} else if res.StatusCode == http.StatusConflict {
-		return fmt.Errorf("resource conflicts in control plane; status code: %d; body: %q",
+		return nil, fmt.Errorf("resource conflict; status code: %d; body: %q",
 			res.StatusCode, res.Body)
-	} else if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response; status code: %d; body: %q",
+	} else if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("error executing request; status code: %d; body: %q",
 			res.StatusCode, res.Body)
 	}
 
-	return nil
-}
-
-// DeleteResource runs a DELETE request on a given url.
-func (c *Client) DeleteResource(url string) error {
-	log.Printf("[DEBUG] DELETE URL: %s", url)
-
-	req, err := http.NewRequest(http.MethodDelete, url, nil)
-	if err != nil {
-		return fmt.Errorf("unable to create 'delete repo' request; err: %v", err)
-	}
-
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("unable execute 'delete repo' request. Check the control plane address; err: %v", err)
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response from 'delete repo' request; status code: %d; body: %q", res.StatusCode, res.Body)
-	}
-
-	return nil
+	return body, nil
 }
