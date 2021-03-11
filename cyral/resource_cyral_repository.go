@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -66,8 +67,10 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, m int
 		return createError("Unable to create repository", fmt.Sprintf("%v", err))
 	}
 
+	url := fmt.Sprintf("https://%s/v1/repos", c.ControlPlane)
+
 	response := CreateRepoResponse{}
-	if err = c.CreateResource(resourceData, "repos", &response); err != nil {
+	if err = c.CreateResource(url, http.MethodPost, resourceData, &response); err != nil {
 		return createError("Unable to create repository", fmt.Sprintf("%v", err))
 	}
 
@@ -83,8 +86,9 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m inter
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
 
 	response := GetRepoByIDResponse{}
-	if err := c.ReadResource(d.Id(), url, &response); err != nil {
-		return createError("Unable to read repository", fmt.Sprintf("%v", err))
+	if err := c.ReadResource(url, &response); err != nil {
+		return createError(fmt.Sprintf("Unable to read repository. RepositoryID: %s",
+			d.Id()), fmt.Sprintf("%v", err))
 	}
 
 	d.Set("type", response.Repo.RepoType)
@@ -133,7 +137,7 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
 	repoType := d.Get("type").(string)
 
-	if err := containsRepoType(repoType); err != nil {
+	if err := client.ValidateRepoType(repoType); err != nil {
 		return RepoData{}, err
 	}
 
@@ -144,28 +148,4 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 		Name:     d.Get("name").(string),
 		Port:     d.Get("port").(int),
 	}, nil
-}
-
-func containsRepoType(repoType string) error {
-	// This code was copied here to remove dependency of CRUD,
-	// but we should move the CRUD code to CRUD-API (or somewhere
-	// else) in the future.
-	repoTypes := map[string]bool{
-		"bigquery":   true,
-		"cassandra":  true,
-		"dremio":     true,
-		"galera":     true,
-		"mariadb":    true,
-		"mongodb":    true,
-		"mysql":      true,
-		"oracle":     true,
-		"postgresql": true,
-		"snowflake":  true,
-		"s3":         true,
-		"sqlserver":  true,
-	}
-	if repoTypes[repoType] == false {
-		return fmt.Errorf("repo type must be one of %v", repoTypes)
-	}
-	return nil
 }

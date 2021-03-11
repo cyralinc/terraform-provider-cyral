@@ -96,7 +96,7 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
 
 	response := make(SensitiveData)
-	if err := c.ReadResource(d.Id(), url, &response); err != nil {
+	if err := c.ReadResource(url, &response); err != nil {
 		return createError("Unable to read datamap", fmt.Sprintf("%v", err))
 	}
 
@@ -109,7 +109,7 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 	log.Printf("[DEBUG] resourceDatamapRead - datamapLabels: %s", datamapLabels)
 
 	if err := d.Set("mapping", datamapLabels); err != nil {
-		return diag.FromErr(err)
+		return createError("Unable to read datamap", fmt.Sprintf("%v", err))
 	}
 
 	return diag.Diagnostics{}
@@ -179,7 +179,7 @@ func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
 
 func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
 	if sensitiveData != nil {
-		labels := make([]interface{}, len(*sensitiveData), len(*sensitiveData))
+		labels := make([]interface{}, 0, len(*sensitiveData))
 
 		for label, repoAttrsList := range *sensitiveData {
 			labelMap := make(map[string]interface{})

@@ -57,15 +57,35 @@ provider "cyral" {
     control_plane = "some-cp.cyral.com:8000"
 }
 
-resource "cyral_repository" "my_repo_name" {
-    host = "myrepo.cyral.com"
-    port = 3306
+resource "cyral_repository" "mongodb_repo" {
+    type = "mongodb"
+    host = "mongodb.cyral.com"
+    port = 27017
+    name = "mymongodb"
+}
+
+resource "cyral_repository" "mariadb_repo" {
     type = "mariadb"
-    name = "myrepo"
+    host = "mariadb.cyral.com"
+    port = 3307
+    name = "mymariadb"
 }
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
+    deployment_method = "cloudFormation"
+    publicly_accessible = true
+}
+
+locals {
+    repositories = [cyral_repository.mongodb_repo, cyral_repository.mariadb_repo]
+}
+
+resource "cyral_repository_binding" "repo_binding" {
+    count         = length(local.repositories)
+    repository_id = local.repositories[count.index].id
+    listener_port = local.repositories[count.index].port
+    sidecar_id    = cyral_sidecar.my_sidecar_name.id
 }
 
 resource "cyral_datamap" "my_datamap_name" {
@@ -96,6 +116,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Repository](./doc/resource_repository.md)
+- [Resource Repository Binding](./doc/resource_repository_binding.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
 
 ## Prerequisites
