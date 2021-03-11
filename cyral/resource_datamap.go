@@ -35,7 +35,7 @@ func resourceDatamap() *schema.Resource {
 				Computed: true,
 			},
 			"mapping": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -44,7 +44,7 @@ func resourceDatamap() *schema.Resource {
 							Required: true,
 						},
 						"data_location": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Required: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -147,13 +147,13 @@ func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
-	mappings := d.Get("mapping").([]interface{})
+	mappings := d.Get("mapping").(*schema.Set).List()
 	sensitiveData := make(SensitiveData)
 
 	for _, m := range mappings {
 		labelMap := m.(map[string]interface{})
 
-		labelInfoList := labelMap["data_location"].([]interface{})
+		labelInfoList := labelMap["data_location"].(*schema.Set).List()
 
 		for _, labelInfo := range labelInfoList {
 			labelInfoMap := labelInfo.(map[string]interface{})
