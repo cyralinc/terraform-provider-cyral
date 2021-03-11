@@ -18,9 +18,8 @@ type CreatePolicyResponse struct {
 }
 
 type Policy struct {
-	Meta             *PolicyMetadata `json:"meta" yaml:"meta"`
-	Data             []string        `json:"data,omitempty" yaml:"data,omitempty,flow"`
-	WhitelistedUsers []string        `json:"whitelistedUsers,omitempty" yaml:"whitelistedUsers,omitempty"`
+	Meta *PolicyMetadata `json:"meta" yaml:"meta"`
+	Data []string        `json:"data,omitempty" yaml:"data,omitempty,flow"`
 }
 
 type PolicyMetadata struct {
@@ -47,22 +46,30 @@ func resourcePolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"data": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"last_updated": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true, // TODO: is this correct?
-			},
-			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Required: true,
 			},
 			"properties": {
 				Type:     schema.TypeSet,
@@ -87,24 +94,13 @@ func resourcePolicy() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			// TODO: this field is changed at every `terraform apply`
-			// "version": {
-			// 	Type:     schema.TypeString,
-			// 	Optional: true,
-			// },
-			"data": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
-			"whitelisted_users": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+			"version": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -117,10 +113,8 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	log.Printf("[DEBUG] Init resourcePolicyCreate")
 	c := m.(*client.Client)
 
+	d.Set("type", "terraform")
 	policy := getPolicyInfoFromResource(d)
-
-	// sd := sensitiveData.String()
-	// log.Printf("[DEBUG] resourcePolicyCreate - sensitiveData: %s", sd)
 
 	url := fmt.Sprintf("https://%s/v1/policies", c.ControlPlane)
 
@@ -136,7 +130,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
-	d.Set("created", time.Now().Format(time.RFC850))
+	//d.Set("created", time.Now().Format(time.RFC850))
 
 	log.Printf("[DEBUG] End resourcePolicyCreate")
 
@@ -160,24 +154,19 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	// sd := datamap.SensitiveData.String()
-	// log.Printf("[DEBUG] resourceDatamapRead - sensitiveData: %s", sd)
-
 	propertiesList := flattenProperties(response.Meta)
-	log.Printf("[DEBUG] resourcePolicyRead - policy: %s", propertiesList...)
+	log.Printf("[DEBUG] resourcePolicyRead - policy: %#v", propertiesList)
 
-	d.Set("name", response.Meta.Name)
-	d.Set("version", response.Meta.Version)
-	d.Set("type", response.Meta.Type)
-	d.Set("enabled", response.Meta.Enabled)
-	d.Set("description", response.Meta.Description)
-	d.Set("properties", propertiesList)
+	d.Set("created", response.Meta.Created.String())
 	d.Set("data", response.Data)
+	d.Set("description", response.Meta.Description)
+	d.Set("enabled", response.Meta.Enabled)
+	d.Set("last_updated", response.Meta.LastUpdated.String())
+	d.Set("name", response.Meta.Name)
+	d.Set("properties", propertiesList)
 	d.Set("tags", response.Meta.Tags)
-	d.Set("whitelisted_users", response.WhitelistedUsers)
-	// if err := d.Set("mapping", datamapLabels); err != nil {
-	// 	return createError("Unable to read policy", fmt.Sprintf("%v", err))
-	// }
+	d.Set("type", response.Meta.Type)
+	d.Set("version", response.Meta.Version)
 
 	log.Printf("[DEBUG] End resourcePolicyRead")
 	return diag.Diagnostics{}
@@ -187,10 +176,8 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 	log.Printf("[DEBUG] Init resourcePolicyUpdate")
 	c := m.(*client.Client)
 
+	d.Set("type", "terraform")
 	policy := getPolicyInfoFromResource(d)
-
-	// sd := sensitiveData.String()
-	// log.Printf("[DEBUG] resourcePolicyUpdate - sensitiveData: %s", sd)
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
 
@@ -198,8 +185,6 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 	if err != nil {
 		return createError("Unable to update policy", fmt.Sprintf("%v", err))
 	}
-
-	d.Set("last_updated", time.Now().Format(time.RFC850))
 
 	log.Printf("[DEBUG] End resourcePolicyUpdate")
 
@@ -233,10 +218,8 @@ func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
 }
 
 func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
-
 	data := getStrListFromSchemaField(d, "data")
 	tags := getStrListFromSchemaField(d, "tags")
-	whitelistedUsers := getStrListFromSchemaField(d, "whitelisted_users")
 
 	propertiesList := d.Get("properties").(*schema.Set).List()
 	properties := make(map[string]string)
@@ -253,7 +236,6 @@ func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 			Tags:       tags,
 			Properties: properties,
 		},
-		WhitelistedUsers: whitelistedUsers,
 	}
 
 	if v, ok := d.Get("name").(string); ok {
