@@ -75,7 +75,10 @@ func resourceDatamap() *schema.Resource {
 func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
 
-	sensitiveData := getSensitiveDataFromResource(d)
+	sensitiveData, err := getSensitiveDataFromResource(d)
+	if err != nil {
+		return createError("Unable to create datamap", fmt.Sprintf("%v", err))
+	}
 
 	sd := sensitiveData.String()
 	log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
@@ -119,7 +122,10 @@ func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	c := m.(*client.Client)
 
 	if d.HasChange("mapping") {
-		sensitiveData := getSensitiveDataFromResource(d)
+		sensitiveData, err := getSensitiveDataFromResource(d)
+		if err != nil {
+			return createError("Unable to update datamap", fmt.Sprintf("%v", err))
+		}
 
 		sd := sensitiveData.String()
 		log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
@@ -146,14 +152,18 @@ func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interf
 	return diag.Diagnostics{}
 }
 
-func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
+func getSensitiveDataFromResource(d *schema.ResourceData) (SensitiveData, error) {
+	labelsSet := make(map[string]bool)
 	mappings := d.Get("mapping").(*schema.Set).List()
 	sensitiveData := make(SensitiveData)
+
+	log.Printf("[DEBUG] getSensitiveDataFromResource - labelsSet: %#v", labelsSet)
 
 	for _, m := range mappings {
 		labelMap := m.(map[string]interface{})
 
 		labelInfoList := labelMap["data_location"].(*schema.Set).List()
+		label := labelMap["label"].(string)
 
 		for _, labelInfo := range labelInfoList {
 			labelInfoMap := labelInfo.(map[string]interface{})
@@ -170,11 +180,18 @@ func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
 				Attributes: attributes,
 			}
 
-			sensitiveData[labelMap["label"].(string)] = append(sensitiveData[labelMap["label"].(string)], repoAttr)
+			sensitiveData[label] = append(sensitiveData[label], repoAttr)
+
 		}
+
+		if labelsSet[label] {
+			return nil, fmt.Errorf("there is more than one mapping block with the same label, please join them into one")
+		}
+
+		labelsSet[label] = true
 	}
 
-	return sensitiveData
+	return sensitiveData, nil
 }
 
 func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
