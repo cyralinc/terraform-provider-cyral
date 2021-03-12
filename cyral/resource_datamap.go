@@ -157,8 +157,6 @@ func getSensitiveDataFromResource(d *schema.ResourceData) (SensitiveData, error)
 	mappings := d.Get("mapping").(*schema.Set).List()
 	sensitiveData := make(SensitiveData)
 
-	log.Printf("[DEBUG] getSensitiveDataFromResource - labelsSet: %#v", labelsSet)
-
 	for _, m := range mappings {
 		labelMap := m.(map[string]interface{})
 
