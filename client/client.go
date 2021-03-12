@@ -144,10 +144,10 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 		return nil, fmt.Errorf("resource not found; %v", resourceData)
 	} else if res.StatusCode == http.StatusConflict {
 		return nil, fmt.Errorf("resource conflict; status code: %d; body: %q",
-			res.StatusCode, res.Body)
+			res.StatusCode, body)
 	} else if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("error executing request; status code: %d; body: %q",
-			res.StatusCode, res.Body)
+			res.StatusCode, body)
 	}
 
 	return body, nil
