@@ -153,7 +153,10 @@ func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func getSensitiveDataFromResource(d *schema.ResourceData) (SensitiveData, error) {
-	labelsSet := make(map[string]bool)
+	if err := validateMappingBlock(d); err != nil {
+		return nil, err
+	}
+
 	mappings := d.Get("mapping").(*schema.Set).List()
 	sensitiveData := make(SensitiveData)
 
@@ -179,17 +182,34 @@ func getSensitiveDataFromResource(d *schema.ResourceData) (SensitiveData, error)
 			}
 
 			sensitiveData[label] = append(sensitiveData[label], repoAttr)
-
 		}
-
-		if labelsSet[label] {
-			return nil, fmt.Errorf("there is more than one mapping block with the same label, please join them into one")
-		}
-
-		labelsSet[label] = true
 	}
 
 	return sensitiveData, nil
+}
+
+func validateMappingBlock(d *schema.ResourceData) error {
+	labelsSet := make(map[string]bool)
+	var labels []string
+	mappings := d.Get("mapping").(*schema.Set).List()
+
+	for _, m := range mappings {
+		labelMap := m.(map[string]interface{})
+
+		label := labelMap["label"].(string)
+
+		if labelsSet[label] {
+			labels = append(labels, label)
+		} else {
+			labelsSet[label] = true
+		}
+	}
+
+	if len(labels) > 0 {
+		return fmt.Errorf("there is more than one mapping block with the same label, please join them into one, labels: %v", labels)
+	}
+
+	return nil
 }
 
 func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
