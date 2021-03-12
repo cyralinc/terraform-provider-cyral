@@ -35,7 +35,7 @@ func resourceDatamap() *schema.Resource {
 				Computed: true,
 			},
 			"mapping": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -44,7 +44,7 @@ func resourceDatamap() *schema.Resource {
 							Required: true,
 						},
 						"data_location": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Required: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -75,7 +75,10 @@ func resourceDatamap() *schema.Resource {
 func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
 
-	sensitiveData := getSensitiveDataFromResource(d)
+	sensitiveData, err := getSensitiveDataFromResource(d)
+	if err != nil {
+		return createError("Unable to create datamap", fmt.Sprintf("%v", err))
+	}
 
 	sd := sensitiveData.String()
 	log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
@@ -119,7 +122,10 @@ func resourceDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	c := m.(*client.Client)
 
 	if d.HasChange("mapping") {
-		sensitiveData := getSensitiveDataFromResource(d)
+		sensitiveData, err := getSensitiveDataFromResource(d)
+		if err != nil {
+			return createError("Unable to update datamap", fmt.Sprintf("%v", err))
+		}
 
 		sd := sensitiveData.String()
 		log.Printf("[DEBUG] resourceDatamapCreate - sensitiveData: %s", sd)
@@ -146,14 +152,19 @@ func resourceDatamapDelete(ctx context.Context, d *schema.ResourceData, m interf
 	return diag.Diagnostics{}
 }
 
-func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
-	mappings := d.Get("mapping").([]interface{})
+func getSensitiveDataFromResource(d *schema.ResourceData) (SensitiveData, error) {
+	if err := validateMappingBlock(d); err != nil {
+		return nil, err
+	}
+
+	mappings := d.Get("mapping").(*schema.Set).List()
 	sensitiveData := make(SensitiveData)
 
 	for _, m := range mappings {
 		labelMap := m.(map[string]interface{})
 
-		labelInfoList := labelMap["data_location"].([]interface{})
+		labelInfoList := labelMap["data_location"].(*schema.Set).List()
+		label := labelMap["label"].(string)
 
 		for _, labelInfo := range labelInfoList {
 			labelInfoMap := labelInfo.(map[string]interface{})
@@ -170,11 +181,35 @@ func getSensitiveDataFromResource(d *schema.ResourceData) SensitiveData {
 				Attributes: attributes,
 			}
 
-			sensitiveData[labelMap["label"].(string)] = append(sensitiveData[labelMap["label"].(string)], repoAttr)
+			sensitiveData[label] = append(sensitiveData[label], repoAttr)
 		}
 	}
 
-	return sensitiveData
+	return sensitiveData, nil
+}
+
+func validateMappingBlock(d *schema.ResourceData) error {
+	labelsSet := make(map[string]bool)
+	var labels []string
+	mappings := d.Get("mapping").(*schema.Set).List()
+
+	for _, m := range mappings {
+		labelMap := m.(map[string]interface{})
+
+		label := labelMap["label"].(string)
+
+		if labelsSet[label] {
+			labels = append(labels, label)
+		} else {
+			labelsSet[label] = true
+		}
+	}
+
+	if len(labels) > 0 {
+		return fmt.Errorf("there is more than one mapping block with the same label, please join them into one, labels: %v", labels)
+	}
+
+	return nil
 }
 
 func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
