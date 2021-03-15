@@ -25,6 +25,5 @@ resource "cyral_policy" "SOME_RESOURCE_NAME" {
 | `properties`   |           |   | No      |
 | `tags`         |           | Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).  | No      |
 | `type`         |           |   | No      |
-| `version`      |           |   | No      |
 
 
