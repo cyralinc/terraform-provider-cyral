@@ -87,7 +87,7 @@ func resourceDatamapCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	url := fmt.Sprintf("https://%s/v1/datamaps", c.ControlPlane)
 
-	_, err := c.DoRequest(url, http.MethodPut, sensitiveData)
+	_, err = c.DoRequest(url, http.MethodPut, sensitiveData)
 	if err != nil {
 		return createError("Unable to create datamap", fmt.Sprintf("%v", err))
 	}
