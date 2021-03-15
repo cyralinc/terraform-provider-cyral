@@ -69,15 +69,15 @@ func resourcePolicyRule() *schema.Resource {
 					Optional: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
+							"dataset": {
+								Type:     schema.TypeString,
+								Required: true,
+							},
 							"repo": {
 								Type:     schema.TypeString,
 								Required: true,
 							},
 							"substitution": {
-								Type:     schema.TypeString,
-								Required: true,
-							},
-							"dataset": {
 								Type:     schema.TypeString,
 								Required: true,
 							},
@@ -113,9 +113,9 @@ func resourcePolicyRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"delete": ruleSchema,
-			"read":   ruleSchema,
-			"update": ruleSchema,
+			"deletes": ruleSchema,
+			"reads":   ruleSchema,
+			"updates": ruleSchema,
 			"identities": {
 				Type:     schema.TypeList,
 				Optional: true,
