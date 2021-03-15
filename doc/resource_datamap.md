@@ -5,7 +5,7 @@ This resource provides CRUD operations in Cyral datamaps, allowing users to Crea
 ## Usage
 
 ```hcl
-resource "cyral_datamap" "SOME_SOURCE_NAME" {
+resource "cyral_datamap" "SOME_RESOURCE_NAME" {
     mapping {
         label = ""
         data_location {
