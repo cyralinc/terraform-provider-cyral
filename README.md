@@ -11,13 +11,13 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
 
 ### Auth0
 
-* Open Auth0 dashboard;
-* Select `Applications` and hit `Create application`;
-    * Choose `Machine to Machine Applications`;
-    * Select the API `https://cyral-api.com`;
-    * Select scopes: `read:users`, `update:users`, `read:admins` and `update:admins`;
-    * Finish the creation by clicking `Authorize`;
-* In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./doc/provider.md) documentation how to set those two parameters.
+1. Open Auth0 dashboard;
+2. Select `Applications` and hit `Create application`;
+    1. Choose `Machine to Machine Applications`;
+    2. Select the API `https://cyral-api.com`;
+    3. Select scopes: `read:users`, `update:users`, `read:admins` and `update:admins`;
+    4. Finish the creation by clicking `Authorize`;
+3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./doc/provider.md) documentation how to set those two parameters.
 
 ### Keycloak
 
