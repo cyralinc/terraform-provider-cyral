@@ -20,11 +20,8 @@ type Auth0TokenRequest struct {
 
 // TokenResponse represents the payload with the token response from Auth0.
 type TokenResponse struct {
-	AccessToken      string `json:"access_token"`
-	TokenType        string `json:"token_type"`
-	ExpiresIn        string `json:"expires_in"`
-	RefreshExpiresIn string `json:"refresh_expires_in"`
-	RefreshToken     string `json:"refresh_token"`
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
 }
 
 // Client stores data for all existing resources. Also, this is
@@ -56,6 +53,8 @@ func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("[DEBUG] token.TokenType: %s", token.TokenType)
+	log.Printf("[DEBUG] token.AccessToken: %s", token.AccessToken)
 
 	log.Printf("[DEBUG] End NewClient")
 
@@ -97,6 +96,7 @@ func getAuth0Token(domain, clientID, clientSecret, audience string) (TokenRespon
 		return TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
 	}
 	defer res.Body.Close()
+	log.Printf("[DEBUG] body: %v", res.Body)
 	if res.StatusCode != http.StatusOK {
 		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d. Response body: %v",
 			res.StatusCode, res.Body)
@@ -140,6 +140,7 @@ func getKeycloakToken(controlPlane, clientID, clientSecret string) (TokenRespons
 		return TokenResponse{}, fmt.Errorf("unable execute keycloak request; err: %v", err)
 	}
 	defer res.Body.Close()
+	log.Printf("[DEBUG] body: %v", res.Body)
 	if res.StatusCode != http.StatusOK {
 		msg := fmt.Sprintf("keycloak requisition fail. Response status code %d. Response body: %v",
 			res.StatusCode, res.Body)
@@ -164,6 +165,7 @@ func getKeycloakToken(controlPlane, clientID, clientSecret string) (TokenRespons
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
 // filling the response parameter (if not nil) with the response body.
 func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, error) {
+	log.Printf("[DEBUG] Init DoRequest")
 	log.Printf("[DEBUG] Resource info: %#v", resourceData)
 	log.Printf("[DEBUG] %s URL: %s", httpMethod, url)
 
@@ -187,7 +189,12 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	}
 
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
+	// The TokenType returned by getKeycloakToken is "bearer", but if we use it here we
+	// will get error "Failed to get roles: tokenstring should not contain 'bearer '\n".
+	// If we change it to "Bearer" it works normally.
+	// See: https://cyralinc.atlassian.net/browse/ENG-4408
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.Token))
+	//req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 
 	log.Printf("[DEBUG] Executing %s", httpMethod)
 	res, err := http.DefaultClient.Do(req)
@@ -217,6 +224,8 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 		return nil, fmt.Errorf("error executing request; status code: %d; body: %q",
 			res.StatusCode, body)
 	}
+
+	log.Printf("[DEBUG] End DoRequest")
 
 	return body, nil
 }

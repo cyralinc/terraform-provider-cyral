@@ -27,10 +27,16 @@ func Provider() *schema.Provider {
 			"auth0_audience": {
 				Type:     schema.TypeString,
 				Optional: true,
+				RequiredWith: []string{
+					"auth0_domain",
+				},
 			},
 			"auth0_domain": {
 				Type:     schema.TypeString,
 				Optional: true,
+				RequiredWith: []string{
+					"auth0_audience",
+				},
 			},
 			"auth0_client_id": {
 				Type:          schema.TypeString,
