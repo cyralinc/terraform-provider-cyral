@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	u "net/url"
 	"strings"
 )
 
@@ -14,13 +15,6 @@ type Auth0TokenRequest struct {
 	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 	Audience     string `json:"audience"`
-	GrantType    string `json:"grant_type"`
-}
-
-// KeycloakTokenRequest represents the payload for token requests to Keycloak.
-type KeycloakTokenRequest struct {
-	ClientID     string `json:"clientId"`
-	ClientSecret string `json:"clientSecret"`
 	GrantType    string `json:"grant_type"`
 }
 
@@ -44,6 +38,7 @@ type Client struct {
 // NewClient configures and returns a fully initialized Client.
 func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 	controlPlane string, keycloakProvider bool) (*Client, error) {
+	log.Printf("[DEBUG] Init NewClient")
 
 	if !keycloakProvider {
 		token, err := getAuth0Token(auth0Domain, clientID, clientSecret, auth0Audience)
@@ -62,6 +57,8 @@ func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 		return nil, err
 	}
 
+	log.Printf("[DEBUG] End NewClient")
+
 	return &Client{
 		ControlPlane: controlPlane,
 		Token:        token.AccessToken,
@@ -70,6 +67,8 @@ func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 }
 
 func getAuth0Token(domain, clientID, clientSecret, audience string) (TokenResponse, error) {
+	log.Printf("[DEBUG] Init getAuth0Token")
+
 	url := fmt.Sprintf("https://%s/oauth/token", domain)
 	audienceURL := fmt.Sprintf("https://%s", audience)
 	tokenReq := Auth0TokenRequest{
@@ -79,22 +78,9 @@ func getAuth0Token(domain, clientID, clientSecret, audience string) (TokenRespon
 		GrantType:    "client_credentials",
 	}
 
-	return getToken(url, tokenReq)
-}
+	log.Printf("[DEBUG] url: %s", url)
+	log.Printf("[DEBUG] payload: %v", tokenReq)
 
-func getKeycloakToken(controlPlane, clientID, clientSecret string) (TokenResponse, error) {
-	url := fmt.Sprintf("https://%s/v1/users/oidc/token", controlPlane)
-
-	tokenReq := KeycloakTokenRequest{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		GrantType:    "client_credentials",
-	}
-
-	return getToken(url, tokenReq)
-}
-
-func getToken(url string, tokenReq interface{}) (TokenResponse, error) {
 	payloadBytes, err := json.Marshal(tokenReq)
 	if err != nil {
 		return TokenResponse{}, fmt.Errorf("failed to encode readToken payload: %v", err)
@@ -112,7 +98,8 @@ func getToken(url string, tokenReq interface{}) (TokenResponse, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d.\n", res.StatusCode)
+		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d. Response body: %v",
+			res.StatusCode, res.Body)
 		return TokenResponse{}, fmt.Errorf(msg)
 	}
 
@@ -125,6 +112,51 @@ func getToken(url string, tokenReq interface{}) (TokenResponse, error) {
 	if err := json.Unmarshal(body, &token); err != nil {
 		return TokenResponse{}, fmt.Errorf("unable to get access token from json; err: %v", err)
 	}
+
+	log.Printf("[DEBUG] End getAuth0Token")
+
+	return token, nil
+}
+
+func getKeycloakToken(controlPlane, clientID, clientSecret string) (TokenResponse, error) {
+	log.Printf("[DEBUG] Init getKeycloakToken")
+	url := fmt.Sprintf("https://%s/v1/users/oidc/token", controlPlane)
+
+	log.Printf("[DEBUG] url: %s", url)
+	log.Printf("[DEBUG] clientId: %s ; clientSecret: %s", clientID, clientSecret)
+
+	data := u.Values{}
+	data.Set("clientId", clientID)
+	data.Set("clientSecret", clientSecret)
+	data.Set("grant_type", "client_credentials")
+	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(data.Encode()))
+	if err != nil {
+		return TokenResponse{}, fmt.Errorf("unable to create keycloak request; err: %v", err)
+	}
+
+	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return TokenResponse{}, fmt.Errorf("unable execute keycloak request; err: %v", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		msg := fmt.Sprintf("keycloak requisition fail. Response status code %d. Response body: %v",
+			res.StatusCode, res.Body)
+		return TokenResponse{}, fmt.Errorf(msg)
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return TokenResponse{}, fmt.Errorf("unable to read data from request body; err: %v", err)
+	}
+
+	token := TokenResponse{}
+	if err := json.Unmarshal(body, &token); err != nil {
+		return TokenResponse{}, fmt.Errorf("unable to get access token from json; err: %v", err)
+	}
+
+	log.Printf("[DEBUG] End getKeycloakToken")
 
 	return token, nil
 }
@@ -173,6 +205,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	if err != nil {
 		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
+	log.Printf("[DEBUG] Request: %#v", req)
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	if res.StatusCode == http.StatusNotFound {
