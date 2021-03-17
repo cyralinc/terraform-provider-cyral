@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -106,10 +107,16 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	url := fmt.Sprintf("https://%s/v1/sidecars", c.ControlPlane)
 
-	response := CreateSidecarResponse{}
-	if err := c.CreateResource(url, http.MethodPost, resourceData, &response); err != nil {
+	body, err := c.DoRequest(url, http.MethodPost, resourceData)
+	if err != nil {
 		return createError("Unable to create sidecar", fmt.Sprintf("%v", err))
 	}
+
+	response := CreateSidecarResponse{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
 
@@ -122,11 +129,17 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
-	response := SidecarData{}
-	if err := c.ReadResource(url, &response); err != nil {
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
 		return createError(fmt.Sprintf("Unable to read sidecar. SidecarID: %s",
 			d.Id()), fmt.Sprintf("%v", err))
 	}
+
+	response := SidecarData{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("name", response.Name)
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
@@ -157,9 +170,11 @@ func resourceSidecarUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	}
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
-	if err = c.UpdateResource(resourceData, url); err != nil {
+
+	if _, err = c.DoRequest(url, http.MethodPut, resourceData); err != nil {
 		return createError("Unable to update sidecar", fmt.Sprintf("%v", err))
 	}
+
 	log.Printf("[DEBUG] End resourceSidecarUpdate")
 
 	return resourceSidecarRead(ctx, d, m)
@@ -170,7 +185,8 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
-	if err := c.DeleteResource(url); err != nil {
+
+	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
 		return createError("Unable to delete sidecar", fmt.Sprintf("%v", err))
 	}
 
