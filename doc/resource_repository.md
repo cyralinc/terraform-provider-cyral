@@ -13,6 +13,28 @@ resource "cyral_repository" "SOME_RESOURCE_NAME" {
 }
 ```
 
+You may also use the same resource declaration to handle multiple repositories at once by using a `local` variable and `count` parameter:
+
+
+```hcl
+locals {
+    repos = [
+        ["mongodb", "mongodb.cyral.com", 27017, "mymongodb"],
+        ["mariadb", "mariadb.cyral.com", 3310, "mymariadb"],
+        ["postgresql", "postgresql.cyral.com", 5432, "mypostgresql"]
+    ]
+}
+
+resource "cyral_repository" "repositories" {
+    count = length(local.repos)
+
+    type  = local.repos[count.index][0]
+    host  = local.repos[count.index][1]
+    port  = local.repos[count.index][2]
+    name  = local.repos[count.index][3]
+}
+```
+
 ## Variables
 
 |  Name         |  Default  |  Description                                                                         | Required |

@@ -14,37 +14,36 @@ resource "cyral_repository_binding" "SOME_RESOURCE_NAME" {
 }
 ```
 
-You may also use the same resource declaration to bind multiple repositories at once:
+You may also use want to create and bind multiple repositories at once by using a `local` variable and `count` parameter:
 
 ```hcl
-resource "cyral_repository" "mongodb_repo" {
-    type = "mongodb"
-    host = "mongodb.cyral.com"
-    port = 27017
-    name = "mymongodb"
+locals {
+    repos = [
+        ["mongodb", "mongodb.cyral.com", 27017, "mymongodb"],
+        ["mariadb", "mariadb.cyral.com", 3310, "mymariadb"],
+        ["postgresql", "postgresql.cyral.com", 5432, "mypostgresql"]
+    ]
 }
 
-resource "cyral_repository" "mariadb_repo" {
-    type = "mariadb"
-    host = "mariadb.cyral.com"
-    port = 3307
-    name = "mymariadb"
+resource "cyral_repository" "repositories" {
+    count = length(local.repos)
+
+    type  = local.repos[count.index][0]
+    host  = local.repos[count.index][1]
+    port  = local.repos[count.index][2]
+    name  = local.repos[count.index][3]
 }
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
-    publicly_accessible = true
-}
-
-locals {
-    repositories = [cyral_repository.mongodb_repo, cyral_repository.mariadb_repo]
 }
 
 resource "cyral_repository_binding" "repo_binding" {
-    count         = length(local.repositories)
-    repository_id = local.repositories[count.index].id
-    listener_port = local.repositories[count.index].port
+    enabled       = true
+    count         = length(local.repos)
+    repository_id = cyral_repository.repositories[count.index].id
+    listener_port = cyral_repository.repositories[count.index].port
     sidecar_id    = cyral_sidecar.my_sidecar_name.id
 }
 ```
