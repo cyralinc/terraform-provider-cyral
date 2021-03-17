@@ -5,6 +5,28 @@ The Cyral Terraform Provider contains resources that can be used to interact wit
 
 Our provider uses the same naming conventions and organization as stated in Terraform guidelines for [writing custom providers](https://www.terraform.io/docs/extend/writing-custom-providers.html).
 
+## Compatibility
+
+This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial setup is needed in both Auth0 and Keycloak as stated in the next sections.
+
+### Auth0
+
+### Keycloak
+
+In order to setup Keycloak clusters, it is necessary to run several configurations
+
+```
+export CONTROL_PLANE=mycontrolplane.cyral.com
+export TOKEN=
+
+# Get role ids
+export ROLE_IDS=`curl -X GET https://$CONTROL_PLANE:8000/v1/users/roles -H "$TOKEN" -H "Content-type:Application/JSON" | jq '[.roles | map(select(.name | contains("Modify Integrations", "Modify Policies", "Modify Roles","Modify Sidecars and Repositories", "View Sidecars and Repositories"))) | .[].id]' -c`
+
+# Create/update a service account for Terraform and return the necessary parameters
+# client_id and client_secret that will be used in the provider
+curl -X POST https://$CONTROL_PLANE:8000/v1/users/serviceAccounts -d '{"displayName":"terraform","roleIds":'"$ROLE_IDS"'}' -H "$TOKEN" -H "Content-type:Application/JSON" | jq
+```
+
 ## Usage Example
 
 The code below is just a simple example of how to use the Cyral Terraform Module. Refer to the "Supported Elements" section for more information on resources and provider details.

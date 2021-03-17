@@ -110,7 +110,7 @@ func reqOK() error {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("content-type", "application/json")
 
-		tokenRes := Auth0TokenResponse{
+		tokenRes := TokenResponse{
 			AccessToken: "ExampleAcessToken",
 			TokenType:   "ExampleTokenType",
 		}
