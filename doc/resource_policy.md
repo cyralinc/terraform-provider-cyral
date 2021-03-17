@@ -27,3 +27,12 @@ resource "cyral_policy" "SOME_RESOURCE_NAME" {
 | `type`         |           |   | No      |
 
 
+## Outputs
+
+|  Name          |  Description                                                        |
+|:---------------|:--------------------------------------------------------------------|
+| `id`           | Unique ID of the resource in the control plane.                     |
+| `created`      | Policy creation timestamp.                                          |
+| `last_updated` | Last update timestamp.                                              |
+| `version`      | Incremental counter for every update on the policy.                 |
+

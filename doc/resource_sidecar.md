@@ -34,3 +34,10 @@ resource "cyral_sidecar" "SOME_RESOURCE_NAME" {
 | `key_name`               |             | Key-pair name that will be associated to the sidecar EC2 instances.                  | No       |
 | `vpc`                    |             | ID of the VPC that the sidecar will be deployed to.                                  | No       |
 | `subnets`                |             | Comma-separated list of subnet ids that the sidecar will be deployed to.             | No       |
+
+
+## Outputs
+
+|  Name        |  Description                                                        |
+|:-------------|:--------------------------------------------------------------------|
+| `id`         | Unique ID of the resource in the control plane.                     |
