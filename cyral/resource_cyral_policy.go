@@ -130,8 +130,6 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
-	d.Set("created", time.Now().Format(time.RFC850))
-	d.Set("last_updated", d.Get("created"))
 
 	log.Printf("[DEBUG] End resourcePolicyCreate")
 
@@ -186,8 +184,6 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 	if err != nil {
 		return createError("Unable to update policy", fmt.Sprintf("%v", err))
 	}
-
-	d.Set("last_updated", time.Now().Format(time.RFC850))
 
 	log.Printf("[DEBUG] End resourcePolicyUpdate")
 
