@@ -17,19 +17,19 @@ type CreatePolicyRuleResponse struct {
 }
 
 type PolicyRule struct {
-	Deletes    []Rule     `json:"deletes,omitempty"`
-	Hosts      []string   `json:"hosts,omitempty"`
-	Identities []Identity `json:"identities,omitempty"`
-	Reads      []Rule     `json:"reads,omitempty"`
-	RuleID     string     `json:"ruleId"`
-	Updates    []Rule     `json:"updates,omitempty"`
+	Deletes    []Rule   `json:"deletes,omitempty"`
+	Hosts      []string `json:"hosts,omitempty"`
+	Identities Identity `json:"identities,omitempty"`
+	Reads      []Rule   `json:"reads,omitempty"`
+	RuleID     string   `json:"ruleId"`
+	Updates    []Rule   `json:"updates,omitempty"`
 }
 
 type Rule struct {
 	AdditionalChecks string           `json:"additionalChecks"`
 	Data             []string         `json:"data,omitempty"`
 	DatasetRewrites  []DatasetRewrite `json:"datasetRewrite,omitempty"`
-	Rows             int              `json:"rows"`
+	Rows             int64            `json:"rows"`
 	Severity         string           `json:"severity"`
 }
 
@@ -41,10 +41,10 @@ type DatasetRewrite struct {
 }
 
 type Identity struct {
-	DBRoles  string `json:"dbRoles,omitempty"`
-	Groups   string `json:"groups,omitempty"`
-	Services string `json:"services,omitempty"`
-	Users    string `json:"users,omitempty"`
+	DBRoles  []string `json:"dbRoles,omitempty"`
+	Groups   []string `json:"groups,omitempty"`
+	Services []string `json:"services,omitempty"`
+	Users    []string `json:"users,omitempty"`
 }
 
 func resourcePolicyRule() *schema.Resource {
@@ -116,9 +116,17 @@ func resourcePolicyRule() *schema.Resource {
 			"deletes": ruleSchema,
 			"reads":   ruleSchema,
 			"updates": ruleSchema,
+			"hosts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"identities": {
 				Type:     schema.TypeList,
 				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"db_roles": {
@@ -170,7 +178,7 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 
 	body, err := c.DoRequest(url, http.MethodPost, resourceData)
 	if err != nil {
-		return createError("Unable to create policy", fmt.Sprintf("%v", err))
+		return createError("Unable to create policy rule", fmt.Sprintf("%v", err))
 	}
 
 	response := CreatePolicyRuleResponse{}
@@ -180,7 +188,7 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
-	//d.Set("created", time.Now().Format(time.RFC850))
+	//update policy `last_updated` field?
 
 	log.Printf("[DEBUG] End resourcePolicyRuleCreate")
 
@@ -191,11 +199,11 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	log.Printf("[DEBUG] Init resourcePolicyRuleRead")
 	c := m.(*client.Client)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
-		return createError("Unable to read policy", fmt.Sprintf("%v", err))
+		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
 	response := PolicyRule{}
@@ -204,19 +212,29 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	propertiesList := flattenPropertiesRule(response.Meta)
-	log.Printf("[DEBUG] resourcePolicyRuleRead - policy: %#v", propertiesList)
+	deletes := flattenRulesList(response.Deletes)
+	if err := d.Set("deletes", deletes); err != nil {
+		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+	}
 
-	d.Set("created", response.Meta.Created.String())
-	d.Set("data", response.Data)
-	d.Set("description", response.Meta.Description)
-	d.Set("enabled", response.Meta.Enabled)
-	d.Set("last_updated", response.Meta.LastUpdated.String())
-	d.Set("name", response.Meta.Name)
-	d.Set("properties", propertiesList)
-	d.Set("tags", response.Meta.Tags)
-	d.Set("type", response.Meta.Type)
-	d.Set("version", response.Meta.Version)
+	reads := flattenRulesList(response.Reads)
+	if err := d.Set("reads", reads); err != nil {
+		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+	}
+
+	updates := flattenRulesList(response.Updates)
+	if err := d.Set("updates", updates); err != nil {
+		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+	}
+
+	identities := flattenIdentities(response.Identities)
+	if err := d.Set("identities", identities); err != nil {
+		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+	}
+
+	d.Set("hosts", response.Hosts)
+
+	// log.Printf("[DEBUG] resourcePolicyRuleRead - policyRule: %#v", policyRule)
 
 	log.Printf("[DEBUG] End resourcePolicyRuleRead")
 	return diag.Diagnostics{}
@@ -226,14 +244,13 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 	log.Printf("[DEBUG] Init resourcePolicyRuleUpdate")
 	c := m.(*client.Client)
 
-	d.Set("type", "terraform")
-	policy := getPolicyRuleInfoFromResource(d)
+	policyRule := getPolicyRuleInfoFromResource(d)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
 
-	_, err := c.DoRequest(url, http.MethodPut, policy)
+	_, err := c.DoRequest(url, http.MethodPut, policyRule)
 	if err != nil {
-		return createError("Unable to update policy", fmt.Sprintf("%v", err))
+		return createError("Unable to update policy rule", fmt.Sprintf("%v", err))
 	}
 
 	log.Printf("[DEBUG] End resourcePolicyRuleUpdate")
@@ -245,10 +262,10 @@ func resourcePolicyRuleDelete(ctx context.Context, d *schema.ResourceData, m int
 	log.Printf("[DEBUG] Init resourcePolicyRuleDelete")
 	c := m.(*client.Client)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
 
 	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
-		return createError("Unable to delete policy", fmt.Sprintf("%v", err))
+		return createError("Unable to delete policy rule", fmt.Sprintf("%v", err))
 	}
 
 	log.Printf("[DEBUG] End resourcePolicyRuleDelete")
@@ -256,64 +273,119 @@ func resourcePolicyRuleDelete(ctx context.Context, d *schema.ResourceData, m int
 	return diag.Diagnostics{}
 }
 
-func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
-	data := getStrListFromSchemaField(d, "data")
-	tags := getStrListFromSchemaField(d, "tags")
+func getStrListFromInterfaceList(interfaceList []interface{}) []string {
+	strList := []string{}
 
-	propertiesList := d.Get("properties").(*schema.Set).List()
-	properties := make(map[string]string)
-	for _, property := range propertiesList {
-		propertyMap := property.(map[string]interface{})
-
-		name := propertyMap["name"].(string)
-		properties[name] = propertyMap["description"].(string)
+	for _, i := range interfaceList {
+		strList = append(strList, i.(string))
 	}
 
-	policy := PolicyRule{
-		Data: data,
-		Meta: &PolicyRuleMetadata{
-			Tags:       tags,
-			Properties: properties,
-		},
-	}
-
-	if v, ok := d.Get("name").(string); ok {
-		policy.Meta.Name = v
-	}
-
-	if v, ok := d.Get("version").(string); ok {
-		policy.Meta.Version = v
-	}
-
-	if v, ok := d.Get("type").(string); ok {
-		policy.Meta.Type = v
-	}
-
-	if v, ok := d.Get("enabled").(bool); ok {
-		policy.Meta.Enabled = v
-	}
-
-	if v, ok := d.Get("description").(string); ok {
-		policy.Meta.Description = v
-	}
-
-	return policy
+	return strList
 }
 
-func flattenPropertiesRule(policyMetadata *PolicyRuleMetadata) []interface{} {
-	if policyMetadata != nil {
+func getDatasetRewrites(datasetList []interface{}) []DatasetRewrite {
+	datasetRewrites := make([]DatasetRewrite, len(datasetList), len(datasetList))
 
-		propertiesList := make([]map[string]interface{},
-			len(policyMetadata.Properties), len(policyMetadata.Properties))
+	for _, d := range datasetList {
+		datasetMap := d.(map[string]interface{})
 
-		for name, description := range policyMetadata.Properties {
-			propertyMap := make(map[string]interface{})
-
-			propertyMap["name"] = name
-			propertyMap["description"] = description
-			propertiesList = append(propertiesList, propertyMap)
+		datasetRewrite := DatasetRewrite{
+			Dataset:      datasetMap["dataset"].(string),
+			Repo:         datasetMap["repo"].(string),
+			Substitution: datasetMap["substitution"].(string),
+			Parameters:   getStrListFromInterfaceList(datasetMap["parameters"].([]interface{})),
 		}
 
+		datasetRewrites = append(datasetRewrites, datasetRewrite)
+	}
+
+	return datasetRewrites
+}
+
+func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
+	ruleInfoList := d.Get(name).([]interface{})
+	ruleList := make([]Rule, len(ruleInfoList), len(ruleInfoList))
+
+	for _, ruleInterface := range ruleInfoList {
+		ruleMap := ruleInterface.(map[string]interface{})
+
+		rule := Rule{
+			AdditionalChecks: ruleMap["additional_checks"].(string),
+			Data:             getStrListFromInterfaceList(ruleMap["data"].([]interface{})),
+			DatasetRewrites:  getDatasetRewrites(ruleMap["dataset_reqrites"].([]interface{})),
+			Rows:             ruleMap["rows"].(int64),
+			Severity:         ruleMap["severity"].(string),
+		}
+
+		ruleList = append(ruleList, rule)
+	}
+
+	return ruleList
+}
+
+func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
+	hosts := getStrListFromSchemaField(d, "hosts")
+
+	id := d.Get("identities").([]interface{})[0].(map[string]interface{})
+
+	identities := Identity{
+		DBRoles:  getStrListFromInterfaceList(id["db_roles"].([]interface{})),
+		Groups:   getStrListFromInterfaceList(id["groups"].([]interface{})),
+		Services: getStrListFromInterfaceList(id["services"].([]interface{})),
+		Users:    getStrListFromInterfaceList(id["users"].([]interface{})),
+	}
+
+	policyRule := PolicyRule{
+		Deletes:    getRuleListFromResource(d, "deletes"),
+		Hosts:      hosts,
+		Identities: identities,
+		Reads:      getRuleListFromResource(d, "reads"),
+		Updates:    getRuleListFromResource(d, "updates"),
+	}
+
+	return policyRule
+}
+
+func flattenIdentities(identities Identity) []interface{} {
+	identityMap := make(map[string]interface{})
+
+	identityMap["db_roles"] = identities.DBRoles
+	identityMap["groups"] = identities.Groups
+	identityMap["services"] = identities.Services
+	identityMap["users"] = identities.Users
+
+	return []interface{}{identityMap}
+}
+
+func flattenRulesList(rulesList []Rule) []interface{} {
+	if rulesList != nil {
+		rules := make([]interface{}, 0, len(rulesList))
+
+		for i, rule := range rulesList {
+			ruleMap := make(map[string]interface{})
+
+			datasetRewriteList := make([]interface{}, len(rule.DatasetRewrites), len(rule.DatasetRewrites))
+
+			for j, datasetRewrite := range rule.DatasetRewrites {
+				drMap := make(map[string]interface{})
+				drMap["dataset"] = datasetRewrite.Dataset
+				drMap["repo"] = datasetRewrite.Repo
+				drMap["substitution"] = datasetRewrite.Substitution
+				drMap["parameters"] = datasetRewrite.Parameters
+
+				datasetRewriteList[j] = drMap
+			}
+
+			ruleMap["additional_checks"] = rule.AdditionalChecks
+			ruleMap["data"] = rule.Data
+			ruleMap["dataset_rewrites"] = datasetRewriteList
+			ruleMap["rows"] = rule.Rows
+			ruleMap["severity"] = rule.Severity
+
+			rules[i] = ruleMap
+		}
+
+		return rules
 	}
 
 	return make([]interface{}, 0)
