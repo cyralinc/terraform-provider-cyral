@@ -10,43 +10,38 @@ import (
 	"testing"
 )
 
-func TestInvalidAuth0DomainFormat(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			"^^^exampleInvalidDomain",
-			"ExampleAuth0Audience",
-			"SomeControlPlane",
-			keycloakProvider)
+func invalidAuth0DomainFormat() error {
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		"^^^exampleInvalidDomain",
+		"ExampleAuth0Audience",
+		"SomeControlPlane",
+		false)
 
-		if err == nil {
-			t.Error(fmt.Errorf(
-				"unexpected behavior in Client() when Auth0 domain has invalid format; err: %v",
-				err.Error()))
-		}
+	if err != nil {
+		return fmt.Errorf(
+			"unexpected behavior in Client() when Auth0 domain has invalid format; err: %v",
+			err.Error())
 	}
 
 	test(true)
 	test(false)
 }
 
-func TestInvalidAuth0DomainValue(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			"invalidDomain",
-			"ExampleAuth0Audience",
-			"SomeControlPlane",
-			keycloakProvider)
+func invalidAuth0DomainValue() error {
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		"invalidDomain",
+		"ExampleAuth0Audience",
+		"SomeControlPlane",
+		false)
 
-		if err == nil {
-			t.Error(fmt.Errorf(
-				"unexpected behavior in Client() when Auth0 domain has invalid value; "+
-					"keycloakProvider: %t; err: %v",
-				keycloakProvider, err.Error()))
-		}
+	if err != nil {
+		return fmt.Errorf(
+			"unexpected behavior in Client() when Auth0 domain has invalid value; err: %v",
+			err.Error())
 	}
 
 	test(true)
@@ -60,13 +55,11 @@ func TestServerDown(t *testing.T) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		}))
 
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			ts.URL[8:len(ts.URL)],
-			"exampleAud",
-			"SomeControlPlane",
-			keycloakProvider)
+	if err != nil {
+		return fmt.Errorf(
+			"unexpected behavior in Client() when server is down; err: %v",
+			err.Error())
+	}
 
 		ts.URL = ts.URL + "/oauth/token"
 
@@ -78,6 +71,21 @@ func TestServerDown(t *testing.T) {
 					"keycloakProvider: %t; err: %v",
 				keycloakProvider, err.Error()))
 		}
+	}))
+	defer ts.Close()
+
+	_, err := NewClient(
+		"ExampleAuth0ClientIDvalue",
+		"ExampleAuth0ClientSecretValue",
+		ts.URL[8:len(ts.URL)],
+		"exampleAud",
+		"SomeControlPlane",
+		false)
+
+	ts.URL = ts.URL + "/oauth/token"
+
+	if err != nil {
+		return fmt.Errorf("error in timeoutResponse(); err: %v", err.Error())
 	}
 
 	test(true)
