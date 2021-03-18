@@ -130,8 +130,6 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
-	d.Set("created", time.Now().Format(time.RFC850))
-	d.Set("last_updated", d.Get("created"))
 
 	log.Printf("[DEBUG] End resourcePolicyCreate")
 
@@ -187,8 +185,6 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 		return createError("Unable to update policy", fmt.Sprintf("%v", err))
 	}
 
-	d.Set("last_updated", time.Now().Format(time.RFC850))
-
 	log.Printf("[DEBUG] End resourcePolicyUpdate")
 
 	return resourcePolicyRead(ctx, d, m)
@@ -212,7 +208,7 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
 	strList := []string{}
 
-	for _, v := range d.Get(field).(*schema.Set).List() {
+	for _, v := range d.Get(field).([]interface{}) {
 		strList = append(strList, v.(string))
 	}
 
