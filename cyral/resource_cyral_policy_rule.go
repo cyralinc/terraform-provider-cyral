@@ -326,13 +326,18 @@ func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
 	hosts := getStrListFromSchemaField(d, "hosts")
 
-	id := d.Get("identities").([]interface{})[0].(map[string]interface{})
+	identity := d.Get("identities").([]interface{})
 
-	identities := Identity{
-		DBRoles:  getStrListFromInterfaceList(id["db_roles"].([]interface{})),
-		Groups:   getStrListFromInterfaceList(id["groups"].([]interface{})),
-		Services: getStrListFromInterfaceList(id["services"].([]interface{})),
-		Users:    getStrListFromInterfaceList(id["users"].([]interface{})),
+	var identities Identity
+	for _, id := range identity {
+		idMap := id.(map[string]interface{})
+
+		identities = Identity{
+			DBRoles:  getStrListFromInterfaceList(idMap["db_roles"].([]interface{})),
+			Groups:   getStrListFromInterfaceList(idMap["groups"].([]interface{})),
+			Services: getStrListFromInterfaceList(idMap["services"].([]interface{})),
+			Users:    getStrListFromInterfaceList(idMap["users"].([]interface{})),
+		}
 	}
 
 	policyRule := PolicyRule{
