@@ -143,7 +143,7 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
 
 	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
-		return createError("Unable to delete sidecar", fmt.Sprintf("%v", err))
+		return createError("Unable to delete repository", fmt.Sprintf("%v", err))
 	}
 
 	log.Printf("[DEBUG] End resourceRepositoryDelete")

@@ -152,6 +152,7 @@ terraform import cyral_repository.my_resource_name myrepo
 
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
+- [Resource Integration Datadog](./doc/resource_integration_datadog.md)
 - [Resource Policy](./doc/resource_policy.md)
 - [Resource Repository](./doc/resource_repository.md)
 - [Resource Repository Binding](./doc/resource_repository_binding.md)
