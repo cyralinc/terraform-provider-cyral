@@ -60,3 +60,10 @@ All types below are case sensitive:
 - `s3`
 - `snowflake`
 - `sqlserver`
+
+
+## Outputs
+
+|  Name        |  Description                                                        |
+|:-------------|:--------------------------------------------------------------------|
+| `id`         | Unique ID of the resource in the control plane.                     |

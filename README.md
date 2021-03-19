@@ -5,6 +5,43 @@ The Cyral Terraform Provider contains resources that can be used to interact wit
 
 Our provider uses the same naming conventions and organization as stated in Terraform guidelines for [writing custom providers](https://www.terraform.io/docs/extend/writing-custom-providers.html).
 
+## Compatibility
+
+This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial setup is needed in both Auth0 and Keycloak as stated in the next sections.
+
+### Auth0
+
+1. Open Auth0 dashboard;
+2. Select `Applications` and hit `Create application`;
+    1. Choose `Machine to Machine Applications`;
+    2. Select the API `https://cyral-api.com`;
+    3. Select scopes: `read:users`;
+    4. Finish the creation by clicking `Authorize`;
+3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./doc/provider.md) documentation how to set those two parameters.
+
+### Keycloak
+
+A `Service Account` for the Terraform provider must be created using the following steps:
+
+```
+# Define the target control plane
+export CONTROL_PLANE=mycontrolplane.cyral.com
+
+# Get a token from the CP (use the UI or some API)
+export TOKEN="Authorization: Bearer ..."
+
+# Get role ids necessary to run the provider
+export ROLE_IDS=`curl -X GET https://$CONTROL_PLANE:8000/v1/users/roles -H "$TOKEN" -H "Content-type:Application/JSON" | jq '[.roles | map(select(.name | contains("Modify Integrations", "Modify Policies", "Modify Roles","Modify Sidecars and Repositories", "View Sidecars and Repositories"))) | .[].id]' -c`
+
+# Create/update a service account for Terraform and return the necessary parameters
+# client_id and client_secret that will be used in the provider
+curl -X POST https://$CONTROL_PLANE:8000/v1/users/serviceAccounts -d '{"displayName":"terraform","roleIds":'"$ROLE_IDS"'}' -H "$TOKEN" -H "Content-type:Application/JSON" | jq
+
+echo "Use both `client_id` and `client_secret` returned above to set up your provider."
+echo "See the provider documentation in https://github.com/cyralinc/terraform-provider-cyral/blob/main/doc/provider.md how to set those two parameters."
+echo
+```
+
 ## Usage Example
 
 The code below is just a simple example of how to use the Cyral Terraform Module. Refer to the "Supported Elements" section for more information on resources and provider details.
@@ -13,8 +50,8 @@ The code below is just a simple example of how to use the Cyral Terraform Module
 
 ```hcl
 provider "cyral" {
-    auth0_domain = "some-name.auth0.com"
-    auth0_audience = "cyral-api.com"
+    client_id = ""     # optional
+    client_secret = "" # optional
     control_plane = "some-cp.cyral.com:8000"
 }
 
@@ -115,6 +152,7 @@ terraform import cyral_repository.my_resource_name myrepo
 
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
+- [Resource Policy](./doc/resource_policy.md)
 - [Resource Repository](./doc/resource_repository.md)
 - [Resource Repository Binding](./doc/resource_repository_binding.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)

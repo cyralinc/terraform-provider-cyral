@@ -3,6 +3,7 @@ package cyral
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -25,11 +26,17 @@ func Provider() *schema.Provider {
 			},
 			"auth0_audience": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				RequiredWith: []string{
+					"auth0_domain",
+				},
 			},
 			"auth0_domain": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				RequiredWith: []string{
+					"auth0_audience",
+				},
 			},
 			"auth0_client_id": {
 				Type:          schema.TypeString,
@@ -81,16 +88,23 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	log.Printf("[DEBUG] Init providerConfigure")
 	keycloakProvider := d.Get("auth_provider").(string) == keycloak
 
+	log.Printf("[DEBUG] keycloakProvider: %v", keycloakProvider)
 	clientID, clientSecret, diags := getCredentials(d, keycloakProvider)
+
 	if clientID == "" || clientSecret == "" {
 		return nil, diags
 	}
+	log.Printf("[DEBUG] clientID: %s ; clientSecret: %s", clientID, clientSecret)
 
 	auth0Domain := d.Get("auth0_domain").(string)
 	auth0Audience := d.Get("auth0_audience").(string)
 	controlPlane := d.Get("control_plane").(string)
+
+	log.Printf("[DEBUG] auth0Domain: %s ; auth0Audience: %s ; controlPlane: %s",
+		auth0Domain, clientSecret, controlPlane)
 
 	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 		controlPlane, keycloakProvider)
@@ -103,6 +117,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 		return nil, diags
 	}
+	log.Printf("[DEBUG] End providerConfigure")
 
 	return c, diags
 }
