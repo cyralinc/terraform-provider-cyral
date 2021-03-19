@@ -43,3 +43,7 @@ resource "cyral_datamap" "SOME_RESOURCE_NAME" {
 
 
 > Note: When referencing data in a Dremio repository, please include the complete location, with each nested Dremio space separated by a period. For example, an attribute `my_attr` contained by table `my_tbl` within space `inner_space` within space `outer_space` would be referenced as `outer_space.inner_space.my_tbl.my_attr`.
+
+For more information, please see the [Policy Guide](https://cyral.com/docs/policy#data-map).
+
+
