@@ -37,7 +37,7 @@ For more information, please see the [Policy Guide](https://cyral.com/docs/polic
 
 |  Name          |  Description                                                        |
 |:---------------|:--------------------------------------------------------------------|
-| `id`           | Unique ID of the resource in the control plane.                     |
+| `id`           | Unique ID of the resource in the Control Plane.                     |
 | `created`      | Policy creation timestamp.                                          |
 | `last_updated` | Last update timestamp.                                              |
 | `version`      | Incremental counter for every update on the policy.                 |

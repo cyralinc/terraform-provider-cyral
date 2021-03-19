@@ -40,4 +40,4 @@ resource "cyral_sidecar" "SOME_RESOURCE_NAME" {
 
 |  Name        |  Description                                                        |
 |:-------------|:--------------------------------------------------------------------|
-| `id`         | Unique ID of the resource in the control plane.                     |
+| `id`         | Unique ID of the resource in the Control Plane.                     |

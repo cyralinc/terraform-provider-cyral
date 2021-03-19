@@ -78,6 +78,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_datamap":                resourceDatamap(),
+			"cyral_integration_datadog":    resourceIntegrationDatadog(),
 			"cyral_integration_sumo_logic": resourceIntegrationSumoLogic(),
 			"cyral_integration_splunk":     resourceIntegrationSplunk(),
 			"cyral_policy":                 resourcePolicy(),
