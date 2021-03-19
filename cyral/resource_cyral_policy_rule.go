@@ -312,7 +312,7 @@ func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 		rule := Rule{
 			AdditionalChecks: ruleMap["additional_checks"].(string),
 			Data:             getStrListFromInterfaceList(ruleMap["data"].([]interface{})),
-			DatasetRewrites:  getDatasetRewrites(ruleMap["dataset_reqrites"].([]interface{})),
+			DatasetRewrites:  getDatasetRewrites(ruleMap["dataset_rewrites"].([]interface{})),
 			Rows:             ruleMap["rows"].(int64),
 			Severity:         ruleMap["severity"].(string),
 		}
