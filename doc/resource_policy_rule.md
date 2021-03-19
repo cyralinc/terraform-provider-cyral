@@ -1,4 +1,4 @@
-# Repository Binding
+# Policy Rule
 
 This resource provides CRUD operations in policy rules.
 
@@ -67,6 +67,12 @@ resource "cyral_policy_rule" "SOME_RESOURCE_NAME" {
 > 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address.
 
 For more information, please see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).
+
+## Outputs
+
+|  Name        |  Description                                                        |
+|:-------------|:--------------------------------------------------------------------|
+| `id`         | Unique ID of the resource in the control plane.                     |
 
 
 
