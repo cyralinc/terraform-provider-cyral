@@ -14,6 +14,10 @@ resource "cyral_policy" "SOME_RESOURCE_NAME" {
 }
 ```
 
+## See also
+
+- [Resource Policy Rule](./resource_policy_rule.md)
+
 ## Variables
 
 |  Name           |  Default  |  Description                                                                         | Required |

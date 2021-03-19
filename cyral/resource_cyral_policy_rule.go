@@ -190,7 +190,6 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
-	//update policy `last_updated` field?
 
 	log.Printf("[DEBUG] End resourcePolicyRuleCreate")
 
@@ -215,23 +214,25 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	deletes := flattenRulesList(response.Deletes)
+	log.Printf("[DEBUG] flattened deletes %#v", deletes)
 	if err := d.Set("deletes", deletes); err != nil {
 		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
 	reads := flattenRulesList(response.Reads)
+	log.Printf("[DEBUG] flattened reads %#v", reads)
 	if err := d.Set("reads", reads); err != nil {
 		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
 	updates := flattenRulesList(response.Updates)
+	log.Printf("[DEBUG] flattened updates %#v", updates)
 	if err := d.Set("updates", updates); err != nil {
 		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
 	identities := flattenIdentities(response.Identities)
-	log.Printf("[DEBUG] ----------------- flatten DEPOIS: identities %#v", identities)
-
+	log.Printf("[DEBUG] flattened identities %#v", identities)
 	if err := d.Set("identities", identities); err != nil {
 		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
@@ -276,16 +277,22 @@ func resourcePolicyRuleDelete(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func getStrListFromInterfaceList(interfaceList []interface{}) []string {
+	log.Printf("[DEBUG] Init getStrListFromInterfaceList")
+
 	strList := []string{}
 
 	for _, i := range interfaceList {
 		strList = append(strList, i.(string))
 	}
 
+	log.Printf("[DEBUG] End getStrListFromInterfaceList")
+
 	return strList
 }
 
 func getDatasetRewrites(datasetList []interface{}) []DatasetRewrite {
+	log.Printf("[DEBUG] Init getDatasetRewrites")
+
 	datasetRewrites := make([]DatasetRewrite, len(datasetList), len(datasetList))
 
 	for _, d := range datasetList {
@@ -301,10 +308,13 @@ func getDatasetRewrites(datasetList []interface{}) []DatasetRewrite {
 		datasetRewrites = append(datasetRewrites, datasetRewrite)
 	}
 
+	log.Printf("[DEBUG] End getDatasetRewrites")
+
 	return datasetRewrites
 }
 
 func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
+	log.Printf("[DEBUG] Init getRuleListFromResource")
 	ruleInfoList := d.Get(name).([]interface{})
 	ruleList := make([]Rule, 0, len(ruleInfoList))
 
@@ -321,11 +331,13 @@ func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 
 		ruleList = append(ruleList, rule)
 	}
+	log.Printf("[DEBUG] End getRuleListFromResource")
 
 	return ruleList
 }
 
 func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
+	log.Printf("[DEBUG] Init getPolicyRuleInfoFromResource")
 	hosts := getStrListFromSchemaField(d, "hosts")
 
 	identity := d.Get("identities").([]interface{})
@@ -350,11 +362,14 @@ func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
 		Updates:    getRuleListFromResource(d, "updates"),
 	}
 
+	log.Printf("[DEBUG] End getPolicyRuleInfoFromResource")
+
 	return policyRule
 }
 
 func flattenIdentities(identities Identity) []interface{} {
-	log.Printf("[DEBUG] ----------------- FLATTEN: identities %#v", identities)
+	log.Printf("[DEBUG] Init flattenIdentities")
+	log.Printf("[DEBUG] identities %#v", identities)
 	identityMap := make(map[string]interface{})
 
 	identityMap["db_roles"] = identities.DBRoles
@@ -362,10 +377,12 @@ func flattenIdentities(identities Identity) []interface{} {
 	identityMap["services"] = identities.Services
 	identityMap["users"] = identities.Users
 
+	log.Printf("[DEBUG] End flattenIdentities")
 	return []interface{}{identityMap}
 }
 
 func flattenRulesList(rulesList []Rule) []interface{} {
+	log.Printf("[DEBUG] Init flattenRulesList")
 	if rulesList != nil {
 		rules := make([]interface{}, len(rulesList), len(rulesList))
 
@@ -395,6 +412,7 @@ func flattenRulesList(rulesList []Rule) []interface{} {
 
 		return rules
 	}
+	log.Printf("[DEBUG] End flattenRulesList")
 
 	return make([]interface{}, 0)
 }
