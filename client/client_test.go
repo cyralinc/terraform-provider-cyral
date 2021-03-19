@@ -19,7 +19,7 @@ func invalidAuth0DomainFormat() error {
 		"SomeControlPlane",
 		false)
 
-	if err != nil {
+	if err == nil {
 		return fmt.Errorf(
 			"unexpected behavior in Client() when Auth0 domain has invalid format; err: %v",
 			err.Error())
@@ -38,7 +38,7 @@ func invalidAuth0DomainValue() error {
 		"SomeControlPlane",
 		false)
 
-	if err != nil {
+	if err == nil {
 		return fmt.Errorf(
 			"unexpected behavior in Client() when Auth0 domain has invalid value; err: %v",
 			err.Error())
@@ -55,7 +55,7 @@ func TestServerDown(t *testing.T) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		}))
 
-	if err != nil {
+	if err == nil {
 		return fmt.Errorf(
 			"unexpected behavior in Client() when server is down; err: %v",
 			err.Error())
@@ -84,7 +84,7 @@ func TestServerDown(t *testing.T) {
 
 	ts.URL = ts.URL + "/oauth/token"
 
-	if err != nil {
+	if err == nil {
 		return fmt.Errorf("error in timeoutResponse(); err: %v", err.Error())
 	}
 
