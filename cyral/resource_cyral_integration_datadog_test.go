@@ -2,25 +2,21 @@ package cyral
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 const (
-	EnvVarDDIntegrationName   = "TEST_TPC_DD_INTEGRATION_NAME"
-	EnvVarDDIntegrationApiKey = "TEST_TPC_DD_INTEGRATION_API_KEY"
+	DatadogIntegrationName   = "unitTest-Datadog"
+	DatadogIntegrationApiKey = "some-api-key"
 )
 
 // This is loosely based on this example:
 // https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 func TestDatadogIntegrationResource(t *testing.T) {
-	name := os.Getenv(EnvVarDDIntegrationName)
-	apiKey := os.Getenv(EnvVarDDIntegrationApiKey)
-	if name == "" || apiKey == "" {
-		t.Skipf("skipping because both %q and %q must be set", EnvVarDDIntegrationName, EnvVarDDIntegrationApiKey)
-	}
+	name := DatadogIntegrationName
+	apiKey := DatadogIntegrationApiKey
 
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
