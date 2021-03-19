@@ -3,6 +3,13 @@
 .terraform
 .terraform.lock.hcl
 terraform.tfstate*
+
 # Provider binary
 terraform-provider-cyral*
 out/
+
+# Dependencies
+vendor/
+
+# IDEs
+.idea/
