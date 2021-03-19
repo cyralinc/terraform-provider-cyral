@@ -29,7 +29,7 @@ type Rule struct {
 	AdditionalChecks string           `json:"additionalChecks"`
 	Data             []string         `json:"data,omitempty"`
 	DatasetRewrites  []DatasetRewrite `json:"datasetRewrite,omitempty"`
-	Rows             int64            `json:"rows"`
+	Rows             int              `json:"rows"`
 	Severity         string           `json:"severity"`
 }
 
@@ -98,6 +98,7 @@ func resourcePolicyRule() *schema.Resource {
 				"severity": {
 					Type:     schema.TypeString,
 					Optional: true,
+					Default:  "low",
 				},
 			},
 		},
@@ -173,6 +174,7 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 
 	policyID := d.Get("policy_id").(string)
 	resourceData := getPolicyRuleInfoFromResource(d)
+	log.Printf("[DEBUG] resourcePolicyRuleCreate - policyRule: %#v", resourceData)
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s/rules", c.ControlPlane, policyID)
 
@@ -228,13 +230,13 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	}
 
 	identities := flattenIdentities(response.Identities)
+	log.Printf("[DEBUG] ----------------- flatten DEPOIS: identities %#v", identities)
+
 	if err := d.Set("identities", identities); err != nil {
 		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
 	d.Set("hosts", response.Hosts)
-
-	// log.Printf("[DEBUG] resourcePolicyRuleRead - policyRule: %#v", policyRule)
 
 	log.Printf("[DEBUG] End resourcePolicyRuleRead")
 	return diag.Diagnostics{}
@@ -304,7 +306,7 @@ func getDatasetRewrites(datasetList []interface{}) []DatasetRewrite {
 
 func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 	ruleInfoList := d.Get(name).([]interface{})
-	ruleList := make([]Rule, len(ruleInfoList), len(ruleInfoList))
+	ruleList := make([]Rule, 0, len(ruleInfoList))
 
 	for _, ruleInterface := range ruleInfoList {
 		ruleMap := ruleInterface.(map[string]interface{})
@@ -313,7 +315,7 @@ func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 			AdditionalChecks: ruleMap["additional_checks"].(string),
 			Data:             getStrListFromInterfaceList(ruleMap["data"].([]interface{})),
 			DatasetRewrites:  getDatasetRewrites(ruleMap["dataset_rewrites"].([]interface{})),
-			Rows:             ruleMap["rows"].(int64),
+			Rows:             ruleMap["rows"].(int),
 			Severity:         ruleMap["severity"].(string),
 		}
 
@@ -352,6 +354,7 @@ func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
 }
 
 func flattenIdentities(identities Identity) []interface{} {
+	log.Printf("[DEBUG] ----------------- FLATTEN: identities %#v", identities)
 	identityMap := make(map[string]interface{})
 
 	identityMap["db_roles"] = identities.DBRoles
@@ -364,7 +367,7 @@ func flattenIdentities(identities Identity) []interface{} {
 
 func flattenRulesList(rulesList []Rule) []interface{} {
 	if rulesList != nil {
-		rules := make([]interface{}, 0, len(rulesList))
+		rules := make([]interface{}, len(rulesList), len(rulesList))
 
 		for i, rule := range rulesList {
 			ruleMap := make(map[string]interface{})
