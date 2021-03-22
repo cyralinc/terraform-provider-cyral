@@ -231,10 +231,12 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
-	identities := flattenIdentities(response.Identities)
-	log.Printf("[DEBUG] flattened identities %#v", identities)
-	if err := d.Set("identities", identities); err != nil {
-		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+	if response.Identities.DBRoles != nil || response.Identities.Users != nil || response.Identities.Groups != nil || response.Identities.Services != nil {
+		identities := flattenIdentities(response.Identities)
+		log.Printf("[DEBUG] flattened identities %#v", identities)
+		if err := d.Set("identities", identities); err != nil {
+			return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+		}
 	}
 
 	d.Set("hosts", response.Hosts)
