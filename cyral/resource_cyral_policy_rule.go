@@ -28,7 +28,7 @@ type PolicyRule struct {
 type Rule struct {
 	AdditionalChecks string           `json:"additionalChecks"`
 	Data             []string         `json:"data,omitempty"`
-	DatasetRewrites  []DatasetRewrite `json:"datasetRewrite,omitempty"`
+	DatasetRewrites  []DatasetRewrite `json:"datasetRewrites,omitempty"`
 	Rows             int              `json:"rows"`
 	Severity         string           `json:"severity"`
 }
@@ -293,7 +293,7 @@ func getStrListFromInterfaceList(interfaceList []interface{}) []string {
 func getDatasetRewrites(datasetList []interface{}) []DatasetRewrite {
 	log.Printf("[DEBUG] Init getDatasetRewrites")
 
-	datasetRewrites := make([]DatasetRewrite, len(datasetList), len(datasetList))
+	datasetRewrites := make([]DatasetRewrite, 0, len(datasetList))
 
 	for _, d := range datasetList {
 		datasetMap := d.(map[string]interface{})
