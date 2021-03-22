@@ -77,13 +77,14 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"cyral_datamap":            resourceDatamap(),
-			"cyral_integration_splunk": resourceIntegrationSplunk(),
-			"cyral_policy":             resourcePolicy(),
-			"cyral_policy_rule":        resourcePolicyRule(),
-			"cyral_repository":         resourceRepository(),
-			"cyral_repository_binding": resourceRepositoryBinding(),
-			"cyral_sidecar":            resourceSidecar(),
+			"cyral_datamap":                resourceDatamap(),
+			"cyral_integration_sumo_logic": resourceIntegrationSumoLogic(),
+			"cyral_integration_splunk":     resourceIntegrationSplunk(),
+			"cyral_policy":                 resourcePolicy(),
+			"cyral_policy_rule":            resourcePolicyRule(),
+			"cyral_repository":             resourceRepository(),
+			"cyral_repository_binding":     resourceRepositoryBinding(),
+			"cyral_sidecar":                resourceSidecar(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
