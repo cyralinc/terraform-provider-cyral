@@ -17,15 +17,14 @@ resource "cyral_integration_splunk" "SOME_RESOURCE_NAME" {
 
 ## Variables
 
-|  Name         |  Default  |  Description                                                          | Required |
-|:--------------|:---------:|:----------------------------------------------------------------------|:--------:|
-| `name`        |           | Integration name that will be used internally in Control Plane.       | Yes      |
-| `access_token`     |           | Splunk Access Token.                                                      | Yes      |
-| `port`     |           | Splunk Host Port.                                                      | Yes      |
-| `host`     |           | Splunk Host.                                                      | Yes      |
-| `index`     |           | Splunk data index name.                                                      | Yes      |
-| `use_tls`     |           | Should the comunication with Splunk use TLS encryption?.                                                      | Yes      |
-
+|  Name          |  Default  |  Description                                                          | Required |
+|:---------------|:---------:|:----------------------------------------------------------------------|:--------:|
+| `name`         |           | Integration name that will be used internally in Control Plane.       | Yes      |
+| `access_token` |           | Splunk Access Token.                                                  | Yes      |
+| `port`         |           | Splunk Host Port.                                                     | Yes      |
+| `host`         |           | Splunk Host.                                                          | Yes      |
+| `index`        |           | Splunk data index name.                                               | Yes      |
+| `use_tls`      |           | Should the comunication with Splunk use TLS encryption?               | Yes      |
 
 
 ## Outputs
