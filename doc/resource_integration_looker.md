@@ -5,9 +5,11 @@ CRUD operations for Datadog integration.
 ## Usage
 
 ```hcl
-resource "cyral_integration_datadog" "SOME_RESOURCE_NAME" {
+resource "cyral_integration_looker" "looker" {
     name = ""
-    api_key = ""
+    client_id = ""
+    client_secret = ""
+    url = ""
 }
 ```
 
