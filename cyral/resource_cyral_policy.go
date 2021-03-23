@@ -206,10 +206,9 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 }
 
 func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
-	interfaceList := d.Get(field).([]interface{})
 	strList := []string{}
 
-	for _, v := range interfaceList {
+	for _, v := range d.Get(field).([]interface{}) {
 		strList = append(strList, v.(string))
 	}
 
