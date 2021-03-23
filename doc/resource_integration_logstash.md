@@ -27,11 +27,3 @@ resource "cyral_integration_datadog" "SOME_RESOURCE_NAME" {
 |  Name        |  Description                                                        |
 |:-------------|:--------------------------------------------------------------------|
 | `id`         | Unique ID of the resource in the Control Plane.                     |
-
-resource "cyral_integration_logstash" "logstash" {
-    name = ""
-    endpoint = ""
-    use_mutual_authentication = false|true
-    use_private_certificate_chain = false|true
-    use_tls = false|true
-}
