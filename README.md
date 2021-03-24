@@ -62,8 +62,29 @@ resource "cyral_repository" "my_repo_name" {
     name = "myrepo"
 }
 
+resource "cyral_integration_elk" "elk" {
+    name = "my-elk-integration"
+    kibana_url = "kibana.local"
+    es_url = "es.local"
+}
+
+resource "cyral_integration_datadog" "datadog" {
+    name = "my-datadog-integration"
+    api_key = "datadog-api-key"
+}
+
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
+    deployment_method = "cloudFormation"
+    log_integration = cyral_integration_elk.elk.id
+    metrics_integration_id = cyral_integration_datadog.datadog.id
+    aws_configuration {
+        publicly_accessible = false
+        aws_region = "us-east-1"
+        key_name = "ec2-key-name"
+        vpc = "vpc-id"
+        subnets = "subnetid1,subnetid2,subnetidN"
+    }
 }
 
 resource "cyral_datamap" "my_datamap_name" {
@@ -108,10 +129,29 @@ resource "cyral_repository" "mariadb_repo" {
     name = "mymariadb"
 }
 
+resource "cyral_integration_elk" "elk" {
+    name = "my-elk-integration"
+    kibana_url = "kibana.local"
+    es_url = "es.local"
+}
+
+resource "cyral_integration_datadog" "datadog" {
+    name = "my-datadog-integration"
+    api_key = "datadog-api-key"
+}
+
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
-    publicly_accessible = true
+    log_integration = cyral_integration_elk.elk.id
+    metrics_integration_id = cyral_integration_datadog.datadog.id
+    aws_configuration {
+        publicly_accessible = false
+        aws_region = "us-east-1"
+        key_name = "ec2-key-name"
+        vpc = "vpc-id"
+        subnets = "subnetid1,subnetid2,subnetidN"
+    }
 }
 
 locals {
@@ -153,6 +193,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Integration Datadog](./doc/resource_integration_datadog.md)
+- [Resource Integration ELK](./doc/resource_integration_elk.md)
 - [Resource Integration Splunk](./doc/resource_integration_splunk.md)
 - [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
 - [Resource Policy](./doc/resource_policy.md)
@@ -181,7 +222,7 @@ The test framework requires basic configuration before it can be executed as fol
 
 ```bash
 # Set the control plane DNS name and port (default 8000):
-export TEST_TPC_CP_URL=mycp.cyral.com:8000
+export CYRAL_TF_CP_URL=mycp.cyral.com:8000
 
 # Set Keycloak client and secret ID:
 export CYRAL_TF_CLIENT_ID=?
