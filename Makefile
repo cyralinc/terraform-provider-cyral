@@ -40,4 +40,4 @@ clean:
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
 test:
-	$(GOTEST) $(TEST) -v
+	$(GOTEST) $(TEST) -v -race
