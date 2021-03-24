@@ -7,8 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Example value: "stable.dev.cyral.com:8000"
-const EnvVarControlPlaneBaseURL = "TEST_TPC_CP_URL"
+const EnvVarTFAcc = "TF_ACC"
 
 func TestProvider(t *testing.T) {
 	if err := Provider().InternalValidate(); err != nil {
@@ -16,18 +15,14 @@ func TestProvider(t *testing.T) {
 	}
 }
 
-var testAccProviders map[string]*schema.Provider
-var testAccProvider *schema.Provider
-
-func init() {
-	testAccProvider = Provider()
-	testAccProviders = map[string]*schema.Provider{
-		"cyral": testAccProvider,
-	}
+var providerFactories = map[string]func() (*schema.Provider, error){
+	"cyral": func() (*schema.Provider, error) {
+		return Provider(), nil
+	},
 }
 
 func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv(EnvVarControlPlaneBaseURL); v == "" {
-		t.Fatalf("%q must be set for acceptance tests", EnvVarControlPlaneBaseURL)
+	if v := os.Getenv(EnvVarTFAcc); v == "" {
+		t.Fatalf("%q must be set for acceptance tests", EnvVarTFAcc)
 	}
 }
