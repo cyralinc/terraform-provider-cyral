@@ -11,7 +11,7 @@ const (
 	EnvVarTFAcc = "TF_ACC"
 
 	// Ex: stable.dev.cyral.com:8000
-	EnvVarCPURL = "CYRAL_CP_URL"
+	EnvVarCPURL = "CYRAL_TF_CP_URL"
 )
 
 func TestProvider(t *testing.T) {
