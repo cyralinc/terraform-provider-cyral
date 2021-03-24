@@ -11,8 +11,10 @@ import (
 )
 
 const (
-	keycloak = "keycloak"
-	auth0    = "auth0"
+	keycloak           = "keycloak"
+	auth0              = "auth0"
+	EnvVarClientID     = "CYRAL_TF_CLIENT_ID"
+	EnvVarClientSecret = "CYRAL_TF_CLIENT_SECRET"
 )
 
 // Provider defines and initializes the Cyral provider
@@ -44,8 +46,8 @@ func Provider() *schema.Provider {
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_ID", nil),
 				ConflictsWith: []string{"client_id"},
-				Deprecated: "use provider variable 'client_id' or environment variable " +
-					"'CYRAL_TF_CLIENT_ID' instead of 'auth0_client_id'",
+				Deprecated: fmt.Sprintf("use provider variable 'client_id' or environment variable "+
+					"'%s' instead of 'auth0_client_id'", EnvVarClientID),
 			},
 			"auth0_client_secret": {
 				Type:          schema.TypeString,
@@ -53,22 +55,22 @@ func Provider() *schema.Provider {
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
 				ConflictsWith: []string{"client_secret"},
-				Deprecated: "use provider variable 'client_secret' or environment variable " +
-					"'CYRAL_TF_CLIENT_SECRET' instead of 'auth0_client_secret'",
+				Deprecated: fmt.Sprintf("use provider variable 'client_secret' or environment variable "+
+					"'%s' instead of 'auth0_client_secret'", EnvVarClientSecret),
 			},
 			"client_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
 				ConflictsWith: []string{"auth0_client_id"},
-				DefaultFunc:   schema.EnvDefaultFunc("CYRAL_TF_CLIENT_ID", nil),
+				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientID, nil),
 			},
 			"client_secret": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
 				ConflictsWith: []string{"auth0_client_secret"},
-				DefaultFunc:   schema.EnvDefaultFunc("CYRAL_TF_CLIENT_SECRET", nil),
+				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientSecret, nil),
 			},
 			"control_plane": {
 				Type:     schema.TypeString,
@@ -142,8 +144,8 @@ func getCredentials(d *schema.ResourceData, keycloakProvider bool) (string, stri
 	}
 	var diags diag.Diagnostics
 
-	clientID = getVar("client_id", "CYRAL_TF_CLIENT_ID", &diags)
-	clientSecret = getVar("client_secret", "CYRAL_TF_CLIENT_SECRET", &diags)
+	clientID = getVar("client_id", EnvVarClientID, &diags)
+	clientSecret = getVar("client_secret", EnvVarClientSecret, &diags)
 
 	// Backwards compatibility code to allow users to migrate to new variables and see
 	// a deprecation warning. The code below must be removed in next versions.

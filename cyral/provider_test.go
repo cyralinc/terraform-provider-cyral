@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Example value: "stable.dev.cyral.com"
+// Example value: "stable.dev.cyral.com:8000"
 const EnvVarControlPlaneBaseURL = "TEST_TPC_CP_URL"
 
 func TestProvider(t *testing.T) {

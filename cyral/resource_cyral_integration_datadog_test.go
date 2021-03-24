@@ -2,9 +2,11 @@ package cyral
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
@@ -17,6 +19,20 @@ const (
 func TestDatadogIntegrationResource(t *testing.T) {
 	name := DatadogIntegrationName
 	apiKey := DatadogIntegrationApiKey
+
+	nsProvider := testAccProvider
+	nsProviderResource := &schema.Resource{
+		Schema: nsProvider.Schema,
+	}
+	nsProviderData := nsProviderResource.TestResourceData()
+	nsProviderData.Set("control_plane", os.Getenv(EnvVarControlPlaneBaseURL))
+	nsProviderData.Set("client_id", os.Getenv(EnvVarClientID))
+	nsProviderData.Set("client_secret", os.Getenv(EnvVarClientSecret))
+	nsProviderData.Set("auth_provider", "keycloak")
+
+	if _, err := providerConfigure(nil, nsProviderData); err != nil {
+		t.Fatal(err)
+	}
 
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
