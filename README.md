@@ -222,7 +222,7 @@ The test framework requires basic configuration before it can be executed as fol
 
 ```bash
 # Set the control plane DNS name and port (default 8000):
-export TEST_TPC_CP_URL=mycp.cyral.com:8000
+export CYRAL_TF_CP_URL=mycp.cyral.com:8000
 
 # Set Keycloak client and secret ID:
 export CYRAL_TF_CLIENT_ID=?
