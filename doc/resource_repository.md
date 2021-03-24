@@ -66,4 +66,4 @@ All types below are case sensitive:
 
 |  Name        |  Description                                                        |
 |:-------------|:--------------------------------------------------------------------|
-| `id`         | Unique ID of the resource in the control plane.                     |
+| `id`         | Unique ID of the resource in the Control Plane.                     |
