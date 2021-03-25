@@ -62,8 +62,29 @@ resource "cyral_repository" "my_repo_name" {
     name = "myrepo"
 }
 
+resource "cyral_integration_elk" "elk" {
+    name = "my-elk-integration"
+    kibana_url = "kibana.local"
+    es_url = "es.local"
+}
+
+resource "cyral_integration_datadog" "datadog" {
+    name = "my-datadog-integration"
+    api_key = "datadog-api-key"
+}
+
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
+    deployment_method = "cloudFormation"
+    log_integration = cyral_integration_elk.elk.id
+    metrics_integration_id = cyral_integration_datadog.datadog.id
+    aws_configuration {
+        publicly_accessible = false
+        aws_region = "us-east-1"
+        key_name = "ec2-key-name"
+        vpc = "vpc-id"
+        subnets = "subnetid1,subnetid2,subnetidN"
+    }
 }
 
 resource "cyral_datamap" "my_datamap_name" {
@@ -108,10 +129,29 @@ resource "cyral_repository" "mariadb_repo" {
     name = "mymariadb"
 }
 
+resource "cyral_integration_elk" "elk" {
+    name = "my-elk-integration"
+    kibana_url = "kibana.local"
+    es_url = "es.local"
+}
+
+resource "cyral_integration_datadog" "datadog" {
+    name = "my-datadog-integration"
+    api_key = "datadog-api-key"
+}
+
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
-    publicly_accessible = true
+    log_integration = cyral_integration_elk.elk.id
+    metrics_integration_id = cyral_integration_datadog.datadog.id
+    aws_configuration {
+        publicly_accessible = false
+        aws_region = "us-east-1"
+        key_name = "ec2-key-name"
+        vpc = "vpc-id"
+        subnets = "subnetid1,subnetid2,subnetidN"
+    }
 }
 
 locals {
@@ -152,8 +192,14 @@ terraform import cyral_repository.my_resource_name myrepo
 
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
+- [Resource Integration Datadog](./doc/resource_integration_datadog.md)
+- [Resource Integration ELK](./doc/resource_integration_elk.md)
 - [Resource Integration Logstash](./doc/resource_integration_logstash.md)
+- [Resource Integration Looker](./doc/resource_integration_looker.md)
+- [Resource Integration Splunk](./doc/resource_integration_splunk.md)
+- [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
 - [Resource Policy](./doc/resource_policy.md)
+- [Resource Policy Rule](./doc/resource_policy_rule.md)
 - [Resource Repository](./doc/resource_repository.md)
 - [Resource Repository Binding](./doc/resource_repository_binding.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
@@ -170,6 +216,25 @@ In order to build and distribute this provider, follow the steps below:
 
  2. Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and 14.
 
+## Test Instructions
+
+The test framework requires basic configuration before it can be executed as follows:
+
+1. Set the configuration environment variables:
+
+```bash
+# Set the control plane DNS name and port (default 8000):
+export CYRAL_TF_CP_URL=mycp.cyral.com:8000
+
+# Set Keycloak client and secret ID:
+export CYRAL_TF_CLIENT_ID=?
+export CYRAL_TF_CLIENT_SECRET=?
+
+# Initialize Terraform acceptance tests variable
+export TF_ACC=true
+```
+
+2. Run `make`
 
 ## Deployment
 

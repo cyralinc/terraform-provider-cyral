@@ -14,6 +14,10 @@ resource "cyral_policy" "SOME_RESOURCE_NAME" {
 }
 ```
 
+## See also
+
+- [Resource Policy Rule](./resource_policy_rule.md)
+
 ## Variables
 
 |  Name           |  Default  |  Description                                                                         | Required |
@@ -26,12 +30,14 @@ resource "cyral_policy" "SOME_RESOURCE_NAME" {
 | `tags`         |           | Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).  | No      |
 | `type`         |           |   | No      |
 
+For more information, please see the [Policy Guide](https://cyral.com/docs/policy#policy).
+
 
 ## Outputs
 
 |  Name          |  Description                                                        |
 |:---------------|:--------------------------------------------------------------------|
-| `id`           | Unique ID of the resource in the control plane.                     |
+| `id`           | Unique ID of the resource in the Control Plane.                     |
 | `created`      | Policy creation timestamp.                                          |
 | `last_updated` | Last update timestamp.                                              |
 | `version`      | Incremental counter for every update on the policy.                 |

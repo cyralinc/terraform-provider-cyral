@@ -204,7 +204,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict ||
-		strings.Contains(strings.ToLower(res.Status), "already exists") {
+		(httpMethod == http.MethodPost && strings.Contains(strings.ToLower(res.Status), "already exists")) {
 		return nil, fmt.Errorf("resource possibly exists in the control plane. Response status: %s", res.Status)
 	}
 
@@ -215,17 +215,26 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	log.Printf("[DEBUG] Request: %#v", req)
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
+	var er error
 	if res.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("resource not found; %v", resourceData)
+		er = fmt.Errorf("resource not found; %v", resourceData)
 	} else if res.StatusCode == http.StatusConflict {
-		return nil, fmt.Errorf("resource conflict; status code: %d; body: %q",
+		er = fmt.Errorf("resource conflict; status code: %d; body: %q",
 			res.StatusCode, body)
-	} else if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("error executing request; status code: %d; body: %q",
+	} else if res.StatusCode != http.StatusOK &&
+		(httpMethod == http.MethodPost && res.StatusCode != http.StatusCreated) {
+		er = fmt.Errorf("error executing request; status code: %d; body: %q",
+			res.StatusCode, body)
+	} else if httpMethod == http.MethodDelete && res.StatusCode == 500 &&
+		!strings.Contains(strings.ToLower(string(body)), "does not exist") {
+		// Ignore http 500 error codes that informs that the resource was not found
+		// in the server. In these cases, will consider as deleted. In such cases,
+		// the correct behavior would be that the API would return http 410 (Gone).
+		er = fmt.Errorf("error executing request; status code: %d; body: %q",
 			res.StatusCode, body)
 	}
 
 	log.Printf("[DEBUG] End DoRequest")
 
-	return body, nil
+	return body, er
 }

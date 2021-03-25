@@ -5,6 +5,7 @@ GOFMT=gofmt
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 GOINSTALL=$(GOCMD) install
+TEST=$$($(GOCMD) list ./...)
 PROTOC=protoc
 # Get latest version (tag). It is important to notice that the following
 # commands restricts the build to those git-initialized folders. Thus,
@@ -39,5 +40,4 @@ clean:
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
 test:
-	$(GOTEST) ./client
-	$(GOTEST) ./cyral
+	$(GOTEST) $(TEST) -v -race
