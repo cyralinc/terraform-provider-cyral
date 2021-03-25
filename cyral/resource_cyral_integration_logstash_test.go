@@ -17,7 +17,7 @@ const (
 
 // This is loosely based on this example:
 // https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
-func TestLogstashIntegrationResource(t *testing.T) {
+func TestAccLogstashIntegrationResource(t *testing.T) {
 	name := LogstashIntegrationName
 	endpoint := LogstashIntegrationEndpoint
 	use_mutual_authentication := LogstashIntegrationUseMutualAuthentication

@@ -14,7 +14,7 @@ const (
 
 // This is loosely based on this example:
 // https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
-func TestDatadogIntegrationResource(t *testing.T) {
+func TestAccDatadogIntegrationResource(t *testing.T) {
 	name := DatadogIntegrationName
 	apiKey := DatadogIntegrationApiKey
 
