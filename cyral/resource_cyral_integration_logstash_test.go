@@ -7,42 +7,60 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const (
-	LogstashIntegrationEndpoint                   = "logstash.local/"
-	LogstashIntegrationName                       = "logstash-test"
-	LogstashIntegrationUseMutualAuthentication    = false
-	LogstashIntegrationUsePrivateCertificateChain = false
-	LogstashIntegrationUseTLS                     = false
-)
-
 // This is loosely based on this example:
 // https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
+
+var initialConfig LogstashIntegrationData = LogstashIntegrationData{
+	Endpoint:                   "logstash.local/",
+	Name:                       "logstash-test",
+	UseMutualAuthentication:    false,
+	UsePrivateCertificateChain: false,
+	UseTLS:                     false,
+}
+
+var updatedConfig LogstashIntegrationData = LogstashIntegrationData{
+	Endpoint:                   "logstash-updated.local/",
+	Name:                       "logstash-update-test",
+	UseMutualAuthentication:    true,
+	UsePrivateCertificateChain: true,
+	UseTLS:                     true,
+}
+
 func TestAccLogstashIntegrationResource(t *testing.T) {
-	name := LogstashIntegrationName
-	endpoint := LogstashIntegrationEndpoint
-	use_mutual_authentication := LogstashIntegrationUseMutualAuthentication
-	use_private_certificate_chain := LogstashIntegrationUsePrivateCertificateChain
-	use_tls := LogstashIntegrationUseTLS
+	testConfig, testFunc := setupTest(initialConfig)
+	testUpdateConfig, testUpdateFunc := setupTest(initialConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testLogstashIntegrationInitialConfig(name, endpoint, use_mutual_authentication, use_private_certificate_chain, use_tls),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "name", name),
-					resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "endpoint", endpoint),
-					resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "use_mutual_authentication", fmt.Sprintf("%t", use_mutual_authentication)),
-					resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "use_private_certificate_chain", fmt.Sprintf("%t", use_private_certificate_chain)),
-					resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "use_tls", fmt.Sprintf("%t", use_tls)),
-				),
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
 			},
 		},
 	})
 }
 
-func testLogstashIntegrationInitialConfig(name string, endpoint string, use_mutual_authentication bool, use_private_certificate_chain bool, use_tls bool) string {
+func setupTest(integrationData LogstashIntegrationData) (string, resource.TestCheckFunc) {
+	configuration := formatLogstashIntegrationDataIntoConfig(integrationData)
+
+	testFunction := resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "name", integrationData.Name),
+		resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "endpoint", integrationData.Endpoint),
+		resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "use_mutual_authentication", fmt.Sprintf("%t", integrationData.UseMutualAuthentication)),
+		resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "use_private_certificate_chain", fmt.Sprintf("%t", integrationData.UsePrivateCertificateChain)),
+		resource.TestCheckResourceAttr("cyral_integration_logstash.logstash_integration", "use_tls", fmt.Sprintf("%t", integrationData.UseTLS)),
+	)
+
+	return configuration, testFunction
+}
+
+func formatLogstashIntegrationDataIntoConfig(config LogstashIntegrationData) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_logstash" "logstash_integration" {
 		name = "%s"
@@ -50,5 +68,5 @@ func testLogstashIntegrationInitialConfig(name string, endpoint string, use_mutu
 		use_mutual_authentication = %t
 		use_private_certificate_chain = %t
 		use_tls = %t
-	}`, name, endpoint, use_mutual_authentication, use_private_certificate_chain, use_tls)
+	}`, config.Name, config.Endpoint, config.UseMutualAuthentication, config.UsePrivateCertificateChain, config.UseTLS)
 }
