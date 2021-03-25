@@ -15,12 +15,12 @@ resource "cyral_integration_looker" "looker" {
 
 ## Variables
 
-|  Name         |  Default  |  Description                                                          | Required |
-|:--------------|:---------:|:----------------------------------------------------------------------|:--------:|
-| `name`        |           | Integration name that will be used internally in Control Plane.       | Yes      |
-| `client_id`        |           | Looker client id.       | Yes      |
-| `client_secret`        |           | Looker client secret.       | Yes      |
-| `url`        |           | Looker integration url.       | Yes      |
+|  Name           |  Default  |  Description                                                          | Required |
+|:----------------|:---------:|:----------------------------------------------------------------------|:--------:|
+| `name`          |           | Integration name that will be used internally in Control Plane.       | Yes      |
+| `client_id`     |           | Looker client id.                                                     | Yes      |
+| `client_secret` |           | Looker client secret.                                                 | Yes      |
+| `url`           |           | Looker integration url.                                               | Yes      |
 
 
 ## Outputs
