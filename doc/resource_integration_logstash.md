@@ -1,13 +1,16 @@
 # Repository
 
-CRUD operations for Datadog integration.
+CRUD operations for Logstash integration.
 
 ## Usage
 
 ```hcl
-resource "cyral_integration_datadog" "SOME_RESOURCE_NAME" {
+resource "cyral_integration_logstash" "logstash" {
     name = ""
-    api_key = ""
+    endpoint = ""
+    use_mutual_authentication = false|true
+    use_private_certificate_chain = false|true
+    use_tls = false|true
 }
 ```
 

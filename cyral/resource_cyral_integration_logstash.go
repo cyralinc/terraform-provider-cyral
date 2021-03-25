@@ -147,14 +147,6 @@ func resourceIntegrationLogstashDelete(ctx context.Context, d *schema.ResourceDa
 	return diag.Diagnostics{}
 }
 
-// type LogstashIntegrationData struct {
-// 	Endpoint                   string `json:"endpoint"`
-// 	Name                       string `json:"name"`
-// 	UseMutualAuthentication    bool   `json:"useMutualAuthentication"`
-// 	UsePrivateCertificateChain bool   `json:"usePrivateCertificateChain"`
-// 	useTLS                     bool   `json:"useTLS"`
-// }
-
 func getLogstashIntegrationDataFromResource(c *client.Client, d *schema.ResourceData) LogstashIntegrationData {
 	return LogstashIntegrationData{
 		Endpoint:                   d.Get("endpoint").(string),
