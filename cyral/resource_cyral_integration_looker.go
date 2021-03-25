@@ -17,7 +17,6 @@ type CreateLookerIntegrationResponse struct {
 }
 
 type LookerIntegrationData struct {
-	Name         string `json:"name"`
 	ClientId     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
 	Url          string `json:"url"`
@@ -31,10 +30,6 @@ func resourceIntegrationLooker() *schema.Resource {
 		DeleteContext: resourceIntegrationLookerDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"client_id": {
 				Type:      schema.TypeString,
 				Required:  true,
@@ -100,7 +95,6 @@ func resourceIntegrationLookerRead(ctx context.Context, d *schema.ResourceData, 
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	d.Set("name", response.Name)
 	d.Set("client_id", response.ClientId)
 	d.Set("client_secret", response.ClientSecret)
 	d.Set("url", response.Url)
@@ -144,7 +138,6 @@ func resourceIntegrationLookerDelete(ctx context.Context, d *schema.ResourceData
 
 func getLookerIntegrationDataFromResource(c *client.Client, d *schema.ResourceData) LookerIntegrationData {
 	return LookerIntegrationData{
-		Name:         d.Get("name").(string),
 		ClientId:     d.Get("client_id").(string),
 		ClientSecret: d.Get("client_secret").(string),
 		Url:          d.Get("url").(string),
