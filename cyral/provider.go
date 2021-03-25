@@ -82,7 +82,7 @@ func Provider() *schema.Provider {
 			"cyral_datamap":                resourceDatamap(),
 			"cyral_integration_datadog":    resourceIntegrationDatadog(),
 			"cyral_integration_elk":        resourceIntegrationELK(),
-      "cyral_integration_logstash": resourceIntegrationLogstash(),
+			"cyral_integration_logstash":   resourceIntegrationLogstash(),
 			"cyral_integration_looker":     resourceIntegrationLooker(),
 			"cyral_integration_splunk":     resourceIntegrationSplunk(),
 			"cyral_integration_sumo_logic": resourceIntegrationSumoLogic(),
