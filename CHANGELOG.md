@@ -19,6 +19,7 @@ Minimum required Control Plane version: `v2.17.0`.
 ### Improvements:
 * **Replace repo ID property**: replaced repository identification in the state file from `name` to `id`. ([#22](github.com/cyralinc/terraform-provider-cyral/pull/22));
 
+--------------
 
 ## 0.2.0 (February 24, 2021)
 
@@ -29,15 +30,21 @@ Minimum required Control Plane version: `v2.17.0`.
 * **API Port**: Removed `control_plane_api_port` and added this information to the existing `control_plane` parameter. ([#20](github.com/cyralinc/terraform-provider-cyral/pull/20));
 * **Unit tests**: added unit tests for `config.go` ([#8](github.com/cyralinc/terraform-provider-cyral/pull/8));
 
+--------------
+
 ## 0.1.0 (May 15, 2020)
 
 ### Features:
 * **Terraform import**: added support for `terraform import` statement for `repository` resource ([#8](github.com/cyralinc/terraform-provider-cyral/pull/8)).
 
+--------------
+
 ## 0.0.2 (May 2, 2020)
 
 ### Bug fixes:
 * **Error handling**: fixed bug in error handling ([#5](github.com/cyralinc/terraform-provider-cyral/pull/5)).
+
+--------------
 
 ## 0.0.1 (May 2, 2020)
 
