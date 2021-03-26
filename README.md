@@ -5,6 +5,10 @@ The Cyral Terraform Provider contains resources that can be used to interact wit
 
 Our provider uses the same naming conventions and organization as stated in Terraform guidelines for [writing custom providers](https://www.terraform.io/docs/extend/writing-custom-providers.html).
 
+## Change Log
+
+The [Change Log](CHANGELOG.md) keeps track of features, bug fixes and Control Plane compatibility of this provider.
+
 ## Compatibility
 
 This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial setup is needed in both Auth0 and Keycloak as stated in the next sections.
