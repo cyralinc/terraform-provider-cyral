@@ -213,25 +213,27 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
 	log.Printf("[DEBUG] Request: %#v", req)
+	log.Printf("[DEBUG] Response status code: %d", res.StatusCode)
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	var er error
 	if res.StatusCode == http.StatusNotFound {
-		er = fmt.Errorf("resource not found; %v", resourceData)
+		er = fmt.Errorf("resource not found; %s request; status code: %d; %v", httpMethod,
+			res.StatusCode, resourceData)
 	} else if res.StatusCode == http.StatusConflict {
-		er = fmt.Errorf("resource conflict; status code: %d; body: %q",
-			res.StatusCode, body)
+		er = fmt.Errorf("resource conflict; %s request; status code: %d; body: %q",
+			httpMethod, res.StatusCode, body)
 	} else if res.StatusCode != http.StatusOK &&
 		(httpMethod == http.MethodPost && res.StatusCode != http.StatusCreated) {
-		er = fmt.Errorf("error executing request; status code: %d; body: %q",
-			res.StatusCode, body)
+		er = fmt.Errorf("error executing %s request; status code: %d; body: %q",
+			httpMethod, res.StatusCode, body)
 	} else if httpMethod == http.MethodDelete && res.StatusCode == 500 &&
 		!strings.Contains(strings.ToLower(string(body)), "does not exist") {
 		// Ignore http 500 error codes that informs that the resource was not found
 		// in the server. In these cases, will consider as deleted. In such cases,
 		// the correct behavior would be that the API would return http 410 (Gone).
-		er = fmt.Errorf("error executing request; status code: %d; body: %q",
-			res.StatusCode, body)
+		er = fmt.Errorf("error executing %s request; status code: %d; body: %q",
+			httpMethod, res.StatusCode, body)
 	}
 
 	log.Printf("[DEBUG] End DoRequest")

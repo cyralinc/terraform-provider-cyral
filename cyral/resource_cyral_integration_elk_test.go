@@ -15,7 +15,7 @@ const (
 
 // This is loosely based on this example:
 // https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
-func TestELKIntegrationResource(t *testing.T) {
+func TestAccELKIntegrationResource(t *testing.T) {
 	name := ELKIntegrationName
 	kibanaURL := ELKIntegrationKibanaURL
 	esURL := ELKIntegrationESURL
