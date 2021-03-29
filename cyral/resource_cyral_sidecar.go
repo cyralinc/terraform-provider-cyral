@@ -151,7 +151,9 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	ac["aws_region"] = response.SidecarProperty.AWSRegion
 	ac["vpc"] = response.SidecarProperty.VPC
 	ac["subnets"] = response.SidecarProperty.Subnets
-	ac["publicly_accessible"] = response.SidecarProperty.PubliclyAccessible
+	if p, err := strconv.ParseBool(response.SidecarProperty.PubliclyAccessible); err == nil {
+		ac["publicly_accessible"] = p
+	}
 	awsConfiguration = append(awsConfiguration, ac)
 	d.Set("aws_configuration", awsConfiguration)
 
