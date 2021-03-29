@@ -10,7 +10,7 @@ import (
 // This is loosely based on this example:
 // https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 
-var initialConfig LogstashIntegrationData = LogstashIntegrationData{
+var initialLogstashConfig LogstashIntegrationData = LogstashIntegrationData{
 	Endpoint:                   "logstash.local/",
 	Name:                       "logstash-test",
 	UseMutualAuthentication:    false,
@@ -18,7 +18,7 @@ var initialConfig LogstashIntegrationData = LogstashIntegrationData{
 	UseTLS:                     false,
 }
 
-var updatedConfig LogstashIntegrationData = LogstashIntegrationData{
+var updatedLogstashConfig LogstashIntegrationData = LogstashIntegrationData{
 	Endpoint:                   "logstash-updated.local/",
 	Name:                       "logstash-update-test",
 	UseMutualAuthentication:    true,
@@ -27,8 +27,8 @@ var updatedConfig LogstashIntegrationData = LogstashIntegrationData{
 }
 
 func TestAccLogstashIntegrationResource(t *testing.T) {
-	testConfig, testFunc := setupTest(initialConfig)
-	testUpdateConfig, testUpdateFunc := setupTest(initialConfig)
+	testConfig, testFunc := setupLogstashTest(initialLogstashConfig)
+	testUpdateConfig, testUpdateFunc := setupLogstashTest(updatedLogstashConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -46,7 +46,7 @@ func TestAccLogstashIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupTest(integrationData LogstashIntegrationData) (string, resource.TestCheckFunc) {
+func setupLogstashTest(integrationData LogstashIntegrationData) (string, resource.TestCheckFunc) {
 	configuration := formatLogstashIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
