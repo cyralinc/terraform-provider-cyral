@@ -52,16 +52,13 @@ func setupRepositoryBindingTest(integrationData RepoBindingData) (string, resour
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding", "enabled", fmt.Sprintf("%t", integrationData.Enabled)),
-		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding", "repository_id", integrationData.RepositoryID),
-		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding", "sidecar_id", integrationData.SidecarID),
-		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding", "listener_port", fmt.Sprintf("%d", integrationData.Listener.Port)),
 	)
 
 	return configuration, testFunction
 }
 
 func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
-	return `
+	return fmt.Sprintf(`
 	resource "cyral_repository" "test_repo_binding_repository" {	
 		type  = "mongodb"
 		host  = "mongodb.cyral.com"
@@ -78,9 +75,9 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 	}
 
 	resource "cyral_repository_binding" "repo_binding" {
-		enabled = "false"
+		enabled = %t
 		repository_id = cyral_repository.test_repo_binding_repository.id
 		listener_port = cyral_repository.test_repo_binding_repository.port
 		sidecar_id    = cyral_sidecar.test_repo_binding_sidecar.id
-	}`
+	}`, data.Enabled)
 }
