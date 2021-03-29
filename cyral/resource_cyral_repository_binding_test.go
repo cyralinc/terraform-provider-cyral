@@ -72,6 +72,9 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 	resource "cyral_sidecar" "test_repo_binding_sidecar" {
 		name = "test_repo_binding_sidecar-test"
 		deployment_method = "cloudFormation"
+		aws_configuration {
+			publicly_accessible = true
+		}
 	}
 
 	resource "cyral_repository_binding" "repo_binding" {
@@ -79,6 +82,5 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 		repository_id = cyral_repository.test_repo_binding_repository.id
 		listener_port = cyral_repository.test_repo_binding_repository.port
 		sidecar_id    = cyral_sidecar.test_repo_binding_sidecar.id
-		listener_host = "0.0.0.0"
 	}`
 }
