@@ -7,40 +7,57 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const (
-	ELKIntegrationName      = "unitTest-ELK"
-	ELKIntegrationKibanaURL = "kibana.local"
-	ELKIntegrationESURL     = "es.local"
-)
+var initialELKConfig ELKIntegrationData = ELKIntegrationData{
+	Name:      "unitTest-ELK",
+	KibanaURL: "kibana.local",
+	ESURL:     "es.local",
+}
+
+var updatedELKConfig ELKIntegrationData = ELKIntegrationData{
+	Name:      "unitTest-ELK-Updated",
+	KibanaURL: "kibana-update.local",
+	ESURL:     "es-update.local",
+}
 
 // This is loosely based on this example:
 // https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 func TestAccELKIntegrationResource(t *testing.T) {
-	name := ELKIntegrationName
-	kibanaURL := ELKIntegrationKibanaURL
-	esURL := ELKIntegrationESURL
+	testConfig, testFunc := setupELKTest(initialELKConfig)
+	testUpdateConfig, testUpdateFunc := setupELKTest(updatedELKConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testELKIntegrationInitialConfig(name, kibanaURL, esURL),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "name", name),
-					resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "kibana_url", kibanaURL),
-					resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "es_url", esURL),
-				),
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
 			},
 		},
 	})
 }
 
-func testELKIntegrationInitialConfig(name, kibanaURL, esURL string) string {
+func setupELKTest(integrationData ELKIntegrationData) (string, resource.TestCheckFunc) {
+	configuration := formatELKIntegrationDataIntoConfig(integrationData)
+
+	testFunction := resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "name", integrationData.Name),
+		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "kibana_url", integrationData.KibanaURL),
+		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "es_url", integrationData.ESURL),
+	)
+
+	return configuration, testFunction
+}
+
+func formatELKIntegrationDataIntoConfig(data ELKIntegrationData) string {
 	return fmt.Sprintf(`
 resource "cyral_integration_elk" "elk_integration" {
 	name = "%s"
 	kibana_url = "%s"
 	es_url = "%s"
-}`, name, kibanaURL, esURL)
+}`, data.Name, data.KibanaURL, data.ESURL)
 }
