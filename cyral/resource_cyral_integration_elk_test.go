@@ -19,8 +19,6 @@ var updatedELKConfig ELKIntegrationData = ELKIntegrationData{
 	ESURL:     "es-update.local",
 }
 
-// This is loosely based on this example:
-// https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 func TestAccELKIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupELKTest(initialELKConfig)
 	testUpdateConfig, testUpdateFunc := setupELKTest(updatedELKConfig)

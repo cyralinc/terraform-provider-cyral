@@ -25,8 +25,6 @@ var updatedSplunkConfig SplunkIntegrationData = SplunkIntegrationData{
 	UseTLS:      true,
 }
 
-// This is loosely based on this example:
-// https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 func TestAccSplunkIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSplunkTest(initialSplunkConfig)
 	testUpdateConfig, testUpdateFunc := setupSplunkTest(updatedSplunkConfig)

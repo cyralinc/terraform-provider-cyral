@@ -19,8 +19,6 @@ var updatedLookerConfig LookerIntegrationData = LookerIntegrationData{
 	Url:          "looker-updated.local/",
 }
 
-// This is loosely based on this example:
-// https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 func TestAccLookerIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupLookerTest(initialLookerConfig)
 	testUpdateConfig, testUpdateFunc := setupLookerTest(updatedLookerConfig)

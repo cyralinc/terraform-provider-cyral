@@ -8,32 +8,16 @@ import (
 )
 
 type DataMapConfig struct {
-	Label        string
-	DataLocation []RepoAttrs
+	Label string
 }
 
 var initialDataMapConfig DataMapConfig = DataMapConfig{
 	Label: "CNN",
-	DataLocation: []RepoAttrs{
-		{
-			Name:       "Repository",
-			Attributes: []string{"applications.customers.credit_card_number"},
-		},
-	},
 }
-
 var updatedDataMapConfig DataMapConfig = DataMapConfig{
-	Label: "CNN-Updated",
-	DataLocation: []RepoAttrs{
-		{
-			Name:       "Repository-updated",
-			Attributes: []string{"applications.customers.credit_card_number_updated"},
-		},
-	},
+	Label: "CNN-updated",
 }
 
-// This is loosely based on this example:
-// https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 func TestAccDatamapResource(t *testing.T) {
 	testConfig, testFunc := setupDatamapTest(initialDataMapConfig)
 	testUpdateConfig, testUpdateFunc := setupDatamapTest(updatedDataMapConfig)
@@ -58,31 +42,46 @@ func setupDatamapTest(integrationData DataMapConfig) (string, resource.TestCheck
 	configuration := formatDataMapIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckTypeSetElemNestedAttrs("cyral_datamap.test", "mapping.*", map[string]string{
+		resource.TestCheckTypeSetElemNestedAttrs("cyral_datamap.test_datamap", "mapping.*", map[string]string{
 			"label": integrationData.Label,
-		}),
-		resource.TestCheckTypeSetElemNestedAttrs("cyral_datamap.test", "mapping.0.data_location.*", map[string]string{
-			"repo": integrationData.DataLocation[0].Name,
-		}),
-		resource.TestCheckTypeSetElemAttr("cyral_datamap.test", "mapping.0.data_location.0.attributes.*", integrationData.DataLocation[0].Attributes[0]),
-		// resource.TestCheckResourceAttr("cyral_datamap.test", "mapping.#", "1"),
-		// resource.TestCheckResourceAttr("cyral_datamap.test", "mapping.0.label", integrationData.Label),
-	)
+		}))
 
 	return configuration, testFunction
 }
 
 func formatDataMapIntoConfig(data DataMapConfig) string {
 	return fmt.Sprintf(`
-	resource "cyral_datamap" "test" {
-		mapping {
-			label = "%s"
-			data_location {
-				repo = "%s"
-				attributes = [%s]
-			}
+	resource "cyral_repository" "tf_test_repository" {
+		type = "mysql"
+		host = "http://mysql.local/"
+		port = 3306
+		name = "tf-test-mysql"
+	  }
+	  
+	  resource "cyral_sidecar" "tf_test_sidecar" {
+		name              = "tf-test-sidecar"
+		deployment_method = "cloudFormation"
+		aws_configuration {
+		  publicly_accessible = true
 		}
-	}`, data.Label, data.DataLocation[0].Name, formatAttibutes(data.DataLocation[0].Attributes))
+	  }
+	  
+	  resource "cyral_repository_binding" "repo_binding" {
+		enabled       = true
+		repository_id = cyral_repository.tf_test_repository.id
+		listener_port = 3307
+		sidecar_id    = cyral_sidecar.tf_test_sidecar.id
+	  }
+	  
+	  resource "cyral_datamap" "test_datamap" {
+		mapping {
+		  label = "%s"
+		  data_location {
+			repo       = cyral_repository.tf_test_repository.name
+			attributes = ["database.table.column"]
+		  }
+		}
+	  }`, data.Label)
 }
 
 func formatAttibutes(list []string) string {

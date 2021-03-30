@@ -9,16 +9,14 @@ import (
 
 var initialSumoLogicConfig SumoLogicIntegrationData = SumoLogicIntegrationData{
 	Name:    "sumo-logic-test",
-	Address: "sumologic.local",
+	Address: "sumologic.local/initial",
 }
 
 var updatedSumoLogicConfig SumoLogicIntegrationData = SumoLogicIntegrationData{
 	Name:    "sumo-logic-test-update",
-	Address: "sumologic-updated.local",
+	Address: "sumologic.local/updated",
 }
 
-// This is loosely based on this example:
-// https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
 func TestAccSumoLogicIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSumoLogicTest(initialSumoLogicConfig)
 	testUpdateConfig, testUpdateFunc := setupSumoLogicTest(updatedSumoLogicConfig)

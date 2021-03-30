@@ -17,7 +17,7 @@ type PolicyTestConfig struct {
 
 var initialPolicyConfig PolicyTestConfig = PolicyTestConfig{
 	Data:        []string{"data"},
-	Description: "desctiption",
+	Description: "description",
 	Enabled:     false,
 	Name:        "policy-test",
 	Tags:        []string{"tag"},
@@ -27,7 +27,7 @@ var updatedPolicyConfig PolicyTestConfig = PolicyTestConfig{
 	Data:        []string{"data-updated"},
 	Description: "desctiption-updated",
 	Enabled:     true,
-	Name:        "policy-test-updated",
+	Name:        "policy-test",
 	Tags:        []string{"tag-updated"},
 }
 
