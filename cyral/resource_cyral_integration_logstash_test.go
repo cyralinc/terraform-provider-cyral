@@ -7,10 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-// This is loosely based on this example:
-// https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
-
-var initialConfig LogstashIntegrationData = LogstashIntegrationData{
+var initialLogstashConfig LogstashIntegrationData = LogstashIntegrationData{
 	Endpoint:                   "logstash.local/",
 	Name:                       "logstash-test",
 	UseMutualAuthentication:    false,
@@ -18,17 +15,35 @@ var initialConfig LogstashIntegrationData = LogstashIntegrationData{
 	UseTLS:                     false,
 }
 
-var updatedConfig LogstashIntegrationData = LogstashIntegrationData{
+var updated1LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
 	Endpoint:                   "logstash-updated.local/",
 	Name:                       "logstash-update-test",
 	UseMutualAuthentication:    true,
+	UsePrivateCertificateChain: false,
+	UseTLS:                     false,
+}
+
+var updated2LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
+	Endpoint:                   "logstash-updated.local/",
+	Name:                       "logstash-update-test",
+	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: true,
+	UseTLS:                     false,
+}
+
+var updated3LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
+	Endpoint:                   "logstash-updated.local/",
+	Name:                       "logstash-update-test",
+	UseMutualAuthentication:    false,
+	UsePrivateCertificateChain: false,
 	UseTLS:                     true,
 }
 
 func TestAccLogstashIntegrationResource(t *testing.T) {
-	testConfig, testFunc := setupTest(initialConfig)
-	testUpdateConfig, testUpdateFunc := setupTest(initialConfig)
+	testConfig, testFunc := setupLogstashTest(initialLogstashConfig)
+	testUpdate1Config, testUpdate1Func := setupLogstashTest(updated1LogstashConfig)
+	testUpdate2Config, testUpdate2Func := setupLogstashTest(updated2LogstashConfig)
+	testUpdate3Config, testUpdate3Func := setupLogstashTest(updated3LogstashConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -39,14 +54,22 @@ func TestAccLogstashIntegrationResource(t *testing.T) {
 				Check:  testFunc,
 			},
 			{
-				Config: testUpdateConfig,
-				Check:  testUpdateFunc,
+				Config: testUpdate1Config,
+				Check:  testUpdate1Func,
+			},
+			{
+				Config: testUpdate2Config,
+				Check:  testUpdate2Func,
+			},
+			{
+				Config: testUpdate3Config,
+				Check:  testUpdate3Func,
 			},
 		},
 	})
 }
 
-func setupTest(integrationData LogstashIntegrationData) (string, resource.TestCheckFunc) {
+func setupLogstashTest(integrationData LogstashIntegrationData) (string, resource.TestCheckFunc) {
 	configuration := formatLogstashIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(

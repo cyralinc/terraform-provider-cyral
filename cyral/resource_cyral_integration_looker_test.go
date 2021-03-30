@@ -7,40 +7,55 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const (
-	LookerIntegrationClientID     = "lookerClientID"
-	LookerIntegrationClientSecret = "lookerClientSecret"
-	LookerIntegrationURL          = "looker.local/"
-)
+var initialLookerConfig LookerIntegrationData = LookerIntegrationData{
+	ClientId:     "lookerClientID",
+	ClientSecret: "lookerClientSecret",
+	Url:          "looker.local/",
+}
 
-// This is loosely based on this example:
-// https://github.com/hashicorp/terraform-provider-vault/blob/master/vault/resource_azure_secret_backend_role_test.go
+var updatedLookerConfig LookerIntegrationData = LookerIntegrationData{
+	ClientId:     "lookerClientIDUpdated",
+	ClientSecret: "lookerClientSecretUpdated",
+	Url:          "looker-updated.local/",
+}
+
 func TestAccLookerIntegrationResource(t *testing.T) {
-	clientID := LookerIntegrationClientID
-	clientSecret := LookerIntegrationClientSecret
-	url := LookerIntegrationURL
+	testConfig, testFunc := setupLookerTest(initialLookerConfig)
+	testUpdateConfig, testUpdateFunc := setupLookerTest(updatedLookerConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: testLookerIntegrationInitialConfig(clientID, clientSecret, url),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "client_id", clientID),
-					resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "client_secret", clientSecret),
-					resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "url", url),
-				),
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
 			},
 		},
 	})
 }
 
-func testLookerIntegrationInitialConfig(clientID, clientSecret, url string) string {
+func setupLookerTest(integrationData LookerIntegrationData) (string, resource.TestCheckFunc) {
+	configuration := formatLookerIntegrationDataIntoConfig(integrationData)
+
+	testFunction := resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "client_id", integrationData.ClientId),
+		resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "client_secret", integrationData.ClientSecret),
+		resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "url", integrationData.Url),
+	)
+
+	return configuration, testFunction
+}
+
+func formatLookerIntegrationDataIntoConfig(data LookerIntegrationData) string {
 	return fmt.Sprintf(`
 resource "cyral_integration_looker" "looker_integration" {
 	client_id = "%s"
 	client_secret = "%s"
 	url = "%s"
-}`, clientID, clientSecret, url)
+}`, data.ClientId, data.ClientSecret, data.Url)
 }
