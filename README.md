@@ -198,6 +198,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Integration Datadog](./doc/resource_integration_datadog.md)
 - [Resource Integration ELK](./doc/resource_integration_elk.md)
+- [Resource Integration Microsoft Teams](./doc/resource_integration_microsoft_teams.md)
 - [Resource Integration Logstash](./doc/resource_integration_logstash.md)
 - [Resource Integration Looker](./doc/resource_integration_looker.md)
 - [Resource Integration Splunk](./doc/resource_integration_splunk.md)
