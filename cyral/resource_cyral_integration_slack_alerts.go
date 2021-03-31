@@ -34,8 +34,9 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 				Required: true,
 			},
 			"url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
