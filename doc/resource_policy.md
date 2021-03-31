@@ -1,6 +1,6 @@
 # Policy
 
-This resource provides CRUD operations in Cyral policies, allowing users to Create, Read, Update and Delete policies.
+CRUD operations for Cyral policies.
 
 ## Usage
 

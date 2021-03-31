@@ -16,7 +16,7 @@ resource "cyral_integration_microsoft_teams" "SOME_RESOURCE_NAME" {
 |  Name         |  Default  |  Description                                                          | Required |
 |:--------------|:---------:|:----------------------------------------------------------------------|:--------:|
 | `name`        |           | Integration name that will be used internally in Control Plane.       | Yes      |
-| `url`     |           | Microsoft Teams webhook url.                                                   | Yes      |
+| `url`         |           | Microsoft Teams webhook URL.                                          | Yes      |
 
 
 ## Outputs

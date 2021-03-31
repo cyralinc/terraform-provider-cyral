@@ -1,6 +1,6 @@
 # Policy Rule
 
-This resource provides CRUD operations in policy rules.
+CRUD operations for policy rules.
 
 
 ## Usage

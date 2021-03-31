@@ -1,6 +1,6 @@
 # Datamap
 
-This resource provides CRUD operations in Cyral datamaps, allowing users to Create, Read, Update and Delete datamaps.
+CRUD operations for Cyral datamaps.
 
 ## Usage
 
