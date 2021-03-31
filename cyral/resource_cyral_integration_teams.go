@@ -12,21 +12,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateTeamsIntegrationResponse struct {
+type CreateMsTeamsIntegrationResponse struct {
 	ID string `json:"id"`
 }
 
-type TeamsIntegrationData struct {
+type MsTeamsIntegrationData struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	URL  string `json:"url"`
 }
 
-func resourceIntegrationTeams() *schema.Resource {
+func resourceIntegrationMsTeams() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIntegrationTeamsCreate,
-		ReadContext:   resourceIntegrationTeamsRead,
-		UpdateContext: resourceIntegrationTeamsUpdate,
-		DeleteContext: resourceIntegrationTeamsDelete,
+		CreateContext: resourceIntegrationMsTeamsCreate,
+		ReadContext:   resourceIntegrationMsTeamsRead,
+		UpdateContext: resourceIntegrationMsTeamsUpdate,
+		DeleteContext: resourceIntegrationMsTeamsDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -45,11 +45,11 @@ func resourceIntegrationTeams() *schema.Resource {
 	}
 }
 
-func resourceIntegrationTeamsCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceIntegrationMsTeamsCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceIntegrationTeamsCreate")
 	c := m.(*client.Client)
 
-	resourceData := getTeamsIntegrationDataFromResource(c, d)
+	resourceData := getMsTeamsIntegrationDataFromResource(c, d)
 
 	url := fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 
@@ -58,7 +58,7 @@ func resourceIntegrationTeamsCreate(ctx context.Context, d *schema.ResourceData,
 		return createError("Unable to create integration", fmt.Sprintf("%v", err))
 	}
 
-	response := CreateTeamsIntegrationResponse{}
+	response := CreateMsTeamsIntegrationResponse{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
@@ -68,10 +68,10 @@ func resourceIntegrationTeamsCreate(ctx context.Context, d *schema.ResourceData,
 
 	log.Printf("[DEBUG] End resourceIntegrationTeamsCreate")
 
-	return resourceIntegrationTeamsRead(ctx, d, m)
+	return resourceIntegrationMsTeamsRead(ctx, d, m)
 }
 
-func resourceIntegrationTeamsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceIntegrationMsTeamsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceIntegrationTeamsRead")
 	c := m.(*client.Client)
 
@@ -83,25 +83,25 @@ func resourceIntegrationTeamsRead(ctx context.Context, d *schema.ResourceData, m
 			d.Id()), fmt.Sprintf("%v", err))
 	}
 
-	response := TeamsIntegrationData{}
+	response := MsTeamsIntegrationData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("name", response.Name)
-	d.Set("url", response.Url)
+	d.Set("url", response.URL)
 
 	log.Printf("[DEBUG] End resourceIntegrationTeamsRead")
 
 	return diag.Diagnostics{}
 }
 
-func resourceIntegrationTeamsUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceIntegrationMsTeamsUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceIntegrationTeamsUpdate")
 	c := m.(*client.Client)
 
-	resourceData := getTeamsIntegrationDataFromResource(c, d)
+	resourceData := getMsTeamsIntegrationDataFromResource(c, d)
 
 	url := fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 
@@ -111,10 +111,10 @@ func resourceIntegrationTeamsUpdate(ctx context.Context, d *schema.ResourceData,
 
 	log.Printf("[DEBUG] End resourceIntegrationTeamsUpdate")
 
-	return resourceIntegrationTeamsRead(ctx, d, m)
+	return resourceIntegrationMsTeamsRead(ctx, d, m)
 }
 
-func resourceIntegrationTeamsDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceIntegrationMsTeamsDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceIntegrationTeamsDelete")
 	c := m.(*client.Client)
 
@@ -129,9 +129,9 @@ func resourceIntegrationTeamsDelete(ctx context.Context, d *schema.ResourceData,
 	return diag.Diagnostics{}
 }
 
-func getTeamsIntegrationDataFromResource(c *client.Client, d *schema.ResourceData) TeamsIntegrationData {
-	return TeamsIntegrationData{
+func getMsTeamsIntegrationDataFromResource(c *client.Client, d *schema.ResourceData) MsTeamsIntegrationData {
+	return MsTeamsIntegrationData{
 		Name: d.Get("name").(string),
-		Url:  d.Get("url").(string),
+		URL:  d.Get("url").(string),
 	}
 }

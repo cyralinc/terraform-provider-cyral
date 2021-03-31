@@ -7,17 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialTeamsConfig TeamsIntegrationData = TeamsIntegrationData{
-	Name: "tf-test-teams-alerts",
-	Url:  "https://teams.local",
+var initialTeamsConfig MsTeamsIntegrationData = MsTeamsIntegrationData{
+	Name: "tf-test-msteams-alerts",
+	URL:  "https://msteams.local",
 }
 
-var updatedTeamsConfig TeamsIntegrationData = TeamsIntegrationData{
-	Name: "tf-test-teams-alerts",
-	Url:  "https://teams-updated.local",
+var updatedTeamsConfig MsTeamsIntegrationData = MsTeamsIntegrationData{
+	Name: "tf-test-msteams-alerts",
+	URL:  "https://msteams-updated.local",
 }
 
-func TestTeamsIntegrationResource(t *testing.T) {
+func TestAccMsTeamsIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupTeamsTest(initialTeamsConfig)
 	testUpdateConfig, testUpdateFunc := setupTeamsTest(initialTeamsConfig)
 
@@ -37,21 +37,23 @@ func TestTeamsIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupTeamsTest(integrationData TeamsIntegrationData) (string, resource.TestCheckFunc) {
-	configuration := formatTeamsIntegrationDataIntoConfig(integrationData)
+func setupTeamsTest(integrationData MsTeamsIntegrationData) (string, resource.TestCheckFunc) {
+	configuration := formatMsTeamsIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_integration_microsoft_teams.test_microsoft_teams", "name", integrationData.Name),
-		resource.TestCheckResourceAttr("cyral_integration_microsoft_teams.test_microsoft_teams", "url", integrationData.Url),
+		resource.TestCheckResourceAttr("cyral_integration_microsoft_teams.test_microsoft_teams",
+			"name", integrationData.Name),
+		resource.TestCheckResourceAttr("cyral_integration_microsoft_teams.test_microsoft_teams",
+			"url", integrationData.URL),
 	)
 
 	return configuration, testFunction
 }
 
-func formatTeamsIntegrationDataIntoConfig(data TeamsIntegrationData) string {
+func formatMsTeamsIntegrationDataIntoConfig(data MsTeamsIntegrationData) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_microsoft_teams" "test_microsoft_teams" {
 		name = "%s"
 		url  = "%s"
-	}`, data.Name, data.Url)
+	}`, data.Name, data.URL)
 }
