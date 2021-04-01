@@ -9,15 +9,15 @@ import (
 
 var initialSlackAlertsConfig SlackAlertsIntegrationData = SlackAlertsIntegrationData{
 	Name: "tf-test-slack-alerts",
-	Url:  "https://slack.local",
+	URL:  "https://slack.local",
 }
 
 var updatedSlackAlertsConfig SlackAlertsIntegrationData = SlackAlertsIntegrationData{
 	Name: "tf-test-update-slack-alerts",
-	Url:  "https://slack-updated.local",
+	URL:  "https://slack-updated.local",
 }
 
-func TestSlackAlertsIntegrationResource(t *testing.T) {
+func TestAccSlackAlertsIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSlackAlertTest(initialSlackAlertsConfig)
 	testUpdateConfig, testUpdateFunc := setupSlackAlertTest(initialSlackAlertsConfig)
 
@@ -41,8 +41,10 @@ func setupSlackAlertTest(integrationData SlackAlertsIntegrationData) (string, re
 	configuration := formatSlackAlertsIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_integration_slack_alerts.test_slack_alerts", "name", integrationData.Name),
-		resource.TestCheckResourceAttr("cyral_integration_slack_alerts.test_slack_alerts", "url", integrationData.Url),
+		resource.TestCheckResourceAttr("cyral_integration_slack_alerts.test_slack_alerts",
+			"name", integrationData.Name),
+		resource.TestCheckResourceAttr("cyral_integration_slack_alerts.test_slack_alerts",
+			"url", integrationData.URL),
 	)
 
 	return configuration, testFunction
@@ -53,5 +55,5 @@ func formatSlackAlertsIntegrationDataIntoConfig(data SlackAlertsIntegrationData)
 	resource "cyral_integration_slack_alerts" "test_slack_alerts" {
 		name = "%s"
 		url  = "%s"
-	}`, data.Name, data.Url)
+	}`, data.Name, data.URL)
 }

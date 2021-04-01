@@ -18,7 +18,7 @@ type CreateSlackAlertsIntegrationResponse struct {
 
 type SlackAlertsIntegrationData struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	URL  string `json:"url"`
 }
 
 func resourceIntegrationSlackAlerts() *schema.Resource {
@@ -90,7 +90,7 @@ func resourceIntegrationSlackAlertsRead(ctx context.Context, d *schema.ResourceD
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("name", response.Name)
-	d.Set("url", response.Url)
+	d.Set("url", response.URL)
 
 	log.Printf("[DEBUG] End resourceIntegrationSlackAlertsRead")
 
@@ -132,6 +132,6 @@ func resourceIntegrationSlackAlertsDelete(ctx context.Context, d *schema.Resourc
 func getSlackAlertsIntegrationDataFromResource(c *client.Client, d *schema.ResourceData) SlackAlertsIntegrationData {
 	return SlackAlertsIntegrationData{
 		Name: d.Get("name").(string),
-		Url:  d.Get("url").(string),
+		URL:  d.Get("url").(string),
 	}
 }
