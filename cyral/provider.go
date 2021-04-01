@@ -85,6 +85,7 @@ func Provider() *schema.Provider {
 			"cyral_integration_logstash":        resourceIntegrationLogstash(),
 			"cyral_integration_looker":          resourceIntegrationLooker(),
 			"cyral_integration_microsoft_teams": resourceIntegrationMsTeams(),
+			"cyral_integration_slack_alerts": resourceIntegrationSlackAlerts(),
 			"cyral_integration_splunk":          resourceIntegrationSplunk(),
 			"cyral_integration_sumo_logic":      resourceIntegrationSumoLogic(),
 			"cyral_policy":                      resourcePolicy(),
