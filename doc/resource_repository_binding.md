@@ -1,6 +1,6 @@
 # Repository Binding
 
-This resource binds repositories to sidecars.
+Binds repositories to sidecars.
 
 ## Usage
 
