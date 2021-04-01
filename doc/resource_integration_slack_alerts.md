@@ -1,13 +1,13 @@
 # Repository
 
-CRUD operations for Sumo Logic integration.
+CRUD operations for Slack Alerts integration.
 
 ## Usage
 
 ```hcl
-resource "cyral_integration_sumo_logic" "SOME_RESOURCE_NAME" {
+resource "cyral_integration_slack_alerts" "SOME_RESOURCE_NAME" {
     name = ""
-    address = ""
+    url = ""
 }
 ```
 
@@ -16,7 +16,7 @@ resource "cyral_integration_sumo_logic" "SOME_RESOURCE_NAME" {
 |  Name         |  Default  |  Description                                                          | Required |
 |:--------------|:---------:|:----------------------------------------------------------------------|:--------:|
 | `name`        |           | Integration name that will be used internally in Control Plane.       | Yes      |
-| `address`     |           | Sumo Logic Address.                                                   | Yes      |
+| `url`     |           | Slack Alert Webhook url.                                                   | Yes      |
 
 
 ## Outputs
