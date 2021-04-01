@@ -201,6 +201,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Microsoft Teams](./doc/resource_integration_microsoft_teams.md)
 - [Resource Integration Logstash](./doc/resource_integration_logstash.md)
 - [Resource Integration Looker](./doc/resource_integration_looker.md)
+- [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
 - [Resource Integration Splunk](./doc/resource_integration_splunk.md)
 - [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
 - [Resource Policy](./doc/resource_policy.md)
