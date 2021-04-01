@@ -1,6 +1,6 @@
 # Repository
 
-This resource provides CRUD operations in Cyral repositories, allowing users to Create, Read, Update and Delete repos.
+CRUD operations for repositories.
 
 ## Usage
 

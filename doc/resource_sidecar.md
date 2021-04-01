@@ -1,6 +1,6 @@
 # Sidecar
 
-This resource provides CRUD operations in Cyral sidecars, allowing users to Create, Read, Update and Delete sidecars.
+CRUD operations for Cyral sidecars.
 
 ## Usage
 
