@@ -8,34 +8,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateMsTeamsIntegrationResponse struct {
-	ID string `json:"id"`
-}
-
-func (response CreateMsTeamsIntegrationResponse) WriteResourceData(d *schema.ResourceData) {
-	d.SetId(response.ID)
-}
-
-func (response *CreateMsTeamsIntegrationResponse) ReadResourceData(d *schema.ResourceData) {
-	response.ID = d.Id()
-}
-
 type MsTeamsIntegrationData struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
 
-func (data MsTeamsIntegrationData) WriteResourceData(d *schema.ResourceData) {
+func (data MsTeamsIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("url", data.URL)
 }
 
-func (data *MsTeamsIntegrationData) ReadResourceData(d *schema.ResourceData) {
+func (data *MsTeamsIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.URL = d.Get("url").(string)
 }
 
-var ReadMsTeamsFunctionConfig = FunctionConfig{
+var ReadMsTeamsConfig = ResourceOperationConfig{
 	Name:       "MsTeamsResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
@@ -47,29 +35,29 @@ var ReadMsTeamsFunctionConfig = FunctionConfig{
 func resourceIntegrationMsTeams() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "MsTeamsResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
 				ResourceData: &MsTeamsIntegrationData{},
-				ResponseData: &CreateMsTeamsIntegrationResponse{},
-			}, ReadMsTeamsFunctionConfig,
+				ResponseData: &IDBasedResponse{},
+			}, ReadMsTeamsConfig,
 		),
-		ReadContext: ReadResource(ReadMsTeamsFunctionConfig),
+		ReadContext: ReadResource(ReadMsTeamsConfig),
 		UpdateContext: UpdateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "MsTeamsResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 				},
 				ResourceData: &MsTeamsIntegrationData{},
-			}, ReadMsTeamsFunctionConfig,
+			}, ReadMsTeamsConfig,
 		),
 		DeleteContext: DeleteResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "MsTeamsResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {

@@ -8,70 +8,58 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateDatadogIntegrationResponse struct {
-	ID string `json:"ID"`
-}
-
-func (response CreateDatadogIntegrationResponse) WriteResourceData(d *schema.ResourceData) {
-	d.SetId(response.ID)
-}
-
-func (response *CreateDatadogIntegrationResponse) ReadResourceData(d *schema.ResourceData) {
-	response.ID = d.Id()
-}
-
-type DatadogIntegrationData struct {
+type DatadogIntegration struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	APIKey string `json:"apiKey"`
 }
 
-func (data DatadogIntegrationData) WriteResourceData(d *schema.ResourceData) {
+func (data DatadogIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("api_key", data.APIKey)
 }
 
-func (data *DatadogIntegrationData) ReadResourceData(d *schema.ResourceData) {
+func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.ID = d.Id()
 	data.Name = d.Get("name").(string)
 	data.APIKey = d.Get("api_key").(string)
 }
 
-var ReadDatadogFunctionConfig = FunctionConfig{
+var ReadDatadogConfig = ResourceOperationConfig{
 	Name:       "DatadogResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &DatadogIntegrationData{},
+	ResponseData: &DatadogIntegration{},
 }
 
 func resourceIntegrationDatadog() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "DatadogResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
-				ResourceData: &DatadogIntegrationData{},
-				ResponseData: &CreateDatadogIntegrationResponse{},
-			}, ReadDatadogFunctionConfig,
+				ResourceData: &DatadogIntegration{},
+				ResponseData: &IDBasedResponse{},
+			}, ReadDatadogConfig,
 		),
-		ReadContext: ReadResource(ReadDatadogFunctionConfig),
+		ReadContext: ReadResource(ReadDatadogConfig),
 		UpdateContext: UpdateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "DatadogResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &DatadogIntegrationData{},
-			}, ReadDatadogFunctionConfig,
+				ResourceData: &DatadogIntegration{},
+			}, ReadDatadogConfig,
 		),
 		DeleteContext: DeleteResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "DatadogResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {

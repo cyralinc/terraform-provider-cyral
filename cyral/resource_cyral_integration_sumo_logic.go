@@ -8,35 +8,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateSumoLogicIntegrationResponse struct {
-	ID string `json:"id"`
-}
-
-func (response CreateSumoLogicIntegrationResponse) WriteResourceData(d *schema.ResourceData) {
-	d.SetId(response.ID)
-}
-
-func (response *CreateSumoLogicIntegrationResponse) ReadResourceData(d *schema.ResourceData) {
-	response.ID = d.Id()
-}
-
 type SumoLogicIntegrationData struct {
 	Name    string `json:"name"`
 	Address string `json:"address"`
 }
 
-func (data SumoLogicIntegrationData) WriteResourceData(d *schema.ResourceData) {
+func (data SumoLogicIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("address", data.Address)
 
 }
 
-func (data *SumoLogicIntegrationData) ReadResourceData(d *schema.ResourceData) {
+func (data *SumoLogicIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.Address = d.Get("address").(string)
 }
 
-var ReadSumoLogicFunctionConfig = FunctionConfig{
+var ReadSumoLogicConfig = ResourceOperationConfig{
 	Name:       "SumoLogicResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
@@ -48,29 +36,29 @@ var ReadSumoLogicFunctionConfig = FunctionConfig{
 func resourceIntegrationSumoLogic() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "SumoLogicResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 				},
 				ResourceData: &SumoLogicIntegrationData{},
-				ResponseData: &CreateSumoLogicIntegrationResponse{},
-			}, ReadSumoLogicFunctionConfig,
+				ResponseData: &IDBasedResponse{},
+			}, ReadSumoLogicConfig,
 		),
-		ReadContext: ReadResource(ReadSumoLogicFunctionConfig),
+		ReadContext: ReadResource(ReadSumoLogicConfig),
 		UpdateContext: UpdateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "SumoLogicResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 				},
 				ResourceData: &SumoLogicIntegrationData{},
-			}, ReadSumoLogicFunctionConfig,
+			}, ReadSumoLogicConfig,
 		),
 		DeleteContext: DeleteResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "SumoLogicResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {

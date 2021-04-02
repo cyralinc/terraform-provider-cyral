@@ -8,18 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateLogstashIntegrationResponse struct {
-	ID string `json:"ID"`
-}
-
-func (response CreateLogstashIntegrationResponse) WriteResourceData(d *schema.ResourceData) {
-	d.SetId(response.ID)
-}
-
-func (response *CreateLogstashIntegrationResponse) ReadResourceData(d *schema.ResourceData) {
-	response.ID = d.Id()
-}
-
 type LogstashIntegrationData struct {
 	Endpoint                   string `json:"endpoint"`
 	Name                       string `json:"name"`
@@ -28,7 +16,7 @@ type LogstashIntegrationData struct {
 	UseTLS                     bool   `json:"useTLS"`
 }
 
-func (data LogstashIntegrationData) WriteResourceData(d *schema.ResourceData) {
+func (data LogstashIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("endpoint", data.Endpoint)
 	d.Set("use_mutual_authentication", data.UseMutualAuthentication)
@@ -36,7 +24,7 @@ func (data LogstashIntegrationData) WriteResourceData(d *schema.ResourceData) {
 	d.Set("use_tls", data.UseTLS)
 }
 
-func (data *LogstashIntegrationData) ReadResourceData(d *schema.ResourceData) {
+func (data *LogstashIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.Endpoint = d.Get("endpoint").(string)
 	data.UseMutualAuthentication = d.Get("use_mutual_authentication").(bool)
@@ -44,7 +32,7 @@ func (data *LogstashIntegrationData) ReadResourceData(d *schema.ResourceData) {
 	data.UseTLS = d.Get("use_tls").(bool)
 }
 
-var ReadLogstashFunctionConfig = FunctionConfig{
+var ReadLogstashConfig = ResourceOperationConfig{
 	Name:       "LogstashResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
@@ -56,29 +44,29 @@ var ReadLogstashFunctionConfig = FunctionConfig{
 func resourceIntegrationLogstash() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "LogstashResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 				},
 				ResourceData: &LogstashIntegrationData{},
-				ResponseData: &CreateLogstashIntegrationResponse{},
-			}, ReadLogstashFunctionConfig,
+				ResponseData: &IDBasedResponse{},
+			}, ReadLogstashConfig,
 		),
-		ReadContext: ReadResource(ReadLogstashFunctionConfig),
+		ReadContext: ReadResource(ReadLogstashConfig),
 		UpdateContext: UpdateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "LogstashResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 				},
 				ResourceData: &LogstashIntegrationData{},
-			}, ReadLogstashFunctionConfig,
+			}, ReadLogstashConfig,
 		),
 		DeleteContext: DeleteResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "LogstashResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {

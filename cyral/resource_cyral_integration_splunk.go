@@ -8,18 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateSplunkIntegrationResponse struct {
-	ID string `json:"id"`
-}
-
-func (response CreateSplunkIntegrationResponse) WriteResourceData(d *schema.ResourceData) {
-	d.SetId(response.ID)
-}
-
-func (response *CreateSplunkIntegrationResponse) ReadResourceData(d *schema.ResourceData) {
-	response.ID = d.Id()
-}
-
 type SplunkIntegrationData struct {
 	Name        string `json:"name"`
 	AccessToken string `json:"accessToken"`
@@ -29,7 +17,7 @@ type SplunkIntegrationData struct {
 	UseTLS      bool   `json:"useTLS"`
 }
 
-func (data SplunkIntegrationData) WriteResourceData(d *schema.ResourceData) {
+func (data SplunkIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("access_token", data.AccessToken)
 	d.Set("port", data.Port)
@@ -39,7 +27,7 @@ func (data SplunkIntegrationData) WriteResourceData(d *schema.ResourceData) {
 
 }
 
-func (data *SplunkIntegrationData) ReadResourceData(d *schema.ResourceData) {
+func (data *SplunkIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.AccessToken = d.Get("access_token").(string)
 	data.Port = d.Get("port").(int)
@@ -48,7 +36,7 @@ func (data *SplunkIntegrationData) ReadResourceData(d *schema.ResourceData) {
 	data.UseTLS = d.Get("use_tls").(bool)
 }
 
-var ReadSplunkFunctionConfig = FunctionConfig{
+var ReadSplunkConfig = ResourceOperationConfig{
 	Name:       "SplunkResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
@@ -60,29 +48,29 @@ var ReadSplunkFunctionConfig = FunctionConfig{
 func resourceIntegrationSplunk() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "SplunkResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
 				},
 				ResourceData: &SplunkIntegrationData{},
-				ResponseData: &CreateSplunkIntegrationResponse{},
-			}, ReadSplunkFunctionConfig,
+				ResponseData: &IDBasedResponse{},
+			}, ReadSplunkConfig,
 		),
-		ReadContext: ReadResource(ReadSplunkFunctionConfig),
+		ReadContext: ReadResource(ReadSplunkConfig),
 		UpdateContext: UpdateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "SplunkResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 				},
 				ResourceData: &SplunkIntegrationData{},
-			}, ReadSplunkFunctionConfig,
+			}, ReadSplunkConfig,
 		),
 		DeleteContext: DeleteResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "SplunkResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {

@@ -14,25 +14,37 @@ import (
 
 type URLCreatorFunc = func(d *schema.ResourceData, c *client.Client) string
 
-type IModel interface {
-	WriteResourceData(d *schema.ResourceData)
-	ReadResourceData(d *schema.ResourceData)
+type SchemaDataHandler interface {
+	WriteToSchema(d *schema.ResourceData)
+	ReadFromSchema(d *schema.ResourceData)
 }
 
-type FunctionConfig struct {
+type ResourceOperationConfig struct {
 	Name         string
 	HttpMethod   string
 	CreateURL    URLCreatorFunc
-	ResourceData IModel
-	ResponseData IModel
+	ResourceData SchemaDataHandler
+	ResponseData SchemaDataHandler
 }
 
-func CreateResource(createConfig FunctionConfig, readConfig FunctionConfig) schema.CreateContextFunc {
+type IDBasedResponse struct {
+	ID string `json:"ID"`
+}
+
+func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData) {
+	d.SetId(response.ID)
+}
+
+func (response *IDBasedResponse) ReadFromSchema(d *schema.ResourceData) {
+	response.ID = d.Id()
+}
+
+func CreateResource(createConfig ResourceOperationConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		log.Printf("[DEBUG] Init %s", createConfig.Name)
 		c := m.(*client.Client)
 
-		createConfig.ResourceData.ReadResourceData(d)
+		createConfig.ResourceData.ReadFromSchema(d)
 
 		url := createConfig.CreateURL(d, c)
 
@@ -46,7 +58,7 @@ func CreateResource(createConfig FunctionConfig, readConfig FunctionConfig) sche
 		}
 		log.Printf("[DEBUG] Response body (unmarshalled): %#v", createConfig.ResponseData)
 
-		createConfig.ResponseData.WriteResourceData(d)
+		createConfig.ResponseData.WriteToSchema(d)
 
 		log.Printf("[DEBUG] End %s", createConfig.Name)
 
@@ -54,7 +66,7 @@ func CreateResource(createConfig FunctionConfig, readConfig FunctionConfig) sche
 	}
 }
 
-func ReadResource(config FunctionConfig) schema.ReadContextFunc {
+func ReadResource(config ResourceOperationConfig) schema.ReadContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		log.Printf("[DEBUG] Init %s", config.Name)
 		c := m.(*client.Client)
@@ -72,7 +84,7 @@ func ReadResource(config FunctionConfig) schema.ReadContextFunc {
 		}
 		log.Printf("[DEBUG] Response body (unmarshalled): %#v", config.ResponseData)
 
-		config.ResponseData.WriteResourceData(d)
+		config.ResponseData.WriteToSchema(d)
 
 		log.Printf("[DEBUG] End %s", config.Name)
 
@@ -80,12 +92,12 @@ func ReadResource(config FunctionConfig) schema.ReadContextFunc {
 	}
 }
 
-func UpdateResource(updateConfig FunctionConfig, readConfig FunctionConfig) schema.UpdateContextFunc {
+func UpdateResource(updateConfig ResourceOperationConfig, readConfig ResourceOperationConfig) schema.UpdateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		log.Printf("[DEBUG] Init %s", updateConfig.Name)
 		c := m.(*client.Client)
 
-		updateConfig.ResourceData.ReadResourceData(d)
+		updateConfig.ResourceData.ReadFromSchema(d)
 
 		url := updateConfig.CreateURL(d, c)
 
@@ -99,7 +111,7 @@ func UpdateResource(updateConfig FunctionConfig, readConfig FunctionConfig) sche
 	}
 }
 
-func DeleteResource(config FunctionConfig) schema.DeleteContextFunc {
+func DeleteResource(config ResourceOperationConfig) schema.DeleteContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		log.Printf("[DEBUG] Init %s", config.Name)
 		c := m.(*client.Client)

@@ -8,37 +8,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateLookerIntegrationResponse struct {
-	ID string `json:"ID"`
-}
-
-func (response CreateLookerIntegrationResponse) WriteResourceData(d *schema.ResourceData) {
-	d.SetId(response.ID)
-}
-
-func (response *CreateLookerIntegrationResponse) ReadResourceData(d *schema.ResourceData) {
-	response.ID = d.Id()
-}
-
 type LookerIntegrationData struct {
 	ClientId     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
 	URL          string `json:"url"`
 }
 
-func (data LookerIntegrationData) WriteResourceData(d *schema.ResourceData) {
+func (data LookerIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("client_secret", data.ClientSecret)
 	d.Set("client_id", data.ClientId)
 	d.Set("url", data.URL)
 }
 
-func (data *LookerIntegrationData) ReadResourceData(d *schema.ResourceData) {
+func (data *LookerIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	data.ClientSecret = d.Get("client_secret").(string)
 	data.ClientId = d.Get("client_id").(string)
 	data.URL = d.Get("url").(string)
 }
 
-var ReadLookerFunctionConfig = FunctionConfig{
+var ReadLookerConfig = ResourceOperationConfig{
 	Name:       "LookerResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
@@ -50,29 +38,29 @@ var ReadLookerFunctionConfig = FunctionConfig{
 func resourceIntegrationLooker() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "LookerResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 				},
 				ResourceData: &LookerIntegrationData{},
-				ResponseData: &CreateLookerIntegrationResponse{},
-			}, ReadLookerFunctionConfig,
+				ResponseData: &IDBasedResponse{},
+			}, ReadLookerConfig,
 		),
-		ReadContext: ReadResource(ReadLookerFunctionConfig),
+		ReadContext: ReadResource(ReadLookerConfig),
 		UpdateContext: UpdateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "LookerResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 				},
 				ResourceData: &LookerIntegrationData{},
-			}, ReadLookerFunctionConfig,
+			}, ReadLookerConfig,
 		),
 		DeleteContext: DeleteResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "LookerResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {

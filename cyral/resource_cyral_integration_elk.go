@@ -8,18 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateELKIntegrationResponse struct {
-	ID string `json:"ID"`
-}
-
-func (response CreateELKIntegrationResponse) WriteResourceData(d *schema.ResourceData) {
-	d.SetId(response.ID)
-}
-
-func (response *CreateELKIntegrationResponse) ReadResourceData(d *schema.ResourceData) {
-	response.ID = d.Id()
-}
-
 type ELKIntegrationData struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -27,20 +15,20 @@ type ELKIntegrationData struct {
 	ESURL     string `json:"esUrl"`
 }
 
-func (data ELKIntegrationData) WriteResourceData(d *schema.ResourceData) {
+func (data ELKIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("kibana_url", data.KibanaURL)
 	d.Set("es_url", data.ESURL)
 }
 
-func (data *ELKIntegrationData) ReadResourceData(d *schema.ResourceData) {
+func (data *ELKIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	data.ID = d.Id()
 	data.Name = d.Get("name").(string)
 	data.KibanaURL = d.Get("kibana_url").(string)
 	data.ESURL = d.Get("es_url").(string)
 }
 
-var ReadELKFunctionConfig = FunctionConfig{
+var ReadELKConfig = ResourceOperationConfig{
 	Name:       "ELKResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
@@ -52,29 +40,29 @@ var ReadELKFunctionConfig = FunctionConfig{
 func resourceIntegrationELK() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "ELKResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
 				},
 				ResourceData: &ELKIntegrationData{},
-				ResponseData: &CreateELKIntegrationResponse{},
-			}, ReadELKFunctionConfig,
+				ResponseData: &IDBasedResponse{},
+			}, ReadELKConfig,
 		),
-		ReadContext: ReadResource(ReadELKFunctionConfig),
+		ReadContext: ReadResource(ReadELKConfig),
 		UpdateContext: UpdateResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "ELKResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 				},
 				ResourceData: &ELKIntegrationData{},
-			}, ReadELKFunctionConfig,
+			}, ReadELKConfig,
 		),
 		DeleteContext: DeleteResource(
-			FunctionConfig{
+			ResourceOperationConfig{
 				Name:       "ELKResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {

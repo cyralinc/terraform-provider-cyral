@@ -12,10 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateRepoResponse struct {
-	ID string `json:"ID"`
-}
-
 type GetRepoByIDResponse struct {
 	Repo RepoData `json:"repo"`
 }
@@ -75,7 +71,7 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, m int
 		return createError("Unable to create repository", fmt.Sprintf("%v", err))
 	}
 
-	response := CreateRepoResponse{}
+	response := IDBasedResponse{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
