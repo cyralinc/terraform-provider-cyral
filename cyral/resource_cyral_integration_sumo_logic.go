@@ -16,7 +16,6 @@ type SumoLogicIntegration struct {
 func (data SumoLogicIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("address", data.Address)
-
 }
 
 func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) {

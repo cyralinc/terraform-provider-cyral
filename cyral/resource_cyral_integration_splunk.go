@@ -24,7 +24,6 @@ func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("host", data.Host)
 	d.Set("index", data.Index)
 	d.Set("use_tls", data.UseTLS)
-
 }
 
 func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) {
