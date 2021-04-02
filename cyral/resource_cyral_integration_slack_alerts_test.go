@@ -7,12 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialSlackAlertsConfig SlackAlertsIntegrationData = SlackAlertsIntegrationData{
+var initialSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
 	Name: "tf-test-slack-alerts",
 	URL:  "https://slack.local",
 }
 
-var updatedSlackAlertsConfig SlackAlertsIntegrationData = SlackAlertsIntegrationData{
+var updatedSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
 	Name: "tf-test-update-slack-alerts",
 	URL:  "https://slack-updated.local",
 }
@@ -37,7 +37,7 @@ func TestAccSlackAlertsIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupSlackAlertTest(integrationData SlackAlertsIntegrationData) (string, resource.TestCheckFunc) {
+func setupSlackAlertTest(integrationData SlackAlertsIntegration) (string, resource.TestCheckFunc) {
 	configuration := formatSlackAlertsIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
@@ -50,7 +50,7 @@ func setupSlackAlertTest(integrationData SlackAlertsIntegrationData) (string, re
 	return configuration, testFunction
 }
 
-func formatSlackAlertsIntegrationDataIntoConfig(data SlackAlertsIntegrationData) string {
+func formatSlackAlertsIntegrationDataIntoConfig(data SlackAlertsIntegration) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_slack_alerts" "test_slack_alerts" {
 		name = "%s"

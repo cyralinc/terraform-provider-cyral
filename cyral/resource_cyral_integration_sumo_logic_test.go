@@ -7,13 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialSumoLogicConfig SumoLogicIntegrationData = SumoLogicIntegrationData{
-	Name:    "sumo-logic-test",
+var initialSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
+	Name:    "tf-test-sumo-logic",
 	Address: "sumologic.local/initial",
 }
 
-var updatedSumoLogicConfig SumoLogicIntegrationData = SumoLogicIntegrationData{
-	Name:    "sumo-logic-test-update",
+var updatedSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
+	Name:    "tf-test-update-sumo-logic",
 	Address: "sumologic.local/updated",
 }
 
@@ -37,7 +37,7 @@ func TestAccSumoLogicIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupSumoLogicTest(integrationData SumoLogicIntegrationData) (string, resource.TestCheckFunc) {
+func setupSumoLogicTest(integrationData SumoLogicIntegration) (string, resource.TestCheckFunc) {
 	configuration := formatSumoLogicIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
@@ -48,7 +48,7 @@ func setupSumoLogicTest(integrationData SumoLogicIntegrationData) (string, resou
 	return configuration, testFunction
 }
 
-func formatSumoLogicIntegrationDataIntoConfig(data SumoLogicIntegrationData) string {
+func formatSumoLogicIntegrationDataIntoConfig(data SumoLogicIntegration) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_sumo_logic" "sumo_logic_integration" {
 		name = "%s"

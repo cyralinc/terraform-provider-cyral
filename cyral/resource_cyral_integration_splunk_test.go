@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialSplunkConfig SplunkIntegrationData = SplunkIntegrationData{
+var initialSplunkConfig SplunkIntegration = SplunkIntegration{
 	Name:        "splunk-test",
 	AccessToken: "access-token",
 	Port:        3333,
@@ -16,7 +16,7 @@ var initialSplunkConfig SplunkIntegrationData = SplunkIntegrationData{
 	UseTLS:      false,
 }
 
-var updatedSplunkConfig SplunkIntegrationData = SplunkIntegrationData{
+var updatedSplunkConfig SplunkIntegration = SplunkIntegration{
 	Name:        "splunk-test-update",
 	AccessToken: "access-token-update",
 	Port:        6666,
@@ -45,7 +45,7 @@ func TestAccSplunkIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupSplunkTest(integrationData SplunkIntegrationData) (string, resource.TestCheckFunc) {
+func setupSplunkTest(integrationData SplunkIntegration) (string, resource.TestCheckFunc) {
 	configuration := formatSplunkIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
@@ -60,7 +60,7 @@ func setupSplunkTest(integrationData SplunkIntegrationData) (string, resource.Te
 	return configuration, testFunction
 }
 
-func formatSplunkIntegrationDataIntoConfig(data SplunkIntegrationData) string {
+func formatSplunkIntegrationDataIntoConfig(data SplunkIntegration) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_splunk" "splunk_integration" {
 		name = "%s"

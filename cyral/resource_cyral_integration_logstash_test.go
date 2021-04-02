@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialLogstashConfig LogstashIntegrationData = LogstashIntegrationData{
+var initialLogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash.local/",
 	Name:                       "logstash-test",
 	UseMutualAuthentication:    false,
@@ -15,7 +15,7 @@ var initialLogstashConfig LogstashIntegrationData = LogstashIntegrationData{
 	UseTLS:                     false,
 }
 
-var updated1LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
+var updated1LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
 	Name:                       "logstash-update-test",
 	UseMutualAuthentication:    true,
@@ -23,7 +23,7 @@ var updated1LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
 	UseTLS:                     false,
 }
 
-var updated2LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
+var updated2LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
 	Name:                       "logstash-update-test",
 	UseMutualAuthentication:    false,
@@ -31,7 +31,7 @@ var updated2LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
 	UseTLS:                     false,
 }
 
-var updated3LogstashConfig LogstashIntegrationData = LogstashIntegrationData{
+var updated3LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
 	Name:                       "logstash-update-test",
 	UseMutualAuthentication:    false,
@@ -69,7 +69,7 @@ func TestAccLogstashIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupLogstashTest(integrationData LogstashIntegrationData) (string, resource.TestCheckFunc) {
+func setupLogstashTest(integrationData LogstashIntegration) (string, resource.TestCheckFunc) {
 	configuration := formatLogstashIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
@@ -83,7 +83,7 @@ func setupLogstashTest(integrationData LogstashIntegrationData) (string, resourc
 	return configuration, testFunction
 }
 
-func formatLogstashIntegrationDataIntoConfig(config LogstashIntegrationData) string {
+func formatLogstashIntegrationDataIntoConfig(config LogstashIntegration) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_logstash" "logstash_integration" {
 		name = "%s"

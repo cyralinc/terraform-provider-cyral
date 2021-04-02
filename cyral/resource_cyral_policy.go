@@ -13,10 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreatePolicyResponse struct {
-	ID string `json:"ID"`
-}
-
 type Policy struct {
 	Meta *PolicyMetadata `json:"meta" yaml:"meta"`
 	Data []string        `json:"data,omitempty" yaml:"data,omitempty,flow"`
@@ -123,7 +119,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		return createError("Unable to create policy", fmt.Sprintf("%v", err))
 	}
 
-	response := CreatePolicyResponse{}
+	response := IDBasedResponse{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
