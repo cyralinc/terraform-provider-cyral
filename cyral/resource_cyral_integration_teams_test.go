@@ -7,12 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialTeamsConfig MsTeamsIntegrationData = MsTeamsIntegrationData{
+var initialTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
 	Name: "tf-test-msteams-alerts",
 	URL:  "https://msteams.local",
 }
 
-var updatedTeamsConfig MsTeamsIntegrationData = MsTeamsIntegrationData{
+var updatedTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
 	Name: "tf-test-msteams-alerts",
 	URL:  "https://msteams-updated.local",
 }
@@ -37,7 +37,7 @@ func TestAccMsTeamsIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupTeamsTest(integrationData MsTeamsIntegrationData) (string, resource.TestCheckFunc) {
+func setupTeamsTest(integrationData MsTeamsIntegration) (string, resource.TestCheckFunc) {
 	configuration := formatMsTeamsIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
@@ -50,7 +50,7 @@ func setupTeamsTest(integrationData MsTeamsIntegrationData) (string, resource.Te
 	return configuration, testFunction
 }
 
-func formatMsTeamsIntegrationDataIntoConfig(data MsTeamsIntegrationData) string {
+func formatMsTeamsIntegrationDataIntoConfig(data MsTeamsIntegration) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_microsoft_teams" "test_microsoft_teams" {
 		name = "%s"

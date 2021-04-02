@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type SplunkIntegrationData struct {
+type SplunkIntegration struct {
 	Name        string `json:"name"`
 	AccessToken string `json:"accessToken"`
 	Port        int    `json:"hecPort,string"`
@@ -17,7 +17,7 @@ type SplunkIntegrationData struct {
 	UseTLS      bool   `json:"useTLS"`
 }
 
-func (data SplunkIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("access_token", data.AccessToken)
 	d.Set("port", data.Port)
@@ -27,7 +27,7 @@ func (data SplunkIntegrationData) WriteToSchema(d *schema.ResourceData) {
 
 }
 
-func (data *SplunkIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.AccessToken = d.Get("access_token").(string)
 	data.Port = d.Get("port").(int)
@@ -42,7 +42,7 @@ var ReadSplunkConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &SplunkIntegrationData{},
+	ResponseData: &SplunkIntegration{},
 }
 
 func resourceIntegrationSplunk() *schema.Resource {
@@ -54,7 +54,7 @@ func resourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
 				},
-				ResourceData: &SplunkIntegrationData{},
+				ResourceData: &SplunkIntegration{},
 				ResponseData: &IDBasedResponse{},
 			}, ReadSplunkConfig,
 		),
@@ -66,7 +66,7 @@ func resourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SplunkIntegrationData{},
+				ResourceData: &SplunkIntegration{},
 			}, ReadSplunkConfig,
 		),
 		DeleteContext: DeleteResource(

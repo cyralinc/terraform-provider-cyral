@@ -8,19 +8,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type LookerIntegrationData struct {
+type LookerIntegration struct {
 	ClientId     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
 	URL          string `json:"url"`
 }
 
-func (data LookerIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data LookerIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("client_secret", data.ClientSecret)
 	d.Set("client_id", data.ClientId)
 	d.Set("url", data.URL)
 }
 
-func (data *LookerIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *LookerIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.ClientSecret = d.Get("client_secret").(string)
 	data.ClientId = d.Get("client_id").(string)
 	data.URL = d.Get("url").(string)
@@ -32,7 +32,7 @@ var ReadLookerConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &LookerIntegrationData{},
+	ResponseData: &LookerIntegration{},
 }
 
 func resourceIntegrationLooker() *schema.Resource {
@@ -44,7 +44,7 @@ func resourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 				},
-				ResourceData: &LookerIntegrationData{},
+				ResourceData: &LookerIntegration{},
 				ResponseData: &IDBasedResponse{},
 			}, ReadLookerConfig,
 		),
@@ -56,7 +56,7 @@ func resourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &LookerIntegrationData{},
+				ResourceData: &LookerIntegration{},
 			}, ReadLookerConfig,
 		),
 		DeleteContext: DeleteResource(

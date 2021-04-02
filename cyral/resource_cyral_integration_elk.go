@@ -8,20 +8,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type ELKIntegrationData struct {
+type ELKIntegration struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
 	KibanaURL string `json:"kibanaUrl"`
 	ESURL     string `json:"esUrl"`
 }
 
-func (data ELKIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data ELKIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("kibana_url", data.KibanaURL)
 	d.Set("es_url", data.ESURL)
 }
 
-func (data *ELKIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *ELKIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.ID = d.Id()
 	data.Name = d.Get("name").(string)
 	data.KibanaURL = d.Get("kibana_url").(string)
@@ -34,7 +34,7 @@ var ReadELKConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &ELKIntegrationData{},
+	ResponseData: &ELKIntegration{},
 }
 
 func resourceIntegrationELK() *schema.Resource {
@@ -46,7 +46,7 @@ func resourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
 				},
-				ResourceData: &ELKIntegrationData{},
+				ResourceData: &ELKIntegration{},
 				ResponseData: &IDBasedResponse{},
 			}, ReadELKConfig,
 		),
@@ -58,7 +58,7 @@ func resourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &ELKIntegrationData{},
+				ResourceData: &ELKIntegration{},
 			}, ReadELKConfig,
 		),
 		DeleteContext: DeleteResource(

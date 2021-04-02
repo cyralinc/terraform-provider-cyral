@@ -7,13 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialLookerConfig LookerIntegrationData = LookerIntegrationData{
+var initialLookerConfig LookerIntegration = LookerIntegration{
 	ClientId:     "lookerClientID",
 	ClientSecret: "lookerClientSecret",
 	URL:          "looker.local/",
 }
 
-var updatedLookerConfig LookerIntegrationData = LookerIntegrationData{
+var updatedLookerConfig LookerIntegration = LookerIntegration{
 	ClientId:     "lookerClientIDUpdated",
 	ClientSecret: "lookerClientSecretUpdated",
 	URL:          "looker-updated.local/",
@@ -39,7 +39,7 @@ func TestAccLookerIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupLookerTest(integrationData LookerIntegrationData) (string, resource.TestCheckFunc) {
+func setupLookerTest(integrationData LookerIntegration) (string, resource.TestCheckFunc) {
 	configuration := formatLookerIntegrationDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
@@ -51,7 +51,7 @@ func setupLookerTest(integrationData LookerIntegrationData) (string, resource.Te
 	return configuration, testFunction
 }
 
-func formatLookerIntegrationDataIntoConfig(data LookerIntegrationData) string {
+func formatLookerIntegrationDataIntoConfig(data LookerIntegration) string {
 	return fmt.Sprintf(`
 resource "cyral_integration_looker" "looker_integration" {
 	client_id = "%s"

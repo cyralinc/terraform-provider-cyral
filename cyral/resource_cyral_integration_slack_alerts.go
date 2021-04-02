@@ -8,17 +8,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type SlackAlertsIntegrationData struct {
+type SlackAlertsIntegration struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
 
-func (data SlackAlertsIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data SlackAlertsIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("url", data.URL)
 }
 
-func (data *SlackAlertsIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *SlackAlertsIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.URL = d.Get("url").(string)
 }
@@ -29,7 +29,7 @@ var ReadSlackAlertsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &SlackAlertsIntegrationData{},
+	ResponseData: &SlackAlertsIntegration{},
 }
 
 func resourceIntegrationSlackAlerts() *schema.Resource {
@@ -41,7 +41,7 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 				},
-				ResourceData: &SlackAlertsIntegrationData{},
+				ResourceData: &SlackAlertsIntegration{},
 				ResponseData: &IDBasedResponse{},
 			}, ReadSlackAlertsConfig,
 		),
@@ -53,7 +53,7 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SlackAlertsIntegrationData{},
+				ResourceData: &SlackAlertsIntegration{},
 			}, ReadSlackAlertsConfig,
 		),
 		DeleteContext: DeleteResource(

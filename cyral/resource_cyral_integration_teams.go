@@ -8,17 +8,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type MsTeamsIntegrationData struct {
+type MsTeamsIntegration struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
 
-func (data MsTeamsIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data MsTeamsIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("url", data.URL)
 }
 
-func (data *MsTeamsIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *MsTeamsIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.URL = d.Get("url").(string)
 }
@@ -29,7 +29,7 @@ var ReadMsTeamsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &MsTeamsIntegrationData{},
+	ResponseData: &MsTeamsIntegration{},
 }
 
 func resourceIntegrationMsTeams() *schema.Resource {
@@ -41,7 +41,7 @@ func resourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
-				ResourceData: &MsTeamsIntegrationData{},
+				ResourceData: &MsTeamsIntegration{},
 				ResponseData: &IDBasedResponse{},
 			}, ReadMsTeamsConfig,
 		),
@@ -53,7 +53,7 @@ func resourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &MsTeamsIntegrationData{},
+				ResourceData: &MsTeamsIntegration{},
 			}, ReadMsTeamsConfig,
 		),
 		DeleteContext: DeleteResource(

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type LogstashIntegrationData struct {
+type LogstashIntegration struct {
 	Endpoint                   string `json:"endpoint"`
 	Name                       string `json:"name"`
 	UseMutualAuthentication    bool   `json:"useMutualAuthentication"`
@@ -16,7 +16,7 @@ type LogstashIntegrationData struct {
 	UseTLS                     bool   `json:"useTLS"`
 }
 
-func (data LogstashIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data LogstashIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("endpoint", data.Endpoint)
 	d.Set("use_mutual_authentication", data.UseMutualAuthentication)
@@ -24,7 +24,7 @@ func (data LogstashIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("use_tls", data.UseTLS)
 }
 
-func (data *LogstashIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.Endpoint = d.Get("endpoint").(string)
 	data.UseMutualAuthentication = d.Get("use_mutual_authentication").(bool)
@@ -38,7 +38,7 @@ var ReadLogstashConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &LogstashIntegrationData{},
+	ResponseData: &LogstashIntegration{},
 }
 
 func resourceIntegrationLogstash() *schema.Resource {
@@ -50,7 +50,7 @@ func resourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 				},
-				ResourceData: &LogstashIntegrationData{},
+				ResourceData: &LogstashIntegration{},
 				ResponseData: &IDBasedResponse{},
 			}, ReadLogstashConfig,
 		),
@@ -62,7 +62,7 @@ func resourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &LogstashIntegrationData{},
+				ResourceData: &LogstashIntegration{},
 			}, ReadLogstashConfig,
 		),
 		DeleteContext: DeleteResource(

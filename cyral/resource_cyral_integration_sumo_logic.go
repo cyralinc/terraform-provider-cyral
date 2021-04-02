@@ -8,18 +8,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type SumoLogicIntegrationData struct {
+type SumoLogicIntegration struct {
 	Name    string `json:"name"`
 	Address string `json:"address"`
 }
 
-func (data SumoLogicIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data SumoLogicIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("address", data.Address)
 
 }
 
-func (data *SumoLogicIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.Name = d.Get("name").(string)
 	data.Address = d.Get("address").(string)
 }
@@ -30,7 +30,7 @@ var ReadSumoLogicConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &SumoLogicIntegrationData{},
+	ResponseData: &SumoLogicIntegration{},
 }
 
 func resourceIntegrationSumoLogic() *schema.Resource {
@@ -42,7 +42,7 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 				},
-				ResourceData: &SumoLogicIntegrationData{},
+				ResourceData: &SumoLogicIntegration{},
 				ResponseData: &IDBasedResponse{},
 			}, ReadSumoLogicConfig,
 		),
@@ -54,7 +54,7 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SumoLogicIntegrationData{},
+				ResourceData: &SumoLogicIntegration{},
 			}, ReadSumoLogicConfig,
 		),
 		DeleteContext: DeleteResource(
