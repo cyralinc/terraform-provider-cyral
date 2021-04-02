@@ -10,13 +10,13 @@ import (
 var initialLookerConfig LookerIntegrationData = LookerIntegrationData{
 	ClientId:     "lookerClientID",
 	ClientSecret: "lookerClientSecret",
-	Url:          "looker.local/",
+	URL:          "looker.local/",
 }
 
 var updatedLookerConfig LookerIntegrationData = LookerIntegrationData{
 	ClientId:     "lookerClientIDUpdated",
 	ClientSecret: "lookerClientSecretUpdated",
-	Url:          "looker-updated.local/",
+	URL:          "looker-updated.local/",
 }
 
 func TestAccLookerIntegrationResource(t *testing.T) {
@@ -45,7 +45,7 @@ func setupLookerTest(integrationData LookerIntegrationData) (string, resource.Te
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "client_id", integrationData.ClientId),
 		resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "client_secret", integrationData.ClientSecret),
-		resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "url", integrationData.Url),
+		resource.TestCheckResourceAttr("cyral_integration_looker.looker_integration", "url", integrationData.URL),
 	)
 
 	return configuration, testFunction
@@ -57,5 +57,5 @@ resource "cyral_integration_looker" "looker_integration" {
 	client_id = "%s"
 	client_secret = "%s"
 	url = "%s"
-}`, data.ClientId, data.ClientSecret, data.Url)
+}`, data.ClientId, data.ClientSecret, data.URL)
 }
