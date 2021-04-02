@@ -80,36 +80,38 @@ func ReadResource(config FunctionConfig) schema.ReadContextFunc {
 	}
 }
 
-func (config *FunctionConfig) Update(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init %s", config.Name)
-	c := m.(*client.Client)
+func UpdateResource(updateConfig FunctionConfig, readConfig FunctionConfig) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		log.Printf("[DEBUG] Init %s", updateConfig.Name)
+		c := m.(*client.Client)
 
-	config.ResourceData.ReadResourceData(d)
+		updateConfig.ResourceData.ReadResourceData(d)
 
-	url := config.CreateURL(d, c)
+		url := updateConfig.CreateURL(d, c)
 
-	if _, err := c.DoRequest(url, config.HttpMethod, config.ResourceData); err != nil {
-		return createError("Unable to update integration", fmt.Sprintf("%v", err))
+		if _, err := c.DoRequest(url, updateConfig.HttpMethod, updateConfig.ResourceData); err != nil {
+			return createError("Unable to update integration", fmt.Sprintf("%v", err))
+		}
+
+		log.Printf("[DEBUG] End %s", updateConfig.Name)
+
+		return ReadResource(readConfig)(ctx, d, m)
 	}
-
-	log.Printf("[DEBUG] End %s", config.Name)
-
-	readConfig := *config.ReadFunctionConfig
-
-	return readConfig.Read(ctx, d, m)
 }
 
-func (config *FunctionConfig) Delete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init %s", config.Name)
-	c := m.(*client.Client)
+func DeleteResource(config FunctionConfig) schema.DeleteContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		log.Printf("[DEBUG] Init %s", config.Name)
+		c := m.(*client.Client)
 
-	url := config.CreateURL(d, c)
+		url := config.CreateURL(d, c)
 
-	if _, err := c.DoRequest(url, config.HttpMethod, nil); err != nil {
-		return createError("Unable to delete integration", fmt.Sprintf("%v", err))
+		if _, err := c.DoRequest(url, config.HttpMethod, nil); err != nil {
+			return createError("Unable to delete integration", fmt.Sprintf("%v", err))
+		}
+
+		log.Printf("[DEBUG] End %s", config.Name)
+
+		return diag.Diagnostics{}
 	}
-
-	log.Printf("[DEBUG] End %s", config.Name)
-
-	return diag.Diagnostics{}
 }

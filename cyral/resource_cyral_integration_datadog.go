@@ -46,24 +46,6 @@ var ReadDatadogFunctionConfig = FunctionConfig{
 	ResponseData: &DatadogIntegrationData{},
 }
 
-var UpdateDatadogFunctionConfig = FunctionConfig{
-	Name:       "DatadogResourceUpdate",
-	HttpMethod: http.MethodPut,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
-	},
-	ResourceData:       &DatadogIntegrationData{},
-	ReadFunctionConfig: &ReadDatadogFunctionConfig,
-}
-
-var DeleteDatadogFunctionConfig = FunctionConfig{
-	Name:       "DatadogResourceDelete",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
-	},
-}
-
 func resourceIntegrationDatadog() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
@@ -77,10 +59,26 @@ func resourceIntegrationDatadog() *schema.Resource {
 				ResponseData: &CreateDatadogIntegrationResponse{},
 			}, ReadDatadogFunctionConfig,
 		),
-		ReadContext:   ReadResource(ReadDatadogFunctionConfig),
-		UpdateContext: UpdateDatadogFunctionConfig.Update,
-		DeleteContext: DeleteDatadogFunctionConfig.Delete,
-
+		ReadContext: ReadResource(ReadDatadogFunctionConfig),
+		UpdateContext: UpdateResource(
+			FunctionConfig{
+				Name:       "DatadogResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
+				},
+				ResourceData: &DatadogIntegrationData{},
+			}, ReadDatadogFunctionConfig,
+		),
+		DeleteContext: DeleteResource(
+			FunctionConfig{
+				Name:       "DatadogResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
+				},
+			},
+		),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,

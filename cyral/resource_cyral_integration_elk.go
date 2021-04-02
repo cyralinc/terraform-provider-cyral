@@ -40,17 +40,6 @@ func (data *ELKIntegrationData) ReadResourceData(d *schema.ResourceData) {
 	data.ESURL = d.Get("es_url").(string)
 }
 
-var CreateELKFunctionConfig = FunctionConfig{
-	Name:       "ELKResourceCreate",
-	HttpMethod: http.MethodPost,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
-	},
-	ResourceData:       &ELKIntegrationData{},
-	ResponseData:       &CreateELKIntegrationResponse{},
-	ReadFunctionConfig: &ReadELKFunctionConfig,
-}
-
 var ReadELKFunctionConfig = FunctionConfig{
 	Name:       "ELKResourceRead",
 	HttpMethod: http.MethodGet,
@@ -60,30 +49,39 @@ var ReadELKFunctionConfig = FunctionConfig{
 	ResponseData: &ELKIntegrationData{},
 }
 
-var UpdateELKFunctionConfig = FunctionConfig{
-	Name:       "ELKResourceUpdate",
-	HttpMethod: http.MethodPut,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
-	},
-	ResourceData:       &ELKIntegrationData{},
-	ReadFunctionConfig: &ReadELKFunctionConfig,
-}
-
-var DeleteELKFunctionConfig = FunctionConfig{
-	Name:       "ELKResourceDelete",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
-	},
-}
-
 func resourceIntegrationELK() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: CreateELKFunctionConfig.Create,
-		ReadContext:   ReadELKFunctionConfig.Read,
-		UpdateContext: UpdateELKFunctionConfig.Update,
-		DeleteContext: DeleteELKFunctionConfig.Delete,
+		CreateContext: CreateResource(
+			FunctionConfig{
+				Name:       "ELKResourceCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
+				},
+				ResourceData: &ELKIntegrationData{},
+				ResponseData: &CreateELKIntegrationResponse{},
+			}, ReadELKFunctionConfig,
+		),
+		ReadContext: ReadResource(ReadELKFunctionConfig),
+		UpdateContext: UpdateResource(
+			FunctionConfig{
+				Name:       "ELKResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
+				},
+				ResourceData: &ELKIntegrationData{},
+			}, ReadELKFunctionConfig,
+		),
+		DeleteContext: DeleteResource(
+			FunctionConfig{
+				Name:       "ELKResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
+				},
+			},
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {

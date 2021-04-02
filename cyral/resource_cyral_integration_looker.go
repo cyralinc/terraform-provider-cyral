@@ -38,17 +38,6 @@ func (data *LookerIntegrationData) ReadResourceData(d *schema.ResourceData) {
 	data.URL = d.Get("url").(string)
 }
 
-var CreateLookerFunctionConfig = FunctionConfig{
-	Name:       "LookerResourceCreate",
-	HttpMethod: http.MethodPost,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
-	},
-	ResourceData:       &LookerIntegrationData{},
-	ResponseData:       &CreateLookerIntegrationResponse{},
-	ReadFunctionConfig: &ReadLookerFunctionConfig,
-}
-
 var ReadLookerFunctionConfig = FunctionConfig{
 	Name:       "LookerResourceRead",
 	HttpMethod: http.MethodGet,
@@ -58,30 +47,39 @@ var ReadLookerFunctionConfig = FunctionConfig{
 	ResponseData: &LookerIntegrationData{},
 }
 
-var UpdateLookerFunctionConfig = FunctionConfig{
-	Name:       "LookerResourceUpdate",
-	HttpMethod: http.MethodPut,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
-	},
-	ResourceData:       &LookerIntegrationData{},
-	ReadFunctionConfig: &ReadLookerFunctionConfig,
-}
-
-var DeleteLookerFunctionConfig = FunctionConfig{
-	Name:       "LookerResourceDelete",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
-	},
-}
-
 func resourceIntegrationLooker() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: CreateLookerFunctionConfig.Create,
-		ReadContext:   ReadLookerFunctionConfig.Read,
-		UpdateContext: UpdateLookerFunctionConfig.Update,
-		DeleteContext: DeleteLookerFunctionConfig.Delete,
+		CreateContext: CreateResource(
+			FunctionConfig{
+				Name:       "LookerResourceCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
+				},
+				ResourceData: &LookerIntegrationData{},
+				ResponseData: &CreateLookerIntegrationResponse{},
+			}, ReadLookerFunctionConfig,
+		),
+		ReadContext: ReadResource(ReadLookerFunctionConfig),
+		UpdateContext: UpdateResource(
+			FunctionConfig{
+				Name:       "LookerResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
+				},
+				ResourceData: &LookerIntegrationData{},
+			}, ReadLookerFunctionConfig,
+		),
+		DeleteContext: DeleteResource(
+			FunctionConfig{
+				Name:       "LookerResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
+				},
+			},
+		),
 
 		Schema: map[string]*schema.Schema{
 			"client_id": {

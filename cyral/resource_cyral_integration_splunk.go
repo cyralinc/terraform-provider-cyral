@@ -39,15 +39,13 @@ func (data SplunkIntegrationData) WriteResourceData(d *schema.ResourceData) {
 
 }
 
-var CreateSplunkFunctionConfig = FunctionConfig{
-	Name:       "SplunkResourceCreate",
-	HttpMethod: http.MethodPost,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
-	},
-	ResourceData:       &SplunkIntegrationData{},
-	ResponseData:       &CreateSplunkIntegrationResponse{},
-	ReadFunctionConfig: &ReadSplunkFunctionConfig,
+func (data *SplunkIntegrationData) ReadResourceData(d *schema.ResourceData) {
+	data.Name = d.Get("name").(string)
+	data.AccessToken = d.Get("access_token").(string)
+	data.Port = d.Get("port").(int)
+	data.Host = d.Get("host").(string)
+	data.Index = d.Get("index").(string)
+	data.UseTLS = d.Get("use_tls").(bool)
 }
 
 var ReadSplunkFunctionConfig = FunctionConfig{
@@ -59,39 +57,39 @@ var ReadSplunkFunctionConfig = FunctionConfig{
 	ResponseData: &SplunkIntegrationData{},
 }
 
-var UpdateSplunkFunctionConfig = FunctionConfig{
-	Name:       "SplunkResourceUpdate",
-	HttpMethod: http.MethodPut,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
-	},
-	ResourceData:       &SplunkIntegrationData{},
-	ReadFunctionConfig: &ReadSplunkFunctionConfig,
-}
-
-var DeleteSplunkFunctionConfig = FunctionConfig{
-	Name:       "SplunkResourceDelete",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
-	},
-}
-
-func (data *SplunkIntegrationData) ReadResourceData(d *schema.ResourceData) {
-	data.Name = d.Get("name").(string)
-	data.AccessToken = d.Get("access_token").(string)
-	data.Port = d.Get("port").(int)
-	data.Host = d.Get("host").(string)
-	data.Index = d.Get("index").(string)
-	data.UseTLS = d.Get("use_tls").(bool)
-}
-
 func resourceIntegrationSplunk() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: CreateSplunkFunctionConfig.Create,
-		ReadContext:   ReadSplunkFunctionConfig.Read,
-		UpdateContext: UpdateSplunkFunctionConfig.Update,
-		DeleteContext: DeleteSplunkFunctionConfig.Delete,
+		CreateContext: CreateResource(
+			FunctionConfig{
+				Name:       "SplunkResourceCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
+				},
+				ResourceData: &SplunkIntegrationData{},
+				ResponseData: &CreateSplunkIntegrationResponse{},
+			}, ReadSplunkFunctionConfig,
+		),
+		ReadContext: ReadResource(ReadSplunkFunctionConfig),
+		UpdateContext: UpdateResource(
+			FunctionConfig{
+				Name:       "SplunkResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
+				},
+				ResourceData: &SplunkIntegrationData{},
+			}, ReadSplunkFunctionConfig,
+		),
+		DeleteContext: DeleteResource(
+			FunctionConfig{
+				Name:       "SplunkResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
+				},
+			},
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {

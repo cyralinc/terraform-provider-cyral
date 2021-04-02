@@ -44,17 +44,6 @@ func (data *LogstashIntegrationData) ReadResourceData(d *schema.ResourceData) {
 	data.UseTLS = d.Get("use_tls").(bool)
 }
 
-var CreateLogstashFunctionConfig = FunctionConfig{
-	Name:       "LogstashResourceCreate",
-	HttpMethod: http.MethodPost,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
-	},
-	ResourceData:       &LogstashIntegrationData{},
-	ResponseData:       &CreateLogstashIntegrationResponse{},
-	ReadFunctionConfig: &ReadLogstashFunctionConfig,
-}
-
 var ReadLogstashFunctionConfig = FunctionConfig{
 	Name:       "LogstashResourceRead",
 	HttpMethod: http.MethodGet,
@@ -64,30 +53,39 @@ var ReadLogstashFunctionConfig = FunctionConfig{
 	ResponseData: &LogstashIntegrationData{},
 }
 
-var UpdateLogstashFunctionConfig = FunctionConfig{
-	Name:       "LogstashResourceUpdate",
-	HttpMethod: http.MethodPut,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
-	},
-	ResourceData:       &LogstashIntegrationData{},
-	ReadFunctionConfig: &ReadLogstashFunctionConfig,
-}
-
-var DeleteLogstashFunctionConfig = FunctionConfig{
-	Name:       "LogstashResourceDelete",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
-	},
-}
-
 func resourceIntegrationLogstash() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: CreateLogstashFunctionConfig.Create,
-		ReadContext:   ReadLogstashFunctionConfig.Read,
-		UpdateContext: UpdateLogstashFunctionConfig.Update,
-		DeleteContext: DeleteLogstashFunctionConfig.Delete,
+		CreateContext: CreateResource(
+			FunctionConfig{
+				Name:       "LogstashResourceCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
+				},
+				ResourceData: &LogstashIntegrationData{},
+				ResponseData: &CreateLogstashIntegrationResponse{},
+			}, ReadLogstashFunctionConfig,
+		),
+		ReadContext: ReadResource(ReadLogstashFunctionConfig),
+		UpdateContext: UpdateResource(
+			FunctionConfig{
+				Name:       "LogstashResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
+				},
+				ResourceData: &LogstashIntegrationData{},
+			}, ReadLogstashFunctionConfig,
+		),
+		DeleteContext: DeleteResource(
+			FunctionConfig{
+				Name:       "LogstashResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
+				},
+			},
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {

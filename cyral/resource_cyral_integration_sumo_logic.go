@@ -36,17 +36,6 @@ func (data *SumoLogicIntegrationData) ReadResourceData(d *schema.ResourceData) {
 	data.Address = d.Get("address").(string)
 }
 
-var CreateSumoLogicFunctionConfig = FunctionConfig{
-	Name:       "SumoLogicResourceCreate",
-	HttpMethod: http.MethodPost,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
-	},
-	ResourceData:       &SumoLogicIntegrationData{},
-	ResponseData:       &CreateSumoLogicIntegrationResponse{},
-	ReadFunctionConfig: &ReadSumoLogicFunctionConfig,
-}
-
 var ReadSumoLogicFunctionConfig = FunctionConfig{
 	Name:       "SumoLogicResourceRead",
 	HttpMethod: http.MethodGet,
@@ -56,30 +45,39 @@ var ReadSumoLogicFunctionConfig = FunctionConfig{
 	ResponseData: &SumoLogicIntegrationData{},
 }
 
-var UpdateSumoLogicFunctionConfig = FunctionConfig{
-	Name:       "SumoLogicResourceUpdate",
-	HttpMethod: http.MethodPut,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
-	},
-	ResourceData:       &SumoLogicIntegrationData{},
-	ReadFunctionConfig: &ReadSumoLogicFunctionConfig,
-}
-
-var DeleteSumoLogicFunctionConfig = FunctionConfig{
-	Name:       "SumoLogicResourceDelete",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
-	},
-}
-
 func resourceIntegrationSumoLogic() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: CreateSumoLogicFunctionConfig.Create,
-		ReadContext:   ReadSumoLogicFunctionConfig.Read,
-		UpdateContext: UpdateSumoLogicFunctionConfig.Update,
-		DeleteContext: DeleteSumoLogicFunctionConfig.Delete,
+		CreateContext: CreateResource(
+			FunctionConfig{
+				Name:       "SumoLogicResourceCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
+				},
+				ResourceData: &SumoLogicIntegrationData{},
+				ResponseData: &CreateSumoLogicIntegrationResponse{},
+			}, ReadSumoLogicFunctionConfig,
+		),
+		ReadContext: ReadResource(ReadSumoLogicFunctionConfig),
+		UpdateContext: UpdateResource(
+			FunctionConfig{
+				Name:       "SumoLogicResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
+				},
+				ResourceData: &SumoLogicIntegrationData{},
+			}, ReadSumoLogicFunctionConfig,
+		),
+		DeleteContext: DeleteResource(
+			FunctionConfig{
+				Name:       "SumoLogicResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
+				},
+			},
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
