@@ -37,17 +37,6 @@ func (data *DatadogIntegrationData) ReadResourceData(d *schema.ResourceData) {
 	data.APIKey = d.Get("api_key").(string)
 }
 
-var CreateDatadogFunctionConfig = FunctionConfig{
-	Name:       "DatadogResourceCreate",
-	HttpMethod: http.MethodPost,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
-	},
-	ResourceData:       &DatadogIntegrationData{},
-	ResponseData:       &CreateDatadogIntegrationResponse{},
-	ReadFunctionConfig: &ReadDatadogFunctionConfig,
-}
-
 var ReadDatadogFunctionConfig = FunctionConfig{
 	Name:       "DatadogResourceRead",
 	HttpMethod: http.MethodGet,
@@ -77,8 +66,18 @@ var DeleteDatadogFunctionConfig = FunctionConfig{
 
 func resourceIntegrationDatadog() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: CreateDatadogFunctionConfig.Create,
-		ReadContext:   ReadDatadogFunctionConfig.Read,
+		CreateContext: CreateResource(
+			FunctionConfig{
+				Name:       "DatadogResourceCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
+				},
+				ResourceData: &DatadogIntegrationData{},
+				ResponseData: &CreateDatadogIntegrationResponse{},
+			}, ReadDatadogFunctionConfig,
+		),
+		ReadContext:   ReadResource(ReadDatadogFunctionConfig),
 		UpdateContext: UpdateDatadogFunctionConfig.Update,
 		DeleteContext: DeleteDatadogFunctionConfig.Delete,
 
