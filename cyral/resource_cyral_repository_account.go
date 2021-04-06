@@ -1,7 +1,6 @@
 package cyral
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -142,41 +141,9 @@ type RepositoryAccountResource struct {
 	HashicorpVault    *HashicorpVaultResource `json:"hashicorpVault,omitempty"`
 }
 
-func (repoAccount RepositoryAccountResource) isValid() error {
-	numberOfAuthSchemas := 0
-
-	log.Printf("[DEBUG] TESTE REPOS ACCOUNT: %v", repoAccount)
-
-	if repoAccount.AwsIAM != nil {
-		numberOfAuthSchemas += 1
-	}
-
-	if repoAccount.AwsSecretsManager != nil {
-		numberOfAuthSchemas += 1
-	}
-
-	if repoAccount.CyralStorage != nil {
-		numberOfAuthSchemas += 1
-	}
-
-	if repoAccount.HashicorpVault != nil {
-		numberOfAuthSchemas += 1
-	}
-
-	if numberOfAuthSchemas != 1 {
-		return errors.New("there are multiple auth schemas")
-	}
-
-	return nil
-}
-
 func (repoAccount RepositoryAccountResource) WriteToSchema(d *schema.ResourceData) {
 
 	log.Printf("[DEBUG] RepositoryAccountResource - WriteToSchema START")
-
-	if err := repoAccount.isValid(); err != nil {
-		panic(err)
-	}
 
 	if repoAccount.RepoID != nil {
 		d.Set("repo_id", repoAccount.RepoID)
@@ -226,11 +193,7 @@ func (repoAccount *RepositoryAccountResource) ReadFromSchema(d *schema.ResourceD
 		repoId := data.(string)
 		repoAccount.RepoID = &repoId
 	}
-	log.Printf("[DEBUG] REPO ID: %s", *repoAccount.RepoID)
 
-	if err := repoAccount.isValid(); err != nil {
-		panic(err)
-	}
 	log.Printf("[DEBUG] RepositoryAccountResource - ReadFromSchema END")
 }
 
