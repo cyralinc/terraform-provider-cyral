@@ -91,6 +91,7 @@ func Provider() *schema.Provider {
 			"cyral_policy":                      resourcePolicy(),
 			"cyral_policy_rule":                 resourcePolicyRule(),
 			"cyral_repository":                  resourceRepository(),
+			"cyral_repository_account":          ResourceRepositoryAccount(),
 			"cyral_repository_binding":          resourceRepositoryBinding(),
 			"cyral_sidecar":                     resourceSidecar(),
 		},
