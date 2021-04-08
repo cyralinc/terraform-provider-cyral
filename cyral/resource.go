@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -48,7 +47,7 @@ func CreateResource(createConfig ResourceOperationConfig, readConfig ResourceOpe
 
 		url := createConfig.CreateURL(d, c)
 
-		body, err := c.DoRequest(url, http.MethodPost, createConfig.ResourceData)
+		body, err := c.DoRequest(url, createConfig.HttpMethod, createConfig.ResourceData)
 		if err != nil {
 			return createError("Unable to create integration", fmt.Sprintf("%v", err))
 		}
