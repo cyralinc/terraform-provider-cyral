@@ -43,16 +43,18 @@ func resourcePolicy() *schema.Resource {
 				Computed: true,
 			},
 			"data": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:      schema.TypeList,
+				Optional:  true,
+				Sensitive: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+				Default:   "",
 			},
 			"enabled": {
 				Type:     schema.TypeBool,
@@ -73,8 +75,9 @@ func resourcePolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:      schema.TypeString,
+							Required:  true,
+							Sensitive: true,
 						},
 						"description": {
 							Type:     schema.TypeString,
@@ -91,8 +94,9 @@ func resourcePolicy() *schema.Resource {
 				},
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"version": {
 				Type:     schema.TypeString,

@@ -33,16 +33,19 @@ func resourceRepository() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"host": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:      schema.TypeInt,
+				Required:  true,
+				Sensitive: true,
 			},
 			"name": {
 				Type:     schema.TypeString,

@@ -77,12 +77,14 @@ func resourceIntegrationELK() *schema.Resource {
 				Required: true,
 			},
 			"kibana_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"es_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
