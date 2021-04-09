@@ -13,7 +13,7 @@ type RepositoryConfAuthData struct {
 	RepoID           *string `json:"-"`
 	AllowNativeAuth  bool    `json:"allowNativeAuth"`
 	ClientTLS        string  `json:"clientTLS"`
-	IdentityProvider string  `json:"identity_provider"`
+	IdentityProvider string  `json:"identityProvider"`
 	RepoTLS          string  `json:"repoTLS"`
 }
 
