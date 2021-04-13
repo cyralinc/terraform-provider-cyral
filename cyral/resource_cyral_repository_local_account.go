@@ -241,11 +241,10 @@ var ReadRepositoryLocalAccountConfig = ResourceOperationConfig{
 	ResponseData: &RepositoryLocalAccountResource{},
 }
 
-func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
+func resourceRepositoryLocalAccount() *schema.Resource {
 	awsIAMSchema := &schema.Schema{
-		Type:       schema.TypeSet,
-		Optional:   true,
-		Deprecated: deprecated,
+		Type:     schema.TypeSet,
+		Optional: true,
 		ConflictsWith: []string{
 			"aws_secrets_manager",
 			"cyral_storage",
