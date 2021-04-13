@@ -46,8 +46,8 @@ func resourceDatamap() *schema.Resource {
 							Required: true,
 						},
 						"data_location": {
-							Type:      schema.TypeSet,
-							Required:  true,
+							Type:     schema.TypeSet,
+							Required: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"repo": {

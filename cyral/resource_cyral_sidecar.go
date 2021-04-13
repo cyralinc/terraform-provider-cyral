@@ -67,20 +67,20 @@ func resourceSidecar() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_name": {
-							Type:      schema.TypeString,
-							Optional:  true,
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"aws_region": {
-							Type:      schema.TypeString,
-							Optional:  true,
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"vpc": {
-							Type:      schema.TypeString,
-							Optional:  true,
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"subnets": {
-							Type:      schema.TypeString,
-							Optional:  true,
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"publicly_accessible": {
 							Type:     schema.TypeBool,

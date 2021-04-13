@@ -46,8 +46,8 @@ func resourceRepositoryBinding() *schema.Resource {
 				Required: true,
 			},
 			"listener_port": {
-				Type:      schema.TypeInt,
-				Required:  true,
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"listener_host": {
 				Type:     schema.TypeString,
