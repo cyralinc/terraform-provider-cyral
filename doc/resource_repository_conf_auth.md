@@ -1,6 +1,6 @@
 # Repository
 
-CRUD operations for Repository Authentication Configuration integration.
+CRUD operations for Repository Authentication Configuration.
 
 ## Usage
 
@@ -16,13 +16,13 @@ resource "cyral_repository_conf_auth" "my-repository-conf-auth" {
 
 ## Variables
 
-|  Name         |  Default  |  Description                                                          | Required |
-|:--------------|:---------:|:----------------------------------------------------------------------|:--------:|
-| `repository_id`        |           | The ID of the repository to be configured.       | Yes      |
-| `allow_native_auth`        |           | Should the comunication allow native authentication?       | No      |
-| `client_tls`        |           | Is the repo Client using TLS?       | No      |
-| `identity_provider`        |           | The name of the okta identity provider.       | No      |
-| `repo_tls`        |           | Is TLS enabled for the repository?       | No      |
+|  Name               |  Default  |  Description                                                          | Required |
+|:--------------------|:---------:|:----------------------------------------------------------------------|:--------:|
+| `repository_id`     |           | The ID of the repository to be configured.                            | Yes      |
+| `allow_native_auth` |           | Should the comunication allow native authentication?                  | No       |
+| `client_tls`        |           | Is the repo Client using TLS?                                         | No       |
+| `identity_provider` |           | The name of the okta identity provider.                               | No       |
+| `repo_tls`          |           | Is TLS enabled for the repository?                                    | No       |
 
 
 ## Outputs

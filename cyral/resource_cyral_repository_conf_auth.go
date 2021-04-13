@@ -94,7 +94,7 @@ var ReadConfAuthConfig = ResourceOperationConfig{
 	ResponseData: &ReadRepositoryConfAuthResponse{},
 }
 
-func resourceIntegrationRepositoryConfAuth() *schema.Resource {
+func resourceRepositoryConfAuth() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
