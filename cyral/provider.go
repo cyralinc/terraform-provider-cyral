@@ -97,6 +97,7 @@ func Provider() *schema.Provider {
 			"cyral_repository_local_account":    resourceRepositoryLocalAccount(),
 			"cyral_repository_binding":          resourceRepositoryBinding(),
 			"cyral_sidecar":                     resourceSidecar(),
+			"cyral_sidecar_template":            resourceSidecarTemplates(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
