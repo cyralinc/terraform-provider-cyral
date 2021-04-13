@@ -121,6 +121,34 @@ func (resource *HashicorpVaultResource) ReadFromSchema(d *schema.ResourceData) {
 	}
 }
 
+type EnviromentVariableResource struct {
+	DatabaseName string `json:"databaseName"`
+	RepoAccount  string `json:"repoAccount"`
+	VariableName string `json:"variableName"`
+}
+
+func (resource EnviromentVariableResource) WriteToSchema(d *schema.ResourceData) {
+	d.Set("enviroment_variable", []interface{}{
+		map[string]interface{}{
+			"database_name": resource.DatabaseName,
+			"local_account": resource.RepoAccount,
+			"variable_name": resource.VariableName,
+		},
+	})
+}
+
+func (resource *EnviromentVariableResource) ReadFromSchema(d *schema.ResourceData) {
+	data := d.Get("enviroment_variable").(*schema.Set)
+
+	for _, id := range data.List() {
+		idMap := id.(map[string]interface{})
+
+		resource.DatabaseName = idMap["database_name"].(string)
+		resource.RepoAccount = idMap["local_account"].(string)
+		resource.VariableName = idMap["variable_name"].(string)
+	}
+}
+
 type CreateRepoAccountResponse struct {
 	UUID string `json:"uuid"`
 }
@@ -134,11 +162,12 @@ func (resource *CreateRepoAccountResponse) ReadFromSchema(d *schema.ResourceData
 }
 
 type RepositoryLocalAccountResource struct {
-	RepoID            *string                 `json:"-"`
-	AwsIAM            *AwsIAMResource         `json:"awsIAM,omitempty"`
-	AwsSecretsManager *AwsSecretsResource     `json:"awsSecretsManager,omitempty"`
-	CyralStorage      *CyralStorageResource   `json:"cyralStorage,omitempty"`
-	HashicorpVault    *HashicorpVaultResource `json:"hashicorpVault,omitempty"`
+	RepoID             *string                     `json:"-"`
+	AwsIAM             *AwsIAMResource             `json:"awsIAM,omitempty"`
+	AwsSecretsManager  *AwsSecretsResource         `json:"awsSecretsManager,omitempty"`
+	CyralStorage       *CyralStorageResource       `json:"cyralStorage,omitempty"`
+	HashicorpVault     *HashicorpVaultResource     `json:"hashicorpVault,omitempty"`
+	EnviromentVariable *EnviromentVariableResource `json:"environmentVariable,omitempty"`
 }
 
 func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.ResourceData) {
@@ -159,6 +188,8 @@ func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.Resour
 
 	} else if repoAccount.HashicorpVault != nil {
 		repoAccount.HashicorpVault.WriteToSchema(d)
+	} else if repoAccount.EnviromentVariable != nil {
+		repoAccount.EnviromentVariable.WriteToSchema(d)
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema END")
@@ -185,6 +216,11 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 	if _, hasHashicorpVault := d.GetOk("hashicorp_vault"); hasHashicorpVault {
 		repoAccount.HashicorpVault = &HashicorpVaultResource{}
 		repoAccount.HashicorpVault.ReadFromSchema(d)
+	}
+
+	if _, hasEnviromentVariable := d.GetOk("enviroment_variable"); hasEnviromentVariable {
+		repoAccount.EnviromentVariable = &EnviromentVariableResource{}
+		repoAccount.EnviromentVariable.ReadFromSchema(d)
 	}
 
 	if data, hasRepoId := d.GetOk("repository_id"); hasRepoId {
@@ -214,6 +250,7 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 			"aws_secrets_manager",
 			"cyral_storage",
 			"hashicorp_vault",
+			"enviroment_variable",
 		},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -243,6 +280,7 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 			"aws_iam",
 			"cyral_storage",
 			"hashicorp_vault",
+			"enviroment_variable",
 		},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -272,6 +310,7 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 			"aws_iam",
 			"aws_secrets_manager",
 			"hashicorp_vault",
+			"enviroment_variable",
 		},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -301,6 +340,7 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 			"aws_iam",
 			"aws_secrets_manager",
 			"cyral_storage",
+			"enviroment_variable",
 		},
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -317,6 +357,36 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 				"path": {
 					Type:      schema.TypeString,
 					Optional:  true,
+					Sensitive: true,
+				},
+			},
+		},
+	}
+
+	enviromentVariableSchema := &schema.Schema{
+		Type:     schema.TypeSet,
+		Optional: true,
+		ConflictsWith: []string{
+			"aws_iam",
+			"aws_secrets_manager",
+			"hashicorp_vault",
+			"cyral_storage",
+		},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"database_name": {
+					Type:      schema.TypeString,
+					Required:  true,
+					Sensitive: true,
+				},
+				"local_account": {
+					Type:      schema.TypeString,
+					Required:  true,
+					Sensitive: true,
+				},
+				"variable_name": {
+					Type:      schema.TypeString,
+					Required:  true,
 					Sensitive: true,
 				},
 			},
@@ -367,6 +437,7 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 			"aws_secrets_manager": awsSecretsSchema,
 			"cyral_storage":       cyralStorageSchema,
 			"hashicorp_vault":     hashicorpVaultSchema,
+			"enviroment_variable": enviromentVariableSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
