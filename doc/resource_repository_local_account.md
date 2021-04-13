@@ -29,6 +29,11 @@ resource "cyral_repository_local_account" "my-repo-account" {
         local_account = ""
         path = ""
     }
+    environment_variable {
+        database_name = ""
+        local_account = ""
+        variable_name = ""
+    }
 }
 ```
 
@@ -52,11 +57,11 @@ resource "cyral_repository_local_account" "my-repo-account" {
 
 ### aws_secrets_manager
 
-|  Name           |  Default  |  Description                                         | Required |
-|:----------------|:---------:|:-----------------------------------------------------|:--------:|
-| `database_name` |           | Database name that the local account corresponds to. | Yes      |
-| `local_account` |           | Local repository account name.                       | Yes      |
-| `secret_arn`    |           | AWS Secret Manager ARN.                              | Yes      |
+|  Name           |  Default  |  Description                                              | Required |
+|:----------------|:---------:|:----------------------------------------------------------|:--------:|
+| `database_name` |           | Database name that the local account corresponds to.      | Yes      |
+| `local_account` |           | Local repository account name.                            | Yes      |
+| `secret_arn`    |           | ARN of the AWS Secret Manager that stores the credential. | Yes      |
 
 ### cyral_storage
 
@@ -64,7 +69,7 @@ resource "cyral_repository_local_account" "my-repo-account" {
 |:----------------|:---------:|:-----------------------------------------------------|:--------:|
 | `database_name` |           | Database name that the local account corresponds to. | Yes      |
 | `local_account` |           | Local repository account name.                       | Yes      |
-| `password`      |           | Cyral Storage Password.                              | Yes      |
+| `password`      |           | Local account password.                              | Yes      |
 
 ### hashicorp_vault
 
@@ -73,3 +78,11 @@ resource "cyral_repository_local_account" "my-repo-account" {
 | `database_name` |           | Database name that the local account corresponds to. | Yes      |
 | `local_account` |           | Local repository account name.                       | Yes      |
 | `path`          |           | Hashicorp Vault path.                                | Yes      |
+
+### environment_variable
+
+|  Name              |  Default  |  Description                                                   | Required |
+|:-------------------|:---------:|:---------------------------------------------------------------|:--------:|
+| `database_name`    |           | Database name that the local account corresponds to.           | Yes      |
+| `local_account`    |           | Local repository account name.                                 | Yes      |
+| `environment_name` |           | Name of the environment variable that will store credentials.  | Yes      |
