@@ -16,13 +16,13 @@ resource "cyral_integration_okta" "my-okta" {
 
 ## Variables
 
-|  Name         |  Default  |  Description                                                          | Required |
-|:--------------|:---------:|:----------------------------------------------------------------------|:--------:|
-| `name`        |           | Integration name that will be used internally in Control Plane.       | Yes      |
-| `certificate`        |           | Okta Certificate.       | Yes      |
-| `email_domains`        |           | List of allowed signin domains.       | No      |
-| `signin_url`        |           | Okta Signin URL.       | No      |
-| `signout_url`        |           | Okta Signout URL.       | No      |
+|  Name           |  Default  |  Description                                                          | Required |
+|:----------------|:---------:|:----------------------------------------------------------------------|:--------:|
+| `name`          |           | Integration name that will be used internally in Control Plane.       | Yes      |
+| `certificate`   |           | Okta Certificate.                                                     | Yes      |
+| `email_domains` |           | List of allowed signin domains.                                       | No       |
+| `signin_url`    |           | Okta Signin URL. Make sure to include a valid URL starting with https://  | Yes      |
+| `signout_url`   |           | Okta Signout URL. Make sure to include a valid URL starting with https:// | No       |
 
 ## Outputs
 

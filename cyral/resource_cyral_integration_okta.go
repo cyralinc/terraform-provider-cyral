@@ -94,6 +94,14 @@ var ReadResourceIntegrationOktaIdentityProviderConfig = ResourceOperationConfig{
 	ResponseData: &ResourceIntegrationOktaIdentityProviderPayload{},
 }
 
+var cleanUpOktaIntegration = ResourceOperationConfig{
+	Name:       " OktaResourceDelete - Integration ",
+	HttpMethod: http.MethodDelete,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/integrations/okta/%s", c.ControlPlane, d.Get("name").(string))
+	},
+}
+
 func resourceIntegrationOkta() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateOktaIntegration,
@@ -119,7 +127,7 @@ func resourceIntegrationOkta() *schema.Resource {
 			},
 			"signin_url": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"signout_url": {
 				Type:     schema.TypeString,
@@ -145,17 +153,22 @@ func CreateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 		}, ReadResourceIntegrationOktaConfig,
 	)(ctx, d, m)
 
-	_ = CreateResource(
-		ResourceOperationConfig{
-			Name:       " OktaResourceCreate - IdentityProvider ",
-			HttpMethod: http.MethodPost,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-				return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
-			},
-			ResourceData: &ResourceIntegrationOktaIdentityProviderPayload{},
-			ResponseData: &CreateResourceIntegrationOktaResponse{},
-		}, ReadResourceIntegrationOktaIdentityProviderConfig,
-	)(ctx, d, m)
+	if diag.HasError() {
+		// Silent clean up
+		_ = DeleteResource(cleanUpOktaIntegration)(ctx, d, m)
+	} else {
+		diag = CreateResource(
+			ResourceOperationConfig{
+				Name:       " OktaResourceCreate - IdentityProvider ",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
+				},
+				ResourceData: &ResourceIntegrationOktaIdentityProviderPayload{},
+				ResponseData: &CreateResourceIntegrationOktaResponse{},
+			}, ReadResourceIntegrationOktaIdentityProviderConfig,
+		)(ctx, d, m)
+	}
 
 	return diag
 }
@@ -165,9 +178,11 @@ func ReadOktaIntegration(ctx context.Context, d *schema.ResourceData, m interfac
 		ReadResourceIntegrationOktaConfig,
 	)(ctx, d, m)
 
-	_ = ReadResource(
-		ReadResourceIntegrationOktaIdentityProviderConfig,
-	)(ctx, d, m)
+	if !diag.HasError() {
+		diag = ReadResource(
+			ReadResourceIntegrationOktaIdentityProviderConfig,
+		)(ctx, d, m)
+	}
 
 	return diag
 }
@@ -183,40 +198,36 @@ func UpdateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 	}, ReadResourceIntegrationOktaConfig,
 	)(ctx, d, m)
 
-	_ = UpdateResource(
-		ResourceOperationConfig{
-			Name:       " OktaResourceUpdate - IdentityProvider ",
-			HttpMethod: http.MethodPut,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-				return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
-			},
-			ResourceData: &ResourceIntegrationOktaIdentityProviderPayload{},
-		}, ReadResourceIntegrationOktaIdentityProviderConfig,
-	)(ctx, d, m)
+	if !diag.HasError() {
+		diag = UpdateResource(
+			ResourceOperationConfig{
+				Name:       " OktaResourceUpdate - IdentityProvider ",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
+				},
+				ResourceData: &ResourceIntegrationOktaIdentityProviderPayload{},
+			}, ReadResourceIntegrationOktaIdentityProviderConfig,
+		)(ctx, d, m)
+	}
 
 	return diag
 }
 
 func DeleteOktaIntegration(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	diag := DeleteResource(
-		ResourceOperationConfig{
-			Name:       " OktaResourceDelete - Integration ",
-			HttpMethod: http.MethodDelete,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-				return fmt.Sprintf("https://%s/v1/integrations/okta/%s", c.ControlPlane, d.Get("name").(string))
-			},
-		},
-	)(ctx, d, m)
+	diag := DeleteResource(cleanUpOktaIntegration)(ctx, d, m)
 
-	_ = DeleteResource(
-		ResourceOperationConfig{
-			Name:       " OktaResourceDelete - IdendityProvider",
-			HttpMethod: http.MethodDelete,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-				return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
+	if !diag.HasError() {
+		diag = DeleteResource(
+			ResourceOperationConfig{
+				Name:       " OktaResourceDelete - IdendityProvider",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
+				},
 			},
-		},
-	)(ctx, d, m)
+		)(ctx, d, m)
+	}
 
 	return diag
 }
