@@ -207,8 +207,8 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Policy](./doc/resource_policy.md)
 - [Resource Policy Rule](./doc/resource_policy_rule.md)
 - [Resource Repository](./doc/resource_repository.md)
-- [Resource Repository Account](./doc/resource_repository_account.md)
 - [Resource Repository Binding](./doc/resource_repository_binding.md)
+- [Resource Repository Local Account](./doc/resource_repository_local_account.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
 
 ## Prerequisites

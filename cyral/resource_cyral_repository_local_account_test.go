@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialRepoAccountConfigAwsIam RepositoryAccountResource = RepositoryAccountResource{
+var initialRepoAccountConfigAwsIam RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	AwsIAM: &AwsIAMResource{
 		DatabaseName: "tf_test_db_name",
 		RepoAccount:  "tf_test_repo_account",
@@ -15,7 +15,7 @@ var initialRepoAccountConfigAwsIam RepositoryAccountResource = RepositoryAccount
 	},
 }
 
-var updateRepoAccountConfigAwsIam RepositoryAccountResource = RepositoryAccountResource{
+var updateRepoAccountConfigAwsIam RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	AwsIAM: &AwsIAMResource{
 		DatabaseName: "tf_test_update_db_name",
 		RepoAccount:  "tf_test_update_repo_account",
@@ -23,7 +23,7 @@ var updateRepoAccountConfigAwsIam RepositoryAccountResource = RepositoryAccountR
 	},
 }
 
-var initialRepoAccountConfigAwsSecret RepositoryAccountResource = RepositoryAccountResource{
+var initialRepoAccountConfigAwsSecret RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	AwsSecretsManager: &AwsSecretsResource{
 		DatabaseName: "tf_test_db_name",
 		RepoAccount:  "tf_test_repo_account",
@@ -31,7 +31,7 @@ var initialRepoAccountConfigAwsSecret RepositoryAccountResource = RepositoryAcco
 	},
 }
 
-var updateRepoAccountConfigAwsSecret RepositoryAccountResource = RepositoryAccountResource{
+var updateRepoAccountConfigAwsSecret RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	AwsSecretsManager: &AwsSecretsResource{
 		DatabaseName: "tf_test_update_db_name",
 		RepoAccount:  "tf_test_update_repo_account",
@@ -39,7 +39,7 @@ var updateRepoAccountConfigAwsSecret RepositoryAccountResource = RepositoryAccou
 	},
 }
 
-var initialRepoAccountConfigCyralStorage RepositoryAccountResource = RepositoryAccountResource{
+var initialRepoAccountConfigCyralStorage RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	CyralStorage: &CyralStorageResource{
 		DatabaseName: "tf_test_db_name",
 		RepoAccount:  "tf_test_repo_account",
@@ -47,7 +47,7 @@ var initialRepoAccountConfigCyralStorage RepositoryAccountResource = RepositoryA
 	},
 }
 
-var updateRepoAccountConfigCyralStorage RepositoryAccountResource = RepositoryAccountResource{
+var updateRepoAccountConfigCyralStorage RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	CyralStorage: &CyralStorageResource{
 		DatabaseName: "tf_test_update_db_name",
 		RepoAccount:  "tf_test_update_repo_account",
@@ -55,7 +55,7 @@ var updateRepoAccountConfigCyralStorage RepositoryAccountResource = RepositoryAc
 	},
 }
 
-var initialRepoAccountConfigHashicorpVault RepositoryAccountResource = RepositoryAccountResource{
+var initialRepoAccountConfigHashicorpVault RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	HashicorpVault: &HashicorpVaultResource{
 		DatabaseName: "tf_test_db_name",
 		RepoAccount:  "tf_test_repo_account",
@@ -63,7 +63,7 @@ var initialRepoAccountConfigHashicorpVault RepositoryAccountResource = Repositor
 	},
 }
 
-var updateRepoAccountConfigHashicorpVault RepositoryAccountResource = RepositoryAccountResource{
+var updateRepoAccountConfigHashicorpVault RepositoryLocalAccountResource = RepositoryLocalAccountResource{
 	HashicorpVault: &HashicorpVaultResource{
 		DatabaseName: "tf_test_update_db_name",
 		RepoAccount:  "tf_test_update_repo_account",
@@ -151,15 +151,15 @@ func TestAccRepositoryAccountAwsSecretResource(t *testing.T) {
 	})
 }
 
-func setupRepositoryAccountTest(integrationData RepositoryAccountResource) (string, resource.TestCheckFunc) {
+func setupRepositoryAccountTest(integrationData RepositoryLocalAccountResource) (string, resource.TestCheckFunc) {
 	configuration := formatRepoAccountIntoConfig(integrationData)
 
-	testFunction := getTestFunctionForRepositoryAccountResource(integrationData)
+	testFunction := getTestFunctionForRepositoryLocalAccountResource(integrationData)
 
 	return configuration, testFunction
 }
 
-func formatRepoAccountIntoConfig(data RepositoryAccountResource) string {
+func formatRepoAccountIntoConfig(data RepositoryLocalAccountResource) string {
 	return fmt.Sprintf(`
 	resource "cyral_repository" "tf_test_repository" {
 		type = "mysql"
@@ -171,8 +171,8 @@ func formatRepoAccountIntoConfig(data RepositoryAccountResource) string {
 	  `, formatRepoAccountAuthConfig(data))
 }
 
-func formatRepoAccountAuthConfig(data RepositoryAccountResource) string {
-	const RepositoryAccountTemplate = `resource "cyral_repository_account" "tf_test_repository_account" {
+func formatRepoAccountAuthConfig(data RepositoryLocalAccountResource) string {
+	const RepositoryAccountTemplate = `resource "cyral_repository_local_account" "tf_test_repository_account" {
 		repo_id = cyral_repository.tf_test_repository.id
 		%s
 	}`
@@ -182,25 +182,25 @@ func formatRepoAccountAuthConfig(data RepositoryAccountResource) string {
 	if data.AwsIAM != nil {
 		config = fmt.Sprintf(`aws_iam {
 			database_name = "%s"
-			repo_account  = "%s"
+			local_account = "%s"
 			role_arn      = "%s"
 		  }`, data.AwsIAM.DatabaseName, data.AwsIAM.RepoAccount, data.AwsIAM.RoleArn)
 	} else if data.AwsSecretsManager != nil {
 		config = fmt.Sprintf(`aws_secrets_manager {
 			database_name = "%s"
-			repo_account  = "%s"
+			local_account = "%s"
 			secret_arn    = "%s"
 		  }`, data.AwsSecretsManager.DatabaseName, data.AwsSecretsManager.RepoAccount, data.AwsSecretsManager.SecretArn)
 	} else if data.CyralStorage != nil {
 		config = fmt.Sprintf(`cyral_storage {
 			database_name = "%s"
-			repo_account  = "%s"
+			local_account = "%s"
 			password      = "%s"
 		  }`, data.CyralStorage.DatabaseName, data.CyralStorage.RepoAccount, data.CyralStorage.Password)
 	} else if data.HashicorpVault != nil {
 		config = fmt.Sprintf(`hashicorp_vault {
 			database_name = "%s"
-			repo_account  = "%s"
+			local_account = "%s"
 			path          = "%s"
 		  }`, data.HashicorpVault.DatabaseName, data.HashicorpVault.RepoAccount, data.HashicorpVault.Path)
 	}
@@ -208,32 +208,32 @@ func formatRepoAccountAuthConfig(data RepositoryAccountResource) string {
 	return fmt.Sprintf(RepositoryAccountTemplate, config)
 }
 
-func getTestFunctionForRepositoryAccountResource(data RepositoryAccountResource) resource.TestCheckFunc {
+func getTestFunctionForRepositoryLocalAccountResource(data RepositoryLocalAccountResource) resource.TestCheckFunc {
 	var testFunc resource.TestCheckFunc
 
 	if data.AwsIAM != nil {
 		testFunc = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "aws_iam.0.database_name", data.AwsIAM.DatabaseName),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "aws_iam.0.repo_account", data.AwsIAM.RepoAccount),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "aws_iam.0.role_arn", data.AwsIAM.RoleArn),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "aws_iam.0.database_name", data.AwsIAM.DatabaseName),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "aws_iam.0.local_account", data.AwsIAM.RepoAccount),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "aws_iam.0.role_arn", data.AwsIAM.RoleArn),
 		)
 	} else if data.AwsSecretsManager != nil {
 		testFunc = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "aws_secrets_manager.0.database_name", data.AwsSecretsManager.DatabaseName),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "aws_secrets_manager.0.repo_account", data.AwsSecretsManager.RepoAccount),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "aws_secrets_manager.0.secret_arn", data.AwsSecretsManager.SecretArn),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "aws_secrets_manager.0.database_name", data.AwsSecretsManager.DatabaseName),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "aws_secrets_manager.0.local_account", data.AwsSecretsManager.RepoAccount),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "aws_secrets_manager.0.secret_arn", data.AwsSecretsManager.SecretArn),
 		)
 	} else if data.CyralStorage != nil {
 		testFunc = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "cyral_storage.0.database_name", data.CyralStorage.DatabaseName),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "cyral_storage.0.repo_account", data.CyralStorage.RepoAccount),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "cyral_storage.0.password", data.CyralStorage.Password),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "cyral_storage.0.database_name", data.CyralStorage.DatabaseName),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "cyral_storage.0.local_account", data.CyralStorage.RepoAccount),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "cyral_storage.0.password", data.CyralStorage.Password),
 		)
 	} else if data.AwsIAM != nil {
 		testFunc = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "hashicorp_vault.0.database_name", data.HashicorpVault.DatabaseName),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "hashicorp_vault.0.repo_account", data.HashicorpVault.RepoAccount),
-			resource.TestCheckResourceAttr("cyral_repository_account.tf_test_repository_account", "hashicorp_vault.0.path", data.HashicorpVault.Path),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "hashicorp_vault.0.database_name", data.HashicorpVault.DatabaseName),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "hashicorp_vault.0.local_account", data.HashicorpVault.RepoAccount),
+			resource.TestCheckResourceAttr("cyral_repository_local_account.tf_test_repository_account", "hashicorp_vault.0.path", data.HashicorpVault.Path),
 		)
 	}
 
