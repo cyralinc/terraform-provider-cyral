@@ -145,7 +145,7 @@ func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.Resour
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema START")
 
 	if repoAccount.RepoID != nil {
-		d.Set("repo_id", repoAccount.RepoID)
+		d.Set("repository_id", repoAccount.RepoID)
 	}
 
 	if repoAccount.AwsIAM != nil {
@@ -187,7 +187,7 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 		repoAccount.HashicorpVault.ReadFromSchema(d)
 	}
 
-	if data, hasRepoId := d.GetOk("repo_id"); hasRepoId {
+	if data, hasRepoId := d.GetOk("repository_id"); hasRepoId {
 		repoId := data.(string)
 		repoAccount.RepoID = &repoId
 	}
@@ -199,8 +199,8 @@ var ReadRepositoryLocalAccountConfig = ResourceOperationConfig{
 	Name:       "RepositoryLocalAccountResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		repo_id := d.Get("repo_id")
-		return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repo_id, d.Id())
+		repository_id := d.Get("repository_id")
+		return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repository_id, d.Id())
 	},
 	ResponseData: &RepositoryLocalAccountResource{},
 }
@@ -329,8 +329,8 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 				Name:       "RepositoryLocalAccountResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					repo_id := d.Get("repo_id").(string)
-					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts", c.ControlPlane, repo_id)
+					repository_id := d.Get("repository_id").(string)
+					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts", c.ControlPlane, repository_id)
 				},
 				ResourceData: &RepositoryLocalAccountResource{},
 				ResponseData: &CreateRepoAccountResponse{},
@@ -342,8 +342,8 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 				Name:       "RepositoryLocalAccountResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					repo_id := d.Get("repo_id").(string)
-					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repo_id, d.Id())
+					repository_id := d.Get("repository_id").(string)
+					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repository_id, d.Id())
 				},
 				ResourceData: &RepositoryLocalAccountResource{},
 			}, ReadRepositoryLocalAccountConfig,
@@ -353,13 +353,13 @@ func resourceRepositoryLocalAccount(deprecated string) *schema.Resource {
 				Name:       "RepositoryLocalAccountResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					repo_id := d.Get("repo_id").(string)
-					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repo_id, d.Id())
+					repository_id := d.Get("repository_id").(string)
+					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repository_id, d.Id())
 				},
 			},
 		),
 		Schema: map[string]*schema.Schema{
-			"repo_id": {
+			"repository_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

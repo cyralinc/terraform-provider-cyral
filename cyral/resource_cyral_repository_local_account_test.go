@@ -173,7 +173,7 @@ func formatRepoAccountIntoConfig(data RepositoryLocalAccountResource) string {
 
 func formatRepoAccountAuthConfig(data RepositoryLocalAccountResource) string {
 	const RepositoryAccountTemplate = `resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repo_id = cyral_repository.tf_test_repository.id
+		repository_id = cyral_repository.tf_test_repository.id
 		%s
 	}`
 
