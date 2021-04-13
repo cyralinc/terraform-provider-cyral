@@ -28,7 +28,7 @@ type ResourceOperationConfig struct {
 }
 
 type IDBasedResponse struct {
-	ID string `json:"ID"`
+	ID string `json:"id"`
 }
 
 func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData) {
