@@ -72,8 +72,9 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				Required: true,
 			},
 			"address": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
