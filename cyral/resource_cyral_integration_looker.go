@@ -83,7 +83,6 @@ func resourceIntegrationLooker() *schema.Resource {
 			"url": {
 				Type:      schema.TypeString,
 				Required:  true,
-				Sensitive: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

@@ -129,7 +129,6 @@ func resourcePolicyRule() *schema.Resource {
 						"db_roles": {
 							Type:      schema.TypeList,
 							Optional:  true,
-							Sensitive: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -151,7 +150,6 @@ func resourcePolicyRule() *schema.Resource {
 						"users": {
 							Type:      schema.TypeList,
 							Optional:  true,
-							Sensitive: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

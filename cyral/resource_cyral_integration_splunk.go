@@ -91,17 +91,14 @@ func resourceIntegrationSplunk() *schema.Resource {
 			"port": {
 				Type:      schema.TypeInt,
 				Required:  true,
-				Sensitive: true,
 			},
 			"host": {
 				Type:      schema.TypeString,
 				Required:  true,
-				Sensitive: true,
 			},
 			"index": {
 				Type:      schema.TypeString,
 				Required:  true,
-				Sensitive: true,
 			},
 			"use_tls": {
 				Type:     schema.TypeBool,

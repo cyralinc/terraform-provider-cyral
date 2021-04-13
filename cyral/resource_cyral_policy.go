@@ -45,7 +45,6 @@ func resourcePolicy() *schema.Resource {
 			"data": {
 				Type:      schema.TypeList,
 				Optional:  true,
-				Sensitive: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -53,7 +52,6 @@ func resourcePolicy() *schema.Resource {
 			"description": {
 				Type:      schema.TypeString,
 				Optional:  true,
-				Sensitive: true,
 				Default:   "",
 			},
 			"enabled": {
@@ -77,7 +75,6 @@ func resourcePolicy() *schema.Resource {
 						"name": {
 							Type:      schema.TypeString,
 							Required:  true,
-							Sensitive: true,
 						},
 						"description": {
 							Type:     schema.TypeString,
@@ -96,7 +93,6 @@ func resourcePolicy() *schema.Resource {
 			"type": {
 				Type:      schema.TypeString,
 				Computed:  true,
-				Sensitive: true,
 			},
 			"version": {
 				Type:     schema.TypeString,

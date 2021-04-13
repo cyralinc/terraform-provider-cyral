@@ -35,17 +35,14 @@ func resourceRepository() *schema.Resource {
 			"type": {
 				Type:      schema.TypeString,
 				Required:  true,
-				Sensitive: true,
 			},
 			"host": {
 				Type:      schema.TypeString,
 				Required:  true,
-				Sensitive: true,
 			},
 			"port": {
 				Type:      schema.TypeInt,
 				Required:  true,
-				Sensitive: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
