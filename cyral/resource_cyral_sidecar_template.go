@@ -13,36 +13,16 @@ import (
 )
 
 type SidecarTemplateData struct {
-	SidecarId          string
-	Name               string
-	Ec2Key             string
-	PubliclyAccessible bool
+	SidecarId string
 }
 
 func (data SidecarTemplateData) WriteToSchema(d *schema.ResourceData) {
-	d.Set("name", data.Name)
-	d.Set("sidecar_id", data.SidecarId)
-	d.Set("ec2_key", data.Ec2Key)
-	d.Set("publicly_accessible", data.PubliclyAccessible)
+	data.SidecarId = d.Get("sidecar_id").(string)
+	d.SetId(data.SidecarId)
 }
 
 func (data *SidecarTemplateData) ReadFromSchema(d *schema.ResourceData) {
-	data.Name = d.Get("name").(string)
-	data.SidecarId = d.Get("sidecar_id").(string)
-	data.Ec2Key = d.Get("ec2_key").(string)
-	data.PubliclyAccessible = d.Get("publicly_accessible").(bool)
-}
-
-type SidecarTemplateResponse struct {
-	Id string
-}
-
-func (data SidecarTemplateResponse) WriteToSchema(d *schema.ResourceData) {
-	d.SetId("sidecar-template")
-}
-
-func (data *SidecarTemplateResponse) ReadFromSchema(d *schema.ResourceData) {
-	data.Id = "sidecar-template"
+	data.SidecarId = d.Id()
 }
 
 var getSidecarTemplate = ResourceOperationConfig{
@@ -51,14 +31,18 @@ var getSidecarTemplate = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		controlPlane := removePortFromURL(c.ControlPlane)
 		return fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%t&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
-			controlPlane, d.Get("sidecar_id").(string), d.Get("ec2_key").(string), d.Get("name").(string), controlPlane, d.Get("publicly_accessible").(bool))
+			controlPlane, d.Get("sidecar_id").(string),
+			"ec2_key",
+			"name",
+			controlPlane,
+			true)
 	},
 	ResourceData: &SidecarTemplateData{},
 	ResponseData: &SidecarTemplateResponse{},
 }
 
-func resourceSidecarTemplates() *schema.Resource {
-	return &schema.Resource{
+func resourceDataSidecarTemplates() *schema.ResourceData {
+	return &schema.ResourceData{
 		CreateContext: getCyralSidecarTemplate(getSidecarTemplate),
 		ReadContext: EmptyReadAction(
 			ResourceOperationConfig{
@@ -69,21 +53,8 @@ func resourceSidecarTemplates() *schema.Resource {
 			ResourceOperationConfig{},
 		),
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"sidecar_id": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-			"ec2_key": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
-			},
-			"publicly_accessible": {
-				Type:     schema.TypeBool,
 				Required: true,
 			},
 		},
@@ -108,8 +79,6 @@ func getCyralSidecarTemplate(config ResourceOperationConfig) schema.CreateContex
 		}
 
 		log.Printf("[INFO]Sidecar Template:\n %v", body)
-
-		config.ResourceData.WriteToSchema(d)
 
 		config.ResponseData.WriteToSchema(d)
 
