@@ -33,27 +33,38 @@ func (data *SidecarTemplateData) ReadFromSchema(d *schema.ResourceData) {
 	data.PubliclyAccessible = d.Get("publicly_accessible").(bool)
 }
 
+type SidecarTemplateResponse struct {
+	Id string
+}
+
+func (data SidecarTemplateResponse) WriteToSchema(d *schema.ResourceData) {
+	d.SetId("sidecar-template")
+}
+
+func (data *SidecarTemplateResponse) ReadFromSchema(d *schema.ResourceData) {
+	data.Id = "sidecar-template"
+}
+
+var getSidecarTemplate = ResourceOperationConfig{
+	Name:       "SidecarTemplatesCreate",
+	HttpMethod: http.MethodGet,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		controlPlane := removePortFromURL(c.ControlPlane)
+		return fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%t&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
+			controlPlane, d.Get("sidecar_id").(string), d.Get("ec2_key").(string), d.Get("name").(string), controlPlane, d.Get("publicly_accessible").(bool))
+	},
+	ResourceData: &SidecarTemplateData{},
+	ResponseData: &SidecarTemplateResponse{},
+}
+
 func resourceSidecarTemplates() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: getCyralSidecarTemplate(
-			ResourceOperationConfig{
-				Name:       "SidecarTemplatesCreate",
-				HttpMethod: http.MethodGet,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					controlPlane := removePortFromURL(c.ControlPlane)
-					return fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%t&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
-						controlPlane, d.Get("sidecar_id").(string), d.Get("ec2_key").(string), d.Get("name").(string), controlPlane, d.Get("publicly_accessible").(bool))
-				},
-				ResourceData: &SidecarTemplateData{},
-			}),
+		CreateContext: getCyralSidecarTemplate(getSidecarTemplate),
 		ReadContext: EmptyReadAction(
 			ResourceOperationConfig{
 				ResourceData: &SidecarTemplateData{},
 			}),
-		UpdateContext: EmptyUpdateAction(
-			ResourceOperationConfig{
-				ResourceData: &SidecarTemplateData{},
-			}),
+		UpdateContext: updateCyralSidecarTemplate(getSidecarTemplate),
 		DeleteContext: EmptyDeleteAction(
 			ResourceOperationConfig{},
 		),
@@ -91,21 +102,40 @@ func getCyralSidecarTemplate(config ResourceOperationConfig) schema.CreateContex
 
 		url := config.CreateURL(d, c)
 
-		_, err := c.DoRequest(url, config.HttpMethod, config.ResourceData)
+		body, err := c.DoRequest(url, config.HttpMethod, config.ResourceData)
 		if err != nil {
 			return createError("Unable to create integration", fmt.Sprintf("%v", err))
 		}
 
-		log.Printf("[DEBUG] RESOURCE DATA: %v", config.ResourceData)
+		log.Printf("[INFO]Sidecar Template:\n %v", body)
 
 		config.ResourceData.WriteToSchema(d)
 
-		// if err := json.Unmarshal(body, &config.ResponseData); err != nil {
-		// 	return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
-		// }
-		// log.Printf("[DEBUG] Response body (unmarshalled): %#v", config.ResponseData)
+		config.ResponseData.WriteToSchema(d)
 
-		// config.ResponseData.WriteToSchema(d)
+		log.Printf("[DEBUG] End %s", config.Name)
+
+		return diag.Diagnostics{}
+	}
+}
+
+func updateCyralSidecarTemplate(config ResourceOperationConfig) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		log.Printf("[DEBUG] Init %s", config.Name)
+		c := m.(*client.Client)
+
+		config.ResourceData.ReadFromSchema(d)
+
+		url := config.CreateURL(d, c)
+
+		body, err := c.DoRequest(url, config.HttpMethod, config.ResourceData)
+		if err != nil {
+			return createError("Unable to update integration", fmt.Sprintf("%v", err))
+		}
+
+		log.Printf("[INFO] Sidecar Template:\n %v", body)
+
+		config.ResourceData.WriteToSchema(d)
 
 		log.Printf("[DEBUG] End %s", config.Name)
 
@@ -116,15 +146,6 @@ func getCyralSidecarTemplate(config ResourceOperationConfig) schema.CreateContex
 func EmptyReadAction(config ResourceOperationConfig) schema.ReadContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		config.ResourceData.ReadFromSchema(d)
-		config.ResourceData.WriteToSchema(d)
-		return diag.Diagnostics{}
-	}
-}
-
-func EmptyUpdateAction(config ResourceOperationConfig) schema.UpdateContextFunc {
-	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-		config.ResourceData.ReadFromSchema(d)
-		config.ResourceData.WriteToSchema(d)
 		return diag.Diagnostics{}
 	}
 }
