@@ -1,6 +1,8 @@
 package cyral
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -31,7 +33,7 @@ func resourceDataSidecarTemplates() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"sidecar_template": {
+			"template": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -47,31 +49,60 @@ func getSidecarTemplate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] Init Get Sidecar Template")
 	c := m.(*client.Client)
 
-	url := formatUrl(d, c)
+	sidecarId := d.Get("sidecar_id").(string)
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	properties, sidecarTypeErr := getSidecarData(c, d)
+	if sidecarTypeErr != nil {
+		return sidecarTypeErr
+	}
+
+	body, err := getTemplateForSidecarProperties(properties, c, d)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(d.Get("sidecar_id").(string))
-	d.Set("sidecar_template", string(body))
+	d.SetId(sidecarId)
+	d.Set("template", body)
 
 	log.Printf("[DEBUG] End Init Get Sidecar Template")
 
 	return nil
 }
 
-func formatUrl(d *schema.ResourceData, c *client.Client) string {
-	controlPlane := removePortFromURL(c.ControlPlane)
-	return fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%t&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
-		controlPlane, d.Get("sidecar_id").(string),
-		"ec2_key",
-		"name",
-		controlPlane,
-		true)
-}
-
 func removePortFromURL(url string) string {
 	return strings.Split(url, ":")[0]
+}
+
+func getSidecarData(c *client.Client, d *schema.ResourceData) (*SidecarData, error) {
+	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Get("sidecar_id").(string))
+
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := SidecarData{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *schema.ResourceData) (body []byte, err error) {
+	switch data.SidecarProperty.DeploymentMethod {
+	case "cloudFormation":
+		controlPlane := removePortFromURL(c.ControlPlane)
+		url := fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
+			controlPlane,
+			d.Get("sidecar_id").(string),
+			data.SidecarProperty.KeyName,
+			data.Name,
+			controlPlane,
+			data.SidecarProperty.PubliclyAccessible)
+		body, err = c.DoRequest(url, http.MethodGet, nil)
+	default:
+		err = errors.New("invalid deployment method")
+	}
+	return
 }
