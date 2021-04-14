@@ -45,11 +45,18 @@ func resourceSidecarTemplates() *schema.Resource {
 						controlPlane, d.Get("sidecar_id").(string), d.Get("ec2_key").(string), d.Get("name").(string), controlPlane, d.Get("publicly_accessible").(bool))
 				},
 				ResourceData: &SidecarTemplateData{},
-				ResponseData: &IDBasedResponse{},
 			}),
-		ReadContext:   EmptyAction,
-		UpdateContext: EmptyAction,
-		DeleteContext: EmptyAction,
+		ReadContext: EmptyReadAction(
+			ResourceOperationConfig{
+				ResourceData: &SidecarTemplateData{},
+			}),
+		UpdateContext: EmptyUpdateAction(
+			ResourceOperationConfig{
+				ResourceData: &SidecarTemplateData{},
+			}),
+		DeleteContext: EmptyDeleteAction(
+			ResourceOperationConfig{},
+		),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -75,14 +82,6 @@ func resourceSidecarTemplates() *schema.Resource {
 	}
 }
 
-func EmptyAction(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	return diag.Diagnostics{}
-}
-
-func removePortFromURL(url string) string {
-	return strings.Split(url, ":")[0]
-}
-
 func getCyralSidecarTemplate(config ResourceOperationConfig) schema.CreateContextFunc {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		log.Printf("[DEBUG] Init %s", config.Name)
@@ -97,12 +96,45 @@ func getCyralSidecarTemplate(config ResourceOperationConfig) schema.CreateContex
 			return createError("Unable to create integration", fmt.Sprintf("%v", err))
 		}
 
-		// log.Printf("Sidecar Template: %v", body)
+		log.Printf("[DEBUG] RESOURCE DATA: %v", config.ResourceData)
 
-		// config.ResourceData.WriteToSchema(d)
+		config.ResourceData.WriteToSchema(d)
+
+		// if err := json.Unmarshal(body, &config.ResponseData); err != nil {
+		// 	return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
+		// }
+		// log.Printf("[DEBUG] Response body (unmarshalled): %#v", config.ResponseData)
+
+		// config.ResponseData.WriteToSchema(d)
 
 		log.Printf("[DEBUG] End %s", config.Name)
 
 		return diag.Diagnostics{}
 	}
+}
+
+func EmptyReadAction(config ResourceOperationConfig) schema.ReadContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		config.ResourceData.ReadFromSchema(d)
+		config.ResourceData.WriteToSchema(d)
+		return diag.Diagnostics{}
+	}
+}
+
+func EmptyUpdateAction(config ResourceOperationConfig) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		config.ResourceData.ReadFromSchema(d)
+		config.ResourceData.WriteToSchema(d)
+		return diag.Diagnostics{}
+	}
+}
+
+func EmptyDeleteAction(config ResourceOperationConfig) schema.DeleteContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		return diag.Diagnostics{}
+	}
+}
+
+func removePortFromURL(url string) string {
+	return strings.Split(url, ":")[0]
 }
