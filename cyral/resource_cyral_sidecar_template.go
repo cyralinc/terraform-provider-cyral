@@ -90,19 +90,45 @@ func getSidecarData(c *client.Client, d *schema.ResourceData) (*SidecarData, err
 }
 
 func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *schema.ResourceData) (body []byte, err error) {
+
+	controlPlane := removePortFromURL(c.ControlPlane)
+	var url string
 	switch data.SidecarProperty.DeploymentMethod {
 	case "cloudFormation":
-		controlPlane := removePortFromURL(c.ControlPlane)
-		url := fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
+		url = fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
 			controlPlane,
 			d.Get("sidecar_id").(string),
 			data.SidecarProperty.KeyName,
 			data.Name,
 			controlPlane,
 			data.SidecarProperty.PubliclyAccessible)
-		body, err = c.DoRequest(url, http.MethodGet, nil)
+	case "docker-compose":
+		url = fmt.Sprintf("https://%s/deploy/docker-compose?SidecarId=%s&SidecarName=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&SplunkIndex=&SplunkHost=&SplunkPort=&SplunkTLS=&SplunkToken=&",
+			controlPlane,
+			d.Get("sidecar_id").(string),
+			data.Name,
+		)
+	case "terraform":
+		url = fmt.Sprintf("https://%s/deploy/terraform/?SidecarId=%s&AWSRegion=%s&KeyName=%s&VPC=%s&SidecarName=%s&ControlPlane=%s&PublicSubnets[]=%s&publiclyAccessible=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
+			controlPlane,
+			d.Get("sidecar_id").(string),
+			data.SidecarProperty.AWSRegion,
+			data.SidecarProperty.KeyName,
+			data.SidecarProperty.VPC,
+			data.Name,
+			controlPlane,
+			data.SidecarProperty.Subnets,
+			data.SidecarProperty.PubliclyAccessible,
+		)
+	case "helm":
+		url = fmt.Sprintf("https://%s/deploy/helm/values.yaml?sidecarId=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&SumologicHost=&SumologicUri=&",
+			controlPlane,
+			d.Get("sidecar_id").(string),
+		)
 	default:
 		err = errors.New("invalid deployment method")
 	}
+	body, err = c.DoRequest(url, http.MethodGet, nil)
+
 	return
 }
