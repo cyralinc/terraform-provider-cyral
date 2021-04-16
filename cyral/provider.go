@@ -80,6 +80,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_datamap":                     resourceDatamap(),
+			"cyral_identity_map":                resourceIdentityMap(),
 			"cyral_integration_datadog":         resourceIntegrationDatadog(),
 			"cyral_integration_elk":             resourceIntegrationELK(),
 			"cyral_integration_logstash":        resourceIntegrationLogstash(),
