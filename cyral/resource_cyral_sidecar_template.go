@@ -62,7 +62,7 @@ func getSidecarTemplate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId(sidecarId)
-	d.Set("template", body)
+	d.Set("template", string(body))
 
 	log.Printf("[DEBUG] End Init Get Sidecar Template")
 
@@ -89,8 +89,7 @@ func getSidecarData(c *client.Client, d *schema.ResourceData) (*SidecarData, err
 	return &response, nil
 }
 
-func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *schema.ResourceData) (body []byte, err error) {
-
+func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *schema.ResourceData) ([]byte, error) {
 	controlPlane := removePortFromURL(c.ControlPlane)
 	var url string
 	switch data.SidecarProperty.DeploymentMethod {
@@ -126,9 +125,7 @@ func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *sch
 			d.Get("sidecar_id").(string),
 		)
 	default:
-		err = errors.New("invalid deployment method")
+		return nil, errors.New("invalid deployment method")
 	}
-	body, err = c.DoRequest(url, http.MethodGet, nil)
-
-	return
+	return c.DoRequest(url, http.MethodGet, nil)
 }
