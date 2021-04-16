@@ -1,4 +1,4 @@
-# Repository
+# Sumo Logic Integration
 
 CRUD operations for Sumo Logic integration.
 

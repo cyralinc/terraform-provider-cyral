@@ -1,4 +1,4 @@
-# Repository
+# Slack Alerts Integration
 
 CRUD operations for Slack Alerts integration.
 

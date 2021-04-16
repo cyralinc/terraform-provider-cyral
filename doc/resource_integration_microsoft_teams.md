@@ -1,4 +1,4 @@
-# Repository
+# Microsoft Teams Integration
 
 CRUD operations for Microsoft Teams integration.
 
