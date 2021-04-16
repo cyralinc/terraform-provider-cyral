@@ -1,18 +1,19 @@
-# Repository
+# Sidecar Template
 
-Get a sidecar template for a given sidecar.
+Returns the deployment template for a given sidecar.
 
 ## Usage
 
 ```hcl
-data "cyral_sidecar_template" "tf_test_cyral_sidecar_template" {
-  sidecar_id = ""
+data "cyral_sidecar_template" "SOME_DATA_SOURCE_NAME" {
+    sidecar_id = ""
 }
 ```
 
 ## Variables
 
-|  Name         |  Default  |  Description                                    | Required |:--------------|:---------:|:----------------------------------------------------------------------------------------|:--------:|
+|  Name         |  Default  |  Description                                               | Required |
+|:--------------|:---------:|:-----------------------------------------------------------|:--------:|
 | `sidecar_id`  |           | The sidecar id you want the template for.                  | Yes      |
 
 
