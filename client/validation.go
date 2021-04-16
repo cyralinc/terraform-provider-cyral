@@ -21,6 +21,7 @@ func ValidateRepoType(param string) error {
 		"mysql":      true,
 		"oracle":     true,
 		"postgresql": true,
+		"redshift":   true,
 		"snowflake":  true,
 		"s3":         true,
 		"sqlserver":  true,
