@@ -5,11 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/senseyeio/duration"
 )
 
 type AccessDuration struct {
@@ -20,41 +19,25 @@ type AccessDuration struct {
 }
 
 func (data AccessDuration) formatTime() string {
-	return fmt.Sprintf("P%dDT%dH%dM%dS", data.Days, data.Hours, data.Minutes, data.Seconds)
+	return duration.Duration{
+		D:  data.Days,
+		TH: data.Hours,
+		TM: data.Minutes,
+		TS: data.Seconds,
+	}.String()
 }
 
 func (data *AccessDuration) getTimeFromString(payload string) error {
-	sections := strings.Split(payload, "DT")
-	if len(sections) != 2 {
-		return errors.New("invalid time format")
+	dur, err := duration.ParseISO8601(payload)
+	if err != nil {
+		return err
 	}
-	days := sections[0][1:]
+	data.Days = dur.D
+	data.Hours = dur.TH
+	data.Minutes = dur.TM
+	data.Seconds = dur.TS
 
-	sections = strings.Split(sections[1], "H")
-	if len(sections) != 2 {
-		return errors.New("invalid time format")
-	}
-	hours := sections[0]
-
-	sections = strings.Split(sections[1], "M")
-	if len(sections) != 2 {
-		return errors.New("invalid time format")
-	}
-	minutes := sections[0]
-
-	sections = strings.Split(sections[1], "S")
-	if len(sections) != 2 {
-		return errors.New("invalid time format")
-	}
-	seconds := sections[0]
-
-	var err error = nil
-	data.Days, err = strconv.Atoi(days)
-	data.Hours, err = strconv.Atoi(hours)
-	data.Minutes, err = strconv.Atoi(minutes)
-	data.Seconds, err = strconv.Atoi(seconds)
-
-	return err
+	return nil
 }
 
 type IdentityMapAPIBody struct {
@@ -140,33 +123,73 @@ func (resource *IdentityMapResource) MarshalJSON() ([]byte, error) {
 }
 
 func (data IdentityMapResource) isIdentityTypeValid() error {
-	if data.IdentityType != "user" || data.IdentityType != "group" {
+	if !(data.IdentityType == "user" || data.IdentityType == "group") {
 		return errors.New("invalid identity type")
 	}
 	return nil
 }
 
 type IdentityMapAPIResponse struct {
+	AccessDuration *AccessDuration `json:"accessDuration,omitempty"`
 }
 
 func (data IdentityMapAPIResponse) WriteToSchema(d *schema.ResourceData) {
-	d.SetId(d.Get("respository_id").(string))
+	d.SetId(d.Get("repository_id").(string))
+	if data.AccessDuration != nil {
+		d.Set("access_duration", []interface{}{
+			map[string]interface{}{
+				"days":    data.AccessDuration.Days,
+				"hours":   data.AccessDuration.Hours,
+				"minutes": data.AccessDuration.Minutes,
+				"seconds": data.AccessDuration.Seconds,
+			},
+		})
+	}
 }
 
-func (data *IdentityMapAPIResponse) ReadFromSchema(d *schema.ResourceData) {}
+func (data *IdentityMapAPIResponse) ReadFromSchema(d *schema.ResourceData) {
+	if _, hasAcessDuration := d.GetOk("access_duration"); hasAcessDuration {
+		data.AccessDuration = &AccessDuration{}
+		acess := d.Get("access_duration").(*schema.Set)
+
+		for _, id := range acess.List() {
+			idMap := id.(map[string]interface{})
+
+			data.AccessDuration.Days = idMap["days"].(int)
+			data.AccessDuration.Hours = idMap["hours"].(int)
+			data.AccessDuration.Minutes = idMap["minutes"].(int)
+			data.AccessDuration.Seconds = idMap["seconds"].(int)
+		}
+	}
+}
+
+func (resource *IdentityMapAPIResponse) UnmarshalJSON(data []byte) error {
+	var response IdentityMapAPIBody
+	if err := json.Unmarshal(data, &response); err != nil {
+		return err
+	}
+	if response.AccessDuration != "" {
+		resource.AccessDuration = &AccessDuration{}
+		if err := resource.AccessDuration.getTimeFromString(response.AccessDuration); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 var ReadIdentityMapConfig = ResourceOperationConfig{
 	Name:       "IdentityMapResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("http://%s/v1/repos/%s/identityMaps/%s/%s/%s",
+		return fmt.Sprintf("https://%s/v1/repos/%s/identityMaps/%s/%s/%s",
 			c.ControlPlane,
 			d.Get("repository_id").(string),
 			d.Get("identity_type").(string),
 			d.Get("identity_name").(string),
 			d.Get("repository_local_account_id").(string))
 	},
-	ResponseData: &IdentityMapResource{},
+	ResponseData: &IdentityMapAPIResponse{},
 }
 
 func resourceIdentityMap() *schema.Resource {
@@ -176,7 +199,7 @@ func resourceIdentityMap() *schema.Resource {
 				Name:       "IdentityMapResourceCreate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("http://%s/v1/repos/%s/identityMaps/%s/%s/%s",
+					return fmt.Sprintf("https://%s/v1/repos/%s/identityMaps/%s/%s/%s",
 						c.ControlPlane,
 						d.Get("repository_id").(string),
 						d.Get("identity_type").(string),
@@ -193,7 +216,7 @@ func resourceIdentityMap() *schema.Resource {
 				Name:       "IdentityMapResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("http://%s/v1/repos/%s/identityMaps/%s/%s/%s",
+					return fmt.Sprintf("https://%s/v1/repos/%s/identityMaps/%s/%s/%s",
 						c.ControlPlane,
 						d.Get("repository_id").(string),
 						d.Get("identity_type").(string),
@@ -208,7 +231,7 @@ func resourceIdentityMap() *schema.Resource {
 				Name:       "IdentityMapResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("http://%s/v1/repos/%s/identityMaps/%s/%s/%s",
+					return fmt.Sprintf("https://%s/v1/repos/%s/identityMaps/%s/%s/%s",
 						c.ControlPlane,
 						d.Get("repository_id").(string),
 						d.Get("identity_type").(string),
