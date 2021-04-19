@@ -29,7 +29,7 @@ var updatedIdentityMapConfig IdentityMapResource = IdentityMapResource{
 	},
 }
 
-func TestAccIdentityMapIntegrationResource(t *testing.T) {
+func TestAccIdentityMapResource(t *testing.T) {
 	testConfig, testFunc := setupIdentityMapTest(initialIdentityMapConfig)
 	testUpdateConfig, testUpdateFunc := setupIdentityMapTest(updatedIdentityMapConfig)
 
