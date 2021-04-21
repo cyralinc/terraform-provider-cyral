@@ -25,7 +25,7 @@ func (data *SidecarTemplateData) ReadFromSchema(d *schema.ResourceData) {
 	data.SidecarId = d.Id()
 }
 
-func dataSourceSidecarTemplates() *schema.Resource {
+func dataSourceSidecarTemplate() *schema.Resource {
 	return &schema.Resource{
 		Read: getSidecarTemplate,
 		Schema: map[string]*schema.Schema{

@@ -78,7 +78,7 @@ func Provider() *schema.Provider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"cyral_sidecar_template": dataSourceSidecarTemplates(),
+			"cyral_sidecar_template": dataSourceSidecarTemplate(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
