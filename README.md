@@ -196,6 +196,7 @@ terraform import cyral_repository.my_resource_name myrepo
 
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
+- [Resource Identity Map](./doc/resource_identity_map.md)
 - [Resource Integration Datadog](./doc/resource_integration_datadog.md)
 - [Resource Integration ELK](./doc/resource_integration_elk.md)
 - [Resource Integration Logstash](./doc/resource_integration_logstash.md)
