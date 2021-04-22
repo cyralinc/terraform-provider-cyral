@@ -59,7 +59,6 @@ func (data IdentityMapResource) WriteToSchema(d *schema.ResourceData) {
 		panic(err)
 	}
 	d.Set("identity_type", data.IdentityType)
-
 	d.Set("repository_local_account_id", data.RepositoryAccountUUID)
 	d.Set("identity_name", data.IdentityName)
 	if data.AccessDuration != nil {
@@ -134,7 +133,8 @@ type IdentityMapAPIResponse struct {
 }
 
 func (data IdentityMapAPIResponse) WriteToSchema(d *schema.ResourceData) {
-	d.SetId(d.Get("repository_id").(string))
+	d.SetId(fmt.Sprintf("%s-%s", d.Get("repository_id").(string),
+		d.Get("repository_local_account_id").(string)))
 	if data.AccessDuration != nil {
 		d.Set("access_duration", []interface{}{
 			map[string]interface{}{
