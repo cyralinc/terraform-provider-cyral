@@ -101,7 +101,7 @@ func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *sch
 			data.Name,
 			controlPlane,
 			data.SidecarProperty.PubliclyAccessible)
-	case "docker-compose":
+	case "docker":
 		url = fmt.Sprintf("https://%s/deploy/docker-compose?SidecarId=%s&SidecarName=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&SplunkIndex=&SplunkHost=&SplunkPort=&SplunkTLS=&SplunkToken=&",
 			controlPlane,
 			d.Get("sidecar_id").(string),

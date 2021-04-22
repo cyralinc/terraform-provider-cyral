@@ -21,7 +21,7 @@ var cftSidecarConfig SidecarData = SidecarData{
 	},
 }
 
-/*var dockerSidecarConfig SidecarData = SidecarData{
+var dockerSidecarConfig SidecarData = SidecarData{
 	Name: "sidecar-test",
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod:     "docker",
@@ -47,7 +47,7 @@ var helmSidecarConfig SidecarData = SidecarData{
 		MetricsIntegrationID: "default",
 		LogIntegrationID:     "default",
 	},
-}*/
+}
 
 var terraformSidecarConfig SidecarData = SidecarData{
 	Name: "sidecar-test",
@@ -65,8 +65,8 @@ var terraformSidecarConfig SidecarData = SidecarData{
 
 func TestAccSidecarTemplateDataSource(t *testing.T) {
 	cftConfig, cftFunc := setupSidecarTemplateTest(cftSidecarConfig, true)
-	/*dockerConfig, dockerFunc := setupSidecarTemplateTest(dockerSidecarConfig, false)
-	helmConfig, helmFunc := setupSidecarTemplateTest(helmSidecarConfig)*/
+	dockerConfig, dockerFunc := setupSidecarTemplateTest(dockerSidecarConfig, false)
+	helmConfig, helmFunc := setupSidecarTemplateTest(helmSidecarConfig, false)
 	tfConfig, tfFunc := setupSidecarTemplateTest(terraformSidecarConfig, true)
 
 	resource.Test(t, resource.TestCase{
@@ -77,14 +77,14 @@ func TestAccSidecarTemplateDataSource(t *testing.T) {
 				Config: cftConfig,
 				Check:  cftFunc,
 			},
-			/*{
+			{
 				Config: dockerConfig,
 				Check:  dockerFunc,
 			},
 			{
 				Config: helmConfig,
 				Check:  helmFunc,
-			},*/
+			},
 			{
 				Config: tfConfig,
 				Check:  tfFunc,
