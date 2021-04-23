@@ -1,4 +1,4 @@
-# Repository
+# ELK Integration
 
 CRUD operations for ELK integration.
 

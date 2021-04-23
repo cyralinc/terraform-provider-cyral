@@ -1,4 +1,4 @@
-# Repository
+# Splunk Integration
 
 CRUD operations for Splunk integration.
 

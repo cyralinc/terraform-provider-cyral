@@ -1,4 +1,4 @@
-# Repository
+# Looker Integration
 
 CRUD operations for Datadog integration.
 

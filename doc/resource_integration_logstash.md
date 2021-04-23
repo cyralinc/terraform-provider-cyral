@@ -1,4 +1,4 @@
-# Repository
+# Logstash Integration
 
 CRUD operations for Logstash integration.
 

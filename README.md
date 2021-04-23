@@ -193,7 +193,7 @@ terraform import cyral_repository.my_resource_name myrepo
 ```
 
 ## Supported Elements
-
+- [Data Source Sidecar Template](./doc/data_source_sidecar_template.md)
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Identity Map](./doc/resource_identity_map.md)

@@ -1,4 +1,4 @@
-# Datamap
+# Repository Local Account
 
 CRUD operations for Cyral Repository Local Account.
 

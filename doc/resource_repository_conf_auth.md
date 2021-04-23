@@ -1,4 +1,4 @@
-# Repository
+# Repository Authentication Configuration
 
 CRUD operations for Repository Authentication Configuration.
 

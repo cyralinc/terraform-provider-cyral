@@ -1,4 +1,4 @@
-# Repository
+# Okta Integration
 
 CRUD operations for Okta integration.
 

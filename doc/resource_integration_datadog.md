@@ -1,4 +1,4 @@
-# Repository
+# Datadog Integration
 
 CRUD operations for Datadog integration.
 
