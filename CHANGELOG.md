@@ -1,3 +1,21 @@
+## 1.1.0 (April 23, 2021)
+
+Minimum required Control Plane version: `v2.17.0`.
+
+### Features:
+* **Resource Integration Slack Alerts**: added new resource to support Slack Alerts integration ([#43](https://github.com/cyralinc/terraform-provider-cyral/pull/43));
+* **Resource Integration Microsoft Teams**: added new resource to support Microsoft Teams integration ([#44](https://github.com/cyralinc/terraform-provider-cyral/pull/44));
+* **Resource Repository Local Account**: added new resource to support repositories local accounts ([#46](https://github.com/cyralinc/terraform-provider-cyral/pull/46));
+* **Resource Integration Okta**: added new resource to support Okta integration ([#47](https://github.com/cyralinc/terraform-provider-cyral/pull/47));
+* **Resource Repository Configuration Authentication**: added new resource to support repository configuration authentication ([#48](https://github.com/cyralinc/terraform-provider-cyral/pull/48));
+* **Data Source Sidecar Template**: added new data source to support sidecar templates ([#50](https://github.com/cyralinc/terraform-provider-cyral/pull/50));
+* **Resource Identity Map**: added new resource to support identity maps ([#51](https://github.com/cyralinc/terraform-provider-cyral/pull/51));
+
+### Improvements:
+* **Increase Test Coverage**: defined standards and increased the test coverage. ([#41](https://github.com/cyralinc/terraform-provider-cyral/pull/41));
+
+--------------
+
 ## 1.0.0 (March 26, 2021)
 
 Minimum required Control Plane version: `v2.17.0`.
