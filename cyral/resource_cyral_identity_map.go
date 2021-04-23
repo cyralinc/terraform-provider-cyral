@@ -254,9 +254,8 @@ func resourceIdentityMap() *schema.Resource {
 				Required: true,
 			},
 			"identity_name": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"access_duration": {
 				Type:     schema.TypeSet,
