@@ -209,11 +209,17 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Policy](./doc/resource_policy.md)
 - [Resource Policy Rule](./doc/resource_policy_rule.md)
 - [Resource Repository](./doc/resource_repository.md)
-    - See also: [Add native repository credentials to AWS Secrets Manager](./doc/native_credentials_aws_sm.md)
 - [Resource Repository Authentication Configuration](./doc/resource_repository_conf_auth.md)
 - [Resource Repository Binding](./doc/resource_repository_binding.md)
 - [Resource Repository Local Account](./doc/resource_repository_local_account.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
+
+## Configuration Templates
+
+See below a list of configuration templates that can be used to deploy some predefined scenarios:
+
+- [Add native repository credentials to AWS Secrets Manager](./doc/templates/native_credentials_aws_sm.md)
+
 
 ## Prerequisites
 
