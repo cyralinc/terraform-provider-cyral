@@ -26,8 +26,8 @@ resource "cyral_identity_map" "SOME_RESOURCE_NAME" {
 | `repository_id`               |           | ID of the repository that will this identity will be associated to.                  | Yes      |
 | `repository_local_account_id` |           | ID of the local account that will this identity will be associated to.               | Yes      |
 | `identity_type`               |           | Identity type: `user` or `group`.                                                    | Yes      |
-| `identity_name`               |           | Identity name. Ex: `myusername`, `me@myemail.com`                                    | Yes      |
-| `access_duration`             |           | Access duration defined as a sum of days, hours, minutes and seconds.                | Yes      |
+| `identity_name`               |           | Identity name. Ex: `myusername`, `me@myemail.com`.                                   | Yes      |
+| `access_duration`             |           | Access duration defined as a sum of days, hours, minutes and seconds. If omitted, the access duration will be infinity. | No       |
 
 
 ## Computed Variables

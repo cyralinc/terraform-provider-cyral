@@ -147,16 +147,27 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("metrics_integration_id", response.SidecarProperty.MetricsIntegrationID)
 	awsConfiguration := make([]map[string]interface{}, 0)
 	ac := make(map[string]interface{})
-	ac["key_name"] = response.SidecarProperty.KeyName
-	ac["aws_region"] = response.SidecarProperty.AWSRegion
-	ac["vpc"] = response.SidecarProperty.VPC
-	ac["subnets"] = response.SidecarProperty.Subnets
-	if p, err := strconv.ParseBool(response.SidecarProperty.PubliclyAccessible); err == nil {
-		ac["publicly_accessible"] = p
+	if response.SidecarProperty.KeyName != "" {
+		ac["key_name"] = response.SidecarProperty.KeyName
 	}
-	awsConfiguration = append(awsConfiguration, ac)
+	if response.SidecarProperty.AWSRegion != "" {
+		ac["aws_region"] = response.SidecarProperty.AWSRegion
+	}
+	if response.SidecarProperty.VPC != "" {
+		ac["vpc"] = response.SidecarProperty.VPC
+	}
+	if response.SidecarProperty.Subnets != "" {
+		ac["subnets"] = response.SidecarProperty.Subnets
+	}
+	if response.SidecarProperty.PubliclyAccessible != "" {
+		if p, err := strconv.ParseBool(response.SidecarProperty.PubliclyAccessible); err == nil {
+			ac["publicly_accessible"] = p
+		}
+	}
+	if len(ac) > 0 {
+		awsConfiguration = append(awsConfiguration, ac)
+	}
 	d.Set("aws_configuration", awsConfiguration)
-
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
 	return diag.Diagnostics{}

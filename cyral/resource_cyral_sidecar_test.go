@@ -21,7 +21,21 @@ var initialSidecarConfig SidecarData = SidecarData{
 	},
 }
 
-var updatedSidecarConfig SidecarData = SidecarData{
+var updatedSidecarConfigDocker SidecarData = SidecarData{
+	Name: "sidecar-updated-test",
+	SidecarProperty: SidecarProperty{
+		DeploymentMethod: "docker",
+	},
+}
+
+var updatedSidecarConfigHelm SidecarData = SidecarData{
+	Name: "sidecar-updated-test",
+	SidecarProperty: SidecarProperty{
+		DeploymentMethod: "helm",
+	},
+}
+
+var updatedSidecarConfigTF SidecarData = SidecarData{
 	Name: "sidecar-updated-test",
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod:     "terraform",
@@ -36,8 +50,10 @@ var updatedSidecarConfig SidecarData = SidecarData{
 }
 
 func TestAccSidecarResource(t *testing.T) {
-	testConfig, testFunc := setupSidecarTest(initialSidecarConfig)
-	testUpdateConfig, testUpdateFunc := setupSidecarTest(updatedSidecarConfig)
+	testConfig, testFunc := setupSidecarTest(initialSidecarConfig, true)
+	testUpdateConfigDocker, testUpdateFuncDocker := setupSidecarTest(updatedSidecarConfigDocker, false)
+	testUpdateConfigHelm, testUpdateFuncHelm := setupSidecarTest(updatedSidecarConfigHelm, false)
+	testUpdateConfigTF, testUpdateFuncTF := setupSidecarTest(updatedSidecarConfigTF, true)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -48,15 +64,23 @@ func TestAccSidecarResource(t *testing.T) {
 				Check:  testFunc,
 			},
 			{
-				Config: testUpdateConfig,
-				Check:  testUpdateFunc,
+				Config: testUpdateConfigDocker,
+				Check:  testUpdateFuncDocker,
+			},
+			{
+				Config: testUpdateConfigHelm,
+				Check:  testUpdateFuncHelm,
+			},
+			{
+				Config: testUpdateConfigTF,
+				Check:  testUpdateFuncTF,
 			},
 		},
 	})
 }
 
-func setupSidecarTest(integrationData SidecarData) (string, resource.TestCheckFunc) {
-	configuration := formatSidecarDataIntoConfig(integrationData)
+func setupSidecarTest(integrationData SidecarData, includeAWSSection bool) (string, resource.TestCheckFunc) {
+	configuration := formatSidecarDataIntoConfig(integrationData, includeAWSSection)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_sidecar.test_repo_binding_sidecar", "name", integrationData.Name),
@@ -66,8 +90,9 @@ func setupSidecarTest(integrationData SidecarData) (string, resource.TestCheckFu
 	return configuration, testFunction
 }
 
-func formatSidecarDataIntoConfig(data SidecarData) string {
-	return fmt.Sprintf(`
+func formatSidecarDataIntoConfig(data SidecarData, includeAWSSection bool) string {
+	if includeAWSSection {
+		return fmt.Sprintf(`
 	resource "cyral_sidecar" "test_repo_binding_sidecar" {
 		name = "%s"
 		deployment_method = "%s"
@@ -79,7 +104,13 @@ func formatSidecarDataIntoConfig(data SidecarData) string {
 			subnets = "%s"
 		}
 	}`, data.Name, data.SidecarProperty.DeploymentMethod,
-		data.SidecarProperty.PubliclyAccessible, data.SidecarProperty.AWSRegion,
-		data.SidecarProperty.KeyName, data.SidecarProperty.VPC,
-		data.SidecarProperty.Subnets)
+			data.SidecarProperty.PubliclyAccessible, data.SidecarProperty.AWSRegion,
+			data.SidecarProperty.KeyName, data.SidecarProperty.VPC,
+			data.SidecarProperty.Subnets)
+	}
+	return fmt.Sprintf(`
+      resource "cyral_sidecar" "test_repo_binding_sidecar" {
+      	name = "%s"
+      	deployment_method = "%s"
+      }`, data.Name, data.SidecarProperty.DeploymentMethod)
 }
