@@ -214,6 +214,13 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Repository Local Account](./doc/resource_repository_local_account.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
 
+## Configuration Templates
+
+See below a list of configuration templates that can be used to deploy some predefined scenarios:
+
+- [Add native repository credentials to AWS Secrets Manager](./doc/templates/native_credentials_aws_sm.md)
+
+
 ## Prerequisites
 
 Our existing provider supports Terraform `v0.12`, `v0.13` and `v0.14`. There are special actions to be taken in order to use this provider with Terraform `v0.12` as described in the `Deployment` section.
