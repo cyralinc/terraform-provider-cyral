@@ -31,11 +31,6 @@ A `Service Account` for the Terraform provider must be created using the [script
 curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh -O
 bash create-service-account-keycloak.sh
 ```
-or
-
-```bash
-curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh | bash
-```
 
 ## Usage Example
 
