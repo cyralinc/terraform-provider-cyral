@@ -28,13 +28,13 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
 A `Service Account` for the Terraform provider must be created using the [script provided in the scripts folder](./scripts/create-service-account-keycloak.sh). To run it, you can just:
 
 ```bash
-curl raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh -O
+curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh -O
 bash create-service-account-keycloak.sh
 ```
 or
 
 ```bash
-curl raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh | bash
+curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh | bash
 ```
 
 ## Usage Example
