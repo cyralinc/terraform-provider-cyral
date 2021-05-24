@@ -206,6 +206,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
 - [Resource Integration Splunk](./doc/resource_integration_splunk.md)
 - [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
+- [Resource Integration Hashicorp Vault](./doc/resource_integration_hc_vault.md)
 - [Resource Policy](./doc/resource_policy.md)
 - [Resource Policy Rule](./doc/resource_policy_rule.md)
 - [Resource Repository](./doc/resource_repository.md)
