@@ -9,69 +9,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// UnmarshalJSON unmarshalls the received data from the API into a pagerDutyIntegration struct. Since the API is not
-// 1 to 1 with the resources, we need this extra steps to recover the api token from the server.
-func (data *PagerDutyIntegration) UnmarshalJSON(b []byte) error {
-	tokenInfo := struct {
-		APIToken string `json:"apiToken"`
-	}{}
-
-	// the rest of the information is unecessary
-	response := struct {
-		Name       string `json:"name"`
-		Parameters string `json:"parameters"`
-	}{}
-
-	err := json.Unmarshal(b, &response)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal([]byte(response.Parameters), &tokenInfo)
-	if err != nil {
-		return err
-	}
-
-	data.Name = response.Name
-	data.APIToken = tokenInfo.APIToken
-	return nil
-}
-
-// MarshalJSON marshalls the structure into a json. Since the API is not
-// 1 to 1 with the resources, we need this extra steps to recover the api token from the server.
-func (data PagerDutyIntegration) MarshalJSON() ([]byte, error) {
-	// need to marshal APIToken twice because field on the API is a marshalled JSON containing necessary information
-	tokenBytes, _ := json.Marshal(struct {
-		Token string `json:"apiToken"`
-	}{
-		data.APIToken,
-	})
-
-	return json.Marshal(struct {
-		Name        string `json:"name"`
-		Category    string `json:"category"`
-		BuiltInType string `json:"builtInType"`
-		Parameters  string `json:"parameters"`
-	}{
-		Name:        data.Name,
-		Category:    "builtin",
-		BuiltInType: "pagerduty",
-		Parameters:  string(tokenBytes),
-	})
-}
-
 // WriteToSchema writes the pager duty information contained in a PagerDutyIntegration to the TF schema
 func (data PagerDutyIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("id", data.ID)
 	d.Set("name", data.Name)
-	d.Set("api_token", data.APIToken)
+
+	// the API takes a marshalled json as a field for defining specific variables for a given auth policy integration
+	var token struct {
+		APIToken string `json:"apiToken"`
+	}
+
+	err := json.Unmarshal([]byte(data.Parameters), &token)
+	if err != nil {
+		panic(err)
+	}
+
+	d.Set("api_token", token.APIToken)
 }
 
 // ReadFromSchema reads the pager duty information from a given schema
 func (data *PagerDutyIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.ID = d.Get("id").(string)
 	data.Name = d.Get("name").(string)
-	data.APIToken = d.Get("api_token").(string)
+
+	var token struct {
+		APIToken string `json:"apiToken"`
+	}
+	token.APIToken = d.Get("api_token").(string)
+	msl, _ := json.Marshal(token)
+	data.Parameters = string(msl)
+
+	// API information for typing
+	data.BuiltInType = "pagerduty"
+	data.Category = "builtin"
 }
 
 // ReadPagerDutyIntegrationConfig is the configuration to read from a pager duty resource contained in a Control Plane
