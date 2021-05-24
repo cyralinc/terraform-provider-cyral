@@ -77,10 +77,6 @@ resource "cyral_integration_datadog" "datadog" {
     api_key = "datadog-api-key"
 }
 
-resource "cyral_integration_pager_duty" "pd" {
-  name = "my-pager-duty-integration"
-  api_token = "my-pd-api-token"
-}
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
@@ -149,10 +145,6 @@ resource "cyral_integration_datadog" "datadog" {
     api_key = "datadog-api-key"
 }
 
-resource "cyral_integration_pager_duty" "pd" {
-  name = "my-pager-duty-integration"
-  api_token = "my-pd-api-token"
-}
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
@@ -216,6 +208,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
 - [Resource Integration Splunk](./doc/resource_integration_splunk.md)
 - [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
+- [Resource Integration Pager Duty](./doc/resource_integration_pager_duty.md)
 - [Resource Policy](./doc/resource_policy.md)
 - [Resource Policy Rule](./doc/resource_policy_rule.md)
 - [Resource Repository](./doc/resource_repository.md)
