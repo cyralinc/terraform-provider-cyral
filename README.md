@@ -77,6 +77,11 @@ resource "cyral_integration_datadog" "datadog" {
     api_key = "datadog-api-key"
 }
 
+resource "cyral_integration_pager_duty" "pd" {
+  name = "my-pager-duty-integration"
+  api_token = "my-pd-api-token"
+}
+
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
@@ -142,6 +147,11 @@ resource "cyral_integration_elk" "elk" {
 resource "cyral_integration_datadog" "datadog" {
     name = "my-datadog-integration"
     api_key = "datadog-api-key"
+}
+
+resource "cyral_integration_pager_duty" "pd" {
+  name = "my-pager-duty-integration"
+  api_token = "my-pd-api-token"
 }
 
 resource "cyral_sidecar" "my_sidecar_name" {
