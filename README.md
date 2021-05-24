@@ -77,6 +77,13 @@ resource "cyral_integration_datadog" "datadog" {
     api_key = "datadog-api-key"
 }
 
+resource "cyral_integration_hc_vault" "vault" {
+  name = "my-hcvault-integration"
+  server = "server.local"
+  auth_method = "auth_method"
+  auth_type = "auth_type"
+}
+
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
@@ -142,6 +149,13 @@ resource "cyral_integration_elk" "elk" {
 resource "cyral_integration_datadog" "datadog" {
     name = "my-datadog-integration"
     api_key = "datadog-api-key"
+}
+
+resource "cyral_integration_hc_vault" "vault" {
+  name = "my-hcvault-integration"
+  server = "server.local"
+  auth_method = "auth_method"
+  auth_type = "auth_type"
 }
 
 resource "cyral_sidecar" "my_sidecar_name" {
@@ -276,3 +290,4 @@ Where:
 * **OS_ARCH** corresponds to the distribution (`darwin_amd64` or `linux_amd64`);
 * **BINARY** corresponds to the binary name. Ex: `terraform-provider-cyral_v0.1.0`;
 * **VERSION** corresponds to the version number withouth `v`. Ex: `0.1.0`.
+
