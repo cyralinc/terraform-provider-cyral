@@ -189,6 +189,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Looker](./doc/resource_integration_looker.md)
 - [Resource Integration Okta](./doc/resource_integration_okta.md)
 - [Resource Integration Microsoft Teams](./doc/resource_integration_microsoft_teams.md)
+- [Resource Integration Pager Duty](./doc/resource_integration_pager_duty.md)
 - [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
 - [Resource Integration Splunk](./doc/resource_integration_splunk.md)
 - [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
