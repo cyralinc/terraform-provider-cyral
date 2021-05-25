@@ -144,7 +144,6 @@ resource "cyral_integration_datadog" "datadog" {
     api_key = "datadog-api-key"
 }
 
-
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
