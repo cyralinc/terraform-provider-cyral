@@ -34,6 +34,7 @@ var ReadSumoLogicConfig = ResourceOperationConfig{
 
 func resourceIntegrationSumoLogic() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for Sumo Logic integration",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SumoLogicResourceCreate",
@@ -68,13 +69,15 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Integration name that will be used internally in Control Plane",
 			},
 			"address": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Sumo Logic Address",
 			},
 		},
 		Importer: &schema.ResourceImporter{

@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -24,8 +25,24 @@ type RepoData struct {
 	Port     int    `json:"repoPort"`
 }
 
+var supportedTypes = map[string]struct{}{
+	`bigquery`:   {},
+	`cassandra`:  {},
+	`dremio`:     {},
+	`galera`:     {},
+	`mariadb`:    {},
+	`mongodb`:    {},
+	`mysql`:      {},
+	`oracle`:     {},
+	`postgresql`: {},
+	`s3`:         {},
+	`snowflake`:  {},
+	`sqlserver`:  {},
+}
+
 func resourceRepository() *schema.Resource {
 	return &schema.Resource{
+		Description:   "CRUD operations for Cyral datamaps",
 		CreateContext: resourceRepositoryCreate,
 		ReadContext:   resourceRepositoryRead,
 		UpdateContext: resourceRepositoryUpdate,
@@ -33,20 +50,31 @@ func resourceRepository() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Repository type (see the list of supported types below)",
+				ValidateDiagFunc: func(i interface{}, p cty.Path) diag.Diagnostics {
+					t := i.(string)
+					if _, ok := supportedTypes[t]; !ok {
+						return diag.Errorf("repository type %v not supported. supportedTypes: %v", t, supportedTypes)
+					}
+					return nil
+				},
 			},
 			"host": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Repository host name (ex: `somerepo.cyral.com`)",
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Repository access port (ex: `3306`)",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Repository name that will be used internally in Control Plane (ex: `your_repo_name`)",
 			},
 		},
 		Importer: &schema.ResourceImporter{

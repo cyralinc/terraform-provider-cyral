@@ -46,6 +46,7 @@ var ReadSplunkConfig = ResourceOperationConfig{
 
 func resourceIntegrationSplunk() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for Splunk integration",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SplunkResourceCreate",
@@ -80,29 +81,35 @@ func resourceIntegrationSplunk() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Integration name that will be used internally in Control Plane",
 			},
 			"access_token": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Splunk Access Token",
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Splunk Host Port",
 			},
 			"host": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Splunk Host",
 			},
 			"index": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Splunk data index name",
 			},
 			"use_tls": {
-				Type:     schema.TypeBool,
-				Required: true,
+				Type:        schema.TypeBool,
+				Required:    true,
+				Description: "Should the comunication with Splunk use TLS encryption?",
 			},
 		},
 		Importer: &schema.ResourceImporter{

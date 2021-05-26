@@ -27,16 +27,19 @@ func (data *SidecarTemplateData) ReadFromSchema(d *schema.ResourceData) {
 
 func dataSourceSidecarTemplate() *schema.Resource {
 	return &schema.Resource{
-		Read: getSidecarTemplate,
+		Description: "Returns the deployment template for a given sidecar",
+		Read:        getSidecarTemplate,
 		Schema: map[string]*schema.Schema{
 			"sidecar_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The sidecar id you want the template for",
 			},
 			"template": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The output variable that will contain the template",
 			},
 		},
 		Importer: &schema.ResourceImporter{

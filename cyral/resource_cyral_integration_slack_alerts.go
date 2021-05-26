@@ -34,6 +34,7 @@ var ReadSlackAlertsConfig = ResourceOperationConfig{
 
 func resourceIntegrationSlackAlerts() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for Slack Alerts integration",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SlackAlertsResourceCreate",
@@ -68,13 +69,15 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Integration name that will be used internally in Control Plane",
 			},
 			"url": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Slack Alert Webhook url",
 			},
 		},
 		Importer: &schema.ResourceImporter{

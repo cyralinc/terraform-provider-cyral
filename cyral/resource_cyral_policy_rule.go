@@ -44,86 +44,93 @@ type Identity struct {
 }
 
 func resourcePolicyRule() *schema.Resource {
-	ruleSchema := &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		Elem: &schema.Resource{
-			Schema: map[string]*schema.Schema{
-				"additional_checks": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-				"data": {
-					Type:     schema.TypeList,
-					Required: true,
-					Elem: &schema.Schema{
-						Type: schema.TypeString,
+	ruleSchema := func(resourceType string) *schema.Schema {
+		return &schema.Schema{
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Description: fmt.Sprintf("A contexted rule for accesses of the type `%s`", resourceType),
+				Schema: map[string]*schema.Schema{
+					"additional_checks": {
+						Type:     schema.TypeString,
+						Optional: true,
 					},
-				},
-				"dataset_rewrites": {
-					Type:     schema.TypeList,
-					Optional: true,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"dataset": {
-								Type:     schema.TypeString,
-								Required: true,
-							},
-							"repo": {
-								Type:     schema.TypeString,
-								Required: true,
-							},
-							"substitution": {
-								Type:     schema.TypeString,
-								Required: true,
-							},
-							"parameters": {
-								Type:     schema.TypeList,
-								Required: true,
-								Elem: &schema.Schema{
-									Type: schema.TypeString,
+					"data": {
+						Type:     schema.TypeList,
+						Required: true,
+						Elem: &schema.Schema{
+							Type: schema.TypeString,
+						},
+					},
+					"dataset_rewrites": {
+						Type:     schema.TypeList,
+						Optional: true,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"dataset": {
+									Type:     schema.TypeString,
+									Required: true,
+								},
+								"repo": {
+									Type:     schema.TypeString,
+									Required: true,
+								},
+								"substitution": {
+									Type:     schema.TypeString,
+									Required: true,
+								},
+								"parameters": {
+									Type:     schema.TypeList,
+									Required: true,
+									Elem: &schema.Schema{
+										Type: schema.TypeString,
+									},
 								},
 							},
 						},
 					},
-				},
-				"rows": {
-					Type:     schema.TypeInt,
-					Required: true,
-				},
-				"severity": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Default:  "low",
+					"rows": {
+						Type:     schema.TypeInt,
+						Required: true,
+					},
+					"severity": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Default:  "low",
+					},
 				},
 			},
-		},
+		}
 	}
 
 	return &schema.Resource{
+		Description:   "CRUD operations for policy rules. For more information, please see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy)",
 		CreateContext: resourcePolicyRuleCreate,
 		ReadContext:   resourcePolicyRuleRead,
 		UpdateContext: resourcePolicyRuleUpdate,
 		DeleteContext: resourcePolicyRuleDelete,
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The ID of the policy you are adding this rule to",
 			},
-			"deletes": ruleSchema,
-			"reads":   ruleSchema,
-			"updates": ruleSchema,
+			"deletes": ruleSchema("delete"),
+			"reads":   ruleSchema("read"),
+			"updates": ruleSchema("update"),
 			"hosts": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: "Hosts specification that limits access to only those users connecting from a certain network location",
 			},
 			"identities": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: "Identities specification that specifies the people, applications, or groups this rule applies to. Every rule except your default rule has one. It can have 4 fields: `db_roles`, `groups`, `users` and `services`",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"db_roles": {

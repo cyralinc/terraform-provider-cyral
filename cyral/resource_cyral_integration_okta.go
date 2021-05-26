@@ -104,19 +104,22 @@ var cleanUpOktaIntegration = ResourceOperationConfig{
 
 func resourceIntegrationOkta() *schema.Resource {
 	return &schema.Resource{
+		Description:   "CRUD operations for Okta integration",
 		CreateContext: CreateOktaIntegration,
 		ReadContext:   ReadOktaIntegration,
 		UpdateContext: UpdateOktaIntegration,
 		DeleteContext: DeleteOktaIntegration,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Integration name that will be used internally in Control Plane",
 			},
 			"certificate": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Okta Certificate",
 			},
 			"email_domains": {
 				Type:     schema.TypeList,
@@ -124,14 +127,17 @@ func resourceIntegrationOkta() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: "List of allowed signin domains",
 			},
 			"signin_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Okta Signin URL. Make sure to include a valid URL starting with https://",
 			},
 			"signout_url": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Okta Signout URL. Make sure to include a valid URL starting with https://",
 			},
 		},
 		Importer: &schema.ResourceImporter{

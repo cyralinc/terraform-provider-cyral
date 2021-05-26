@@ -26,6 +26,7 @@ type Listener struct {
 
 func resourceRepositoryBinding() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Binds repositories to sidecars",
 		CreateContext: resourceRepositoryBindingCreate,
 		ReadContext:   resourceRepositoryBindingRead,
 		UpdateContext: resourceRepositoryBindingUpdate,
@@ -33,26 +34,31 @@ func resourceRepositoryBinding() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`",
 			},
 			"sidecar_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "ID of the repository that will be bound to the sidecar",
 			},
 			"repository_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "ID of the sidecar that the repository(ies) will be bound to",
 			},
 			"listener_port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Port in which the sidecar will listen for the given repository",
 			},
 			"listener_host": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "0.0.0.0",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "0.0.0.0",
+				Description: "Address in which the sidecar will listen for the given repository. By default, the sidecar will listen in all interfaces",
 			},
 		},
 		Importer: &schema.ResourceImporter{

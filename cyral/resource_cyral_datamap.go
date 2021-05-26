@@ -30,6 +30,7 @@ func resourceDatamap() *schema.Resource {
 		ReadContext:   resourceDatamapRead,
 		UpdateContext: resourceDatamapUpdate,
 		DeleteContext: resourceDatamapDelete,
+		Description:   "CRUD operations for Cyral datamaps",
 		Schema: map[string]*schema.Schema{
 			"last_updated": {
 				Type:     schema.TypeString,
@@ -37,8 +38,9 @@ func resourceDatamap() *schema.Resource {
 				Computed: true,
 			},
 			"mapping": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type:        schema.TypeSet,
+				Required:    true,
+				Description: "Block that supports mapping attributes in repos to a given label",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"label": {
@@ -46,13 +48,15 @@ func resourceDatamap() *schema.Resource {
 							Required: true,
 						},
 						"data_location": {
-							Type:     schema.TypeSet,
-							Required: true,
+							Type:        schema.TypeSet,
+							Required:    true,
+							Description: "Label given to the data specified in the corresponding list (ex: `your_label_id`)",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"repo": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Name of the repository containing the data as specified through the Cyral management console (ex: `your_repo_name`)",
 									},
 									"attributes": {
 										Type:     schema.TypeList,
@@ -60,6 +64,7 @@ func resourceDatamap() *schema.Resource {
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+										Description: "List containing the specific locations of the data within the repo, following the pattern `{SCHEMA}.{TABLE}.{ATTRIBUTE}` (ex: `[your_schema_name.your_table_name.your_attr_name]`)",
 									},
 								},
 							},

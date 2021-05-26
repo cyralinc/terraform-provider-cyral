@@ -37,6 +37,7 @@ var ReadLookerConfig = ResourceOperationConfig{
 
 func resourceIntegrationLooker() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for Datadog integration",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "LookerResourceCreate",
@@ -71,18 +72,21 @@ func resourceIntegrationLooker() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"client_id": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Looker client id",
 			},
 			"client_secret": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Looker client secret",
 			},
 			"url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Looker integration url",
 			},
 		},
 		Importer: &schema.ResourceImporter{

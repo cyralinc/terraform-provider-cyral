@@ -194,6 +194,7 @@ var ReadIdentityMapConfig = ResourceOperationConfig{
 
 func resourceIdentityMap() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for identity maps",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "IdentityMapResourceCreate",
@@ -242,24 +243,29 @@ func resourceIdentityMap() *schema.Resource {
 		),
 		Schema: map[string]*schema.Schema{
 			"repository_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "ID of the repository that will this identity will be associated to",
 			},
 			"repository_local_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "ID of the local account that will this identity will be associated to",
 			},
 			"identity_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Identity type: `user` or `group`",
 			},
 			"identity_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Identity name. Ex: `myusername`, `me@myemail.com`",
 			},
 			"access_duration": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "Access duration defined as a sum of days, hours, minutes and seconds. If omitted, the access duration will be infinity",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {

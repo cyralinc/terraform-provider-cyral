@@ -20,11 +20,13 @@ const (
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
 	return &schema.Provider{
+
 		Schema: map[string]*schema.Schema{
 			"auth_provider": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  keycloak,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     keycloak,
+				Description: "Authorization provider in use by the Control Plane (valid values: `auth0`, `keycloak`)",
 			},
 			"auth0_audience": {
 				Type:     schema.TypeString,
@@ -32,6 +34,7 @@ func Provider() *schema.Provider {
 				RequiredWith: []string{
 					"auth0_domain",
 				},
+				Description: "Auth0 audience (ex: `cyral-api.com`)",
 			},
 			"auth0_domain": {
 				Type:     schema.TypeString,
@@ -39,6 +42,7 @@ func Provider() *schema.Provider {
 				RequiredWith: []string{
 					"auth0_audience",
 				},
+				Description: "Auth0 domain name (ex: `dev-cyral.auth0.com`)",
 			},
 			"auth0_client_id": {
 				Type:          schema.TypeString,
@@ -64,6 +68,7 @@ func Provider() *schema.Provider {
 				Sensitive:     true,
 				ConflictsWith: []string{"auth0_client_id"},
 				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientID, nil),
+				Description:   "Client id (ex: `abcdef1234567`)",
 			},
 			"client_secret": {
 				Type:          schema.TypeString,
@@ -71,10 +76,12 @@ func Provider() *schema.Provider {
 				Sensitive:     true,
 				ConflictsWith: []string{"auth0_client_secret"},
 				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientSecret, nil),
+				Description:   "Client secret (ex: `0123456789QWERTYUIOPASDFGHJKLZXCVBNM`)",
 			},
 			"control_plane": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Control plane host and API port (ex: `some-cp.cyral.com:8000`)",
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{

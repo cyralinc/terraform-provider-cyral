@@ -34,6 +34,7 @@ var ReadMsTeamsConfig = ResourceOperationConfig{
 
 func resourceIntegrationMsTeams() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for Microsoft Teams integration",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "MsTeamsResourceCreate",
@@ -68,13 +69,15 @@ func resourceIntegrationMsTeams() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Integration name that will be used internally in Control Plane",
 			},
 			"url": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Microsoft Teams webhook URL",
 			},
 		},
 		Importer: &schema.ResourceImporter{

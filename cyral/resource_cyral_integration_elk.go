@@ -39,6 +39,7 @@ var ReadELKConfig = ResourceOperationConfig{
 
 func resourceIntegrationELK() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for ELK integration",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "ELKResourceCreate",
@@ -73,16 +74,19 @@ func resourceIntegrationELK() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Integration name that will be used internally in Control Plane",
 			},
 			"kibana_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Kibana URL",
 			},
 			"es_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Elastic Search URL",
 			},
 		},
 		Importer: &schema.ResourceImporter{

@@ -39,8 +39,9 @@ func resourcePolicy() *schema.Resource {
 		DeleteContext: resourcePolicyDelete,
 		Schema: map[string]*schema.Schema{
 			"created": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Policy creation timestamp",
 			},
 			"data": {
 				Type:     schema.TypeList,
@@ -48,24 +49,29 @@ func resourcePolicy() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: "List that specify which data fields a policy manages. Each field is represented by the LABEL you established for it in your data map. The actual location of that data (the names of fields, columns, or databases that hold it) is listed in the data map.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "String that describes the policy (ex: `your_policy_description`)",
 			},
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Policy name that will be used internally in Control Plane (ex: `your_policy_name`)",
 			},
 			"last_updated": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Last update timestamp",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Policy name that will be used internally in Control Plane (ex: `your_policy_name`)",
 			},
 			"properties": {
 				Type:     schema.TypeSet,
@@ -73,12 +79,14 @@ func resourcePolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Policy name that will be used internally in Control Plane (ex: `your_policy_name`)",
+							Required:    true,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "String that describes the policy (ex: `your_policy_description`)",
+							Required:    true,
 						},
 					},
 				},
@@ -89,14 +97,16 @@ func resourcePolicy() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: "Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`)",
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Incremental counter for every update on the policy",
 			},
 		},
 		Importer: &schema.ResourceImporter{

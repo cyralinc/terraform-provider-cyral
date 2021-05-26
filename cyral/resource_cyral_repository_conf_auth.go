@@ -96,6 +96,7 @@ var ReadConfAuthConfig = ResourceOperationConfig{
 
 func resourceRepositoryConfAuth() *schema.Resource {
 	return &schema.Resource{
+		Description: "CRUD operations for Repository Authentication Configuration",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "ConfAuthResourceCreate",
@@ -130,24 +131,29 @@ func resourceRepositoryConfAuth() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"repository_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The ID of the repository to be configured",
 			},
 			"allow_native_auth": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Should the comunication allow native authentication?",
 			},
 			"client_tls": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Is the repo Client using TLS?",
 			},
 			"identity_provider": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of the okta identity provider",
 			},
 			"repo_tls": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Is TLS enabled for the repository?",
 			},
 		},
 		Importer: &schema.ResourceImporter{

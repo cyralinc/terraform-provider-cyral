@@ -41,25 +41,30 @@ func resourceSidecar() *schema.Resource {
 		ReadContext:   resourceSidecarRead,
 		UpdateContext: resourceSidecarUpdate,
 		DeleteContext: resourceSidecarDelete,
+		Description:   "CRUD operations for Cyral sidecars",
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Sidecar name that will be used internally in Control Plane (ex: `your_sidecar_name`)",
 			},
 			"deployment_method": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`)",
 			},
 			"log_integration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: "ID of the log integration that will be used by this sidecar",
 			},
 			"metrics_integration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: "ID of the metrics integration that will be used by this sidecar",
 			},
 			"aws_configuration": {
 				Type:     schema.TypeSet,
@@ -67,27 +72,33 @@ func resourceSidecar() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Key-pair name that will be associated to the sidecar EC2 instances",
 						},
 						"aws_region": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "AWS region that will be used to deploy the sidecar",
 						},
 						"vpc": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "ID of the VPC that the sidecar will be deployed to",
 						},
 						"subnets": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Comma-separated list of subnet ids that the sidecar will be deployed to",
 						},
 						"publicly_accessible": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: "Defines a public IP and an internet-facing LB if set to `true`",
 						},
 					},
 				},
+				Description: "AWS parameters for `cloudFormation` and `terraform` deployment methods",
 			},
 		},
 		Importer: &schema.ResourceImporter{
