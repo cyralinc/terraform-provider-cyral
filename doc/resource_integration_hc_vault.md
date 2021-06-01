@@ -1,4 +1,4 @@
-# Okta Integration
+# Hashicorp Vault Integration
 
 CRUD operations for Hashicorp Vault integration.
 
