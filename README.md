@@ -63,13 +63,6 @@ resource "cyral_integration_datadog" "datadog" {
     api_key = "datadog-api-key"
 }
 
-resource "cyral_integration_hc_vault" "vault" {
-  name = "my-hcvault-integration"
-  server = "server.local"
-  auth_method = "auth_method"
-  auth_type = "auth_type"
-}
-
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
@@ -137,13 +130,6 @@ resource "cyral_integration_datadog" "datadog" {
     api_key = "datadog-api-key"
 }
 
-resource "cyral_integration_hc_vault" "vault" {
-  name = "my-hcvault-integration"
-  server = "server.local"
-  auth_method = "auth_method"
-  auth_type = "auth_type"
-}
-
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
     deployment_method = "cloudFormation"
@@ -199,6 +185,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Identity Map](./doc/resource_identity_map.md)
 - [Resource Integration Datadog](./doc/resource_integration_datadog.md)
 - [Resource Integration ELK](./doc/resource_integration_elk.md)
+- [Resource Integration Hashicorp Vault](./doc/resource_integration_hc_vault.md)
 - [Resource Integration Logstash](./doc/resource_integration_logstash.md)
 - [Resource Integration Looker](./doc/resource_integration_looker.md)
 - [Resource Integration Okta](./doc/resource_integration_okta.md)
@@ -206,7 +193,6 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
 - [Resource Integration Splunk](./doc/resource_integration_splunk.md)
 - [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
-- [Resource Integration Hashicorp Vault](./doc/resource_integration_hc_vault.md)
 - [Resource Policy](./doc/resource_policy.md)
 - [Resource Policy Rule](./doc/resource_policy_rule.md)
 - [Resource Repository](./doc/resource_repository.md)
