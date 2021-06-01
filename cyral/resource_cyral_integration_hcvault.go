@@ -14,7 +14,6 @@ func (data HCVaultIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("auth_type", data.AuthType)
 	d.Set("name", data.Name)
 	d.Set("server", data.Server)
-
 }
 
 func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData) {
@@ -23,7 +22,6 @@ func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.AuthType = d.Get("auth_type").(string)
 	data.Name = d.Get("name").(string)
 	data.Server = d.Get("server").(string)
-
 }
 
 var ReadHCVaultIntegrationConfig = ResourceOperationConfig{

@@ -8,7 +8,6 @@ import (
 )
 
 var initialHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
-
 	AuthMethod: "unitTest-auth_method",
 	ID:         "unitTest-id",
 	AuthType:   "unitTest-auth_type",
@@ -17,7 +16,6 @@ var initialHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
 }
 
 var updatedHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
-
 	AuthMethod: "unitTest-auth_method-updated",
 	ID:         "unitTest-id-updated",
 	AuthType:   "unitTest-auth_type-updated",

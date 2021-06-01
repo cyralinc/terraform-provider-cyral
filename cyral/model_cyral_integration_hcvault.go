@@ -1,6 +1,6 @@
 package cyral
 
-//go:generate go run ../tfgen HCVaultIntegration https://%s/v1/integrations/secretProviders/hcvault --output resource_cyral_integration_hcvault.go
+// HCVaultIntegration defines the necessary data for Hashicorp Vault integration
 type HCVaultIntegration struct {
 	AuthMethod string `json:"authMethod" tfgen:"auth_method,required"`
 	ID         string `json:"id" tfgen:"id,computed"`
