@@ -17,10 +17,10 @@ terraform {
 
 locals {
   # the tenant of your control plane
-  tenant_name = "hhiu"
+  tenant_name = ""
 
-  # the control plane url the the port
-  control_plane = "hhiu.cyral.com"  
+  # Control plane address. Ex: mytenant.cyral.com
+  control_plane = ""  
 
   # the name of the app that will be created on okta
   okta_app_name = "cyral"
@@ -29,7 +29,7 @@ locals {
   integration_name = "okta-integration"
 
   # email domains that will be accepted as valid logins
-  email_domains = ["hhiu.com", "hhiu2.com"]
+  email_domains = ["mycompany.com"]
 
   # groups that the cyral app will be assigned to on okta
   groups = ["your-groups-here"]
@@ -48,7 +48,6 @@ provider "cyral" {
   control_plane = local.control_plane
 }
 
-
 # See the okta provider documentation for more information
 # on how to initialize it correctly
 provider "okta" {
@@ -59,7 +58,6 @@ provider "okta" {
 
 data "cyral_saml_certificate" "name" {
 }
-
 
 data "okta_app_metadata_saml" "name" {
   app_id = okta_app_saml.okta_app.id
@@ -77,13 +75,11 @@ resource "cyral_integration_okta" "okta_integration" {
 
   certificate = okta_app_saml.okta_app.certificate
 
-
   # set this to your users' email domains
   email_domains = local.email_domains
 }
 
 resource "okta_app_saml" "okta_app" {
-
   label = "Cyral"
 
   groups = local.groups
