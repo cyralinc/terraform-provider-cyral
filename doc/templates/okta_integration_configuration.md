@@ -73,7 +73,6 @@ resource "cyral_integration_okta" "okta_integration" {
   signin_url = okta_app_saml.okta_app.http_post_binding
   signout_url = replace(okta_app_saml.okta_app.http_post_binding, "sso", "slo")
 
-
   name = local.integration_name
 
   certificate = okta_app_saml.okta_app.certificate
