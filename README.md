@@ -185,6 +185,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Identity Map](./doc/resource_identity_map.md)
 - [Resource Integration Datadog](./doc/resource_integration_datadog.md)
 - [Resource Integration ELK](./doc/resource_integration_elk.md)
+- [Resource Integration Hashicorp Vault](./doc/resource_integration_hc_vault.md)
 - [Resource Integration Logstash](./doc/resource_integration_logstash.md)
 - [Resource Integration Looker](./doc/resource_integration_looker.md)
 - [Resource Integration Okta](./doc/resource_integration_okta.md)
@@ -263,3 +264,4 @@ Where:
 * **OS_ARCH** corresponds to the distribution (`darwin_amd64` or `linux_amd64`);
 * **BINARY** corresponds to the binary name. Ex: `terraform-provider-cyral_v0.1.0`;
 * **VERSION** corresponds to the version number withouth `v`. Ex: `0.1.0`.
+

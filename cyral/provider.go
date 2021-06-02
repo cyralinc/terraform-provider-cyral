@@ -86,6 +86,7 @@ func Provider() *schema.Provider {
 			"cyral_identity_map":                resourceIdentityMap(),
 			"cyral_integration_datadog":         resourceIntegrationDatadog(),
 			"cyral_integration_elk":             resourceIntegrationELK(),
+			"cyral_integration_hc_vault":        resourceIntegrationHCVault(),
 			"cyral_integration_logstash":        resourceIntegrationLogstash(),
 			"cyral_integration_looker":          resourceIntegrationLooker(),
 			"cyral_integration_microsoft_teams": resourceIntegrationMsTeams(),
