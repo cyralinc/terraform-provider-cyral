@@ -1,6 +1,6 @@
 # Create an Okta application and add Okta as an SSO provider
 
-Use the following code as an exaple to deploy an Okta application with the correct configuration as to be used as an integration on a Cyral Control Plane as an SSO provider. The configuration will be identical as stated in [the documentation](https://cyral.com/docs/sso-okta).
+Use the following code to deploy an Okta application and integrate it automatically with Cyral Control plane as an IDP provider.
 
 ```terraform
 terraform {
