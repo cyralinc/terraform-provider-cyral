@@ -33,11 +33,25 @@ install:
 	cp out/darwin_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
 	cp out/linux_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
 
+docker-go-build:
+	docker-compose run app $(GOFMT) -w .
+	docker-compose run -e GOOS=darwin -e GOARCH=amd64 app $(GOBUILD) -o out/darwin_amd64/terraform-provider-cyral_v$(VERSION) .
+	docker-compose run -e GOOS=linux -e GOARCH=amd64 app $(GOBUILD) -o out/linux_amd64/terraform-provider-cyral_v$(VERSION) .
+	# Store in local registry to be used by Terraform 13 and 14
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
+	cp out/darwin_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
+	cp out/linux_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
+
 clean:
 	$(GOCLEAN) -i github.com/cyralinc/terraform-provider-cyral/...
 	rm -f $(BINARY)
 	rm -rf ./out
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
+
+docker-go-clean:
+	docker-compose run app $(GOCLEAN) -i github.com/cyralinc/terraform-provider-cyral/...
+	rm -rf ./out
 
 test:
 	$(GOTEST) $(TEST) -v -race
