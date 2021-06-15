@@ -52,6 +52,7 @@ clean:
 docker-go-clean:
 	docker-compose run app $(GOCLEAN) -i github.com/cyralinc/terraform-provider-cyral/...
 	rm -rf ./out
+	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
 test:
 	$(GOTEST) $(TEST) -v -race
