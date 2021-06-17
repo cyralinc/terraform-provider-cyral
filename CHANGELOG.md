@@ -1,3 +1,15 @@
+## 1.2.0 (June 17, 2021)
+
+Minimum required Control Plane version: `v2.19.0`.
+
+### Features:
+* **Data Source SAML Certificate**: added new data source to retrieve certificate ([#60](https://github.com/cyralinc/terraform-provider-cyral/pull/60));
+* **Docker Build**: added new feature in makefile to allow docker build without requiring local Go environment ([#61](https://github.com/cyralinc/terraform-provider-cyral/pull/61));
+* **Resource Integration Hashicorp Vault**: added new resource to support Hashicorp Vault integration ([#58](https://github.com/cyralinc/terraform-provider-cyral/pull/58));
+* **Resource Integration Pager Duty**: added new resource to support Pager Duty integration ([#56](https://github.com/cyralinc/terraform-provider-cyral/pull/56));
+
+--------------
+
 ## 1.1.0 (April 23, 2021)
 
 Minimum required Control Plane version: `v2.17.0`.
