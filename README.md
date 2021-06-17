@@ -32,7 +32,7 @@ curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/sc
 bash create-service-account-keycloak.sh
 ```
 
-## Usage Example
+## Usage
 
 The code below is just a simple example of how to use the Cyral Terraform Module. Refer to the "Supported Elements" section for more information on resources and provider details.
 
@@ -179,6 +179,7 @@ terraform import cyral_repository.my_resource_name myrepo
 ```
 
 ## Supported Elements
+- [Data Source SAML Certificate](./doc/data_source_saml_certificate.md)
 - [Data Source Sidecar Template](./doc/data_source_sidecar_template.md)
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
