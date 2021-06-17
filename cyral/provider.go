@@ -78,8 +78,8 @@ func Provider() *schema.Provider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"cyral_sidecar_template": dataSourceSidecarTemplate(),
 			"cyral_saml_certificate": dataSourceSAMLCertificate(),
+			"cyral_sidecar_template": dataSourceSidecarTemplate(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

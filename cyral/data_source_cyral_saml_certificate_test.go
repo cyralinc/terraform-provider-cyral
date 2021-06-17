@@ -84,6 +84,7 @@ func testOutputAttrFunction(resource string, checkFunc func(interface{}) error) 
 		return checkFunc(at)
 	}
 }
+
 func testResourceAttrFunction(resource, attr string, checkFunc func(string) error) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ms := s.RootModule()
