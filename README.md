@@ -34,67 +34,14 @@ bash create-service-account-keycloak.sh
 
 ## Usage
 
-The code below is just a simple example of how to use the Cyral Terraform Module. Refer to the "Supported Elements" section for more information on resources and provider details.
-
-### Terraform v0.12
-
-```hcl
-provider "cyral" {
-    client_id = ""     # optional
-    client_secret = "" # optional
-    control_plane = "some-cp.cyral.com:8000"
-}
-
-resource "cyral_repository" "my_repo_name" {
-    host = "myrepo.cyral.com"
-    port = 3306
-    type = "mariadb"
-    name = "myrepo"
-}
-
-resource "cyral_integration_elk" "elk" {
-    name = "my-elk-integration"
-    kibana_url = "kibana.local"
-    es_url = "es.local"
-}
-
-resource "cyral_integration_datadog" "datadog" {
-    name = "my-datadog-integration"
-    api_key = "datadog-api-key"
-}
-
-resource "cyral_sidecar" "my_sidecar_name" {
-    name = "mysidecar"
-    deployment_method = "cloudFormation"
-    log_integration = cyral_integration_elk.elk.id
-    metrics_integration_id = cyral_integration_datadog.datadog.id
-    aws_configuration {
-        publicly_accessible = false
-        aws_region = "us-east-1"
-        key_name = "ec2-key-name"
-        vpc = "vpc-id"
-        subnets = "subnetid1,subnetid2,subnetidN"
-    }
-}
-
-resource "cyral_datamap" "my_datamap_name" {
-    mapping {
-        label = "CNN"
-        data_location {
-            repo = cyral_repository.my_repo_name.name
-            attributes = ["applications.customers.credit_card_number"]
-        }
-    }
-}
-```
-
-### Terraform v0.13 and v0.14
+The code below is just a simple example of how to use the Cyral Terraform Provider with Terraform `v0.13+`. Refer to the "Supported Elements" section for more details on data sources, resources and the provider itself.
 
 ```hcl
 terraform {
   required_providers {
     cyral = {
-      source = "cyral.com/terraform/cyral"
+      source = "cyralinc/cyral"
+      version = "1.2.1"
     }
   }
 }
