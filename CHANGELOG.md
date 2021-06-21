@@ -1,3 +1,21 @@
+## 1.2.2 (June 21, 2021)
+
+Minimum required Control Plane version: `v2.19.0`.
+
+### Bug fixes:
+* **Fix missing Helm3 support**: fix missing helm 3 support in data source `cyral_sidecar_template` ([#63](https://github.com/cyralinc/terraform-provider-cyral/pull/63));
+
+--------------
+
+## 1.2.1 (June 18, 2021)
+
+Minimum required Control Plane version: `v2.19.0`.
+
+### Bug fixes:
+* **Fix publishing issue**: fix issue publishing binaries ([#62](https://github.com/cyralinc/terraform-provider-cyral/pull/62));
+
+--------------
+
 ## 1.2.0 (June 17, 2021)
 
 Minimum required Control Plane version: `v2.19.0`.
