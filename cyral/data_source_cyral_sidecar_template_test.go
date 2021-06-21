@@ -49,6 +49,20 @@ var helmSidecarConfig SidecarData = SidecarData{
 	},
 }
 
+var helm3SidecarConfig SidecarData = SidecarData{
+	Name: "sidecar-test",
+	SidecarProperty: SidecarProperty{
+		DeploymentMethod:     "helm3",
+		AWSRegion:            "",
+		KeyName:              "",
+		VPC:                  "",
+		Subnets:              "",
+		PubliclyAccessible:   "true",
+		MetricsIntegrationID: "default",
+		LogIntegrationID:     "default",
+	},
+}
+
 var terraformSidecarConfig SidecarData = SidecarData{
 	Name: "sidecar-test",
 	SidecarProperty: SidecarProperty{
@@ -67,6 +81,7 @@ func TestAccSidecarTemplateDataSource(t *testing.T) {
 	cftConfig, cftFunc := setupSidecarTemplateTest(cftSidecarConfig, true)
 	dockerConfig, dockerFunc := setupSidecarTemplateTest(dockerSidecarConfig, false)
 	helmConfig, helmFunc := setupSidecarTemplateTest(helmSidecarConfig, false)
+	helm3Config, helm3Func := setupSidecarTemplateTest(helm3SidecarConfig, false)
 	tfConfig, tfFunc := setupSidecarTemplateTest(terraformSidecarConfig, true)
 
 	resource.Test(t, resource.TestCase{
@@ -84,6 +99,10 @@ func TestAccSidecarTemplateDataSource(t *testing.T) {
 			{
 				Config: helmConfig,
 				Check:  helmFunc,
+			},
+			{
+				Config: helm3Config,
+				Check:  helm3Func,
 			},
 			{
 				Config: tfConfig,
