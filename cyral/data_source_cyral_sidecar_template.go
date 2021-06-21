@@ -119,7 +119,7 @@ func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *sch
 			data.SidecarProperty.Subnets,
 			data.SidecarProperty.PubliclyAccessible,
 		)
-	case "helm":
+	case "helm", "helm3":
 		url = fmt.Sprintf("https://%s/deploy/helm/values.yaml?sidecarId=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&SumologicHost=&SumologicUri=&",
 			controlPlane,
 			d.Get("sidecar_id").(string),
