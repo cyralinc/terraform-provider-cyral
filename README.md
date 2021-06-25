@@ -40,8 +40,8 @@ bash create-service-account-keycloak.sh
 [This script](./scripts/rotate-service-account-secret.sh) can be used to rotate secrets for existing service accounts. It can be rotated by running the command below:
 
 ```bash
-curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/rotate-service-account-secret.sh -O
-bash rotate-service-account-secret.sh
+curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/rotate-service-account-secret-keycloak.sh -O
+bash rotate-service-account-secret-keycloak.sh
 ```
 
 ## Usage
