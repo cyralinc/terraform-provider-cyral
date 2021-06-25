@@ -31,8 +31,8 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
 A `Service Account` must be created in order to use the provider. It can be created by the [script provided in the scripts folder](./scripts/create-service-account-keycloak.sh). You can run it with the command below:
 
 ```bash
-curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh -O
-bash create-service-account-keycloak.sh
+curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-keycloak-service-account.sh -O
+bash create-keycloak-service-account.sh
 ```
 
 #### Rotate Credentials
@@ -40,8 +40,8 @@ bash create-service-account-keycloak.sh
 [This script](./scripts/rotate-service-account-secret.sh) can be used to rotate secrets for existing service accounts. It can be rotated by running the command below:
 
 ```bash
-curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/rotate-service-account-secret-keycloak.sh -O
-bash rotate-service-account-secret-keycloak.sh
+curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/rotate-keycloak-service-account-secret.sh -O
+bash rotate-keycloak-service-account-secret.sh
 ```
 
 ## Usage

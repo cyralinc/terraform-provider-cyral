@@ -11,7 +11,7 @@ curl -X POST https://$CYRAL_CONTROL_PLANE:8000/v1/users/serviceAccounts/$CYRAL_C
   -H "Content-type:Application/JSON" | jq
 if [[ $? -ne 0 ]]
 then
-	echo "Error creating the service account"
+	echo "Error rotating secret"
 	exit 1
 fi
 
