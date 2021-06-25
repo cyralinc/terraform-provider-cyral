@@ -1,12 +1,11 @@
-[ ! -z ${CONTROL_PLANE+x} ] || read -p "Enter your control plane: " CONTROL_PLANE
+[ ! -z ${CYRAL_CONTROL_PLANE+x} ] || read -p "Enter control plane DNS: " CYRAL_CONTROL_PLANE
 
-[ ! -z ${TOKEN+x} ] || read -p "Enter the token gotten from the CP (use the UI or some API): " TOKEN
-HEADER="Authorization:Bearer $TOKEN"
-
+[ ! -z ${CYRAL_TOKEN+x} ] || read -p "Enter the JWT token obtained from the CP (use the UI or API): " CYRAL_TOKEN
+HEADER="Authorization:Bearer $CYRAL_TOKEN"
 
 # Get role ids necessary to run the provider
 echo "Getting role IDs..."
-ROLE_IDS=$(curl -X GET https://$CONTROL_PLANE:8000/v1/users/roles -H "$HEADER" -H "Content-type:Application/JSON" --fail --show-error)
+ROLE_IDS=$(curl -X GET https://$CYRAL_CONTROL_PLANE:8000/v1/users/roles -H "$HEADER" -H "Content-type:Application/JSON" --fail --show-error)
 if [[ $? -ne 0 ]]
 then
 	echo "Error getting the role IDs."
@@ -24,7 +23,10 @@ fi
 
 # Create/update a service account for Terraform and return the necessary parameters
 # client_id and client_secret that will be used in the provider
-curl -X POST https://$CONTROL_PLANE:8000/v1/users/serviceAccounts -d '{"displayName":"terraform","roleIds":'"$ROLE_IDS"'}' -H "$HEADER" -H "Content-type:Application/JSON" | jq
+curl -X POST https://$CYRAL_CONTROL_PLANE:8000/v1/users/serviceAccounts /
+  -d '{"displayName":"terraform","roleIds":'"$ROLE_IDS"'}' /
+  -H "$HEADER" /
+  -H "Content-type:Application/JSON" | jq
 if [[ $? -ne 0 ]]
 then
 	echo "Error creating the service account"
