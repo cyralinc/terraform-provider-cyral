@@ -23,9 +23,9 @@ fi
 
 # Create/update a service account for Terraform and return the necessary parameters
 # client_id and client_secret that will be used in the provider
-curl -X POST https://$CYRAL_CONTROL_PLANE:8000/v1/users/serviceAccounts /
-  -d '{"displayName":"terraform","roleIds":'"$ROLE_IDS"'}' /
-  -H "$HEADER" /
+curl -X POST https://$CYRAL_CONTROL_PLANE:8000/v1/users/serviceAccounts \
+  -d '{"displayName":"terraform","roleIds":'"$ROLE_IDS"'}' \
+  -H "$HEADER" \
   -H "Content-type:Application/JSON" | jq
 if [[ $? -ne 0 ]]
 then

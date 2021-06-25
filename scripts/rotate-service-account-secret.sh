@@ -6,8 +6,8 @@ HEADER="Authorization:Bearer $CYRAL_TOKEN"
 [ ! -z ${CYRAL_CLIENT_ID+x} ] || read -p "Enter the client ID for the target service account: " CYRAL_CLIENT_ID
 
 # Rotate the secret
-curl -X POST https://$CYRAL_CONTROL_PLANE:8000/v1/users/serviceAccounts/$CYRAL_CLIENT_ID/rotateSecret /
-  -H "$HEADER" /
+curl -X POST https://$CYRAL_CONTROL_PLANE:8000/v1/users/serviceAccounts/$CYRAL_CLIENT_ID/rotateSecret \
+  -H "$HEADER" \
   -H "Content-type:Application/JSON" | jq
 if [[ $? -ne 0 ]]
 then
