@@ -12,6 +12,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type integrationsData struct {
+	Id    string `json:"id"`
+	Label string `json:"label"`
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
 type SidecarTemplateData struct {
 	SidecarId string
 }
@@ -56,7 +64,17 @@ func getSidecarTemplate(d *schema.ResourceData, m interface{}) error {
 		return sidecarTypeErr
 	}
 
-	body, err := getTemplateForSidecarProperties(properties, c, d)
+	logging, err := getLogIntegrations(c, d)
+	if err != nil {
+		return err
+	}
+
+	metrics, err := getMetricsIntegrations(c, d)
+	if err != nil {
+		return err
+	}
+
+	body, err := getTemplateForSidecarProperties(properties, logging, metrics, c, d)
 	if err != nil {
 		return err
 	}
@@ -89,26 +107,87 @@ func getSidecarData(c *client.Client, d *schema.ResourceData) (*SidecarData, err
 	return &response, nil
 }
 
-func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *schema.ResourceData) ([]byte, error) {
+func getLogIntegrations(c *client.Client, d *schema.ResourceData) (*[]integrationsData, error) {
+	url := fmt.Sprintf("https://%s/integrations/logging/", removePortFromURL(c.ControlPlane))
+
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := []integrationsData{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) (*[]integrationsData, error) {
+	url := fmt.Sprintf("https://%s/integrations/metrics", removePortFromURL(c.ControlPlane))
+
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := []integrationsData{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func filterIntegrationData(integrations *[]integrationsData, id string) *integrationsData {
+	for _, it := range *integrations {
+		if it.Id == id {
+			return &it
+		}
+	}
+	return &integrationsData{
+		Id:    "id",
+		Type:  "default",
+		Value: "default",
+		Name:  "default",
+		Label: "default",
+	}
+}
+
+func getTemplateForSidecarProperties(data *SidecarData, logging *[]integrationsData, metrics *[]integrationsData, c *client.Client, d *schema.ResourceData) ([]byte, error) {
 	controlPlane := removePortFromURL(c.ControlPlane)
+
+	metric := filterIntegrationData(metrics, data.SidecarProperty.MetricsIntegrationID)
+
+	log := filterIntegrationData(logging, data.SidecarProperty.LogIntegrationID)
+
 	var url string
 	switch data.SidecarProperty.DeploymentMethod {
 	case "cloudFormation":
-		url = fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
+		url = fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&",
 			controlPlane,
 			d.Get("sidecar_id").(string),
 			data.SidecarProperty.KeyName,
 			data.Name,
 			controlPlane,
-			data.SidecarProperty.PubliclyAccessible)
+			data.SidecarProperty.PubliclyAccessible,
+			log.Type,
+			log.Value,
+			metric.Type,
+			metric.Value,
+		)
 	case "docker":
-		url = fmt.Sprintf("https://%s/deploy/docker-compose?SidecarId=%s&SidecarName=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&SplunkIndex=&SplunkHost=&SplunkPort=&SplunkTLS=&SplunkToken=&",
+		url = fmt.Sprintf("https://%s/deploy/docker-compose?SidecarId=%s&SidecarName=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&SplunkIndex=&SplunkHost=&SplunkPort=&SplunkTLS=&SplunkToken=&",
 			controlPlane,
 			d.Get("sidecar_id").(string),
 			data.Name,
+			log.Type,
+			log.Value,
+			metric.Type,
+			metric.Value,
 		)
 	case "terraform":
-		url = fmt.Sprintf("https://%s/deploy/terraform/?SidecarId=%s&AWSRegion=%s&KeyName=%s&VPC=%s&SidecarName=%s&ControlPlane=%s&PublicSubnets[]=%s&publiclyAccessible=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&",
+		url = fmt.Sprintf("https://%s/deploy/terraform/?SidecarId=%s&AWSRegion=%s&KeyName=%s&VPC=%s&SidecarName=%s&ControlPlane=%s&PublicSubnets[]=%s&publiclyAccessible=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&",
 			controlPlane,
 			d.Get("sidecar_id").(string),
 			data.SidecarProperty.AWSRegion,
@@ -118,11 +197,19 @@ func getTemplateForSidecarProperties(data *SidecarData, c *client.Client, d *sch
 			controlPlane,
 			data.SidecarProperty.Subnets,
 			data.SidecarProperty.PubliclyAccessible,
+			log.Type,
+			log.Value,
+			metric.Type,
+			metric.Value,
 		)
 	case "helm", "helm3":
-		url = fmt.Sprintf("https://%s/deploy/helm/values.yaml?sidecarId=%s&logIntegrationType=&logIntegrationValue=&metricsIntegrationType=&metricsIntegrationValue=&SumologicHost=&SumologicUri=&",
+		url = fmt.Sprintf("https://%s/deploy/helm/values.yaml?sidecarId=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&SumologicHost=&SumologicUri=&",
 			controlPlane,
 			d.Get("sidecar_id").(string),
+			log.Type,
+			log.Value,
+			metric.Type,
+			metric.Value,
 		)
 	default:
 		return nil, errors.New("invalid deployment method")
