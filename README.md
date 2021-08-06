@@ -58,8 +58,8 @@ terraform {
 }
 
 provider "cyral" {
-    auth0_domain = "some-name.auth0.com"
-    auth0_audience = "cyral-api.com"
+    client_id = "some-client-id"
+    client_secret = "some-client-secret"
     control_plane = "some-cp.cyral.com:8000"
 }
 
@@ -115,7 +115,7 @@ resource "cyral_repository_binding" "repo_binding" {
 
 resource "cyral_datamap" "my_datamap_name" {
     mapping {
-        label = "CNN"
+        label = "CCN"
         data_location {
             repo = cyral_repository.my_repo_name.name
             attributes = ["applications.customers.credit_card_number"]
