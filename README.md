@@ -160,6 +160,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Repository Binding](./doc/resource_repository_binding.md)
 - [Resource Repository Local Account](./doc/resource_repository_local_account.md)
 - [Resource Sidecar](./doc/resource_sidecar.md)
+- [Resource Sidecar Credentials](./doc/resource_sidecar_credentials.md)
 
 ## Configuration Templates
 
