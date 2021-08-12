@@ -21,5 +21,5 @@ resource "cyral_sidecar_credentials" "SOME_RESOURCE_NAME" {
 | Name            | Description                                     |
 | :-------------- | :---------------------------------------------- |
 | `id`            | Unique ID of the resource in the Control Plane. |
-| `client_id`     | Sidecar client ID.                              |
-| `client_secret` | Sidecar client Secret.                          |
+| `client_id`     | Sidecar Client ID.                              |
+| `client_secret` | Sidecar Client Secret encoded using base 64     |
