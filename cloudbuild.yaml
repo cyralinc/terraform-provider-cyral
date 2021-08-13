@@ -24,7 +24,8 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
-      - '--build-arg VERSION=$(cat /workspace/version.txt)'
+      - '--build-arg'
+      - 'VERSION=$(cat /workspace/version.txt)'
       - '--tag=gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID'
       - '.'
     id: 'docker-build'
