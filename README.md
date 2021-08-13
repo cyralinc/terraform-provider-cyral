@@ -180,6 +180,19 @@ In order to build and distribute this provider, follow the steps below:
 
  2. Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and 14.
 
+Alternatively, you can use the dockerfile to build the image using `make docker-compose/build`
+
+To use the local provider, the module must be configured to use the local provider path as follows:
+```hcl
+terraform {
+  required_providers {
+    cyral = {
+      source = "local/terraform/cyral"
+    }
+  }
+}
+```
+
 ## Test Instructions
 
 The test framework requires basic configuration before it can be executed as follows:
