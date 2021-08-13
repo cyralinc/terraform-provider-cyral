@@ -3,5 +3,6 @@ docker-compose.yaml
 Makefile
 README.md
 CHANGELOG.md
-out
+out/
 Dockerfile
+cloudbuild.*
