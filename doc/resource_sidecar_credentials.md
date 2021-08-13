@@ -10,6 +10,12 @@ resource "cyral_sidecar_credentials" "SOME_RESOURCE_NAME" {
 }
 ```
 
+Consider using a remote backend to encrypt the state of this resource if it sounds appropriate.
+
+## See also
+
+- [Remote Backends](https://www.terraform.io/docs/language/settings/backends/remote.html)
+
 ## Variables
 
 | Name         | Default | Description                                                | Required |
@@ -22,4 +28,4 @@ resource "cyral_sidecar_credentials" "SOME_RESOURCE_NAME" {
 | :-------------- | :---------------------------------------------- |
 | `id`            | Unique ID of the resource in the Control Plane. |
 | `client_id`     | Sidecar Client ID.                              |
-| `client_secret` | Sidecar Client Secret encoded using base 64     |
+| `client_secret` | Sidecar Client Secret.                          |

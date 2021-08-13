@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -71,11 +70,9 @@ func resourceSidecarCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	encodedClientSecret := base64.StdEncoding.EncodeToString([]byte(response.ClientSecret))
-
 	d.SetId(response.ClientID)
 	d.Set("client_id", response.ClientID)
-	d.Set("client_secret", encodedClientSecret)
+	d.Set("client_secret", response.ClientSecret)
 
 	return resourceSidecarCredentialsRead(ctx, d, m)
 }
