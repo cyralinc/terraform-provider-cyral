@@ -1,0 +1,17 @@
+steps:
+  # Run docker linter
+  - name: 'hadolint/hadolint:v2.5.0'
+    args:
+      - hadolint
+      - Dockerfile
+    id: 'docker-lint'
+
+  # Build container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '--tag=gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID', '.']
+    id: 'docker-build'
+
+timeout: 1800s
+
+# List of artifacts
+images: ['gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID']
