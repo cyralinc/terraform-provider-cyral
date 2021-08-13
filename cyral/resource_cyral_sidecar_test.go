@@ -83,8 +83,8 @@ func setupSidecarTest(integrationData SidecarData, includeAWSSection bool) (stri
 	configuration := formatSidecarDataIntoConfig(integrationData, includeAWSSection)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_sidecar.test_repo_binding_sidecar", "name", integrationData.Name),
-		resource.TestCheckResourceAttr("cyral_sidecar.test_repo_binding_sidecar", "deployment_method", integrationData.SidecarProperty.DeploymentMethod),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "name", integrationData.Name),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "deployment_method", integrationData.SidecarProperty.DeploymentMethod),
 	)
 
 	return configuration, testFunction
@@ -93,7 +93,7 @@ func setupSidecarTest(integrationData SidecarData, includeAWSSection bool) (stri
 func formatSidecarDataIntoConfig(data SidecarData, includeAWSSection bool) string {
 	if includeAWSSection {
 		return fmt.Sprintf(`
-	resource "cyral_sidecar" "test_repo_binding_sidecar" {
+	resource "cyral_sidecar" "test_sidecar" {
 		name = "%s"
 		deployment_method = "%s"
 		aws_configuration {
@@ -109,7 +109,7 @@ func formatSidecarDataIntoConfig(data SidecarData, includeAWSSection bool) strin
 			data.SidecarProperty.Subnets)
 	}
 	return fmt.Sprintf(`
-      resource "cyral_sidecar" "test_repo_binding_sidecar" {
+      resource "cyral_sidecar" "test_sidecar" {
       	name = "%s"
       	deployment_method = "%s"
       }`, data.Name, data.SidecarProperty.DeploymentMethod)
