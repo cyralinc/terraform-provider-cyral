@@ -12,7 +12,8 @@ steps:
     args:
     - "-c"
     - |
-      tag=$(git tag --sort v:refname | tail -n1 | sed 's/v//g')
+      # tag=$(git tag --sort v:refname | tail -n1 | sed 's/v//g') # Cloudbuild does not upload .git directory
+      tag=0.0.1
       commitID=${SHORT_SHA:-dirty}
       version="$tag+$commitID"
       echo $version > /workspace/version.txt
