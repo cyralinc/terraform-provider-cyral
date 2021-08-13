@@ -8,8 +8,14 @@ steps:
 
   # Build container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--tag=gcr.io/$PROJECT_ID/cyral-terraform-provider:$TAG_NAME', '.']
+    args:
+      - 'build'
+      - '--build-arg VERSION=$TAG_NAME'
+      - '--tag=gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID'
+      - '.'
     id: 'docker-build'
+    env:
+    - 'TAG_NAME=$TAG_NAME'
 
 timeout: 1800s
 
