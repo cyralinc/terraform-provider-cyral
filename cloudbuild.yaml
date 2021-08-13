@@ -26,12 +26,7 @@ steps:
     args:
       - "-c"
       - |
-        docker
-        build
-        --build-arg
-        VERSION=$(cat /workspace/version.txt)
-        --tag=gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID
-        .
+        docker build --build-arg VERSION=$(cat /workspace/version.txt) --tag=gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID .
     id: 'docker-build'
 
 timeout: 1800s
