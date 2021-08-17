@@ -6,34 +6,28 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateSidecarResponse struct {
-	ID        string `json:"ID"`
-	AccessKey string `json:"accessKey"`
-}
-
 type SidecarData struct {
-	ID              string          `json:"id"`
 	Name            string          `json:"name"`
+	Tags            []string        `json:"labels"`
 	SidecarProperty SidecarProperty `json:"properties"`
 }
 
 type SidecarProperty struct {
-	DeploymentMethod     string `json:"deploymentMethod"`
-	AWSRegion            string `json:"awsRegion"`
-	KeyName              string `json:"keyName"`
-	VPC                  string `json:"vpc"`
-	Subnets              string `json:"publicSubnets"`
-	PubliclyAccessible   string `json:"publiclyAccessible"`
-	MetricsIntegrationID string `json:"metricsIntegrationID"`
-	LogIntegrationID     string `json:"logIntegrationID"`
+	DeploymentMethod string `json:"deploymentMethod"`
 }
+
+type CreateSidecarResponse struct {
+	SidecarID string `json:"ID"`
+}
+
+const deploymentPrefix = "deploymentMethod:"
 
 func resourceSidecar() *schema.Resource {
 	return &schema.Resource{
@@ -47,46 +41,11 @@ func resourceSidecar() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"deployment_method": {
-				Type:     schema.TypeString,
+			"tags": {
+				Type:     schema.TypeList,
 				Required: true,
-			},
-			"log_integration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
-			},
-			"metrics_integration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
-			},
-			"aws_configuration": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"key_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"aws_region": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"vpc": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"subnets": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"publicly_accessible": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-					},
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 		},
@@ -118,7 +77,7 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	d.SetId(response.ID)
+	d.SetId(response.SidecarID)
 
 	return resourceSidecarRead(ctx, d, m)
 }
@@ -137,37 +96,14 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	response := SidecarData{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
+		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
+	deploymentTag := fmt.Sprintf("%s%s", deploymentPrefix, response.SidecarProperty.DeploymentMethod)
 	d.Set("name", response.Name)
-	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
-	d.Set("log_integration_id", response.SidecarProperty.LogIntegrationID)
-	d.Set("metrics_integration_id", response.SidecarProperty.MetricsIntegrationID)
-	awsConfiguration := make([]map[string]interface{}, 0)
-	ac := make(map[string]interface{})
-	if response.SidecarProperty.KeyName != "" {
-		ac["key_name"] = response.SidecarProperty.KeyName
-	}
-	if response.SidecarProperty.AWSRegion != "" {
-		ac["aws_region"] = response.SidecarProperty.AWSRegion
-	}
-	if response.SidecarProperty.VPC != "" {
-		ac["vpc"] = response.SidecarProperty.VPC
-	}
-	if response.SidecarProperty.Subnets != "" {
-		ac["subnets"] = response.SidecarProperty.Subnets
-	}
-	if response.SidecarProperty.PubliclyAccessible != "" {
-		if p, err := strconv.ParseBool(response.SidecarProperty.PubliclyAccessible); err == nil {
-			ac["publicly_accessible"] = p
-		}
-	}
-	if len(ac) > 0 {
-		awsConfiguration = append(awsConfiguration, ac)
-	}
-	d.Set("aws_configuration", awsConfiguration)
+	d.Set("tags", append([]string{deploymentTag}, response.Tags...))
+
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
 	return diag.Diagnostics{}
@@ -209,46 +145,28 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (SidecarData, error) {
-	deploymentMethod := d.Get("deployment_method").(string)
+	var sidecarData SidecarData
+	sidecarData.Name = d.Get("name").(string)
+
+	var deploymentMethod string
+
+	tags := d.Get("tags").([]interface{})
+	for _, tag := range tags {
+		tag := (tag).(string)
+		if strings.Contains(tag, deploymentPrefix) {
+			deploymentMethod = tag[len(deploymentPrefix):]
+		} else {
+			sidecarData.Tags = append(sidecarData.Tags, tag)
+		}
+	}
+
 	if err := client.ValidateDeploymentMethod(deploymentMethod); err != nil {
 		return SidecarData{}, err
 	}
 
-	sp := SidecarProperty{
-		DeploymentMethod:     deploymentMethod,
-		LogIntegrationID:     d.Get("log_integration_id").(string),
-		MetricsIntegrationID: d.Get("metrics_integration_id").(string),
+	sidecarData.SidecarProperty = SidecarProperty{
+		DeploymentMethod: deploymentMethod,
 	}
 
-	if v, ok := d.GetOk("aws_configuration"); ok {
-		vL := v.(*schema.Set).List()
-		for _, v := range vL {
-			configMap := v.(map[string]interface{})
-			if v, ok := configMap["key_name"].(string); ok && v != "" {
-				sp.KeyName = v
-			}
-			if v, ok := configMap["vpc"].(string); ok && v != "" {
-				sp.VPC = v
-			}
-			if v, ok := configMap["subnets"].(string); ok && v != "" {
-				sp.Subnets = v
-			}
-			if v, ok := configMap["publicly_accessible"].(bool); ok {
-				sp.PubliclyAccessible = strconv.FormatBool(v)
-			}
-			if v, ok := configMap["aws_region"].(string); ok && v != "" {
-				if err := client.ValidateAWSRegion(v); err != nil {
-					return SidecarData{}, err
-				}
-				sp.AWSRegion = v
-			}
-		}
-
-	}
-
-	return SidecarData{
-		ID:              d.Id(),
-		Name:            d.Get("name").(string),
-		SidecarProperty: sp,
-	}, nil
+	return sidecarData, nil
 }
