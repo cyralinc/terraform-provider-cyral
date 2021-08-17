@@ -27,7 +27,7 @@ type CreateSidecarResponse struct {
 	SidecarID string `json:"ID"`
 }
 
-const deploymentPrefix = "deploymentMethod:"
+const DeploymentPrefix = "deploymentMethod:"
 
 func resourceSidecar() *schema.Resource {
 	return &schema.Resource{
@@ -100,7 +100,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	deploymentTag := fmt.Sprintf("%s%s", deploymentPrefix, response.SidecarProperty.DeploymentMethod)
+	deploymentTag := fmt.Sprintf("%s%s", DeploymentPrefix, response.SidecarProperty.DeploymentMethod)
 	d.Set("name", response.Name)
 	d.Set("tags", append([]string{deploymentTag}, response.Tags...))
 
@@ -153,8 +153,8 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (Sidec
 	tags := d.Get("tags").([]interface{})
 	for _, tag := range tags {
 		tag := (tag).(string)
-		if strings.Contains(tag, deploymentPrefix) {
-			deploymentMethod = tag[len(deploymentPrefix):]
+		if strings.Contains(tag, DeploymentPrefix) {
+			deploymentMethod = tag[len(DeploymentPrefix):]
 		} else {
 			sidecarData.Tags = append(sidecarData.Tags, tag)
 		}
