@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
@@ -20,26 +21,42 @@ type integrationsData struct {
 	Value string `json:"value"`
 }
 
-type SidecarTemplateData struct {
-	SidecarId string
-}
+const CloudFormationDeploymentMethod = "cloudFormation"
 
-func (data SidecarTemplateData) WriteToSchema(d *schema.ResourceData) {
-	data.SidecarId = d.Get("sidecar_id").(string)
-	d.SetId(data.SidecarId)
-}
-
-func (data *SidecarTemplateData) ReadFromSchema(d *schema.ResourceData) {
-	data.SidecarId = d.Id()
-}
-
-func dataSourceSidecarTemplate() *schema.Resource {
+func dataSourceSidecarCftTemplate() *schema.Resource {
 	return &schema.Resource{
-		Read: getSidecarTemplate,
+		Read: getSidecarCftTemplate,
 		Schema: map[string]*schema.Schema{
 			"sidecar_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"log_integration_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "default",
+			},
+			"metrics_integration_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "default",
+			},
+			"aws_configuration": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"publicly_accessible": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"key_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "",
+						},
+					},
+				},
 			},
 			"template": {
 				Type:     schema.TypeString,
@@ -53,13 +70,13 @@ func dataSourceSidecarTemplate() *schema.Resource {
 	}
 }
 
-func getSidecarTemplate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] Init Get Sidecar Template")
+func getSidecarCftTemplate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] Init Get Sidecar CFT Template")
 	c := m.(*client.Client)
 
 	sidecarId := d.Get("sidecar_id").(string)
 
-	properties, sidecarTypeErr := getSidecarData(c, d)
+	sidecarData, sidecarTypeErr := getSidecarData(c, d)
 	if sidecarTypeErr != nil {
 		return sidecarTypeErr
 	}
@@ -74,7 +91,7 @@ func getSidecarTemplate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	body, err := getTemplateForSidecarProperties(properties, logging, metrics, c, d)
+	body, err := getTemplateForSidecarProperties(sidecarData, logging, metrics, c, d)
 	if err != nil {
 		return err
 	}
@@ -82,7 +99,7 @@ func getSidecarTemplate(d *schema.ResourceData, m interface{}) error {
 	d.SetId(sidecarId)
 	d.Set("template", string(body))
 
-	log.Printf("[DEBUG] End Init Get Sidecar Template")
+	log.Printf("[DEBUG] End Get Sidecar CFT Template")
 
 	return nil
 }
@@ -154,65 +171,48 @@ func filterIntegrationData(integrations *[]integrationsData, id string) *integra
 	}
 }
 
-func getTemplateForSidecarProperties(data *SidecarData, logging *[]integrationsData, metrics *[]integrationsData, c *client.Client, d *schema.ResourceData) ([]byte, error) {
+func getTemplateForSidecarProperties(sidecarData *SidecarData, logging *[]integrationsData, metrics *[]integrationsData, c *client.Client, d *schema.ResourceData) ([]byte, error) {
 	controlPlane := removePortFromURL(c.ControlPlane)
 
-	metric := filterIntegrationData(metrics, data.SidecarProperty.MetricsIntegrationID)
+	logIntegrationID := d.Get("log_integration_id").(string)
+	log := filterIntegrationData(logging, logIntegrationID)
 
-	log := filterIntegrationData(logging, data.SidecarProperty.LogIntegrationID)
+	metricsIntegrationID := d.Get("metrics_integration_id").(string)
+	metric := filterIntegrationData(metrics, metricsIntegrationID)
 
 	var url string
-	switch data.SidecarProperty.DeploymentMethod {
-	case "cloudFormation":
+
+	var keyName string
+	var publiclyAccessible string
+
+	awsConfig := d.Get("aws_configuration").(*schema.Set).List()
+	for _, config := range awsConfig {
+		config := config.(map[string]interface{})
+
+		if v, ok := config["key_name"].(string); ok {
+			keyName = v
+		}
+		if v, ok := config["publicly_accessible"].(bool); ok {
+			publiclyAccessible = strconv.FormatBool(v)
+		}
+	}
+
+	if sidecarData.SidecarProperty.DeploymentMethod == CloudFormationDeploymentMethod {
 		url = fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&",
 			controlPlane,
 			d.Get("sidecar_id").(string),
-			data.SidecarProperty.KeyName,
-			data.Name,
+			keyName,
+			sidecarData.Name,
 			controlPlane,
-			data.SidecarProperty.PubliclyAccessible,
+			publiclyAccessible,
 			log.Type,
 			log.Value,
 			metric.Type,
 			metric.Value,
 		)
-	case "docker":
-		url = fmt.Sprintf("https://%s/deploy/docker-compose?SidecarId=%s&SidecarName=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&SplunkIndex=&SplunkHost=&SplunkPort=&SplunkTLS=&SplunkToken=&",
-			controlPlane,
-			d.Get("sidecar_id").(string),
-			data.Name,
-			log.Type,
-			log.Value,
-			metric.Type,
-			metric.Value,
-		)
-	case "terraform":
-		url = fmt.Sprintf("https://%s/deploy/terraform/?SidecarId=%s&AWSRegion=%s&KeyName=%s&VPC=%s&SidecarName=%s&ControlPlane=%s&PublicSubnets[]=%s&publiclyAccessible=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&",
-			controlPlane,
-			d.Get("sidecar_id").(string),
-			data.SidecarProperty.AWSRegion,
-			data.SidecarProperty.KeyName,
-			data.SidecarProperty.VPC,
-			data.Name,
-			controlPlane,
-			data.SidecarProperty.Subnets,
-			data.SidecarProperty.PubliclyAccessible,
-			log.Type,
-			log.Value,
-			metric.Type,
-			metric.Value,
-		)
-	case "helm", "helm3":
-		url = fmt.Sprintf("https://%s/deploy/helm/values.yaml?sidecarId=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&SumologicHost=&SumologicUri=&",
-			controlPlane,
-			d.Get("sidecar_id").(string),
-			log.Type,
-			log.Value,
-			metric.Type,
-			metric.Value,
-		)
-	default:
-		return nil, errors.New("invalid deployment method")
+	} else {
+		return nil, errors.New("invalid deployment method, only cloudFormation is supported")
 	}
+
 	return c.DoRequest(url, http.MethodGet, nil)
 }
