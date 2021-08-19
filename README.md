@@ -90,16 +90,7 @@ resource "cyral_integration_datadog" "datadog" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    deployment_method = "cloudFormation"
-    log_integration = cyral_integration_elk.elk.id
-    metrics_integration_id = cyral_integration_datadog.datadog.id
-    aws_configuration {
-        publicly_accessible = false
-        aws_region = "us-east-1"
-        key_name = "ec2-key-name"
-        vpc = "vpc-id"
-        subnets = "subnetid1,subnetid2,subnetidN"
-    }
+    tags = ["deploymentMethod:cloudFormation", "someTag1", "someTag2"]
 }
 
 resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
@@ -121,7 +112,7 @@ resource "cyral_datamap" "my_datamap_name" {
     mapping {
         label = "CCN"
         data_location {
-            repo = cyral_repository.my_repo_name.name
+            repo = cyral_repository.mongodb_repo.name
             attributes = ["applications.customers.credit_card_number"]
         }
     }
@@ -142,7 +133,7 @@ terraform import cyral_repository.my_resource_name myrepo
 
 ## Supported Elements
 - [Data Source SAML Certificate](./doc/data_source_saml_certificate.md)
-- [Data Source Sidecar Template](./doc/data_source_sidecar_template.md)
+- [Data Source Sidecar CFT Template](./doc/data_source_sidecar_cft_template.md)
 - [Provider](./doc/provider.md)
 - [Resource Datamap](./doc/resource_datamap.md)
 - [Resource Identity Map](./doc/resource_identity_map.md)
