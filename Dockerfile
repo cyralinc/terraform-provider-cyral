@@ -1,4 +1,4 @@
-FROM hashicorp/terraform:1.0.4 as terraform
+FROM hashicorp/terraform:1.0.5 as terraform
 
 FROM golang:1.14.15-alpine3.13 AS build
 WORKDIR /go/src/cyral
