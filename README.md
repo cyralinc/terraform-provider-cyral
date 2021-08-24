@@ -21,7 +21,7 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
     2. Select the API `https://cyral-api.com`;
     3. Select scopes: `read:users`;
     4. Finish the creation by clicking `Authorize`;
-3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./doc/provider.md) documentation how to set those two parameters.
+3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./docs/provider.md) documentation how to set those two parameters.
 
 ### Keycloak
 
@@ -137,35 +137,35 @@ terraform import cyral_repository.my_resource_name myrepo
 ```
 
 ## Supported Elements
-- [Data Source SAML Certificate](./doc/data_source_saml_certificate.md)
-- [Data Source Sidecar Template](./doc/data_source_sidecar_template.md)
-- [Provider](./doc/provider.md)
-- [Resource Datamap](./doc/resource_datamap.md)
-- [Resource Identity Map](./doc/resource_identity_map.md)
-- [Resource Integration Datadog](./doc/resource_integration_datadog.md)
-- [Resource Integration ELK](./doc/resource_integration_elk.md)
-- [Resource Integration Hashicorp Vault](./doc/resource_integration_hc_vault.md)
-- [Resource Integration Logstash](./doc/resource_integration_logstash.md)
-- [Resource Integration Looker](./doc/resource_integration_looker.md)
-- [Resource Integration Okta](./doc/resource_integration_okta.md)
-- [Resource Integration Microsoft Teams](./doc/resource_integration_microsoft_teams.md)
-- [Resource Integration Pager Duty](./doc/resource_integration_pager_duty.md)
-- [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
-- [Resource Integration Splunk](./doc/resource_integration_splunk.md)
-- [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
-- [Resource Policy](./doc/resource_policy.md)
-- [Resource Policy Rule](./doc/resource_policy_rule.md)
-- [Resource Repository](./doc/resource_repository.md)
-- [Resource Repository Authentication Configuration](./doc/resource_repository_conf_auth.md)
-- [Resource Repository Binding](./doc/resource_repository_binding.md)
-- [Resource Repository Local Account](./doc/resource_repository_local_account.md)
-- [Resource Sidecar](./doc/resource_sidecar.md)
+- [Data Source SAML Certificate](./docs/data_source_saml_certificate.md)
+- [Data Source Sidecar Template](./docs/data_source_sidecar_template.md)
+- [Provider](./docs/provider.md)
+- [Resource Datamap](./docs/resource_datamap.md)
+- [Resource Identity Map](./docs/resource_identity_map.md)
+- [Resource Integration Datadog](./docs/resource_integration_datadog.md)
+- [Resource Integration ELK](./docs/resource_integration_elk.md)
+- [Resource Integration Hashicorp Vault](./docs/resource_integration_hc_vault.md)
+- [Resource Integration Logstash](./docs/resource_integration_logstash.md)
+- [Resource Integration Looker](./docs/resource_integration_looker.md)
+- [Resource Integration Okta](./docs/resource_integration_okta.md)
+- [Resource Integration Microsoft Teams](./docs/resource_integration_microsoft_teams.md)
+- [Resource Integration Pager Duty](./docs/resource_integration_pager_duty.md)
+- [Resource Integration Slack Alerts](./docs/resource_integration_slack_alerts.md)
+- [Resource Integration Splunk](./docs/resource_integration_splunk.md)
+- [Resource Integration Sumo Logic](./docs/resource_integration_sumo_logic.md)
+- [Resource Policy](./docs/resource_policy.md)
+- [Resource Policy Rule](./docs/resource_policy_rule.md)
+- [Resource Repository](./docs/resource_repository.md)
+- [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
+- [Resource Repository Binding](./docs/resource_repository_binding.md)
+- [Resource Repository Local Account](./docs/resource_repository_local_account.md)
+- [Resource Sidecar](./docs/resource_sidecar.md)
 
 ## Configuration Templates
 
 See below a list of configuration templates that can be used to deploy some predefined scenarios:
 
-- [Add native repository credentials to AWS Secrets Manager](./doc/templates/native_credentials_aws_sm.md)
+- [Add native repository credentials to AWS Secrets Manager](./docs/templates/native_credentials_aws_sm.md)
 
 
 ## Prerequisites
