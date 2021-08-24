@@ -1,0 +1,36 @@
+steps:
+  # Run docker linter
+  - name: 'hadolint/hadolint:v2.5.0'
+    args:
+      - hadolint
+      - Dockerfile
+    id: 'docker-lint'
+
+  # Generate terraform version
+  - name: "gcr.io/cloud-builders/gsutil"
+    entrypoint: "bash"
+    args:
+    - "-c"
+    - |
+      # tag=$(git tag --sort v:refname | tail -n1 | sed 's/v//g') # Cloudbuild does not upload .git directory
+      tag=0.0.1
+      commitID=${SHORT_SHA:-dirty}
+      version="$tag+$commitID"
+      echo $version > /workspace/version.txt
+    env:
+    - 'SHORT_SHA=$SHORT_SHA'
+    id: "generate-terraform-version"
+
+  # Build container image
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        docker build --build-arg VERSION=$(cat /workspace/version.txt) --tag=gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID .
+    id: 'docker-build'
+
+timeout: 1800s
+
+# List of artifacts
+images: ['gcr.io/$PROJECT_ID/cyral-terraform-provider:$BUILD_ID']
