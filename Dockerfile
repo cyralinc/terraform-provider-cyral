@@ -1,4 +1,4 @@
-FROM hashicorp/terraform:1.0.4 as terraform
+FROM hashicorp/terraform:1.0.5 as terraform
 
 FROM golang:1.14.15-alpine3.13 AS build
 WORKDIR /go/src/cyral
@@ -6,7 +6,7 @@ RUN apk add --no-cache build-base=0.5-r2
 COPY main.go go.mod go.sum ./
 COPY client/ client/
 COPY cyral/ cyral/
-COPY doc/ doc/
+COPY docs/ docs/
 COPY scripts/ scripts/
 RUN gofmt -w . \
     && go test ./... -race \
