@@ -23,8 +23,25 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
     4. Finish the creation by clicking `Authorize`;
 3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./docs/provider.md) documentation how to set those two parameters.
 
-### Keycloak
+### Keycloak (Control planes from v2.22 onwards)
 
+#### New Credentials
+
+A `Service Account` must be created in order to use the provider. It can be created through the control plane UI, accessing the `Service accounts` section in the left menu and clicking on the `+` button. Choose a name for the new service account and select the following roles so you can use all the provider functions:
+
+<img src="docs/images/create_service_account.png">
+
+Confirm the account creation by clicking on the `CREATE` button. This will generate a `Client ID` and a `Client Secret` that should be used in the [provider configuration](./docs/provider.md).
+
+#### Rotate Credentials
+
+To rotate secrets for existing service accounts, select a specific service account in the UI, and then click on the button `ROTATE CLIENT SECRET` as the image below suggests:
+
+<img src="docs/images/rotate_client_secret.png">
+
+That will generate a new `Client Secret` that you can copy and use to replace the old one.
+
+### Keycloak (Control planes up to v2.22)
 
 #### New Credentials
 
