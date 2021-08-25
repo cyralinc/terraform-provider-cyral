@@ -126,7 +126,7 @@ func setupSidecarTemplateTest(integrationData SidecarData, includeAWSSection boo
 func formatSidecarTemplateDataIntoConfig() string {
 	return `
 	data "cyral_sidecar_template" "test_template" {
-		sidecar_id = cyral_sidecar.test_repo_binding_sidecar.id
+		sidecar_id = cyral_sidecar.test_sidecar.id
 	}
 	output "ret_template" {
 	    value = data.cyral_sidecar_template.test_template.template
