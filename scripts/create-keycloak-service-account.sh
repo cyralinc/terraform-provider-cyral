@@ -12,7 +12,7 @@ then
 	exit 1
 fi
 
-ROLE_IDS=$(echo $ROLE_IDS | jq '[.roles | map(select(.name | contains("Modify Integrations", "Modify Policies", "Modify Roles","Modify Sidecars and Repositories", "View Sidecars and Repositories"))) | .[].id]' -c)
+ROLE_IDS=$(echo $ROLE_IDS | jq '[.roles | map(select(.name | contains("Modify Integrations", "Modify Policies", "Modify Roles","Modify Sidecars and Repositories", "View Sidecars and Repositories", "Modify Users"))) | .[].id]' -c)
 
 if [[ $? -ne 0 ]]
 then

@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,59 +10,61 @@ import (
 
 var initialSidecarConfig SidecarData = SidecarData{
 	Name: "sidecar-test",
+	Tags: []string{"tag1", "tag2"},
 	SidecarProperty: SidecarProperty{
-		DeploymentMethod:     "cloudFormation",
-		AWSRegion:            "us-east-1",
-		KeyName:              "myEC2Key",
-		VPC:                  "vpc-123456",
-		Subnets:              "subnet-123456,subnet-789101",
-		PubliclyAccessible:   "true",
-		MetricsIntegrationID: "default",
-		LogIntegrationID:     "default",
+		DeploymentMethod: "cloudFormation",
+	},
+}
+
+var updatedSidecarConfigTags SidecarData = SidecarData{
+	Name: "sidecar-test-updated",
+	Tags: []string{"tag1", "tag2-modified", "tag3"},
+	SidecarProperty: SidecarProperty{
+		DeploymentMethod: "cloudFormation",
 	},
 }
 
 var updatedSidecarConfigDocker SidecarData = SidecarData{
-	Name: "sidecar-updated-test",
+	Name: "sidecar-test-updated",
+	Tags: []string{"tag1", "tag2"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "docker",
 	},
 }
 
 var updatedSidecarConfigHelm SidecarData = SidecarData{
-	Name: "sidecar-updated-test",
+	Name: "sidecar-test-updated",
+	Tags: []string{"tag1", "tag2"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "helm",
 	},
 }
 
 var updatedSidecarConfigTF SidecarData = SidecarData{
-	Name: "sidecar-updated-test",
+	Name: "sidecar-test-updated",
+	Tags: []string{"tag1", "tag2"},
 	SidecarProperty: SidecarProperty{
-		DeploymentMethod:     "terraform",
-		AWSRegion:            "us-west-1",
-		KeyName:              "myEC2Key-updated",
-		VPC:                  "vpc-123456789",
-		Subnets:              "subnet-123456789,subnet-789101112",
-		PubliclyAccessible:   "false",
-		MetricsIntegrationID: "",
-		LogIntegrationID:     "",
+		DeploymentMethod: "terraform",
 	},
 }
 
 func TestAccSidecarResource(t *testing.T) {
-	testConfig, testFunc := setupSidecarTest(initialSidecarConfig, true)
-	testUpdateConfigDocker, testUpdateFuncDocker := setupSidecarTest(updatedSidecarConfigDocker, false)
-	testUpdateConfigHelm, testUpdateFuncHelm := setupSidecarTest(updatedSidecarConfigHelm, false)
-	testUpdateConfigTF, testUpdateFuncTF := setupSidecarTest(updatedSidecarConfigTF, true)
+	testConfig, testFunc := setupSidecarTest(initialSidecarConfig)
+	testUpdateConfigTags, testUpdateFuncTags := setupSidecarTest(updatedSidecarConfigTags)
+	testUpdateConfigDocker, testUpdateFuncDocker := setupSidecarTest(updatedSidecarConfigDocker)
+	testUpdateConfigHelm, testUpdateFuncHelm := setupSidecarTest(updatedSidecarConfigHelm)
+	testUpdateConfigTF, testUpdateFuncTF := setupSidecarTest(updatedSidecarConfigTF)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
-		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
 				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfigTags,
+				Check:  testUpdateFuncTags,
 			},
 			{
 				Config: testUpdateConfigDocker,
@@ -79,38 +82,29 @@ func TestAccSidecarResource(t *testing.T) {
 	})
 }
 
-func setupSidecarTest(integrationData SidecarData, includeAWSSection bool) (string, resource.TestCheckFunc) {
-	configuration := formatSidecarDataIntoConfig(integrationData, includeAWSSection)
+func setupSidecarTest(sidecarData SidecarData) (string, resource.TestCheckFunc) {
+	deploymentTag := fmt.Sprintf("%s%s", DeploymentPrefix, sidecarData.SidecarProperty.DeploymentMethod)
+	tags := append([]string{deploymentTag}, sidecarData.Tags...)
+
+	configuration := formatSidecarDataIntoConfig(sidecarData.Name, tags)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_sidecar.test_repo_binding_sidecar", "name", integrationData.Name),
-		resource.TestCheckResourceAttr("cyral_sidecar.test_repo_binding_sidecar", "deployment_method", integrationData.SidecarProperty.DeploymentMethod),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "name", sidecarData.Name),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "tags.0", deploymentTag),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "tags.#", fmt.Sprintf("%d", len(tags))),
 	)
 
 	return configuration, testFunction
 }
 
-func formatSidecarDataIntoConfig(data SidecarData, includeAWSSection bool) string {
-	if includeAWSSection {
-		return fmt.Sprintf(`
-	resource "cyral_sidecar" "test_repo_binding_sidecar" {
-		name = "%s"
-		deployment_method = "%s"
-		aws_configuration {
-			publicly_accessible = %s
-			aws_region = "%s"
-			key_name = "%s"
-			vpc = "%s"
-			subnets = "%s"
-		}
-	}`, data.Name, data.SidecarProperty.DeploymentMethod,
-			data.SidecarProperty.PubliclyAccessible, data.SidecarProperty.AWSRegion,
-			data.SidecarProperty.KeyName, data.SidecarProperty.VPC,
-			data.SidecarProperty.Subnets)
-	}
+func formatSidecarDataIntoConfig(name string, tags []string) string {
 	return fmt.Sprintf(`
-      resource "cyral_sidecar" "test_repo_binding_sidecar" {
+      resource "cyral_sidecar" "test_sidecar" {
       	name = "%s"
-      	deployment_method = "%s"
-      }`, data.Name, data.SidecarProperty.DeploymentMethod)
+				tags = %s
+      }`, name, formatSidecarTags(tags))
+}
+
+func formatSidecarTags(tags []string) string {
+	return fmt.Sprintf("[\"%s\"]", strings.Join(tags, "\", \""))
 }

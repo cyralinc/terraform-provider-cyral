@@ -78,8 +78,8 @@ func Provider() *schema.Provider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"cyral_saml_certificate": dataSourceSAMLCertificate(),
-			"cyral_sidecar_template": dataSourceSidecarTemplate(),
+			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
+			"cyral_sidecar_cft_template": dataSourceSidecarCftTemplate(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -103,6 +103,7 @@ func Provider() *schema.Provider {
 			"cyral_repository_local_account":    resourceRepositoryLocalAccount(),
 			"cyral_repository_binding":          resourceRepositoryBinding(),
 			"cyral_sidecar":                     resourceSidecar(),
+			"cyral_sidecar_credentials":         resourceSidecarCredentials(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
