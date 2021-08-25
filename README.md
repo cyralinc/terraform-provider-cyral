@@ -21,7 +21,7 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
     2. Select the API `https://cyral-api.com`;
     3. Select scopes: `read:users`;
     4. Finish the creation by clicking `Authorize`;
-3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./doc/provider.md) documentation how to set those two parameters.
+3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./docs/provider.md) documentation how to set those two parameters.
 
 ### Keycloak
 
@@ -141,36 +141,36 @@ terraform import cyral_repository.my_resource_name myrepo
 ```
 
 ## Supported Elements
-- [Data Source SAML Certificate](./doc/data_source_saml_certificate.md)
-- [Data Source Sidecar Template](./doc/data_source_sidecar_template.md)
-- [Provider](./doc/provider.md)
-- [Resource Datamap](./doc/resource_datamap.md)
-- [Resource Identity Map](./doc/resource_identity_map.md)
-- [Resource Integration Datadog](./doc/resource_integration_datadog.md)
-- [Resource Integration ELK](./doc/resource_integration_elk.md)
-- [Resource Integration Hashicorp Vault](./doc/resource_integration_hc_vault.md)
-- [Resource Integration Logstash](./doc/resource_integration_logstash.md)
-- [Resource Integration Looker](./doc/resource_integration_looker.md)
-- [Resource Integration Okta](./doc/resource_integration_okta.md)
-- [Resource Integration Microsoft Teams](./doc/resource_integration_microsoft_teams.md)
-- [Resource Integration Pager Duty](./doc/resource_integration_pager_duty.md)
-- [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
-- [Resource Integration Splunk](./doc/resource_integration_splunk.md)
-- [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
-- [Resource Policy](./doc/resource_policy.md)
-- [Resource Policy Rule](./doc/resource_policy_rule.md)
-- [Resource Repository](./doc/resource_repository.md)
-- [Resource Repository Authentication Configuration](./doc/resource_repository_conf_auth.md)
-- [Resource Repository Binding](./doc/resource_repository_binding.md)
-- [Resource Repository Local Account](./doc/resource_repository_local_account.md)
-- [Resource Sidecar](./doc/resource_sidecar.md)
-- [Resource Sidecar Credentials](./doc/resource_sidecar_credentials.md)
+- [Data Source SAML Certificate](./docs/data_source_saml_certificate.md)
+- [Data Source Sidecar Template](./docs/data_source_sidecar_template.md)
+- [Provider](./docs/provider.md)
+- [Resource Datamap](./docs/resource_datamap.md)
+- [Resource Identity Map](./docs/resource_identity_map.md)
+- [Resource Integration Datadog](./docs/resource_integration_datadog.md)
+- [Resource Integration ELK](./docs/resource_integration_elk.md)
+- [Resource Integration Hashicorp Vault](./docs/resource_integration_hc_vault.md)
+- [Resource Integration Logstash](./docs/resource_integration_logstash.md)
+- [Resource Integration Looker](./docs/resource_integration_looker.md)
+- [Resource Integration Okta](./docs/resource_integration_okta.md)
+- [Resource Integration Microsoft Teams](./docs/resource_integration_microsoft_teams.md)
+- [Resource Integration Pager Duty](./docs/resource_integration_pager_duty.md)
+- [Resource Integration Slack Alerts](./docs/resource_integration_slack_alerts.md)
+- [Resource Integration Splunk](./docs/resource_integration_splunk.md)
+- [Resource Integration Sumo Logic](./docs/resource_integration_sumo_logic.md)
+- [Resource Policy](./docs/resource_policy.md)
+- [Resource Policy Rule](./docs/resource_policy_rule.md)
+- [Resource Repository](./docs/resource_repository.md)
+- [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
+- [Resource Repository Binding](./docs/resource_repository_binding.md)
+- [Resource Repository Local Account](./docs/resource_repository_local_account.md)
+- [Resource Sidecar](./docs/resource_sidecar.md)
+- [Resource Sidecar Credentials](./docs/resource_sidecar_credentials.md)
 
 ## Configuration Templates
 
 See below a list of configuration templates that can be used to deploy some predefined scenarios:
 
-- [Add native repository credentials to AWS Secrets Manager](./doc/templates/native_credentials_aws_sm.md)
+- [Add native repository credentials to AWS Secrets Manager](./docs/templates/native_credentials_aws_sm.md)
 
 
 ## Prerequisites
@@ -184,6 +184,19 @@ In order to build and distribute this provider, follow the steps below:
  1. Clone [terraform-provider-cyral](https://github.com/cyralinc/terraform-provider-cyral) repo from GitHub;
 
  2. Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and 14.
+
+Alternatively, you can use the dockerfile to build the image using `make docker-compose/build`
+
+To use the local provider, the module must be configured to use the local provider path as follows:
+```hcl
+terraform {
+  required_providers {
+    cyral = {
+      source = "local/terraform/cyral"
+    }
+  }
+}
+```
 
 ## Test Instructions
 
