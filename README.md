@@ -23,8 +23,25 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
     4. Finish the creation by clicking `Authorize`;
 3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./docs/provider.md) documentation how to set those two parameters.
 
-### Keycloak
+### Keycloak (Control planes from v2.22 onwards)
 
+#### New Credentials
+
+A `Service Account` must be created in order to use the provider. It can be created through the control plane UI, accessing the `Service accounts` section in the left menu and clicking on the `+` button. Choose a name for the new service account and select the following roles so you can use all the provider functions:
+
+<img src="docs/images/create_service_account.png">
+
+Confirm the account creation by clicking on the `CREATE` button. This will generate a `Client ID` and a `Client Secret` that should be used in the [provider configuration](./docs/provider.md).
+
+#### Rotate Credentials
+
+To rotate secrets for existing service accounts, select a specific service account in the UI, and then click on the button `ROTATE CLIENT SECRET` as the image below suggests:
+
+<img src="docs/images/rotate_client_secret.png">
+
+That will generate a new `Client Secret` that you can copy and use to replace the old one.
+
+### Keycloak (Control planes up to v2.22)
 
 #### New Credentials
 
@@ -90,16 +107,11 @@ resource "cyral_integration_datadog" "datadog" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    deployment_method = "cloudFormation"
-    log_integration = cyral_integration_elk.elk.id
-    metrics_integration_id = cyral_integration_datadog.datadog.id
-    aws_configuration {
-        publicly_accessible = false
-        aws_region = "us-east-1"
-        key_name = "ec2-key-name"
-        vpc = "vpc-id"
-        subnets = "subnetid1,subnetid2,subnetidN"
-    }
+    tags = ["deploymentMethod:cloudFormation", "someTag1", "someTag2"]
+}
+
+resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
+  sidecar_id = cyral_sidecar.my_sidecar_name.id
 }
 
 resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
@@ -121,7 +133,7 @@ resource "cyral_datamap" "my_datamap_name" {
     mapping {
         label = "CCN"
         data_location {
-            repo = cyral_repository.my_repo_name.name
+            repo = cyral_repository.mongodb_repo.name
             attributes = ["applications.customers.credit_card_number"]
         }
     }
@@ -142,7 +154,7 @@ terraform import cyral_repository.my_resource_name myrepo
 
 ## Supported Elements
 - [Data Source SAML Certificate](./docs/data_source_saml_certificate.md)
-- [Data Source Sidecar Template](./docs/data_source_sidecar_template.md)
+- [Data Source Sidecar CFT Template](./docs/data_source_sidecar_cft_template.md)
 - [Provider](./docs/provider.md)
 - [Resource Datamap](./docs/resource_datamap.md)
 - [Resource Identity Map](./docs/resource_identity_map.md)

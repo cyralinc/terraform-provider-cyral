@@ -36,7 +36,7 @@ resource "cyral_repository" "repositories" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    deployment_method = "cloudFormation"
+    tags = ["deploymentMethod:cloudFormation", "tag1"]
 }
 
 resource "cyral_repository_binding" "repo_binding" {

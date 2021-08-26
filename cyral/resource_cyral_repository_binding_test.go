@@ -68,10 +68,7 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 	
 	resource "cyral_sidecar" "test_repo_binding_sidecar" {
 		name = "test_repo_binding_sidecar-test"
-		deployment_method = "cloudFormation"
-		aws_configuration {
-			publicly_accessible = true
-		}
+		tags = ["deploymentMethod:cloudFormation", "tag1"]
 	}
 
 	resource "cyral_repository_binding" "repo_binding" {

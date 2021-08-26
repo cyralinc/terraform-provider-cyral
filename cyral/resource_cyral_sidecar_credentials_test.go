@@ -45,7 +45,7 @@ func createSidecarCredentialsConfig() string {
 	return `
 	resource "cyral_sidecar" "test_sidecar" {
 		name = "sidecar-test"
-		deployment_method = "docker"
+		tags = ["deploymentMethod:docker", "tag1"]
 	}
 	
 	resource "cyral_sidecar_credentials" "test_sidecar_credentials" {
