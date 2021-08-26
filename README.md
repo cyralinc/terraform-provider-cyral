@@ -114,10 +114,6 @@ resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
   sidecar_id = cyral_sidecar.my_sidecar_name.id
 }
 
-resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
-  sidecar_id = cyral_sidecar.my_sidecar_name.id
-}
-
 locals {
     repositories = [cyral_repository.mongodb_repo, cyral_repository.mariadb_repo]
 }
