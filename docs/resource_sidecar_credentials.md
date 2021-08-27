@@ -1,6 +1,6 @@
 # Sidecar Credentials
 
-CRUD operations for Cyral sidecar credentials.
+Create new credentials for Cyral sidecar.
 
 ## Usage
 
