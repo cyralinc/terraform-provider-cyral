@@ -146,7 +146,16 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	setRoleDataToResource(d, response)
+	d.Set("name", response.Name)
+	d.Set("description", response.Description)
+
+	flatPermissions := flattenPermissions(response.Permissions)
+	log.Printf("[DEBUG] resourceRoleRead - flatPermissions: %s", flatPermissions)
+
+	if err := d.Set("permissions", flatPermissions); err != nil {
+		return createError(fmt.Sprintf("Unable to read role. Role Id: %s",
+			d.Id()), fmt.Sprintf("%v", err))
+	}
 
 	log.Printf("[DEBUG] End resourceRoleRead")
 
@@ -189,16 +198,23 @@ func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleDataRequest, error) {
-	permissionsData, err := getPermissionsFromAPI(c)
-	if err != nil {
-		return RoleDataRequest{}, err
-	}
-
 	var resourcePermissionsIds []string
-	for _, permission := range permissionsData {
-		resourcePermission := d.Get(formatPermissionName(permission.Name))
-		if resourcePermission == true {
-			resourcePermissionsIds = append(resourcePermissionsIds, permission.Id)
+
+	if permissions, ok := d.GetOk("permissions"); ok {
+		permissions := permissions.(*schema.Set).List()
+
+		resourcePermissions := permissions[0].(map[string]interface{})
+
+		apiPermissions, err := getPermissionsFromAPI(c)
+		if err != nil {
+			return RoleDataRequest{}, err
+		}
+
+		for _, apiPermission := range apiPermissions {
+			resourcePermission := resourcePermissions[formatPermissionName(apiPermission.Name)]
+			if v, ok := resourcePermission.(bool); ok && v {
+				resourcePermissionsIds = append(resourcePermissionsIds, apiPermission.Id)
+			}
 		}
 	}
 
@@ -209,13 +225,21 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 	}, nil
 }
 
-func setRoleDataToResource(d *schema.ResourceData, roleData RoleDataResponse) {
-	d.Set("name", roleData.Name)
-	d.Set("description", roleData.Description)
+func flattenPermissions(permissions []RolePermission) []interface{} {
+	if permissions != nil {
+		flatPermissions := make([]interface{}, 1)
 
-	for _, permission := range roleData.Permissions {
-		d.Set(formatPermissionName(permission.Name), true)
+		permissionsMap := make(map[string]interface{})
+		for _, permission := range permissions {
+			permissionsMap[formatPermissionName(permission.Name)] = true
+		}
+
+		flatPermissions[0] = permissionsMap
+
+		return flatPermissions
 	}
+
+	return make([]interface{}, 0)
 }
 
 func formatPermissionName(permissionName string) string {
