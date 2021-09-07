@@ -15,14 +15,12 @@ import (
 
 type RoleDataRequest struct {
 	Name        string   `json:"name"`
-	Description string   `json:"description"`
 	Permissions []string `json:"roles"`
 }
 
 type RoleDataResponse struct {
 	Id          string           `json:"id"`
 	Name        string           `json:"name"`
-	Description string           `json:"description"`
 	Permissions []RolePermission `json:"roles"`
 }
 
@@ -41,10 +39,6 @@ func resourceRole() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"description": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -148,7 +142,6 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("name", response.Name)
-	d.Set("description", response.Description)
 
 	if len(response.Permissions) > 0 {
 		flatPermissions := flattenPermissions(response.Permissions)
@@ -223,7 +216,6 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 
 	return RoleDataRequest{
 		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
 		Permissions: resourcePermissionsIds,
 	}, nil
 }
