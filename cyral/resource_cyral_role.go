@@ -144,17 +144,20 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
+
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("name", response.Name)
 	d.Set("description", response.Description)
 
-	flatPermissions := flattenPermissions(response.Permissions)
-	log.Printf("[DEBUG] resourceRoleRead - flatPermissions: %s", flatPermissions)
+	if len(response.Permissions) > 0 {
+		flatPermissions := flattenPermissions(response.Permissions)
+		log.Printf("[DEBUG] resourceRoleRead - flatPermissions: %s", flatPermissions)
 
-	if err := d.Set("permissions", flatPermissions); err != nil {
-		return createError(fmt.Sprintf("Unable to read role. Role Id: %s",
-			d.Id()), fmt.Sprintf("%v", err))
+		if err := d.Set("permissions", flatPermissions); err != nil {
+			return createError(fmt.Sprintf("Unable to read role. Role Id: %s",
+				d.Id()), fmt.Sprintf("%v", err))
+		}
 	}
 
 	log.Printf("[DEBUG] End resourceRoleRead")
@@ -226,20 +229,16 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 }
 
 func flattenPermissions(permissions []RolePermission) []interface{} {
-	if permissions != nil {
-		flatPermissions := make([]interface{}, 1)
+	flatPermissions := make([]interface{}, 1)
 
-		permissionsMap := make(map[string]interface{})
-		for _, permission := range permissions {
-			permissionsMap[formatPermissionName(permission.Name)] = true
-		}
-
-		flatPermissions[0] = permissionsMap
-
-		return flatPermissions
+	permissionsMap := make(map[string]interface{})
+	for _, permission := range permissions {
+		permissionsMap[formatPermissionName(permission.Name)] = true
 	}
 
-	return make([]interface{}, 0)
+	flatPermissions[0] = permissionsMap
+
+	return flatPermissions
 }
 
 func formatPermissionName(permissionName string) string {
