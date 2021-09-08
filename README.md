@@ -126,7 +126,7 @@ resource "cyral_repository_binding" "repo_binding" {
 }
 
 resource "cyral_role" "some_role" {
-    name="some role "
+    name="some role"
     permissions {
       view_sidecars_and_repositories = true
       modify_sidecars_and_repositories = true
