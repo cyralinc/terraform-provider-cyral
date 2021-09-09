@@ -78,8 +78,9 @@ func Provider() *schema.Provider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"cyral_sidecar_template":   dataSourceSidecarTemplate(),
-			"cyral_saml_configuration": dataSourceSamlConfig(),
+			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
+			"cyral_sidecar_cft_template": dataSourceSidecarCftTemplate(),
+			"cyral_saml_configuration":   dataSourceSamlConfig(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -87,6 +88,7 @@ func Provider() *schema.Provider {
 			"cyral_identity_map":                            resourceIdentityMap(),
 			"cyral_integration_datadog":                     resourceIntegrationDatadog(),
 			"cyral_integration_elk":                         resourceIntegrationELK(),
+			"cyral_integration_hc_vault":                    resourceIntegrationHCVault(),
 			"cyral_integration_logstash":                    resourceIntegrationLogstash(),
 			"cyral_integration_looker":                      resourceIntegrationLooker(),
 			"cyral_integration_microsoft_teams":             resourceIntegrationMsTeams(),
@@ -107,6 +109,7 @@ func Provider() *schema.Provider {
 			"cyral_repository_local_account":                resourceRepositoryLocalAccount(),
 			"cyral_repository_binding":                      resourceRepositoryBinding(),
 			"cyral_sidecar":                                 resourceSidecar(),
+			"cyral_sidecar_credentials":                     resourceSidecarCredentials(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
