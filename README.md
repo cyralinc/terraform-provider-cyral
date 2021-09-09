@@ -21,87 +21,62 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
     2. Select the API `https://cyral-api.com`;
     3. Select scopes: `read:users`;
     4. Finish the creation by clicking `Authorize`;
-3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./doc/provider.md) documentation how to set those two parameters.
+3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./docs/provider.md) documentation how to set those two parameters.
 
-### Keycloak
+### Keycloak (Control planes from v2.22 onwards)
 
-A `Service Account` for the Terraform provider must be created using the [script provided in the scripts folder](./scripts/create-service-account-keycloak.sh). To run it, you can just:
+#### New Credentials
+
+A `Service Account` must be created in order to use the provider. It can be created through the control plane UI, accessing the `Service accounts` section in the left menu and clicking on the `+` button. Choose a name for the new service account and select the following roles so you can use all the provider functions:
+
+<img src="docs/images/create_service_account.png">
+
+Confirm the account creation by clicking on the `CREATE` button. This will generate a `Client ID` and a `Client Secret` that should be used in the [provider configuration](./docs/provider.md).
+
+#### Rotate Credentials
+
+To rotate secrets for existing service accounts, select a specific service account in the UI, and then click on the button `ROTATE CLIENT SECRET` as the image below suggests:
+
+<img src="docs/images/rotate_client_secret.png">
+
+That will generate a new `Client Secret` that you can copy and use to replace the old one.
+
+### Keycloak (Control planes up to v2.22)
+
+#### New Credentials
+
+A `Service Account` must be created in order to use the provider. It can be created by the [script provided in the scripts folder](./scripts/create-keycloak-service-account.sh). You can run it with the command below:
 
 ```bash
-curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-service-account-keycloak.sh -O
-bash create-service-account-keycloak.sh
+curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-keycloak-service-account.sh -O
+bash create-keycloak-service-account.sh
 ```
 
-## Usage Example
+#### Rotate Credentials
 
-The code below is just a simple example of how to use the Cyral Terraform Module. Refer to the "Supported Elements" section for more information on resources and provider details.
+[This script](./scripts/rotate-keycloak-service-account-secret.sh) can be used to rotate secrets for existing service accounts. It can be rotated by running the command below:
 
-### Terraform v0.12
-
-```hcl
-provider "cyral" {
-    client_id = ""     # optional
-    client_secret = "" # optional
-    control_plane = "some-cp.cyral.com:8000"
-}
-
-resource "cyral_repository" "my_repo_name" {
-    host = "myrepo.cyral.com"
-    port = 3306
-    type = "mariadb"
-    name = "myrepo"
-}
-
-resource "cyral_integration_elk" "elk" {
-    name = "my-elk-integration"
-    kibana_url = "kibana.local"
-    es_url = "es.local"
-}
-
-resource "cyral_integration_datadog" "datadog" {
-    name = "my-datadog-integration"
-    api_key = "datadog-api-key"
-}
-
-resource "cyral_sidecar" "my_sidecar_name" {
-    name = "mysidecar"
-    deployment_method = "cloudFormation"
-    log_integration = cyral_integration_elk.elk.id
-    metrics_integration_id = cyral_integration_datadog.datadog.id
-    aws_configuration {
-        publicly_accessible = false
-        aws_region = "us-east-1"
-        key_name = "ec2-key-name"
-        vpc = "vpc-id"
-        subnets = "subnetid1,subnetid2,subnetidN"
-    }
-}
-
-resource "cyral_datamap" "my_datamap_name" {
-    mapping {
-        label = "CNN"
-        data_location {
-            repo = cyral_repository.my_repo_name.name
-            attributes = ["applications.customers.credit_card_number"]
-        }
-    }
-}
+```bash
+curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/rotate-keycloak-service-account-secret.sh -O
+bash rotate-keycloak-service-account-secret.sh
 ```
 
-### Terraform v0.13 and v0.14
+## Usage
+
+The code below is just a simple example of how to use the Cyral Terraform Provider with Terraform `v0.13+`. Refer to the "Supported Elements" section for more details on data sources, resources and the provider itself.
 
 ```hcl
 terraform {
   required_providers {
     cyral = {
-      source = "cyral.com/terraform/cyral"
+      source = "cyralinc/cyral"
     }
   }
 }
 
 provider "cyral" {
-    auth0_domain = "some-name.auth0.com"
-    auth0_audience = "cyral-api.com"
+    client_id = "some-client-id"
+    client_secret = "some-client-secret"
     control_plane = "some-cp.cyral.com:8000"
 }
 
@@ -132,16 +107,11 @@ resource "cyral_integration_datadog" "datadog" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    deployment_method = "cloudFormation"
-    log_integration = cyral_integration_elk.elk.id
-    metrics_integration_id = cyral_integration_datadog.datadog.id
-    aws_configuration {
-        publicly_accessible = false
-        aws_region = "us-east-1"
-        key_name = "ec2-key-name"
-        vpc = "vpc-id"
-        subnets = "subnetid1,subnetid2,subnetidN"
-    }
+    tags = ["deploymentMethod:cloudFormation", "someTag1", "someTag2"]
+}
+
+resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
+  sidecar_id = cyral_sidecar.my_sidecar_name.id
 }
 
 locals {
@@ -157,9 +127,9 @@ resource "cyral_repository_binding" "repo_binding" {
 
 resource "cyral_datamap" "my_datamap_name" {
     mapping {
-        label = "CNN"
+        label = "CCN"
         data_location {
-            repo = cyral_repository.my_repo_name.name
+            repo = cyral_repository.mongodb_repo.name
             attributes = ["applications.customers.credit_card_number"]
         }
     }
@@ -179,33 +149,36 @@ terraform import cyral_repository.my_resource_name myrepo
 ```
 
 ## Supported Elements
-- [Data Source Sidecar Template](./doc/data_source_sidecar_template.md)
-- [Provider](./doc/provider.md)
-- [Resource Datamap](./doc/resource_datamap.md)
-- [Resource Identity Map](./doc/resource_identity_map.md)
-- [Resource Integration Datadog](./doc/resource_integration_datadog.md)
-- [Resource Integration ELK](./doc/resource_integration_elk.md)
-- [Resource Integration Logstash](./doc/resource_integration_logstash.md)
-- [Resource Integration Looker](./doc/resource_integration_looker.md)
-- [Resource Integration Okta](./doc/resource_integration_okta.md)
-- [Resource Integration Microsoft Teams](./doc/resource_integration_microsoft_teams.md)
-- [Resource Integration Pager Duty](./doc/resource_integration_pager_duty.md)
-- [Resource Integration Slack Alerts](./doc/resource_integration_slack_alerts.md)
-- [Resource Integration Splunk](./doc/resource_integration_splunk.md)
-- [Resource Integration Sumo Logic](./doc/resource_integration_sumo_logic.md)
-- [Resource Policy](./doc/resource_policy.md)
-- [Resource Policy Rule](./doc/resource_policy_rule.md)
-- [Resource Repository](./doc/resource_repository.md)
-- [Resource Repository Authentication Configuration](./doc/resource_repository_conf_auth.md)
-- [Resource Repository Binding](./doc/resource_repository_binding.md)
-- [Resource Repository Local Account](./doc/resource_repository_local_account.md)
-- [Resource Sidecar](./doc/resource_sidecar.md)
+- [Data Source SAML Certificate](./docs/data_source_saml_certificate.md)
+- [Data Source Sidecar CFT Template](./docs/data_source_sidecar_cft_template.md)
+- [Provider](./docs/provider.md)
+- [Resource Datamap](./docs/resource_datamap.md)
+- [Resource Identity Map](./docs/resource_identity_map.md)
+- [Resource Integration Datadog](./docs/resource_integration_datadog.md)
+- [Resource Integration ELK](./docs/resource_integration_elk.md)
+- [Resource Integration Hashicorp Vault](./docs/resource_integration_hc_vault.md)
+- [Resource Integration Logstash](./docs/resource_integration_logstash.md)
+- [Resource Integration Looker](./docs/resource_integration_looker.md)
+- [Resource Integration Okta](./docs/resource_integration_okta.md)
+- [Resource Integration Microsoft Teams](./docs/resource_integration_microsoft_teams.md)
+- [Resource Integration Pager Duty](./docs/resource_integration_pager_duty.md)
+- [Resource Integration Slack Alerts](./docs/resource_integration_slack_alerts.md)
+- [Resource Integration Splunk](./docs/resource_integration_splunk.md)
+- [Resource Integration Sumo Logic](./docs/resource_integration_sumo_logic.md)
+- [Resource Policy](./docs/resource_policy.md)
+- [Resource Policy Rule](./docs/resource_policy_rule.md)
+- [Resource Repository](./docs/resource_repository.md)
+- [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
+- [Resource Repository Binding](./docs/resource_repository_binding.md)
+- [Resource Repository Local Account](./docs/resource_repository_local_account.md)
+- [Resource Sidecar](./docs/resource_sidecar.md)
+- [Resource Sidecar Credentials](./docs/resource_sidecar_credentials.md)
 
 ## Configuration Templates
 
 See below a list of configuration templates that can be used to deploy some predefined scenarios:
 
-- [Add native repository credentials to AWS Secrets Manager](./doc/templates/native_credentials_aws_sm.md)
+- [Add native repository credentials to AWS Secrets Manager](./docs/templates/native_credentials_aws_sm.md)
 
 
 ## Prerequisites
@@ -219,6 +192,19 @@ In order to build and distribute this provider, follow the steps below:
  1. Clone [terraform-provider-cyral](https://github.com/cyralinc/terraform-provider-cyral) repo from GitHub;
 
  2. Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and 14.
+
+Alternatively, you can use the dockerfile to build the image using `make docker-compose/build`
+
+To use the local provider, the module must be configured to use the local provider path as follows:
+```hcl
+terraform {
+  required_providers {
+    cyral = {
+      source = "local/terraform/cyral"
+    }
+  }
+}
+```
 
 ## Test Instructions
 
@@ -263,3 +249,4 @@ Where:
 * **OS_ARCH** corresponds to the distribution (`darwin_amd64` or `linux_amd64`);
 * **BINARY** corresponds to the binary name. Ex: `terraform-provider-cyral_v0.1.0`;
 * **VERSION** corresponds to the version number withouth `v`. Ex: `0.1.0`.
+

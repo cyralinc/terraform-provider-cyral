@@ -7,7 +7,7 @@ CRUD operations for Repository Authentication Configuration.
 ```hcl
 resource "cyral_repository_conf_auth" "my-repository-conf-auth" {
     repository_id = ""
-    allow_native_auth = true|false,
+    allow_native_auth = true|false
     client_tls = "enable|disable|enabledAndVerifyCertificate"
     identity_provider = ""
     repo_tls = "enable|disable|enabledAndVerifyCertificate"

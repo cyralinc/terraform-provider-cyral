@@ -51,36 +51,33 @@ func setupDatamapTest(integrationData DataMapConfig) (string, resource.TestCheck
 
 func formatDataMapIntoConfig(data DataMapConfig) string {
 	return fmt.Sprintf(`
-	resource "cyral_repository" "tf_test_repository" {
-		type = "mysql"
-		host = "http://mysql.local/"
-		port = 3306
-		name = "tf-test-mysql"
+		resource "cyral_repository" "tf_test_repository" {
+			type = "mysql"
+			host = "http://mysql.local/"
+			port = 3306
+			name = "tf-test-mysql"
 	  }
 	  
 	  resource "cyral_sidecar" "tf_test_sidecar" {
-		name              = "tf-test-sidecar"
-		deployment_method = "cloudFormation"
-		aws_configuration {
-		  publicly_accessible = true
-		}
+			name = "tf-test-sidecar"
+			tags = ["deploymentMethod:cloudFormation", "tag1"]
 	  }
 	  
 	  resource "cyral_repository_binding" "repo_binding" {
-		enabled       = true
-		repository_id = cyral_repository.tf_test_repository.id
-		listener_port = 3307
-		sidecar_id    = cyral_sidecar.tf_test_sidecar.id
+			enabled       = true
+			repository_id = cyral_repository.tf_test_repository.id
+			listener_port = 3307
+			sidecar_id    = cyral_sidecar.tf_test_sidecar.id
 	  }
 	  
 	  resource "cyral_datamap" "test_datamap" {
-		mapping {
-		  label = "%s"
-		  data_location {
-			repo       = cyral_repository.tf_test_repository.name
-			attributes = ["database.table.column"]
-		  }
-		}
+			mapping {
+				label = "%s"
+				data_location {
+				repo       = cyral_repository.tf_test_repository.name
+				attributes = ["database.table.column"]
+				}
+			}
 	  }`, data.Label)
 }
 
