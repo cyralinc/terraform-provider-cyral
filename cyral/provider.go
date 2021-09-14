@@ -80,7 +80,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
 			"cyral_sidecar_cft_template": dataSourceSidecarCftTemplate(),
-			"cyral_saml_configuration":   dataSourceSamlConfig(),
+			"cyral_saml_configuration":   dataSourceSAMLConfig(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -93,11 +93,11 @@ func Provider() *schema.Provider {
 			"cyral_integration_looker":                      resourceIntegrationLooker(),
 			"cyral_integration_microsoft_teams":             resourceIntegrationMsTeams(),
 			"cyral_integration_pager_duty":                  resourceIntegrationPagerDuty(),
-			"cyral_integration_saml":                        resourceIntegrationSAMLIntegration(""),
-			"cyral_integration_saml_okta":                   resourceIntegrationSAMLIntegration("okta"),
-			"cyral_integration_saml_azure_active_directory": resourceIntegrationSAMLIntegration("aad"),
-			"cyral_integration_saml_forgerock":              resourceIntegrationSAMLIntegration("forgerock"),
-			"cyral_integration_saml_gsuite":                 resourceIntegrationSAMLIntegration("gsuite"),
+			"cyral_integration_saml":                        resourceIntegrationSAML(""),
+			"cyral_integration_saml_okta":                   resourceIntegrationSAML("okta"),
+			"cyral_integration_saml_azure_active_directory": resourceIntegrationSAML("aad"),
+			"cyral_integration_saml_forgerock":              resourceIntegrationSAML("forgerock"),
+			"cyral_integration_saml_gsuite":                 resourceIntegrationSAML("gsuite"),
 			"cyral_integration_slack_alerts":                resourceIntegrationSlackAlerts(),
 			"cyral_integration_splunk":                      resourceIntegrationSplunk(),
 			"cyral_integration_sumo_logic":                  resourceIntegrationSumoLogic(),

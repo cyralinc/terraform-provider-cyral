@@ -239,16 +239,11 @@ type SAMLSetting struct {
 	LdapGroupAttribute string `json:"ldapGroupAttribute,omitempty"`
 	// samlp is for providing SAML configuration directly rather
 	// than through a metadata document.
-	Samlp *IdentityProviderConfig `json:"samlp,omitempty"`
+	Samlp IdentityProviderConfig `json:"samlp,omitempty"`
 	// This is the full SAML metadata URL we should use to import the SAML config.
 	// It will only be populated if a SAML metadata URL was used to create the
 	// integration.
 	SamlMetadataURL string `json:"samlMetadataURL,omitempty"`
 	// This is the full SAML metadata document that we should use to import the SAML config,
 	// base64 encoded.
-}
-
-type SAMLIntegration struct {
-	OverrideProvider string `json:"-"`
-	SAMLSetting      SAMLSetting
 }
