@@ -184,7 +184,7 @@ type Config struct {
 	SigningCertificate string `json:"signingCertificate,omitempty"`
 	// Clock skew in seconds that is tolerated when validating identity provider tokens.
 	// Default value is zero.
-	AllowedClockSkew uint64 `json:"allowedClockSkew,omitempty"`
+	AllowedClockSkew int `json:"allowedClockSkew,omitempty"`
 	// The SAML metadata URL that was used to create the integration, if any.
 	// This field is added on Cyral's side. The Cyral Terraform provider needs
 	// it to tell if a new SAML metadata being used is the same as before, or
@@ -239,7 +239,7 @@ type SAMLSetting struct {
 	LdapGroupAttribute string `json:"ldapGroupAttribute,omitempty"`
 	// samlp is for providing SAML configuration directly rather
 	// than through a metadata document.
-	Samlp IdentityProviderConfig `json:"samlp,omitempty"`
+	Samlp *IdentityProviderConfig `json:"samlp,omitempty"`
 	// This is the full SAML metadata URL we should use to import the SAML config.
 	// It will only be populated if a SAML metadata URL was used to create the
 	// integration.

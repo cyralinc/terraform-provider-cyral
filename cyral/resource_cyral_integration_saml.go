@@ -54,7 +54,7 @@ func resourceIntegrationSAML(provider string) *schema.Resource {
 			},
 			"single_sign_on_service_url": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"single_logout_service_url": {
 				Type:     schema.TypeString,
@@ -92,6 +92,23 @@ func resourceIntegrationSAML(provider string) *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"ldap_group_attribute": { //Forgerock only
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "cn",
+			},
+			"disable_post_binding_response": { //Forgerock only
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"disable_post_binding_authn_request": { //Forgerock only
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"disable_post_binding_logout": { //Forgerock only
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 		},
 
 		Importer: &schema.ResourceImporter{
@@ -127,6 +144,7 @@ func (data SAMLSetting) WriteToSchema(d *schema.ResourceData) {
 func (data *SAMLSetting) ReadFromSchema(d *schema.ResourceData) {
 	if data.IdentityProvider == "" {
 		data.IdentityProvider = d.Get("identity_provider").(string)
+		//TODO: validate if exists, since idp is required
 	}
 	data.Samlp.DisplayName = d.Get("display_name").(string)
 	data.Samlp.Config.SingleSignOnServiceURL = d.Get("single_sign_on_service_url").(string)
