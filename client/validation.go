@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/endpoints"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // ValidateRepoType checks if a given repository type is valid.
@@ -74,4 +76,23 @@ func ValidateAWSRegion(param string) error {
 		return fmt.Errorf("AWS region must be one of %v", keys)
 	}
 	return nil
+}
+
+//validateRepositoryLogSettingsDataActivities checks if Data activities are for all the
+//repository requests or just for the logged fields.
+func ValidateRepositoryConfAnalysisLogSettings() schema.SchemaValidateFunc {
+	return validation.StringInSlice([]string{
+		"everything",
+		"dql",
+		"dml",
+		"ddl",
+		"sensitive & dql",
+		"sensitive & dml",
+		"sensitive & ddl",
+		"privileged",
+		"port-scan",
+		"auth-failure",
+		"full-table-scan",
+		"violations",
+	}, false)
 }
