@@ -1,4 +1,4 @@
-package cyral
+/*package cyral
 
 import (
 	"fmt"
@@ -101,3 +101,4 @@ func testResourceAttrFunction(resource, attr string, checkFunc func(string) erro
 		return checkFunc(at)
 	}
 }
+*/
