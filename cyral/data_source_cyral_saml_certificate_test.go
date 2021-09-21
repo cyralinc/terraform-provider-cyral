@@ -1,5 +1,6 @@
-/*package cyral
+package cyral
 
+/*
 import (
 	"fmt"
 	"testing"
