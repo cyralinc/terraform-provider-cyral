@@ -78,8 +78,23 @@ func ValidateAWSRegion(param string) error {
 	return nil
 }
 
-//validateRepositoryLogSettingsDataActivities checks if Data activities are for all the
-//repository requests or just for the logged fields.
+func ValidateRepositoryConfAnalysisRedact() schema.SchemaValidateFunc {
+	return validation.StringInSlice([]string{
+		"all",
+		"none",
+		"watched",
+	}, false)
+}
+
+func ValidateRepositoryConfAnalysisCommentAnnotationGroups() schema.SchemaValidateFunc {
+	return validation.StringInSlice([]string{
+		"identity",
+		"client",
+		"repo",
+		"sidecar",
+	}, false)
+}
+
 func ValidateRepositoryConfAnalysisLogSettings() schema.SchemaValidateFunc {
 	return validation.StringInSlice([]string{
 		"everything",
@@ -94,5 +109,12 @@ func ValidateRepositoryConfAnalysisLogSettings() schema.SchemaValidateFunc {
 		"auth-failure",
 		"full-table-scan",
 		"violations",
+		"connections",
+		"sensitive",
+		"data-classification",
+		"audit",
+		"error",
+		"new-connections",
+		"closed-connections",
 	}, false)
 }

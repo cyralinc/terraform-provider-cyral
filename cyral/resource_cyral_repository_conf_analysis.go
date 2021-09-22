@@ -26,6 +26,7 @@ type UserFacingConfig struct {
 	BlockOnViolation           bool     `json:"blockOnViolation"`
 	DisableFilterAnalysis      bool     `json:"disableFilterAnalysis"`
 	RewriteOnViolation         bool     `json:"rewriteOnViolation"`
+	CommentAnnotationGroups    []string `json:"commentAnnotationGroups,omitempty"`
 	LogGroups                  []string `json:"logGroups,omitempty"`
 }
 
@@ -42,9 +43,10 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				Required: true,
 			},
 			"redact": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "all",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "all",
+				ValidateFunc: client.ValidateRepositoryConfAnalysisRedact(),
 			},
 			"tag_sensitive_data": {
 				Type:     schema.TypeBool,
@@ -78,6 +80,14 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 			"rewrite_on_violation": {
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+			"comment_annotation_groups": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: client.ValidateRepositoryConfAnalysisCommentAnnotationGroups(),
+				},
 			},
 			"log_groups": {
 				Type:     schema.TypeSet,
@@ -188,10 +198,18 @@ func resourceRepositoryConfAnalysisDelete(ctx context.Context, d *schema.Resourc
 func getConfAnalysisDataFromResource(d *schema.ResourceData) (RepositoryConfAnalysisData, error) {
 	var logGroups []string
 	if logGroupsSet, ok := d.GetOk("log_groups"); ok {
-		for _, logGroup := range logGroupsSet.(*schema.Set).List() {
-			logGroups = append(logGroups, logGroup.(string))
+		for _, logGroupItem := range logGroupsSet.(*schema.Set).List() {
+			logGroups = append(logGroups, logGroupItem.(string))
 		}
 	}
+
+	var annotationGroups []string
+	if annotationGroupsSet, ok := d.GetOk("comment_annotation_groups"); ok {
+		for _, annotationGroupItem := range annotationGroupsSet.(*schema.Set).List() {
+			annotationGroups = append(annotationGroups, annotationGroupItem.(string))
+		}
+	}
+
 	return RepositoryConfAnalysisData{
 		Config: UserFacingConfig{
 			Redact:                     d.Get("redact").(string),
@@ -203,6 +221,7 @@ func getConfAnalysisDataFromResource(d *schema.ResourceData) (RepositoryConfAnal
 			BlockOnViolation:           d.Get("block_on_violation").(bool),
 			DisableFilterAnalysis:      d.Get("disable_filter_analysis").(bool),
 			RewriteOnViolation:         d.Get("rewrite_on_violation").(bool),
+			CommentAnnotationGroups:    annotationGroups,
 			LogGroups:                  logGroups,
 		},
 	}, nil
@@ -215,6 +234,12 @@ func setConfAnalysisDataToResource(d *schema.ResourceData, resourceData Reposito
 	}
 	logGroupsSet := schema.NewSet(schema.HashString, logGroups)
 
+	annotationGroups := make([]interface{}, len(resourceData.Config.CommentAnnotationGroups))
+	for index, annotationGroupItem := range resourceData.Config.CommentAnnotationGroups {
+		annotationGroups[index] = annotationGroupItem
+	}
+	annotationGroupsSet := schema.NewSet(schema.HashString, annotationGroups)
+
 	d.Set("redact", resourceData.Config.Redact)
 	d.Set("tag_sensitive_data", resourceData.Config.TagSensitiveData)
 	d.Set("ignore_identifier_case", resourceData.Config.IgnoreIdentifierCase)
@@ -224,5 +249,6 @@ func setConfAnalysisDataToResource(d *schema.ResourceData, resourceData Reposito
 	d.Set("block_on_violation", resourceData.Config.BlockOnViolation)
 	d.Set("disable_filter_analysis", resourceData.Config.DisableFilterAnalysis)
 	d.Set("rewrite_on_violation", resourceData.Config.RewriteOnViolation)
+	d.Set("comment_annotation_groups", annotationGroupsSet)
 	d.Set("log_groups", logGroupsSet)
 }
