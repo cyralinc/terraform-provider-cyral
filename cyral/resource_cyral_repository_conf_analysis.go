@@ -48,18 +48,6 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				Default:      "all",
 				ValidateFunc: client.ValidateRepositoryConfAnalysisRedact(),
 			},
-			"tag_sensitive_data": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"ignore_identifier_case": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"analyze_where_clause": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
 			"alert_on_violation": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -78,6 +66,18 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				Optional: true,
 			},
 			"rewrite_on_violation": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"tag_sensitive_data": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"ignore_identifier_case": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"analyze_where_clause": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
