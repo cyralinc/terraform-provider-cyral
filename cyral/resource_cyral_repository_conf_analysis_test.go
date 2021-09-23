@@ -119,12 +119,6 @@ func testAccRepoConfAnalysisCheck_DefaultValues() resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"rewrite_on_violation", "false"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"tag_sensitive_data", "false"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"ignore_identifier_case", "false"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"analyze_where_clause", "false"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"comment_annotation_groups.#", "0"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"log_groups.#", "0"),
@@ -143,9 +137,6 @@ func testAccRepoConfAnalysisConfig_Updated(repositoryName string) string {
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
 		repository_id = cyral_repository.test_repo.id
 		redact = "all"
-		tag_sensitive_data = false
-		ignore_identifier_case = false
-		analyze_where_clause = false
 		alert_on_violation = true
 		disable_pre_configured_alerts = false
 		block_on_violation = true
@@ -178,12 +169,6 @@ func testAccRepoConfAnalysisCheck_Updated() resource.TestCheckFunc {
 			"disable_filter_analysis", "false"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"rewrite_on_violation", "true"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"tag_sensitive_data", "false"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"ignore_identifier_case", "false"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"analyze_where_clause", "false"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"comment_annotation_groups.#", "1"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",

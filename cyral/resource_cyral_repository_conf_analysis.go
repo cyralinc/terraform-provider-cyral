@@ -18,9 +18,6 @@ type RepositoryConfAnalysisData struct {
 
 type UserFacingConfig struct {
 	Redact                     string   `json:"redact"`
-	TagSensitiveData           bool     `json:"tagSensitiveData"`
-	IgnoreIdentifierCase       bool     `json:"ignoreIdentifierCase"`
-	AnalyzeWhereClause         bool     `json:"analyzeWhereClause"`
 	AlertOnViolation           bool     `json:"alertOnViolation"`
 	DisablePreConfiguredAlerts bool     `json:"disablePreConfiguredAlerts"`
 	BlockOnViolation           bool     `json:"blockOnViolation"`
@@ -66,18 +63,6 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				Optional: true,
 			},
 			"rewrite_on_violation": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"tag_sensitive_data": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"ignore_identifier_case": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"analyze_where_clause": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -213,9 +198,6 @@ func getConfAnalysisDataFromResource(d *schema.ResourceData) (RepositoryConfAnal
 	return RepositoryConfAnalysisData{
 		Config: UserFacingConfig{
 			Redact:                     d.Get("redact").(string),
-			TagSensitiveData:           d.Get("tag_sensitive_data").(bool),
-			IgnoreIdentifierCase:       d.Get("ignore_identifier_case").(bool),
-			AnalyzeWhereClause:         d.Get("analyze_where_clause").(bool),
 			AlertOnViolation:           d.Get("alert_on_violation").(bool),
 			DisablePreConfiguredAlerts: d.Get("disable_pre_configured_alerts").(bool),
 			BlockOnViolation:           d.Get("block_on_violation").(bool),
@@ -241,9 +223,6 @@ func setConfAnalysisDataToResource(d *schema.ResourceData, resourceData Reposito
 	annotationGroupsSet := schema.NewSet(schema.HashString, annotationGroups)
 
 	d.Set("redact", resourceData.Config.Redact)
-	d.Set("tag_sensitive_data", resourceData.Config.TagSensitiveData)
-	d.Set("ignore_identifier_case", resourceData.Config.IgnoreIdentifierCase)
-	d.Set("analyze_where_clause", resourceData.Config.AnalyzeWhereClause)
 	d.Set("alert_on_violation", resourceData.Config.AlertOnViolation)
 	d.Set("disable_pre_configured_alerts", resourceData.Config.DisablePreConfiguredAlerts)
 	d.Set("block_on_violation", resourceData.Config.BlockOnViolation)
