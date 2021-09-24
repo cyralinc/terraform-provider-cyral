@@ -107,7 +107,7 @@ resource "cyral_integration_datadog" "datadog" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    tags = ["deploymentMethod:cloudFormation", "someTag1", "someTag2"]
+    deployment_method = "cloudFormation"
 }
 
 resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {

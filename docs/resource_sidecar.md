@@ -7,7 +7,7 @@ CRUD operations for Cyral sidecars.
 ```hcl
 resource "cyral_sidecar" "SOME_RESOURCE_NAME" {
     name = ""
-    tags = ["deploymentMethod:someValidMethod", "someTag1", "someTag2"]
+    deployment_method = "someValidMethod"
 }
 ```
 
@@ -16,7 +16,7 @@ resource "cyral_sidecar" "SOME_RESOURCE_NAME" {
 |  Name                    |  Default    |  Description                                                                         | Required |
 |:-------------------------|:-----------:|:-------------------------------------------------------------------------------------|:--------:|
 | `name`                   |             | Sidecar name that will be used internally in Control Plane (ex: `your_sidecar_name`) | Yes      |
-| `tags`      |             | Sidecar tags, including the `deploymentMethod` tag which is a required deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`) | Yes      |
+| `deployment_method`      |             | Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`) | Yes      |
 
 ## Outputs
 

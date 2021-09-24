@@ -67,8 +67,8 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 	}
 	
 	resource "cyral_sidecar" "test_repo_binding_sidecar" {
-		name = "test_repo_binding_sidecar-test"
-		tags = ["deploymentMethod:cloudFormation", "tag1"]
+		name = "test_sidecar-test"
+		deployment_method = "cloudFormation"
 	}
 
 	resource "cyral_repository_binding" "repo_binding" {
