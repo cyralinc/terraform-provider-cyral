@@ -19,7 +19,7 @@ type CreateSidecarResponse struct {
 type SidecarData struct {
 	ID              string          `json:"id"`
 	Name            string          `json:"name"`
-	Tags            []string        `json:"labels"`
+	Labels          []string        `json:"labels"`
 	SidecarProperty SidecarProperty `json:"properties"`
 }
 
@@ -43,7 +43,7 @@ func resourceSidecar() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags": {
+			"labels": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -81,7 +81,7 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	d.SetId(response.ID)
 	d.Set("name", response.Name)
-	d.Set("tags", response.Tags)
+	d.Set("labels", response.Labels)
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 
 	return resourceSidecarRead(ctx, d, m)
@@ -107,7 +107,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	d.Set("name", response.Name)
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
-	d.Set("tags", response.Tags)
+	d.Set("labels", response.Labels)
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -158,15 +158,15 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (Sidec
 	sp := SidecarProperty{
 		DeploymentMethod: deploymentMethod,
 	}
-	tags := d.Get("tags").([]interface{})
-	sidecarDataTags := make([]string, len(tags))
-	for i, tag := range tags {
-		sidecarDataTags[i] = (tag).(string)
+	labels := d.Get("labels").([]interface{})
+	sidecarDataLabels := make([]string, len(labels))
+	for i, label := range labels {
+		sidecarDataLabels[i] = (label).(string)
 	}
 	return SidecarData{
 		ID:              d.Id(),
 		Name:            d.Get("name").(string),
-		Tags:            sidecarDataTags,
+		Labels:          sidecarDataLabels,
 		SidecarProperty: sp,
 	}, nil
 }

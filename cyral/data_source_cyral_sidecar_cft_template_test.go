@@ -8,8 +8,8 @@ import (
 )
 
 var cftSidecarConfig SidecarData = SidecarData{
-	Name: "sidecar-test",
-	Tags: []string{"test"},
+	Name:   "sidecar-test",
+	Labels: []string{"test"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "cloudFormation",
 	},
