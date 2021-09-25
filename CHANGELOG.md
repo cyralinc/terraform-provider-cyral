@@ -1,3 +1,20 @@
+## 2.0.0 (September 24, 2021)
+
+Minimum required Control Plane version: `v2.22.0`.
+
+### Backwards compatibility breaks:
+* **Resource cyral_sidecar**: changed parameters;
+* **Data source cyral_sidecar_template**: data source replaced by `cyral_sidecar_cft_template` and template restricted to Cloudformation.
+
+### Bug fixes:
+* **Script to rotate service account secrets**: [#60](https://github.com/cyralinc/terraform-provider-cyral/pull/64);
+
+### Features:
+* **Script to rotate service account secrets**: [#64](https://github.com/cyralinc/terraform-provider-cyral/pull/64);
+* **Improve tooling**: [#92](https://github.com/cyralinc/terraform-provider-cyral/pull/92);
+* **Resource Sidecar Credentials**: [#93](https://github.com/cyralinc/terraform-provider-cyral/pull/93);
+* **Resource Repository Conf Analysis**: [#108](https://github.com/cyralinc/terraform-provider-cyral/pull/108);
+
 ## 1.2.2 (June 21, 2021)
 
 Minimum required Control Plane version: `v2.19.0`.
