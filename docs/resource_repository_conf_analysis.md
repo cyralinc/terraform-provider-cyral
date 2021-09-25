@@ -19,9 +19,6 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_enabled" {
   block_on_violation = true
   disable_filter_analysis = false
   rewrite_on_violation = true
-  tag_sensitive_data = false
-  ignore_identifier_case = false
-  analyze_where_clause = false
   comment_annotation_groups = [ "identity" ]
   log_groups = [ "everything" ]
 }
@@ -38,9 +35,6 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
   block_on_violation = false
   disable_filter_analysis = true
   rewrite_on_violation = false
-  tag_sensitive_data = false
-  ignore_identifier_case = false
-  analyze_where_clause = false
   comment_annotation_groups = []
   log_groups = []
 }
