@@ -9,6 +9,7 @@ import (
 
 var initialSidecarConfig SidecarData = SidecarData{
 	Name: "sidecar-test",
+	Tags: []string{"test1"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "cloudFormation",
 	},
@@ -16,6 +17,7 @@ var initialSidecarConfig SidecarData = SidecarData{
 
 var updatedSidecarConfigDocker SidecarData = SidecarData{
 	Name: "sidecar-updated-test",
+	Tags: []string{"test2"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "docker",
 	},
@@ -23,6 +25,7 @@ var updatedSidecarConfigDocker SidecarData = SidecarData{
 
 var updatedSidecarConfigHelm SidecarData = SidecarData{
 	Name: "sidecar-updated-test",
+	Tags: []string{"test3"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "helm",
 	},
@@ -30,6 +33,7 @@ var updatedSidecarConfigHelm SidecarData = SidecarData{
 
 var updatedSidecarConfigTF SidecarData = SidecarData{
 	Name: "sidecar-updated-test",
+	Tags: []string{"test4"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "terraform",
 	},
@@ -81,5 +85,6 @@ func formatSidecarDataIntoConfig(data SidecarData) string {
       resource "cyral_sidecar" "test_sidecar" {
       	name = "%s"
       	deployment_method = "%s"
-      }`, data.Name, data.SidecarProperty.DeploymentMethod)
+		tags = ["%s"]
+      }`, data.Name, data.SidecarProperty.DeploymentMethod, data.Tags[0])
 }

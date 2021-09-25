@@ -19,6 +19,7 @@ type CreateSidecarResponse struct {
 type SidecarData struct {
 	ID              string          `json:"id"`
 	Name            string          `json:"name"`
+	Tags            []string        `json:"labels"`
 	SidecarProperty SidecarProperty `json:"properties"`
 }
 
@@ -41,6 +42,13 @@ func resourceSidecar() *schema.Resource {
 			"deployment_method": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -65,13 +73,16 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 		return createError("Unable to create sidecar", fmt.Sprintf("%v", err))
 	}
 
-	response := CreateSidecarResponse{}
+	response := SidecarData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
+	d.Set("name", response.Name)
+	d.Set("tags", response.Tags)
+	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 
 	return resourceSidecarRead(ctx, d, m)
 }
@@ -96,6 +107,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	d.Set("name", response.Name)
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
+	d.Set("tags", response.Tags)
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -146,10 +158,15 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (Sidec
 	sp := SidecarProperty{
 		DeploymentMethod: deploymentMethod,
 	}
-
+	tags := d.Get("tags").([]interface{})
+	sidecarDataTags := make([]string, len(tags))
+	for i, tag := range tags {
+		sidecarDataTags[i] = (tag).(string)
+	}
 	return SidecarData{
 		ID:              d.Id(),
 		Name:            d.Get("name").(string),
+		Tags:            sidecarDataTags,
 		SidecarProperty: sp,
 	}, nil
 }

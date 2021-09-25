@@ -9,7 +9,6 @@ import (
 
 var cftSidecarConfig SidecarData = SidecarData{
 	Name: "sidecar-test",
-	//Tags: []string{"tag1", "tag2"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "cloudFormation",
 	},
