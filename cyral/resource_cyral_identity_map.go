@@ -168,11 +168,13 @@ func (resource *IdentityMapAPIResponse) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &response); err != nil {
 		return err
 	}
-	if response.AccessDuration != "" {
+	if response.AccessDuration != "" && response.AccessDuration != "P0D" {
 		resource.AccessDuration = &AccessDuration{}
 		if err := resource.AccessDuration.getTimeFromString(response.AccessDuration); err != nil {
 			return err
 		}
+	} else {
+		resource.AccessDuration = nil
 	}
 
 	return nil
