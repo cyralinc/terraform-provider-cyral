@@ -11,10 +11,10 @@ var initialIdentityMapConfig IdentityMapResource = IdentityMapResource{
 	IdentityType: "user",
 	IdentityName: "tf-test-identity-map",
 	AccessDuration: &AccessDuration{
-		Days:    0,
-		Hours:   2,
-		Minutes: 3,
-		Seconds: 4,
+		Days:    7,
+		Hours:   10,
+		Minutes: 30,
+		Seconds: 10,
 	},
 }
 

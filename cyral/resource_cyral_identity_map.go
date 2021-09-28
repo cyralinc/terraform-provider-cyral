@@ -8,7 +8,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/senseyeio/duration"
+	"github.com/rickb777/date/period"
 )
 
 type AccessDuration struct {
@@ -19,23 +19,26 @@ type AccessDuration struct {
 }
 
 func (data AccessDuration) formatTime() string {
-	return duration.Duration{
-		D:  data.Days,
-		TH: data.Hours,
-		TM: data.Minutes,
-		TS: data.Seconds,
-	}.String()
+	return period.New(0, 0,
+		data.Days,
+		data.Hours,
+		data.Minutes,
+		data.Seconds,
+	).String()
 }
 
 func (data *AccessDuration) getTimeFromString(payload string) error {
-	dur, err := duration.ParseISO8601(payload)
+	accessDurationPeriod, err := period.Parse(payload)
 	if err != nil {
 		return err
 	}
-	data.Days = dur.D
-	data.Hours = dur.TH
-	data.Minutes = dur.TM
-	data.Seconds = dur.TS
+
+	accessDurationNormalized := accessDurationPeriod.Normalise(false)
+
+	data.Days = accessDurationNormalized.Days()
+	data.Hours = accessDurationNormalized.Hours()
+	data.Minutes = accessDurationNormalized.Minutes()
+	data.Seconds = accessDurationNormalized.Seconds()
 
 	return nil
 }
