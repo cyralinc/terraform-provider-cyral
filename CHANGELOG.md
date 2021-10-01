@@ -1,3 +1,10 @@
+## 2.0.1 (September 30, 2021)
+
+Minimum required Control Plane version: `v2.22.0`.
+
+### Bug fixes:
+* **Omitting access_duration in cyral_identity_map resulted in plan change on every plan**: [#111](https://github.com/cyralinc/terraform-provider-cyral/pull/111);
+
 ## 2.0.0 (September 24, 2021)
 
 Minimum required Control Plane version: `v2.22.0`.
@@ -5,9 +12,6 @@ Minimum required Control Plane version: `v2.22.0`.
 ### Backwards compatibility breaks:
 * **Resource cyral_sidecar**: changed parameters;
 * **Data source cyral_sidecar_template**: data source replaced by `cyral_sidecar_cft_template` and template restricted to Cloudformation.
-
-### Bug fixes:
-* **Script to rotate service account secrets**: [#60](https://github.com/cyralinc/terraform-provider-cyral/pull/64);
 
 ### Features:
 * **Script to rotate service account secrets**: [#64](https://github.com/cyralinc/terraform-provider-cyral/pull/64);
