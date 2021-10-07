@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIntegrationSAML() *schema.Resource {
+func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
@@ -18,7 +18,11 @@ func resourceIntegrationSAML() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
 				},
-				ResourceData: &SAMLIntegrationData{},
+				ResourceData: &SAMLIntegrationData{
+					SAMLSetting: &SAMLSetting{
+						IdentityProvider: identityProvider,
+					},
+				},
 				ResponseData: &AliasBasedResponse{},
 			}, readSAMLIntegrationConfig,
 		),
@@ -30,7 +34,11 @@ func resourceIntegrationSAML() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SAMLIntegrationData{},
+				ResourceData: &SAMLIntegrationData{
+					SAMLSetting: &SAMLSetting{
+						IdentityProvider: identityProvider,
+					},
+				},
 			}, readSAMLIntegrationConfig,
 		),
 		DeleteContext: DeleteResource(
@@ -44,15 +52,21 @@ func resourceIntegrationSAML() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"identity_provider": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: client.ValidateIntegrationSAMLIdentityProvider(),
-			},
 			"ldap_group_attribute": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "cn",
+				Default:  "",
+			},
+			"alias": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if old == "" && new != "" {
+						return true
+					}
+					return true
+				},
 			},
 			"samlp": {
 				Type:     schema.TypeSet,
@@ -60,49 +74,63 @@ func resourceIntegrationSAML() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"alias": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
 						"provider_id": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "saml",
 						},
 						"disabled": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 						},
 						"first_broker_login_flow_alias": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "SAML_First_Broker",
 						},
 						"post_broker_login_flow_alias": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "",
 						},
 						"display_name": {
 							Type:     schema.TypeString,
 							Optional: true,
+							DefaultFunc: func() (interface{}, error) {
+								switch identityProvider {
+								case "okta":
+									return "Okta", nil
+								case "gsuite":
+									return "GSuite", nil
+								default:
+									return "", nil
+								}
+							},
 						},
 						"store_token": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 						},
 						"add_read_token_role_on_create": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 						},
 						"trust_email": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 						},
 						"link_only": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 						},
 						"internal_id": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Computed: true,
 						},
 						"config": {
 							Type:     schema.TypeSet,
@@ -113,70 +141,87 @@ func resourceIntegrationSAML() *schema.Resource {
 									"disable_using_jwks_url": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"sync_mode": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "FORCE",
 									},
 									"name_id_policy_format": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
 									},
 									"principal_type": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "SUBJECT",
 									},
 									"signature_type": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "RSA_SHA256",
 									},
 									"saml_xml_key_name_tranformer": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "KEY_ID",
 									},
 									"hide_on_login_page": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"back_channel_supported": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"disable_post_binding_response": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"disable_post_binding_authn_request": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"disable_post_binding_logout": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"disable_want_authn_requests_signed": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"disable_want_assertions_signed": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"want_assertions_encrypted": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"disable_force_authentication": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"disable_validate_signature": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"gui_order": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "",
 									},
 									"single_sign_on_service_url": {
 										Type:     schema.TypeString,
@@ -185,30 +230,37 @@ func resourceIntegrationSAML() *schema.Resource {
 									"single_logout_service_url": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "",
 									},
 									"xml_sig_key_info_key_name_transformer": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "KEY_ID",
 									},
 									"signing_certificate": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "",
 									},
 									"allowed_clock_skew": {
 										Type:     schema.TypeInt,
 										Optional: true,
+										Default:  0,
 									},
 									"saml_metadata_url": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "",
 									},
 									"base_64_saml_metadata_document": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "",
 									},
 									"ldap_group_attribute": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Default:  "",
 									},
 								},
 							},
@@ -238,7 +290,6 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	samlp := make([]interface{}, 0, 1)
 	if samlSetting.Samlp != nil {
 		samlpMap := make(map[string]interface{})
-		samlpMap["alias"] = samlSetting.Samlp.Alias
 		samlpMap["provider_id"] = samlSetting.Samlp.ProviderID
 		samlpMap["disabled"] = samlSetting.Samlp.Disabled
 		samlpMap["first_broker_login_flow_alias"] = samlSetting.Samlp.FirstBrokerLoginFlowAlias
@@ -280,12 +331,11 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 			configMap["ldap_group_attribute"] = samlSetting.Samlp.Config.LdapGroupAttribute
 			config = append(config, configMap)
 		}
-
-		samlp = append(samlp, samlpMap)
 		samlpMap["config"] = config
+		samlp = append(samlp, samlpMap)
 	}
-	d.Set("identity_provider", samlSetting.IdentityProvider)
 	d.Set("ldap_group_attribute", samlSetting.LdapGroupAttribute)
+	d.Set("alias", samlSetting.Samlp.Alias)
 	d.Set("samlp", samlp)
 }
 
@@ -293,7 +343,7 @@ func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	samlp := new(IdentityProviderConfig)
 	for _, samlpMap := range d.Get("samlp").(*schema.Set).List() {
 		samlpMap := samlpMap.(map[string]interface{})
-		samlp.Alias = samlpMap["alias"].(string)
+		samlp.Alias = d.Get("alias").(string)
 		samlp.ProviderID = samlpMap["provider_id"].(string)
 		samlp.Disabled = samlpMap["disabled"].(bool)
 		samlp.FirstBrokerLoginFlowAlias = samlpMap["first_broker_login_flow_alias"].(string)
@@ -336,11 +386,8 @@ func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 		samlp.Config = config
 	}
 
-	data.SAMLSetting = &SAMLSetting{
-		IdentityProvider:   d.Get("identity_provider").(string),
-		LdapGroupAttribute: d.Get("ldap_group_attribute").(string),
-		Samlp:              samlp,
-	}
+	data.SAMLSetting.LdapGroupAttribute = d.Get("ldap_group_attribute").(string)
+	data.SAMLSetting.Samlp = samlp
 }
 
 func (resource *SAMLIntegrationData) MarshalJSON() ([]byte, error) {
@@ -355,6 +402,4 @@ func (response AliasBasedResponse) WriteToSchema(d *schema.ResourceData) {
 	d.SetId(response.Alias)
 }
 
-func (response *AliasBasedResponse) ReadFromSchema(d *schema.ResourceData) {
-	response.Alias = d.Id()
-}
+func (response *AliasBasedResponse) ReadFromSchema(d *schema.ResourceData) {}

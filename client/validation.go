@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/endpoints"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // ValidateRepoType checks if a given repository type is valid.
@@ -76,15 +74,4 @@ func ValidateAWSRegion(param string) error {
 		return fmt.Errorf("AWS region must be one of %v", keys)
 	}
 	return nil
-}
-
-func ValidateIntegrationSAMLIdentityProvider() schema.SchemaValidateFunc {
-	return validation.StringInSlice([]string{
-		"adfs-2016",
-		"aad",
-		"forgerock",
-		"gsuite",
-		"okta",
-		"pingone",
-	}, false)
 }
