@@ -52,11 +52,6 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"ldap_group_attribute": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
 			"alias": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -97,16 +92,7 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 						"display_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							DefaultFunc: func() (interface{}, error) {
-								switch identityProvider {
-								case "okta":
-									return "Okta", nil
-								case "gsuite":
-									return "GSuite", nil
-								default:
-									return "", nil
-								}
-							},
+							Default:  idpDefaultValues(identityProvider, "display_name"),
 						},
 						"store_token": {
 							Type:     schema.TypeBool,
@@ -151,7 +137,8 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 									"name_id_policy_format": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Default:  "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+										Default: idpDefaultValues(identityProvider,
+											"name_id_policy_format"),
 									},
 									"principal_type": {
 										Type:     schema.TypeString,
@@ -166,7 +153,8 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 									"saml_xml_key_name_tranformer": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Default:  "KEY_ID",
+										Default: idpDefaultValues(identityProvider,
+											"saml_xml_key_name_tranformer"),
 									},
 									"hide_on_login_page": {
 										Type:     schema.TypeBool,
@@ -191,7 +179,8 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 									"disable_post_binding_logout": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Default:  false,
+										Default: idpDefaultValues(identityProvider,
+											"disable_post_binding_logout"),
 									},
 									"disable_want_authn_requests_signed": {
 										Type:     schema.TypeBool,
@@ -230,12 +219,14 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 									"single_logout_service_url": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Default:  "",
+										Default: idpDefaultValues(identityProvider,
+											"single_logout_service_url"),
 									},
 									"xml_sig_key_info_key_name_transformer": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Default:  "KEY_ID",
+										Default: idpDefaultValues(identityProvider,
+											"xml_sig_key_info_key_name_transformer"),
 									},
 									"signing_certificate": {
 										Type:     schema.TypeString,
@@ -260,7 +251,8 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 									"ldap_group_attribute": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Default:  "",
+										Default: idpDefaultValues(identityProvider,
+											"ldap_group_attribute"),
 									},
 								},
 							},
@@ -283,6 +275,72 @@ var readSAMLIntegrationConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 	},
 	ResponseData: &SAMLIntegrationData{},
+}
+
+var (
+	defaultValuesMap = map[string]interface{}{
+		"display_name":                          "",
+		"disable_post_binding_logout":           false,
+		"name_id_policy_format":                 "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+		"saml_xml_key_name_tranformer":          "KEY_ID",
+		"single_logout_service_url":             "",
+		"xml_sig_key_info_key_name_transformer": "KEY_ID",
+		"ldap_group_attribute":                  "",
+	}
+	adfsDefaultValuesMap = map[string]interface{}{
+		"display_name":                          "Active Directory",
+		"disable_post_binding_logout":           true,
+		"name_id_policy_format":                 "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+		"saml_xml_key_name_tranformer":          "CERT_SUBJECT",
+		"single_logout_service_url":             "",
+		"xml_sig_key_info_key_name_transformer": "CERT_SUBJECT",
+	}
+	aadDefaultValuesMap = map[string]interface{}{
+		"display_name": "Azure Active Directory",
+	}
+	forgerockDefaultValuesMap = map[string]interface{}{
+		"display_name":         "Forgerock",
+		"ldap_group_attribute": "cn",
+	}
+	gsuiteDefaultValuesMap = map[string]interface{}{
+		"display_name": "GSuite",
+	}
+	oktaDefaultValuesMap = map[string]interface{}{
+		"display_name": "Okta",
+	}
+	pingoneDefaultValuesMap = map[string]interface{}{
+		"display_name": "Pingone",
+	}
+)
+
+func idpDefaultValues(identityProvider, fieldName string) interface{} {
+	switch identityProvider {
+	case "adfs-2016":
+		if value, ok := adfsDefaultValuesMap[fieldName]; ok {
+			return value
+		}
+	case "aad":
+		if value, ok := aadDefaultValuesMap[fieldName]; ok {
+			return value
+		}
+	case "forgerock":
+		if value, ok := forgerockDefaultValuesMap[fieldName]; ok {
+			return value
+		}
+	case "gsuite":
+		if value, ok := gsuiteDefaultValuesMap[fieldName]; ok {
+			return value
+		}
+	case "okta":
+		if value, ok := oktaDefaultValuesMap[fieldName]; ok {
+			return value
+		}
+	case "pingone":
+		if value, ok := pingoneDefaultValuesMap[fieldName]; ok {
+			return value
+		}
+	}
+	return defaultValuesMap[fieldName]
 }
 
 func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
@@ -334,7 +392,6 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 		samlpMap["config"] = config
 		samlp = append(samlp, samlpMap)
 	}
-	d.Set("ldap_group_attribute", samlSetting.LdapGroupAttribute)
 	d.Set("alias", samlSetting.Samlp.Alias)
 	d.Set("samlp", samlp)
 }
@@ -386,11 +443,11 @@ func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 		samlp.Config = config
 	}
 
-	data.SAMLSetting.LdapGroupAttribute = d.Get("ldap_group_attribute").(string)
+	data.SAMLSetting.LdapGroupAttribute = samlp.Config.LdapGroupAttribute
 	data.SAMLSetting.Samlp = samlp
 }
 
-func (resource *SAMLIntegrationData) MarshalJSON() ([]byte, error) {
+func (resource SAMLIntegrationData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(resource.SAMLSetting)
 }
 
