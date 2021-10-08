@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	EnvVarSAMLMetadataURL = "SAML_METADATA_URL"
+	EnvVarSSOURL = "SSO_URL"
 )
 
 func TestAccSAMLIntegrationResource(t *testing.T) {
@@ -18,9 +18,9 @@ func TestAccSAMLIntegrationResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		PreCheck: func() {
-			if v := os.Getenv(EnvVarSAMLMetadataURL); v == "" {
+			if v := os.Getenv(EnvVarSSOURL); v == "" {
 				t.Skip(fmt.Sprintf(
-					"Acceptance tests skipped unless env '%s' set", EnvVarSAMLMetadataURL))
+					"Acceptance tests skipped unless env '%s' set", EnvVarSSOURL))
 			}
 		},
 		Steps: []resource.TestStep{
@@ -109,13 +109,13 @@ func testAccSAMLIntegrationConfig_ADFS_DefaultValues() string {
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSAMLMetadataURL))
+	`, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_ADFS_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_saml_adfs.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
 }
 
@@ -128,13 +128,13 @@ func testAccSAMLIntegrationConfig_AAD_DefaultValues() string {
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSAMLMetadataURL))
+	`, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_AAD_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_saml_aad.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
 }
 
@@ -147,13 +147,13 @@ func testAccSAMLIntegrationConfig_Forgerock_DefaultValues() string {
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSAMLMetadataURL))
+	`, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_Forgerock_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_saml_forgerock.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
 }
 
@@ -166,13 +166,13 @@ func testAccSAMLIntegrationConfig_GSuite_DefaultValues() string {
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSAMLMetadataURL))
+	`, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_GSuite_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_saml_gsuite.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
 }
 
@@ -185,13 +185,13 @@ func testAccSAMLIntegrationConfig_Okta_DefaultValues() string {
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSAMLMetadataURL))
+	`, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_Okta_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
 }
 
@@ -204,13 +204,13 @@ func testAccSAMLIntegrationConfig_Pingone_DefaultValues() string {
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSAMLMetadataURL))
+	`, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_Pingone_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_saml_pingone.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
 }
 
@@ -224,7 +224,7 @@ func testAccSAMLIntegrationConfig_NotEmptyAlias() string {
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSAMLMetadataURL))
+	`, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_NotEmptyAlias() resource.TestCheckFunc {
@@ -232,7 +232,7 @@ func testAccSAMLIntegrationCheck_NotEmptyAlias() resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
 			"draft_alias", "test-alias"),
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
 }
 
@@ -249,7 +249,7 @@ func testAccSAMLIntegrationConfig_Updated(samlDisplayName string) string {
 			}
 		}
 	}
-	`, samlDisplayName, os.Getenv(EnvVarSAMLMetadataURL))
+	`, samlDisplayName, os.Getenv(EnvVarSSOURL))
 }
 
 func testAccSAMLIntegrationCheck_Updated(samlDisplayName string) resource.TestCheckFunc {
@@ -261,7 +261,7 @@ func testAccSAMLIntegrationCheck_Updated(samlDisplayName string) resource.TestCh
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
 			"samlp.0.disabled", "true"),
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSAMLMetadataURL)),
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
 			"samlp.0.config.0.back_channel_supported", "true"),
 	)
