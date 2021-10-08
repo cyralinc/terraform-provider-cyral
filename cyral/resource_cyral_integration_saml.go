@@ -52,16 +52,11 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"alias": {
+			"draft_alias": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					if old == "" && new != "" {
-						return true
-					}
-					return true
-				},
+				ForceNew: true,
 			},
 			"samlp": {
 				Type:     schema.TypeSet,
@@ -69,6 +64,10 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"alias": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"provider_id": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -348,6 +347,7 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	samlp := make([]interface{}, 0, 1)
 	if samlSetting.Samlp != nil {
 		samlpMap := make(map[string]interface{})
+		samlpMap["alias"] = samlSetting.Samlp.Alias
 		samlpMap["provider_id"] = samlSetting.Samlp.ProviderID
 		samlpMap["disabled"] = samlSetting.Samlp.Disabled
 		samlpMap["first_broker_login_flow_alias"] = samlSetting.Samlp.FirstBrokerLoginFlowAlias
@@ -392,7 +392,6 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 		samlpMap["config"] = config
 		samlp = append(samlp, samlpMap)
 	}
-	d.Set("alias", samlSetting.Samlp.Alias)
 	d.Set("samlp", samlp)
 }
 
@@ -400,7 +399,7 @@ func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 	samlp := new(IdentityProviderConfig)
 	for _, samlpMap := range d.Get("samlp").(*schema.Set).List() {
 		samlpMap := samlpMap.(map[string]interface{})
-		samlp.Alias = d.Get("alias").(string)
+		samlp.Alias = d.Get("draft_alias").(string)
 		samlp.ProviderID = samlpMap["provider_id"].(string)
 		samlp.Disabled = samlpMap["disabled"].(bool)
 		samlp.FirstBrokerLoginFlowAlias = samlpMap["first_broker_login_flow_alias"].(string)
