@@ -54,20 +54,20 @@ func TestAccSAMLIntegrationResource(t *testing.T) {
 				Check:  testAccSAMLIntegrationCheck_GSuite_DefaultValues(),
 			},
 			{
-				Config: testAccSAMLIntegrationConfig_Okta_DefaultValues(),
-				Check:  testAccSAMLIntegrationCheck_Okta_DefaultValues(),
-			},
-			{
 				Config: testAccSAMLIntegrationConfig_Pingone_DefaultValues(),
 				Check:  testAccSAMLIntegrationCheck_Pingone_DefaultValues(),
 			},
 			{
-				Config: testAccSAMLIntegrationConfig_NotEmptyAlias(),
-				Check:  testAccSAMLIntegrationCheck_NotEmptyAlias(),
+				Config: testAccSAMLIntegrationConfig_Okta_DefaultValues(),
+				Check:  testAccSAMLIntegrationCheck_Okta_DefaultValues(),
 			},
 			{
 				Config: testAccSAMLIntegrationConfig_Updated(samlDisplayName),
 				Check:  testAccSAMLIntegrationCheck_Updated(samlDisplayName),
+			},
+			{
+				Config: testAccSAMLIntegrationConfig_NotEmptyAlias(),
+				Check:  testAccSAMLIntegrationCheck_NotEmptyAlias(),
 			},
 		},
 	})
@@ -176,6 +176,25 @@ func testAccSAMLIntegrationCheck_GSuite_DefaultValues() resource.TestCheckFunc {
 	)
 }
 
+func testAccSAMLIntegrationConfig_Pingone_DefaultValues() string {
+	return fmt.Sprintf(`
+	resource "cyral_integration_saml_pingone" "test_saml_integration" {
+		samlp {
+			config {
+				single_sign_on_service_url = "%s"
+			}
+		}
+	}
+	`, os.Getenv(EnvVarSSOURL))
+}
+
+func testAccSAMLIntegrationCheck_Pingone_DefaultValues() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_integration_saml_pingone.test_saml_integration",
+			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
+	)
+}
+
 func testAccSAMLIntegrationConfig_Okta_DefaultValues() string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_saml_okta" "test_saml_integration" {
@@ -195,22 +214,31 @@ func testAccSAMLIntegrationCheck_Okta_DefaultValues() resource.TestCheckFunc {
 	)
 }
 
-func testAccSAMLIntegrationConfig_Pingone_DefaultValues() string {
+func testAccSAMLIntegrationConfig_Updated(samlDisplayName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_integration_saml_pingone" "test_saml_integration" {
+	resource "cyral_integration_saml_okta" "test_saml_integration" {
 		samlp {
+			display_name = "%s"
+			disabled = true
 			config {
 				single_sign_on_service_url = "%s"
+				back_channel_supported = true
 			}
 		}
 	}
-	`, os.Getenv(EnvVarSSOURL))
+	`, samlDisplayName, os.Getenv(EnvVarSSOURL))
 }
 
-func testAccSAMLIntegrationCheck_Pingone_DefaultValues() resource.TestCheckFunc {
+func testAccSAMLIntegrationCheck_Updated(samlDisplayName string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_integration_saml_pingone.test_saml_integration",
+		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
+			"samlp.0.display_name", samlDisplayName),
+		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
+			"samlp.0.disabled", "true"),
+		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
 			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
+		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
+			"samlp.0.config.0.back_channel_supported", "true"),
 	)
 }
 
@@ -233,36 +261,5 @@ func testAccSAMLIntegrationCheck_NotEmptyAlias() resource.TestCheckFunc {
 			"draft_alias", "test-alias"),
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
 			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
-	)
-}
-
-func testAccSAMLIntegrationConfig_Updated(samlDisplayName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_saml_okta" "test_saml_integration" {
-		draft_alias = "test-alias"
-		samlp {
-			display_name = "%s"
-			disabled = true
-			config {
-				single_sign_on_service_url = "%s"
-				back_channel_supported = true
-			}
-		}
-	}
-	`, samlDisplayName, os.Getenv(EnvVarSSOURL))
-}
-
-func testAccSAMLIntegrationCheck_Updated(samlDisplayName string) resource.TestCheckFunc {
-	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"draft_alias", "test-alias"),
-		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"samlp.0.display_name", samlDisplayName),
-		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"samlp.0.disabled", "true"),
-		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
-		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
-			"samlp.0.config.0.back_channel_supported", "true"),
 	)
 }

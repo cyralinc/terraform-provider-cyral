@@ -64,10 +64,6 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"alias": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"provider_id": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -347,7 +343,6 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 	samlp := make([]interface{}, 0, 1)
 	if samlSetting.Samlp != nil {
 		samlpMap := make(map[string]interface{})
-		samlpMap["alias"] = samlSetting.Samlp.Alias
 		samlpMap["provider_id"] = samlSetting.Samlp.ProviderID
 		samlpMap["disabled"] = samlSetting.Samlp.Disabled
 		samlpMap["first_broker_login_flow_alias"] = samlSetting.Samlp.FirstBrokerLoginFlowAlias
