@@ -13,19 +13,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+var (
+	metadataTypes = []string{"base_64_saml_metadata_document", "saml_metadata_url"}
+)
+
 func dataSourceSAMLConfiguration() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSAMLConfigurationRead,
 		Schema: map[string]*schema.Schema{
 			"saml_metadata_url": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"base_64_saml_metadata_document"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: metadataTypes,
 			},
 			"base_64_saml_metadata_document": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"saml_metadata_url"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: metadataTypes,
 			},
 			"disable_using_jwks_url": {
 				Type:     schema.TypeBool,
@@ -159,29 +163,31 @@ func getSAMLMetadataRequestFromSchema(d *schema.ResourceData) ParseSAMLMetadataR
 }
 
 func setSAMLConfigurationToSchema(d *schema.ResourceData, data SAMLConfiguration) {
-	d.Set("disable_using_jwks_url", data.Config.DisableUsingJWKSUrl)
-	d.Set("sync_mode", data.Config.SyncMode)
-	d.Set("name_id_policy_format", data.Config.NameIDPolicyFormat)
-	d.Set("principal_type", data.Config.PrincipalType)
-	d.Set("signature_type", data.Config.SignatureType)
-	d.Set("saml_xml_key_name_tranformer", data.Config.SamlXmlKeyNameTranformer)
-	d.Set("hide_on_login_page", data.Config.HideOnLoginPage)
-	d.Set("back_channel_supported", data.Config.BackChannelSupported)
-	d.Set("disable_post_binding_response", data.Config.DisablePostBindingResponse)
-	d.Set("disable_post_binding_authn_request", data.Config.DisablePostBindingAuthnRequest)
-	d.Set("disable_post_binding_logout", data.Config.DisablePostBindingLogout)
-	d.Set("disable_want_authn_requests_signed", data.Config.DisableWantAuthnRequestsSigned)
-	d.Set("disable_want_assertions_signed", data.Config.DisableWantAssertionsSigned)
-	d.Set("want_assertions_encrypted", data.Config.WantAssertionsEncrypted)
-	d.Set("disable_force_authentication", data.Config.DisableForceAuthentication)
-	d.Set("disable_validate_signature", data.Config.DisableValidateSignature)
-	d.Set("gui_order", data.Config.GuiOrder)
-	d.Set("single_sign_on_service_url", data.Config.SingleSignOnServiceURL)
-	d.Set("single_logout_service_url", data.Config.SingleLogoutServiceURL)
-	d.Set("xml_sig_key_info_key_name_transformer", data.Config.XmlSigKeyInfoKeyNameTransformer)
-	d.Set("signing_certificate", data.Config.SigningCertificate)
-	d.Set("allowed_clock_skew", data.Config.AllowedClockSkew)
-	d.Set("saml_metadata_url", data.Config.SamlMetadataURL)
-	d.Set("base_64_saml_metadata_document", data.Config.Base64SamlMetadataDocument)
-	d.Set("ldap_group_attribute", data.Config.LdapGroupAttribute)
+	if data.Config != nil {
+		d.Set("disable_using_jwks_url", data.Config.DisableUsingJWKSUrl)
+		d.Set("sync_mode", data.Config.SyncMode)
+		d.Set("name_id_policy_format", data.Config.NameIDPolicyFormat)
+		d.Set("principal_type", data.Config.PrincipalType)
+		d.Set("signature_type", data.Config.SignatureType)
+		d.Set("saml_xml_key_name_tranformer", data.Config.SamlXmlKeyNameTranformer)
+		d.Set("hide_on_login_page", data.Config.HideOnLoginPage)
+		d.Set("back_channel_supported", data.Config.BackChannelSupported)
+		d.Set("disable_post_binding_response", data.Config.DisablePostBindingResponse)
+		d.Set("disable_post_binding_authn_request", data.Config.DisablePostBindingAuthnRequest)
+		d.Set("disable_post_binding_logout", data.Config.DisablePostBindingLogout)
+		d.Set("disable_want_authn_requests_signed", data.Config.DisableWantAuthnRequestsSigned)
+		d.Set("disable_want_assertions_signed", data.Config.DisableWantAssertionsSigned)
+		d.Set("want_assertions_encrypted", data.Config.WantAssertionsEncrypted)
+		d.Set("disable_force_authentication", data.Config.DisableForceAuthentication)
+		d.Set("disable_validate_signature", data.Config.DisableValidateSignature)
+		d.Set("gui_order", data.Config.GuiOrder)
+		d.Set("single_sign_on_service_url", data.Config.SingleSignOnServiceURL)
+		d.Set("single_logout_service_url", data.Config.SingleLogoutServiceURL)
+		d.Set("xml_sig_key_info_key_name_transformer", data.Config.XmlSigKeyInfoKeyNameTransformer)
+		d.Set("signing_certificate", data.Config.SigningCertificate)
+		d.Set("allowed_clock_skew", data.Config.AllowedClockSkew)
+		d.Set("saml_metadata_url", data.Config.SamlMetadataURL)
+		d.Set("base_64_saml_metadata_document", data.Config.Base64SamlMetadataDocument)
+		d.Set("ldap_group_attribute", data.Config.LdapGroupAttribute)
+	}
 }

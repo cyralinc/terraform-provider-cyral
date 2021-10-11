@@ -25,8 +25,12 @@ func TestAccSAMLConfigurationDataSource(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccSAMLConfigurationConfig_EmptyMetadata(),
+				ExpectError: regexp.MustCompile(`Error: Invalid combination of arguments`),
+			},
+			{
 				Config:      testAccSAMLConfigurationConfig_BothMetadataType(Base64Doc),
-				ExpectError: regexp.MustCompile(`Error: Conflicting configuration arguments`),
+				ExpectError: regexp.MustCompile(`Error: Invalid combination of arguments`),
 			},
 			{
 				Config: testAccSAMLConfigurationConfig_MetadataURL(),
@@ -38,6 +42,13 @@ func TestAccSAMLConfigurationDataSource(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccSAMLConfigurationConfig_EmptyMetadata() string {
+	return `
+	data "cyral_saml_configuration" "test_saml_configuration" {
+	}
+	`
 }
 
 func testAccSAMLConfigurationConfig_BothMetadataType(base64Doc string) string {
