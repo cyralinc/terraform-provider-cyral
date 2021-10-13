@@ -177,27 +177,12 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 										Default: idpDefaultValues(identityProvider,
 											"disable_post_binding_logout"),
 									},
-									"disable_want_authn_requests_signed": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
-									},
-									"disable_want_assertions_signed": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
-									},
 									"want_assertions_encrypted": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"disable_force_authentication": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
-									},
-									"disable_validate_signature": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
@@ -368,11 +353,8 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 			configMap["disable_post_binding_response"] = samlSetting.Samlp.Config.DisablePostBindingResponse
 			configMap["disable_post_binding_authn_request"] = samlSetting.Samlp.Config.DisablePostBindingAuthnRequest
 			configMap["disable_post_binding_logout"] = samlSetting.Samlp.Config.DisablePostBindingLogout
-			configMap["disable_want_authn_requests_signed"] = samlSetting.Samlp.Config.DisableWantAuthnRequestsSigned
-			configMap["disable_want_assertions_signed"] = samlSetting.Samlp.Config.DisableWantAssertionsSigned
 			configMap["want_assertions_encrypted"] = samlSetting.Samlp.Config.WantAssertionsEncrypted
 			configMap["disable_force_authentication"] = samlSetting.Samlp.Config.DisableForceAuthentication
-			configMap["disable_validate_signature"] = samlSetting.Samlp.Config.DisableValidateSignature
 			configMap["gui_order"] = samlSetting.Samlp.Config.GuiOrder
 			configMap["single_sign_on_service_url"] = samlSetting.Samlp.Config.SingleSignOnServiceURL
 			configMap["single_logout_service_url"] = samlSetting.Samlp.Config.SingleLogoutServiceURL
@@ -419,11 +401,8 @@ func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 			config.DisablePostBindingResponse = configMap["disable_post_binding_response"].(bool)
 			config.DisablePostBindingAuthnRequest = configMap["disable_post_binding_authn_request"].(bool)
 			config.DisablePostBindingLogout = configMap["disable_post_binding_logout"].(bool)
-			config.DisableWantAuthnRequestsSigned = configMap["disable_want_authn_requests_signed"].(bool)
-			config.DisableWantAssertionsSigned = configMap["disable_want_assertions_signed"].(bool)
 			config.WantAssertionsEncrypted = configMap["want_assertions_encrypted"].(bool)
 			config.DisableForceAuthentication = configMap["disable_force_authentication"].(bool)
-			config.DisableValidateSignature = configMap["disable_validate_signature"].(bool)
 			config.GuiOrder = configMap["gui_order"].(string)
 			config.SingleSignOnServiceURL = configMap["single_sign_on_service_url"].(string)
 			config.SingleLogoutServiceURL = configMap["single_logout_service_url"].(string)
