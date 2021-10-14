@@ -107,7 +107,7 @@ resource "cyral_integration_datadog" "datadog" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    tags = ["deploymentMethod:cloudFormation", "someTag1", "someTag2"]
+    deployment_method = "cloudFormation"
 }
 
 resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
@@ -153,7 +153,6 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Data Source Sidecar CFT Template](./docs/data_source_sidecar_cft_template.md)
 - [Provider](./docs/provider.md)
 - [Resource Datamap](./docs/resource_datamap.md)
-- [Resource Identity Map](./docs/resource_identity_map.md)
 - [Resource Integration Datadog](./docs/resource_integration_datadog.md)
 - [Resource Integration ELK](./docs/resource_integration_elk.md)
 - [Resource Integration Hashicorp Vault](./docs/resource_integration_hc_vault.md)
@@ -168,8 +167,10 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Policy](./docs/resource_policy.md)
 - [Resource Policy Rule](./docs/resource_policy_rule.md)
 - [Resource Repository](./docs/resource_repository.md)
+- [Resource Repository Analysis Configuration](./docs/resource_repository_conf_analysis.md)
 - [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
 - [Resource Repository Binding](./docs/resource_repository_binding.md)
+- [Resource Repository Identity Map](./docs/resource_repository_identity_map.md)
 - [Resource Repository Local Account](./docs/resource_repository_local_account.md)
 - [Resource Sidecar](./docs/resource_sidecar.md)
 - [Resource Sidecar Credentials](./docs/resource_sidecar_credentials.md)
