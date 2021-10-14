@@ -19,10 +19,6 @@ resource "cyral_integration_saml_okta" "some_resource_name" {
 ### Integration with Custom Configuration
 
 ```hcl
-data "cyral_saml_configuration" "some_data_source_name" {
-  saml_metadata_url = "some_metadata_url"
-}
-
 resource "cyral_integration_saml_okta" "some_resource_name" {
   draft_alias = "some_draft_alias"
   samlp {
