@@ -18,8 +18,8 @@ data "cyral_saml_configuration" "some_data_source_name" {
 
 ## Argument Reference
 
-* `base_64_saml_metadata_document` - (Optional) This is the full SAML metadata document that should be used to parse a SAML configuration, Base64 encoded. Required if 'saml_metadata_url' is not set.
-* `saml_metadata_url` - (Optional) This is the full SAML metadata URL we should use to parse to a SAML configuration. Required if 'base_64_saml_metadata_document' is not set.
+* `base_64_saml_metadata_document` - (Required, unless using `saml_metadata_url`) This is the full SAML metadata document that should be used to parse a SAML configuration, Base64 encoded.
+* `saml_metadata_url` - (Required, unless using `base_64_saml_metadata_document`) This is the full SAML metadata URL we should use to parse to a SAML configuration.
 
 ## Attribute Reference
 

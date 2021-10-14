@@ -259,6 +259,9 @@ func testAccSAMLIntegrationCheck_NotEmptyAlias() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
 			"draft_alias", "test-alias"),
+		resource.TestCheckResourceAttrPair(
+			"cyral_integration_saml_okta.test_saml_integration", "id",
+			"cyral_integration_saml_okta.test_saml_integration", "draft_alias"),
 		resource.TestCheckResourceAttr("cyral_integration_saml_okta.test_saml_integration",
 			"samlp.0.config.0.single_sign_on_service_url", os.Getenv(EnvVarSSOURL)),
 	)
