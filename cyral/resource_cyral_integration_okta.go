@@ -104,7 +104,7 @@ var cleanUpOktaIntegration = ResourceOperationConfig{
 
 func resourceIntegrationOkta() *schema.Resource {
 	return &schema.Resource{
-		DeprecationMessage: "Use `cyral_integration_saml_okta` instead.",
+		DeprecationMessage: "Use `cyral_integration_sso_okta` instead.",
 		CreateContext:      CreateOktaIntegration,
 		ReadContext:        ReadOktaIntegration,
 		UpdateContext:      UpdateOktaIntegration,

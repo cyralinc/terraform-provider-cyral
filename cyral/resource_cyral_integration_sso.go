@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIntegrationSAML(identityProvider string) *schema.Resource {
+func resourceIntegrationSSO(identityProvider string) *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
-				Name:       "resourceIntegrationSAMLCreate",
+				Name:       "resourceIntegrationSSOCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
@@ -29,7 +29,7 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 		ReadContext: ReadResource(readSAMLIntegrationConfig),
 		UpdateContext: UpdateResource(
 			ResourceOperationConfig{
-				Name:       "resourceIntegrationSAMLUpdate",
+				Name:       "resourceIntegrationSSOUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
@@ -43,7 +43,7 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 		),
 		DeleteContext: DeleteResource(
 			ResourceOperationConfig{
-				Name:       "resourceIntegrationSAMLDelete",
+				Name:       "resourceIntegrationSSODelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
@@ -249,7 +249,7 @@ func resourceIntegrationSAML(identityProvider string) *schema.Resource {
 }
 
 var readSAMLIntegrationConfig = ResourceOperationConfig{
-	Name:       "resourceIntegrationSAMLRead",
+	Name:       "resourceIntegrationSSORead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
@@ -289,7 +289,7 @@ var (
 		"display_name": "Okta",
 	}
 	pingoneDefaultValuesMap = map[string]interface{}{
-		"display_name": "Pingone",
+		"display_name": "PingOne",
 	}
 )
 

@@ -1,13 +1,13 @@
-# GSuite SAML Integration Resource
+# Active Directory Federation Services SAML Integration Resource
 
-Provides a GSuite SAML integration resource.
+Provides an ADFS SAML integration resource.
 
 ## Example Usage
 
 ### Integration with Default Configuration
 
 ```hcl
-resource "cyral_integration_saml_gsuite" "some_resource_name" {
+resource "cyral_integration_sso_adfs" "some_resource_name" {
   samlp {
     config {
       single_sign_on_service_url = "some_sso_url"
@@ -19,14 +19,14 @@ resource "cyral_integration_saml_gsuite" "some_resource_name" {
 ### Integration with Custom Configuration
 
 ```hcl
-resource "cyral_integration_saml_gsuite" "some_resource_name" {
+resource "cyral_integration_sso_adfs" "some_resource_name" {
   draft_alias = "some_draft_alias"
   samlp {
     provider_id = "saml"
     disabled = false
     first_broker_login_flow_alias = "SAML_First_Broker"
     post_broker_login_flow_alias = ""
-    display_name = "Custom-GSuite"
+    display_name = "Custom-ADFS"
     store_token = false
     add_read_token_role_on_create = false
     trust_email = false
