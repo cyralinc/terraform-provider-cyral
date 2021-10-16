@@ -5,7 +5,6 @@ GOFMT=gofmt
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 GOINSTALL=$(GOCMD) install
-TEST=$$($(GOCMD) list ./...)
 PROTOC=protoc
 # Get latest version (tag). It is important to notice that the following
 # commands restricts the build to those git-initialized folders. Thus,
@@ -36,6 +35,12 @@ local/install: local/build
 	cp out/darwin_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
 	cp out/linux_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
 
+docker/test:
+	docker-compose run -e CYRAL_TF_CP_URL=$(CYRAL_TF_CP_URL) -e CYRAL_TF_CLIENT_ID=$(CYRAL_TF_CLIENT_ID) \
+	  -e CYRAL_TF_CLIENT_SECRET=$(CYRAL_TF_CLIENT_SECRET) -e CYRAL_TF_SSO_URL=$(CYRAL_TF_SSO_URL) \
+	  -e CYRAL_TF_SAML_METADATA_URL=$(CYRAL_TF_SAML_METADATA_URL) -e TF_ACC=true \
+	  app $(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race
+
 docker/build:
 	docker-compose run app $(GOFMT) -w .
 	docker-compose run -e GOOS=darwin -e GOARCH=amd64 app $(GOBUILD) -o out/darwin_amd64/terraform-provider-cyral_v$(VERSION) .
@@ -59,7 +64,7 @@ docker/clean:
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
 local/test:
-	$(GOTEST) $(TEST) -v -race
+	$(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race
 
 docker-compose/build: docker-compose/lint
 	docker-compose build --build-arg VERSION="$(VERSION+sha)" build
