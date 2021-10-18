@@ -13,7 +13,7 @@ const (
 	EnvVarSSOURL = "CYRAL_TF_SSO_URL"
 )
 
-func TestAccSSOLIntegrationResource(t *testing.T) {
+func TestAccSSOIntegrationResource(t *testing.T) {
 	samlDisplayName := "tf-test-saml-integration"
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
