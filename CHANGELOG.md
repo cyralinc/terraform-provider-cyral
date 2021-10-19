@@ -1,3 +1,10 @@
+## 2.1.0 (October 18, 2021)
+
+Minimum required Control Plane version: `v2.24.0`.
+
+### Features:
+* **Generic SAML integration and new SSO resources**: [#115](https://github.com/cyralinc/terraform-provider-cyral/pull/115);
+
 ## 2.0.1 (September 30, 2021)
 
 Minimum required Control Plane version: `v2.22.0`.
