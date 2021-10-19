@@ -63,11 +63,11 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 		type  = "mongodb"
 		host  = "mongodb.cyral.com"
 		port  = 27017
-		name  = "test_repo_binding_sidecar-test"
+		name  = "tf-provider-repo-binding-repo"
 	}
 	
 	resource "cyral_sidecar" "test_repo_binding_sidecar" {
-		name = "test_sidecar-test"
+		name = "tf-provider-repo-binding-sidecar"
 		deployment_method = "cloudFormation"
 	}
 
