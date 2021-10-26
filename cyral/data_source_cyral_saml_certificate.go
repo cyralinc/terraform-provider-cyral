@@ -11,7 +11,7 @@ import (
 
 func dataSourceSAMLCertificate() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieves a service provider X.509 certificate used for signing SAML requests.",
+		Description: "Retrieves a X.509 certificate used for signing SAML requests.",
 		ReadContext: ReadResource(ResourceOperationConfig{
 			Name:       "dataSourceSAMLCertificateRead",
 			HttpMethod: http.MethodGet,
@@ -24,7 +24,7 @@ func dataSourceSAMLCertificate() *schema.Resource {
 			"certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The service provider X.509 certificate used for signing SAML requests.",
+				Description: "The X.509 certificate used for signing SAML requests.",
 			},
 		},
 		Importer: &schema.ResourceImporter{
