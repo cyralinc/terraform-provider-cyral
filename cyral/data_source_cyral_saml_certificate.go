@@ -1,44 +1,45 @@
 package cyral
 
 import (
-	"context"
 	"fmt"
-	"strings"
+	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CertificateSchema string
-
-func (data CertificateSchema) WriteToSchema(d *schema.ResourceData) {
-	d.Set("certificate", string(data))
-}
-
 func dataSourceSAMLCertificate() *schema.Resource {
 	return &schema.Resource{
-		Description: "X.509 certificate for saml integration validation",
-		ReadContext: func(_ context.Context, rd *schema.ResourceData, i interface{}) diag.Diagnostics {
-			c := i.(*client.Client)
-			resp, err := c.DoRequest(fmt.Sprintf("https://%s/deploy/saml/cert.pem", c.ControlPlane[:len(c.ControlPlane)-len(":8000")]), "GET", nil)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			rd.SetId("0")
-			certificate := strings.Split(string(resp), "\n")[1]
-			return diag.FromErr(rd.Set("certificate", certificate))
-		},
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
+		Description: "Retrieves a service provider X.509 certificate used for signing SAML requests.",
+		ReadContext: ReadResource(ResourceOperationConfig{
+			Name:       "dataSourceSAMLCertificateRead",
+			HttpMethod: http.MethodGet,
+			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				return fmt.Sprintf("https://%s/v1/integrations/saml/rsa/cert", c.ControlPlane)
+			},
+			ResponseData: &SAMLCertificateData{},
+		}),
 		Schema: map[string]*schema.Schema{
 			"certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "the certificate used for signing saml requests",
+				Description: "The service provider X.509 certificate used for signing SAML requests.",
 			},
+		},
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
 		},
 	}
 }
+
+type SAMLCertificateData struct {
+	Certificate string `json:"certificate,omitempty"`
+}
+
+func (data SAMLCertificateData) WriteToSchema(d *schema.ResourceData) {
+	d.SetId(uuid.New().String())
+	d.Set("certificate", data.Certificate)
+}
+
+func (data *SAMLCertificateData) ReadFromSchema(d *schema.ResourceData) {}
