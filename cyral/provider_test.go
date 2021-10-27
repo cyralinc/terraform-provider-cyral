@@ -32,6 +32,8 @@ var providerFactories = map[string]func() (*schema.Provider, error){
 	},
 }
 
+// Deprecated: This function should be removed in the future, since the resource.Test on pkg.go.dev
+// already execute this before each acceptance test.
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv(EnvVarTFAcc); v == "" {
 		t.Fatalf("%q must be set for acceptance tests", EnvVarTFAcc)
