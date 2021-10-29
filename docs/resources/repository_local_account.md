@@ -1,4 +1,4 @@
-# Repository Local Account Rsource
+# Repository Local Account Resource
 
 Provides a resource to handle repository local accounts.
 
@@ -85,23 +85,27 @@ The `aws_iam` object supports the following arguments:
 The `aws_secrets_manager` object supports the following arguments:
 
 * `database_name` - (Optional) Database name that the local account corresponds to.
-* `local_account` - (Required) Local repository account name.
+* `local_account` - (Required) Local account name.
 * `secret_arn` - (Required) ARN of the AWS Secret Manager that stores the credential.
 
 The `cyral_storage` object supports the following arguments:
 
 * `database_name` - (Optional) Database name that the local account corresponds to.
-* `local_account` - (Required) Local repository account name.
+* `local_account` - (Required) Local account name.
 * `password` - (Required) Local account password.
 
 The `hashicorp_vault` object supports the following arguments:
 
 * `database_name` - (Optional) Database name that the local account corresponds to.
-* `local_account` - (Required) Local repository account name.
+* `local_account` - (Required) Local account name.
 * `path` - (Required) Hashicorp Vault path.
 
 The `environment_variable` object supports the following arguments:
 
 * `database_name` - (Optional) Database name that the local account corresponds to.
-* `local_account` - (Required) Local repository account name.
+* `local_account` - (Required) Local account name.
 * `environment_name` - (Required) Name of the environment variable that will store credentials.
+
+## Attribute Reference
+
+* `id` - The ID of this resource.

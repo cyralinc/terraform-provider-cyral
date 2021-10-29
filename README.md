@@ -178,7 +178,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
 - [Resource Repository Binding](./docs/resource_repository_binding.md)
 - [Resource Repository Identity Map](./docs/resource_repository_identity_map.md)
-- [Resource Repository Local Account](./docs/resources/local_account.md)
+- [Resource Repository Local Account](./docs/resources/repository_local_account.md)
 - [Resource Sidecar](./docs/resource_sidecar.md)
 - [Resource Sidecar Credentials](./docs/resource_sidecar_credentials.md)
 
