@@ -254,19 +254,16 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"local_account": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 				"role_arn": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 			},
 		},
@@ -284,19 +281,16 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"local_account": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 				"secret_arn": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 			},
 		},
@@ -314,14 +308,12 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"local_account": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 				"password": {
 					Type:      schema.TypeString,
@@ -344,19 +336,16 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:      schema.TypeString,
-					Optional:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"local_account": {
-					Type:      schema.TypeString,
-					Optional:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 				"path": {
-					Type:      schema.TypeString,
-					Optional:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 			},
 		},
@@ -374,19 +363,16 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"local_account": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 				"variable_name": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Type:     schema.TypeString,
+					Required: true,
 				},
 			},
 		},
