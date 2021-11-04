@@ -37,8 +37,7 @@ local/install: local/build
 
 docker/test:
 	docker-compose run -e CYRAL_TF_CP_URL=$(CYRAL_TF_CP_URL) -e CYRAL_TF_CLIENT_ID=$(CYRAL_TF_CLIENT_ID) \
-	  -e CYRAL_TF_CLIENT_SECRET=$(CYRAL_TF_CLIENT_SECRET) -e CYRAL_TF_SSO_URL=$(CYRAL_TF_SSO_URL) \
-	  -e CYRAL_TF_SAML_METADATA_URL=$(CYRAL_TF_SAML_METADATA_URL) -e TF_ACC=true \
+	  -e CYRAL_TF_CLIENT_SECRET=$(CYRAL_TF_CLIENT_SECRET) -e TF_ACC=true \
 	  app $(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race
 
 docker/build:
