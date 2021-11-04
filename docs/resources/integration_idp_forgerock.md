@@ -1,13 +1,13 @@
-# Forgerock SSO Integration Resource
+# Forgerock IdP Integration Resource
 
-Provides a Forgerock SSO integration resource.
+Provides integration with Forgerock identity provider to allow single-sign on to Cyral.
 
 ## Example Usage
 
 ### Integration with Default Configuration
 
 ```hcl
-resource "cyral_integration_sso_forgerock" "some_resource_name" {
+resource "cyral_integration_idp_forgerock" "some_resource_name" {
   samlp {
     config {
       single_sign_on_service_url = "some_sso_url"
@@ -27,7 +27,7 @@ data "cyral_saml_configuration" "some_data_source_name" {
   saml_metadata_url = "some_metadata_url"
 }
 
-resource "cyral_integration_sso_forgerock" "some_resource_name" {
+resource "cyral_integration_idp_forgerock" "some_resource_name" {
   samlp {
     provider_id = "saml"
     disabled = false
@@ -65,7 +65,7 @@ resource "cyral_integration_sso_forgerock" "some_resource_name" {
   }
 }
 ```
--> When using the [SAML Configuration Data Source](../data-sources/saml_configuration.md) to configure this SSO Integration resource, consider verifying if the `string` attributes are `empty` like in the example above so that the resource arguments can be used with their default values, instead of setting them as empty.
+-> When using the [SAML Configuration Data Source](../data-sources/saml_configuration.md) to configure this IdP Integration resource, consider verifying if the `string` attributes are `empty` like in the example above so that the resource arguments can be used with their default values, instead of setting them as empty.
 
 ## Argument Reference
 
@@ -73,7 +73,7 @@ resource "cyral_integration_sso_forgerock" "some_resource_name" {
 
 The `samlp` object supports the following:
 
-* `config` - (Required) The SAML configuration for this SSO Integration.
+* `config` - (Required) The SAML configuration for this IdP Integration.
 * `provider_id` - (Optional) This is the provider ID of `saml`. Defaults to `saml`.
 * `disabled` - (Optional) Disable maps to Keycloak's `enabled` field. Defaults to `false`.
 * `first_broker_login_flow_alias` - (Optional) Alias of authentication flow, which is triggered after `First Login` with this identity provider. Term `First Login` means that no Keycloak account is currently linked to the authenticated identity provider account. Defaults to `SAML_First_Broker`.
@@ -111,5 +111,5 @@ The `config` object supports the following:
 
 ## Attribute Reference
 
-* `id` - The ID of this resource, which corresponds to the SSO Integration `alias`.
-* `internal_id` - An ID that is auto-generated internally for this SSO Integration.
+* `id` - The ID of this resource, which corresponds to the IdP Integration `alias`.
+* `internal_id` - An ID that is auto-generated internally for this IdP Integration.

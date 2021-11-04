@@ -1,13 +1,13 @@
-# PingOne SSO Integration Resource
+# Okta IdP Integration Resource
 
-Provides a PingOne SSO integration resource.
+Provides integration with Okta identity provider to allow single-sign on to Cyral.
 
 ## Example Usage
 
 ### Integration with Default Configuration
 
 ```hcl
-resource "cyral_integration_sso_ping_one" "some_resource_name" {
+resource "cyral_integration_idp_okta" "some_resource_name" {
   samlp {
     config {
       single_sign_on_service_url = "some_sso_url"
@@ -27,14 +27,14 @@ data "cyral_saml_configuration" "some_data_source_name" {
   saml_metadata_url = "some_metadata_url"
 }
 
-resource "cyral_integration_sso_ping_one" "some_resource_name" {
-  draft_alias = "some_existing_ping_one_draft_alias"
+resource "cyral_integration_idp_okta" "some_resource_name" {
+  draft_alias = "some_existing_okta_draft_alias"
   samlp {
     provider_id = "saml"
     disabled = false
     first_broker_login_flow_alias = "SAML_First_Broker"
     post_broker_login_flow_alias = ""
-    display_name = "Custom-PingOne"
+    display_name = "Custom-Okta"
     store_token = false
     add_read_token_role_on_create = false
     trust_email = false
@@ -66,21 +66,21 @@ resource "cyral_integration_sso_ping_one" "some_resource_name" {
   }
 }
 ```
--> When using the [SAML Configuration Data Source](../data-sources/saml_configuration.md) to configure this SSO Integration resource, consider verifying if the `string` attributes are `empty` like in the example above so that the resource arguments can be used with their default values, instead of setting them as empty.
+-> When using the [SAML Configuration Data Source](../data-sources/saml_configuration.md) to configure this IdP Integration resource, consider verifying if the `string` attributes are `empty` like in the example above so that the resource arguments can be used with their default values, instead of setting them as empty.
 
 ## Argument Reference
 
 * `samlp` - (Required) It contains the top-level configuration for an identity provider.
-* `draft_alias` - (Optional) An `alias` that uniquely identifies a SSO Integration draft. If set, will delete any correspondent draft and create a new SSO Integration with the same `alias`. Defaults to `""`.
+* `draft_alias` - (Optional) An `alias` that uniquely identifies a IdP Integration draft. If set, will delete any correspondent draft and create a new IdP Integration with the same `alias`. Defaults to `""`.
 
 The `samlp` object supports the following:
 
-* `config` - (Required) The SAML configuration for this SSO Integration.
+* `config` - (Required) The SAML configuration for this IdP Integration.
 * `provider_id` - (Optional) This is the provider ID of `saml`. Defaults to `saml`.
 * `disabled` - (Optional) Disable maps to Keycloak's `enabled` field. Defaults to `false`.
 * `first_broker_login_flow_alias` - (Optional) Alias of authentication flow, which is triggered after `First Login` with this identity provider. Term `First Login` means that no Keycloak account is currently linked to the authenticated identity provider account. Defaults to `SAML_First_Broker`.
 * `post_broker_login_flow_alias` - (Optional) Alias of authentication flow, which is triggered after each login with this identity provider. Useful if you want additional verification of each user authenticated with this identity provider (for example OTP). Leave this empty if you need no any additional authenticators to be triggered after login with this identity provider. Defaults to `""`.
-* `display_name` - (Optional) Name of the SAML Integration displayed in the UI. Defaults to `PingOne`.
+* `display_name` - (Optional) Name of the SAML Integration displayed in the UI. Defaults to `Okta`.
 * `store_token` - (Optional) Enable if tokens must be stored after authenticating users. Defaults to `false`.
 * `add_read_token_role_on_create` - (Optional) Adds read token role on creation. Defaults to `false`.
 * `trust_email` - (Optional) If the identity provider supplies an email address this email address will be trusted. If the realm required email validation, users that log in from this identity provider will not have to go through the email verification process. Defaults to `false`.
@@ -113,5 +113,5 @@ The `config` object supports the following:
 
 ## Attribute Reference
 
-* `id` - The ID of this resource, which corresponds to the SSO Integration `alias`.
-* `internal_id` - An ID that is auto-generated internally for this SSO Integration.
+* `id` - The ID of this resource, which corresponds to the IdP Integration `alias`.
+* `internal_id` - An ID that is auto-generated internally for this IdP Integration.
