@@ -79,7 +79,7 @@ The `samlp` object supports the following:
 * `disabled` - (Optional) Disable maps to Keycloak's `enabled` field. Defaults to `false`.
 * `first_broker_login_flow_alias` - (Optional) Alias of authentication flow, which is triggered after `First Login` with this identity provider. Term `First Login` means that no Keycloak account is currently linked to the authenticated identity provider account. Defaults to `SAML_First_Broker`.
 * `post_broker_login_flow_alias` - (Optional) Alias of authentication flow, which is triggered after each login with this identity provider. Useful if you want additional verification of each user authenticated with this identity provider (for example OTP). Leave this empty if you need no any additional authenticators to be triggered after login with this identity provider. Defaults to `""`.
-* `display_name` - (Optional) Name of the SAML Integration displayed in the UI. Defaults to `Active Directory`.
+* `display_name` - (Optional) Name of the IdP Integration displayed in the UI. Defaults to `Active Directory`.
 * `store_token` - (Optional) Enable if tokens must be stored after authenticating users. Defaults to `false`.
 * `add_read_token_role_on_create` - (Optional) Adds read token role on creation. Defaults to `false`.
 * `trust_email` - (Optional) If the identity provider supplies an email address this email address will be trusted. If the realm required email validation, users that log in from this identity provider will not have to go through the email verification process. Defaults to `false`.
