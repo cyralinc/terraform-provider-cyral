@@ -107,7 +107,7 @@ func Provider() *schema.Provider {
 			"cyral_integration_sso_forgerock":   resourceIntegrationIDP("forgerock", "Use 'cyral_integration_idp_forgerock' instead"),
 			"cyral_integration_sso_gsuite":      resourceIntegrationIDP("gsuite", "Use 'cyral_integration_idp_gsuite' instead"),
 			"cyral_integration_sso_okta":        resourceIntegrationIDP("okta", "Use 'cyral_integration_idp_okta' instead"),
-			"cyral_integration_sso_ping_one":    resourceIntegrationIDP("pingone", "Use 'cyral_integration_idp_pingone' instead"),
+			"cyral_integration_sso_ping_one":    resourceIntegrationIDP("pingone", "Use 'cyral_integration_idp_ping_one' instead"),
 			"cyral_integration_sumo_logic":      resourceIntegrationSumoLogic(),
 			"cyral_policy":                      resourcePolicy(),
 			"cyral_policy_rule":                 resourcePolicyRule(),
