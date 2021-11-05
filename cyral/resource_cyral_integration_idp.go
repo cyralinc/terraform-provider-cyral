@@ -9,11 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIntegrationSSO(identityProvider string) *schema.Resource {
+func resourceIntegrationIDP(identityProvider, deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: deprecationMessage,
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
-				Name:       "resourceIntegrationSSOCreate",
+				Name:       "resourceIntegrationIDPCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
@@ -29,7 +30,7 @@ func resourceIntegrationSSO(identityProvider string) *schema.Resource {
 		ReadContext: ReadResource(readSAMLIntegrationConfig),
 		UpdateContext: UpdateResource(
 			ResourceOperationConfig{
-				Name:       "resourceIntegrationSSOUpdate",
+				Name:       "resourceIntegrationIDPUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
@@ -43,7 +44,7 @@ func resourceIntegrationSSO(identityProvider string) *schema.Resource {
 		),
 		DeleteContext: DeleteResource(
 			ResourceOperationConfig{
-				Name:       "resourceIntegrationSSODelete",
+				Name:       "resourceIntegrationIDPDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
@@ -249,7 +250,7 @@ func resourceIntegrationSSO(identityProvider string) *schema.Resource {
 }
 
 var readSAMLIntegrationConfig = ResourceOperationConfig{
-	Name:       "resourceIntegrationSSORead",
+	Name:       "resourceIntegrationIDPRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())

@@ -1,3 +1,21 @@
+## 2.2.0 (November 4, 2021)
+
+Minimum required Control Plane version: `v2.25.0`.
+
+### Bug fixes:
+* **Fix cyclic dependency issue in SAML certificate data source**: [#121](https://github.com/cyralinc/terraform-provider-cyral/pull/121);
+
+### Deprecated resources:
+
+* `cyral_integration_sso_*` renamed to `cyral_integration_idp_*`
+
+## 2.1.1 (October 21, 2021)
+
+Minimum required Control Plane version: `v2.24.0`.
+
+### Bug fixes:
+* **Remove unnecessary PreCheck from Terraform Provider Tests**: [#117](https://github.com/cyralinc/terraform-provider-cyral/pull/117);
+
 ## 2.1.0 (October 18, 2021)
 
 Minimum required Control Plane version: `v2.24.0`.
