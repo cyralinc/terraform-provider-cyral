@@ -50,15 +50,6 @@ func ValidateDeploymentMethod(param string) error {
 	return nil
 }
 
-// ValidateRolePermissions check if role resource has only a single permissions block
-func ValidateRolePermissions(permissions []interface{}) error {
-	if len(permissions) > 1 {
-		return fmt.Errorf("only a single permissions block is allowed")
-	}
-
-	return nil
-}
-
 // ValidateAWSRegion checks if a given aws region value is valid.
 func ValidateAWSRegion(param string) error {
 	resolver := endpoints.DefaultResolver()

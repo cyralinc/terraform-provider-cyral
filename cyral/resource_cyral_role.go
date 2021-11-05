@@ -45,6 +45,7 @@ func resourceRole() *schema.Resource {
 			"permissions": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"modify_sidecars_and_repositories": {
@@ -198,10 +199,6 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 
 	if permissions, ok := d.GetOk("permissions"); ok {
 		permissions := permissions.(*schema.Set).List()
-
-		if err := client.ValidateRolePermissions(permissions); err != nil {
-			return RoleDataRequest{}, err
-		}
 
 		resourcePermissions := permissions[0].(map[string]interface{})
 
