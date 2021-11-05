@@ -1,3 +1,49 @@
+## 2.2.0 (November 4, 2021)
+
+Minimum required Control Plane version: `v2.25.0`.
+
+### Bug fixes:
+* **Fix cyclic dependency issue in SAML certificate data source**: [#121](https://github.com/cyralinc/terraform-provider-cyral/pull/121);
+
+### Deprecated resources:
+
+* `cyral_integration_sso_*` renamed to `cyral_integration_idp_*`
+
+## 2.1.1 (October 21, 2021)
+
+Minimum required Control Plane version: `v2.24.0`.
+
+### Bug fixes:
+* **Remove unnecessary PreCheck from Terraform Provider Tests**: [#117](https://github.com/cyralinc/terraform-provider-cyral/pull/117);
+
+## 2.1.0 (October 18, 2021)
+
+Minimum required Control Plane version: `v2.24.0`.
+
+### Features:
+* **Generic SAML integration and new SSO resources**: [#115](https://github.com/cyralinc/terraform-provider-cyral/pull/115);
+
+## 2.0.1 (September 30, 2021)
+
+Minimum required Control Plane version: `v2.22.0`.
+
+### Bug fixes:
+* **Omitting access_duration in cyral_identity_map resulted in plan change on every plan**: [#111](https://github.com/cyralinc/terraform-provider-cyral/pull/111);
+
+## 2.0.0 (September 24, 2021)
+
+Minimum required Control Plane version: `v2.22.0`.
+
+### Backwards compatibility breaks:
+* **Resource cyral_sidecar**: changed parameters;
+* **Data source cyral_sidecar_template**: data source replaced by `cyral_sidecar_cft_template` and template restricted to Cloudformation.
+
+### Features:
+* **Script to rotate service account secrets**: [#64](https://github.com/cyralinc/terraform-provider-cyral/pull/64);
+* **Improve tooling**: [#92](https://github.com/cyralinc/terraform-provider-cyral/pull/92);
+* **Resource Sidecar Credentials**: [#93](https://github.com/cyralinc/terraform-provider-cyral/pull/93);
+* **Resource Repository Conf Analysis**: [#108](https://github.com/cyralinc/terraform-provider-cyral/pull/108);
+
 ## 1.2.2 (June 21, 2021)
 
 Minimum required Control Plane version: `v2.19.0`.

@@ -104,10 +104,11 @@ var cleanUpOktaIntegration = ResourceOperationConfig{
 
 func resourceIntegrationOkta() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: CreateOktaIntegration,
-		ReadContext:   ReadOktaIntegration,
-		UpdateContext: UpdateOktaIntegration,
-		DeleteContext: DeleteOktaIntegration,
+		DeprecationMessage: "Use `cyral_integration_idp_okta` instead.",
+		CreateContext:      CreateOktaIntegration,
+		ReadContext:        ReadOktaIntegration,
+		UpdateContext:      UpdateOktaIntegration,
+		DeleteContext:      DeleteOktaIntegration,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,

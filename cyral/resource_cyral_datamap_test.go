@@ -60,7 +60,7 @@ func formatDataMapIntoConfig(data DataMapConfig) string {
 	  
 	  resource "cyral_sidecar" "tf_test_sidecar" {
 			name = "tf-test-sidecar"
-			tags = ["deploymentMethod:cloudFormation", "tag1"]
+			deployment_method = "cloudFormation"
 	  }
 	  
 	  resource "cyral_repository_binding" "repo_binding" {

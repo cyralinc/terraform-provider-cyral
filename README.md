@@ -107,7 +107,7 @@ resource "cyral_integration_datadog" "datadog" {
 
 resource "cyral_sidecar" "my_sidecar_name" {
     name = "mysidecar"
-    tags = ["deploymentMethod:cloudFormation", "someTag1", "someTag2"]
+    deployment_method = "cloudFormation"
 }
 
 resource "cyral_sidecar_credentials" "my_sidecar_credentials_name" {
@@ -164,9 +164,9 @@ terraform import cyral_repository.my_resource_name myrepo
 ## Supported Elements
 - [Data Source SAML Certificate](./docs/data_source_saml_certificate.md)
 - [Data Source Sidecar CFT Template](./docs/data_source_sidecar_cft_template.md)
+- [Data Source SAML Configuration](./docs/data-sources/saml_configuration.md)
 - [Provider](./docs/provider.md)
 - [Resource Datamap](./docs/resource_datamap.md)
-- [Resource Identity Map](./docs/resource_identity_map.md)
 - [Resource Integration Datadog](./docs/resource_integration_datadog.md)
 - [Resource Integration ELK](./docs/resource_integration_elk.md)
 - [Resource Integration Hashicorp Vault](./docs/resource_integration_hc_vault.md)
@@ -177,13 +177,21 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Pager Duty](./docs/resource_integration_pager_duty.md)
 - [Resource Integration Slack Alerts](./docs/resource_integration_slack_alerts.md)
 - [Resource Integration Splunk](./docs/resource_integration_splunk.md)
+- [Resource Integration IdP AAD](./docs/resources/integration_idp_aad.md)
+- [Resource Integration IdP ADFS](./docs/resources/integration_idp_adfs.md)
+- [Resource Integration IdP Forgerock](./docs/resources/integration_idp_forgerock.md)
+- [Resource Integration IdP GSuite](./docs/resources/integration_idp_gsuite.md)
+- [Resource Integration IdP Okta](./docs/resources/integration_idp_okta.md)
+- [Resource Integration IdP Ping One](./docs/resources/integration_idp_ping_one.md)
 - [Resource Integration Sumo Logic](./docs/resource_integration_sumo_logic.md)
 - [Resource Policy](./docs/resource_policy.md)
 - [Resource Policy Rule](./docs/resource_policy_rule.md)
 - [Resource Repository](./docs/resource_repository.md)
+- [Resource Repository Analysis Configuration](./docs/resource_repository_conf_analysis.md)
 - [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
 - [Resource Repository Binding](./docs/resource_repository_binding.md)
-- [Resource Repository Local Account](./docs/resource_repository_local_account.md)
+- [Resource Repository Identity Map](./docs/resource_repository_identity_map.md)
+- [Resource Repository Local Account](./docs/resources/repository_local_account.md)
 - [Resource Sidecar](./docs/resource_sidecar.md)
 - [Resource Sidecar Credentials](./docs/resource_sidecar_credentials.md)
 - [Resource Role](./docs/resource_role.md)

@@ -6,28 +6,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type CreateSidecarResponse struct {
+	ID string `json:"ID"`
+}
+
 type SidecarData struct {
+	ID              string          `json:"id"`
 	Name            string          `json:"name"`
-	Tags            []string        `json:"labels"`
+	Labels          []string        `json:"labels"`
 	SidecarProperty SidecarProperty `json:"properties"`
 }
 
 type SidecarProperty struct {
 	DeploymentMethod string `json:"deploymentMethod"`
 }
-
-type CreateSidecarResponse struct {
-	SidecarID string `json:"ID"`
-}
-
-const DeploymentPrefix = "deploymentMethod:"
 
 func resourceSidecar() *schema.Resource {
 	return &schema.Resource{
@@ -41,9 +39,13 @@ func resourceSidecar() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags": {
-				Type:     schema.TypeList,
+			"deployment_method": {
+				Type:     schema.TypeString,
 				Required: true,
+			},
+			"labels": {
+				Type:     schema.TypeList,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -71,13 +73,16 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 		return createError("Unable to create sidecar", fmt.Sprintf("%v", err))
 	}
 
-	response := CreateSidecarResponse{}
+	response := SidecarData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	d.SetId(response.SidecarID)
+	d.SetId(response.ID)
+	d.Set("name", response.Name)
+	d.Set("labels", response.Labels)
+	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 
 	return resourceSidecarRead(ctx, d, m)
 }
@@ -96,13 +101,13 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	response := SidecarData{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
+		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	deploymentTag := fmt.Sprintf("%s%s", DeploymentPrefix, response.SidecarProperty.DeploymentMethod)
 	d.Set("name", response.Name)
-	d.Set("tags", append([]string{deploymentTag}, response.Tags...))
+	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
+	d.Set("labels", response.Labels)
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -145,28 +150,23 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (SidecarData, error) {
-	var sidecarData SidecarData
-	sidecarData.Name = d.Get("name").(string)
-
-	var deploymentMethod string
-
-	tags := d.Get("tags").([]interface{})
-	for _, tag := range tags {
-		tag := (tag).(string)
-		if strings.Contains(tag, DeploymentPrefix) {
-			deploymentMethod = tag[len(DeploymentPrefix):]
-		} else {
-			sidecarData.Tags = append(sidecarData.Tags, tag)
-		}
-	}
-
+	deploymentMethod := d.Get("deployment_method").(string)
 	if err := client.ValidateDeploymentMethod(deploymentMethod); err != nil {
 		return SidecarData{}, err
 	}
 
-	sidecarData.SidecarProperty = SidecarProperty{
+	sp := SidecarProperty{
 		DeploymentMethod: deploymentMethod,
 	}
-
-	return sidecarData, nil
+	labels := d.Get("labels").([]interface{})
+	sidecarDataLabels := make([]string, len(labels))
+	for i, label := range labels {
+		sidecarDataLabels[i] = (label).(string)
+	}
+	return SidecarData{
+		ID:              d.Id(),
+		Name:            d.Get("name").(string),
+		Labels:          sidecarDataLabels,
+		SidecarProperty: sp,
+	}, nil
 }
