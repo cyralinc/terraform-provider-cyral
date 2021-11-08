@@ -13,18 +13,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// Roles correspond to Groups in API.
 type RoleDataRequest struct {
-	Name        string   `json:"name"`
-	Permissions []string `json:"roles"`
+	Name string `json:"name,omitempty"`
+	// Permissions correspond to Roles in API.
+	Permissions []string `json:"roles,omitempty"`
 }
 
+// Roles correspond to Groups in API.
 type RoleDataResponse struct {
-	Id          string           `json:"id"`
-	Name        string           `json:"name"`
-	Permissions []RolePermission `json:"roles"`
+	Id   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+	// Permissions correspond to Roles in API.
+	Permissions []*PermissionInfo `json:"roles,omitempty"`
 }
 
-type RolePermission struct {
+// Permissions correspond to Roles in API.
+type PermissionInfo struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -79,6 +84,11 @@ func resourceRole() *schema.Resource {
 							Default:  false,
 						},
 						"modify_roles": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"view_datamaps": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
@@ -221,7 +231,7 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 	}, nil
 }
 
-func flattenPermissions(permissions []RolePermission) []interface{} {
+func flattenPermissions(permissions []*PermissionInfo) []interface{} {
 	flatPermissions := make([]interface{}, 1)
 
 	permissionsMap := make(map[string]interface{})
@@ -240,17 +250,17 @@ func formatPermissionName(permissionName string) string {
 	return permissionName
 }
 
-func getPermissionsFromAPI(c *client.Client) ([]RolePermission, error) {
+func getPermissionsFromAPI(c *client.Client) ([]*PermissionInfo, error) {
 	url := fmt.Sprintf("https://%s/v1/users/roles", c.ControlPlane)
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
-		return []RolePermission{}, err
+		return []*PermissionInfo{}, err
 	}
 
 	response := RoleDataResponse{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return []RolePermission{}, err
+		return []*PermissionInfo{}, err
 	}
 
 	return response.Permissions, nil

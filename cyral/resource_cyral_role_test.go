@@ -7,9 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const InitialRoleName = "role-test"
-const UpdatedRoleName = "updated-role-test"
+const (
+	initialRoleName = "tf-test-role"
+	updatedRoleName = "updated-tf-test-role"
+)
 
+/*
 var onlyFalsePermissions = map[string]string{
 	"view_sidecars_and_repositories":   "false",
 	"modify_sidecars_and_repositories": "false",
@@ -39,16 +42,16 @@ var onlyTruePermissions = map[string]string{
 	"view_audit_logs":                  "true",
 	"modify_integrations":              "true",
 }
-
+*/
 func TestAccRoleResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: initialRoleConfigWithoutPermissions(InitialRoleName),
-				Check:  initialRoleCheck(InitialRoleName),
+				Config: testAccRoleConfig_DefaultValues(),
+				Check:  testAccRoleCheck_DefaultValues(),
 			},
-			{
+			/* {
 				Config: updatedRoleConfigEmptyPermissions(UpdatedRoleName),
 				Check:  updatedRoleCheck(UpdatedRoleName, onlyFalsePermissions),
 			},
@@ -63,20 +66,28 @@ func TestAccRoleResource(t *testing.T) {
 			{
 				Config: updatedRoleConfigOnlyTruePermissions(UpdatedRoleName),
 				Check:  updatedRoleCheck(UpdatedRoleName, onlyTruePermissions),
-			},
+			}, */
 		},
 	})
 }
 
-func initialRoleConfigWithoutPermissions(roleName string) string {
+func testAccRoleConfig_DefaultValues() string {
 	return fmt.Sprintf(`
 	resource "cyral_role" "test_role" {
 		name="%s"
 	}
-	`, roleName)
+	`, initialRoleName)
 }
 
-func updatedRoleConfigEmptyPermissions(roleName string) string {
+func testAccRoleCheck_DefaultValues() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", initialRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "0"),
+	)
+}
+
+/*
+func updatedRoleConfigEmptyPermissions() string {
 	return fmt.Sprintf(`
 	resource "cyral_role" "test_role" {
 		name="%s"
@@ -96,8 +107,8 @@ func updatedRoleConfigOnlyFalsePermissions(roleName string) string {
 			modify_policies = false
 			modify_users = false
 			modify_roles = false
-			view_audit_logs = false   
-			modify_integrations = false 
+			view_audit_logs = false
+			modify_integrations = false
 		}
 	}
 	`, roleName)
@@ -113,8 +124,8 @@ func updatedRoleConfigTrueAndFalsePermissions(roleName string) string {
 			modify_policies = false
 			modify_users = false
 			modify_roles = false
-			view_audit_logs = false   
-			modify_integrations = false 
+			view_audit_logs = false
+			modify_integrations = false
 		}
 	}
 	`, roleName)
@@ -130,18 +141,11 @@ func updatedRoleConfigOnlyTruePermissions(roleName string) string {
 			modify_policies = true
 			modify_users = true
 			modify_roles = true
-			view_audit_logs = true   
-			modify_integrations = true 
+			view_audit_logs = true
+			modify_integrations = true
 		}
 	}
 	`, roleName)
-}
-
-func initialRoleCheck(roleName string) resource.TestCheckFunc {
-	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", roleName),
-		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "0"),
-	)
 }
 
 func updatedRoleCheck(roleName string, permissions map[string]string) resource.TestCheckFunc {
@@ -151,3 +155,4 @@ func updatedRoleCheck(roleName string, permissions map[string]string) resource.T
 			permissions),
 	)
 }
+*/

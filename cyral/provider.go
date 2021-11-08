@@ -117,9 +117,10 @@ func Provider() *schema.Provider {
 			"cyral_repository_conf_auth":        resourceRepositoryConfAuth(),
 			"cyral_repository_identity_map":     resourceRepositoryIdentityMap(false),
 			"cyral_repository_local_account":    resourceRepositoryLocalAccount(),
+			"cyral_role":                        resourceRole(),
+			"cyral_role_sso_groups":             resourceRoleSSOGroups(),
 			"cyral_sidecar":                     resourceSidecar(),
 			"cyral_sidecar_credentials":         resourceSidecarCredentials(),
-			"cyral_role":                        resourceRole(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

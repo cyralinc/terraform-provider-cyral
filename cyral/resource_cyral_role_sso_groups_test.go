@@ -7,47 +7,53 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialRoleSSOGroupsConfig = RoleSSOGroupsData{
-	Id:             "bb1ee321-0cd4-4471-b440-c18fd5fdff46",
-	ConnectionName: "Okta",
-	GroupName:      "group-test-1",
-}
-
 func TestAccRoleSSOGroupsResource(t *testing.T) {
-	testConfig, testFunc := setupRoleSSOGroupsTest(initialRoleSSOGroupsConfig)
-
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testConfig,
-				Check:  testFunc,
+				Config: testAccRoleSSOGroupsConfig_DefaultValues(),
+				Check:  testAccRoleSSOGroupsCheck_DefaultValues(),
 			},
 		},
 	})
 }
 
-func setupRoleSSOGroupsTest(mapSSOGroupsData RoleSSOGroupsData) (string, resource.TestCheckFunc) {
+func testAccRoleSSOGroupsConfig_DefaultValues() string {
+	return fmt.Sprintf(`
+	resource "cyral_integration_idp_okta" "test_idp_integration" {
+		samlp {
+			config {
+				single_sign_on_service_url = "%s"
+			}
+		}
+	}
 
-	configuration := formatRoleSSOGroupsDataIntoConfig(mapSSOGroupsData)
+	resource "cyral_role" "test_role" {
+		name="%s"
+	}
 
-	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_map_sso_groups.test_map_sso_groups",
-			"id", mapSSOGroupsData.Id),
-		resource.TestCheckResourceAttr("cyral_map_sso_groups.test_map_sso_groups",
-			"connectionName", mapSSOGroupsData.ConnectionName),
-		resource.TestCheckResourceAttr("cyral_map_sso_groups.test_map_sso_groups",
-			"groupName", mapSSOGroupsData.GroupName),
-	)
-
-	return configuration, testFunction
+	resource "cyral_role_sso_groups" "test_role_sso_groups" {
+		role_id=cyral_role.test_role.id
+		sso_group {
+			group_name="Everyone"
+			idp_id=cyral_integration_idp_okta.test_idp_integration.id
+		}
+	}
+	`, testSingleSignOnURL, initialRoleName)
 }
 
-func formatRoleSSOGroupsDataIntoConfig(data RoleSSOGroupsData) string {
-	return fmt.Sprintf(`
-      resource "cyral_map_sso_groups" "test_map_sso_groups" {
-      	id = "%s"
-				connectionName = "%s"
-				groupName = "%s"
-      }`, data.Id, data.ConnectionName, data.GroupName)
+func testAccRoleSSOGroupsCheck_DefaultValues() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttrPair("cyral_role_sso_groups.test_role_sso_groups", "role_id",
+			"cyral_role.test_role", "id"),
+		resource.TestCheckResourceAttr("cyral_role_sso_groups.test_role_sso_groups",
+			"sso_group.#", "1"),
+		resource.TestCheckResourceAttrSet("cyral_role_sso_groups.test_role_sso_groups",
+			"sso_group.0.id"),
+		resource.TestCheckResourceAttr("cyral_role_sso_groups.test_role_sso_groups",
+			"sso_group.0.group_name", "Everyone"),
+		resource.TestCheckResourceAttrPair("cyral_role_sso_groups.test_role_sso_groups",
+			"sso_group.0.idp_id", "cyral_integration_idp_okta.test_idp_integration", "id"),
+	)
 }

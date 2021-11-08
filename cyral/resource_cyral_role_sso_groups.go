@@ -1,35 +1,35 @@
 package cyral
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type RoleSSOGroupsData struct {
-	Id             string `json:"id"`
-	ConnectionName string `json:"connectionName"`
-	GroupName      string `json:"groupName"`
+type RoleSSOGroupsDataRequest struct {
+	SSOGroupsMappings []*SSOGroup `json:"mappings,omitempty"`
 }
 
-type RoleSSOGroupsResponse struct {
-	Mappings []RoleSSOGroupsData `json:"mappings"`
-	Code     string              `json:"code"`
-	Error    string              `json:"error"`
-	Message  string              `json:"message"`
+type RoleSSOGroupsDataResponse struct {
+	SSOGroupsMappings []*SSOGroup `json:"mappings,omitempty"`
+}
+
+type SSOGroup struct {
+	Id        string `json:"id,omitempty"`
+	GroupName string `json:"groupName,omitempty"`
+	// IdentityProviderId corresponds to ConnectionName in API.
+	IdentityProviderId string `json:"connectionName,omitempty"`
 }
 
 func resourceRoleSSOGroups() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceRoleSSOGroupsCreate,
-		ReadContext:   resourceRoleSSOGroupsRead,
-		DeleteContext: resourceRoleSSOGroupsDelete,
+		CreateContext: CreateResource(createRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
+		ReadContext:   ReadResource(readRoleSSOGroupsConfig),
+		UpdateContext: UpdateResource(updateRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
+		DeleteContext: DeleteResource(deleteRoleSSOGroupsConfig),
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
@@ -41,7 +41,11 @@ func resourceRoleSSOGroups() *schema.Resource {
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": {
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"group_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -59,33 +63,86 @@ func resourceRoleSSOGroups() *schema.Resource {
 	}
 }
 
-func resourceRoleSSOGroupsCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	return diag.Diagnostics{}
+var createRoleSSOGroupsConfig = ResourceOperationConfig{
+	Name:       "resourceRoleSSOGroupsCreate",
+	HttpMethod: http.MethodPatch,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
+			d.Get("role_id").(string))
+	},
+	ResourceData: &RoleSSOGroupsDataRequest{},
+	ResponseData: &RoleSSOGroupsDataRequest{},
 }
 
-func resourceRoleSSOGroupsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRoleSSOGroupsRead")
-	c := m.(*client.Client)
+var readRoleSSOGroupsConfig = ResourceOperationConfig{
+	Name:       "resourceRoleSSOGroupsRead",
+	HttpMethod: http.MethodGet,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
+			d.Get("role_id").(string))
+	},
+	ResponseData: &RoleSSOGroupsDataResponse{},
+}
 
-	url := fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane, d.Get("groupId").(string))
+var updateRoleSSOGroupsConfig = ResourceOperationConfig{
+	Name:       "resourceRoleSSOGroupsUpdate",
+	HttpMethod: http.MethodPatch,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
+			d.Get("role_id").(string))
+	},
+	ResourceData: &RoleSSOGroupsDataRequest{},
+}
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return createError(fmt.Sprintf("Unable to read Role SSO Groups. groupId: %s",
-			d.Id()), fmt.Sprintf("%v", err))
+var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
+	Name:       "resourceRoleSSOGroupsDelete",
+	HttpMethod: http.MethodDelete,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
+			d.Get("role_id").(string))
+	},
+}
+
+func (request RoleSSOGroupsDataRequest) WriteToSchema(d *schema.ResourceData) {
+	d.SetId(fmt.Sprintf("%s/SSOGroups", d.Get("role_id")))
+}
+
+func (request *RoleSSOGroupsDataRequest) ReadFromSchema(d *schema.ResourceData) {
+	var SSOGroupsMappings []*SSOGroup
+
+	if ssoGroups, ok := d.GetOk("sso_group"); ok {
+		ssoGroups := ssoGroups.(*schema.Set).List()
+
+		for _, ssoGroup := range ssoGroups {
+			ssoGroup := ssoGroup.(map[string]interface{})
+
+			SSOGroupsMappings = append(SSOGroupsMappings, &SSOGroup{
+				GroupName:          ssoGroup["group_name"].(string),
+				IdentityProviderId: ssoGroup["idp_id"].(string),
+			})
+		}
 	}
 
-	response := RoleSSOGroupsResponse{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
+	request.SSOGroupsMappings = SSOGroupsMappings
+}
+
+func (request RoleSSOGroupsDataRequest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(request.SSOGroupsMappings)
+}
+
+func (response RoleSSOGroupsDataResponse) WriteToSchema(d *schema.ResourceData) {
+	var flatSSOGroupsMappings []interface{}
+
+	for _, ssoGroup := range response.SSOGroupsMappings {
+		ssoGroupMap := make(map[string]interface{})
+		ssoGroupMap["id"] = ssoGroup.Id
+		ssoGroupMap["group_name"] = ssoGroup.GroupName
+		ssoGroupMap["idp_id"] = ssoGroup.IdentityProviderId
+
+		flatSSOGroupsMappings = append(flatSSOGroupsMappings, ssoGroupMap)
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	log.Printf("[DEBUG] End resourceSidecarRead")
-
-	return diag.Diagnostics{}
+	d.Set("sso_group", flatSSOGroupsMappings)
 }
 
-func resourceRoleSSOGroupsDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	return diag.Diagnostics{}
-}
+func (response *RoleSSOGroupsDataResponse) ReadFromSchema(d *schema.ResourceData) {}
