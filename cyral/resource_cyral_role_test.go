@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,63 +13,76 @@ const (
 	updatedRoleName = "updated-tf-test-role"
 )
 
-/*
 var onlyFalsePermissions = map[string]string{
-	"view_sidecars_and_repositories":   "false",
 	"modify_sidecars_and_repositories": "false",
-	"modify_policies":                  "false",
 	"modify_users":                     "false",
-	"modify_roles":                     "false",
+	"modify_policies":                  "false",
+	"view_sidecars_and_repositories":   "false",
 	"view_audit_logs":                  "false",
 	"modify_integrations":              "false",
+	"modify_roles":                     "false",
+	"view_datamaps":                    "false",
 }
 
 var trueAndFalsePermissions = map[string]string{
-	"view_sidecars_and_repositories":   "true",
 	"modify_sidecars_and_repositories": "true",
-	"modify_policies":                  "false",
-	"modify_users":                     "false",
-	"modify_roles":                     "false",
+	"modify_users":                     "true",
+	"modify_policies":                  "true",
+	"view_sidecars_and_repositories":   "true",
 	"view_audit_logs":                  "false",
 	"modify_integrations":              "false",
+	"modify_roles":                     "false",
+	"view_datamaps":                    "false",
 }
 
 var onlyTruePermissions = map[string]string{
-	"view_sidecars_and_repositories":   "true",
 	"modify_sidecars_and_repositories": "true",
-	"modify_policies":                  "true",
 	"modify_users":                     "true",
-	"modify_roles":                     "true",
+	"modify_policies":                  "true",
+	"view_sidecars_and_repositories":   "true",
 	"view_audit_logs":                  "true",
 	"modify_integrations":              "true",
+	"modify_roles":                     "true",
+	"view_datamaps":                    "true",
 }
-*/
+
 func TestAccRoleResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccRoleConfig_EmptyRoleName(),
+				ExpectError: regexp.MustCompile(`The argument "name" is required`),
+			},
+			{
 				Config: testAccRoleConfig_DefaultValues(),
 				Check:  testAccRoleCheck_DefaultValues(),
 			},
-			/* {
-				Config: updatedRoleConfigEmptyPermissions(UpdatedRoleName),
-				Check:  updatedRoleCheck(UpdatedRoleName, onlyFalsePermissions),
+			{
+				Config: testAccRoleConfig_EmptyPermissions(),
+				Check:  testAccRoleCheck_EmptyPermissions(),
 			},
 			{
-				Config: updatedRoleConfigOnlyFalsePermissions(UpdatedRoleName),
-				Check:  updatedRoleCheck(UpdatedRoleName, onlyFalsePermissions),
+				Config: testAccRoleConfig_OnlyFalsePermissions(),
+				Check:  testAccRoleCheck_OnlyFalsePermissions(),
 			},
 			{
-				Config: updatedRoleConfigTrueAndFalsePermissions(UpdatedRoleName),
-				Check:  updatedRoleCheck(UpdatedRoleName, trueAndFalsePermissions),
+				Config: testAccRoleConfig_TrueAndFalsePermissions(),
+				Check:  testAccRoleCheck_TrueAndFalsePermissions(),
 			},
 			{
-				Config: updatedRoleConfigOnlyTruePermissions(UpdatedRoleName),
-				Check:  updatedRoleCheck(UpdatedRoleName, onlyTruePermissions),
-			}, */
+				Config: testAccRoleConfig_OnlyTruePermissions(),
+				Check:  testAccRoleCheck_OnlyTruePermissions(),
+			},
 		},
 	})
+}
+
+func testAccRoleConfig_EmptyRoleName() string {
+	return `
+	resource "cyral_role" "test_role" {
+	}
+	`
 }
 
 func testAccRoleConfig_DefaultValues() string {
@@ -86,73 +100,102 @@ func testAccRoleCheck_DefaultValues() resource.TestCheckFunc {
 	)
 }
 
-/*
-func updatedRoleConfigEmptyPermissions() string {
+func testAccRoleConfig_EmptyPermissions() string {
 	return fmt.Sprintf(`
 	resource "cyral_role" "test_role" {
 		name="%s"
 		permissions {
 		}
 	}
-	`, roleName)
+	`, updatedRoleName)
 }
 
-func updatedRoleConfigOnlyFalsePermissions(roleName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
-		name="%s"
-		permissions {
-			view_sidecars_and_repositories = false
-			modify_sidecars_and_repositories = false
-			modify_policies = false
-			modify_users = false
-			modify_roles = false
-			view_audit_logs = false
-			modify_integrations = false
-		}
-	}
-	`, roleName)
-}
-
-func updatedRoleConfigTrueAndFalsePermissions(roleName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
-		name="%s"
-		permissions {
-			view_sidecars_and_repositories = true
-			modify_sidecars_and_repositories = true
-			modify_policies = false
-			modify_users = false
-			modify_roles = false
-			view_audit_logs = false
-			modify_integrations = false
-		}
-	}
-	`, roleName)
-}
-
-func updatedRoleConfigOnlyTruePermissions(roleName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
-		name="%s"
-		permissions {
-			view_sidecars_and_repositories = true
-			modify_sidecars_and_repositories = true
-			modify_policies = true
-			modify_users = true
-			modify_roles = true
-			view_audit_logs = true
-			modify_integrations = true
-		}
-	}
-	`, roleName)
-}
-
-func updatedRoleCheck(roleName string, permissions map[string]string) resource.TestCheckFunc {
+func testAccRoleCheck_EmptyPermissions() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", roleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
-			permissions),
+			onlyFalsePermissions),
 	)
 }
-*/
+
+func testAccRoleConfig_OnlyFalsePermissions() string {
+	return fmt.Sprintf(`
+	resource "cyral_role" "test_role" {
+		name="%s"
+		permissions {
+			modify_sidecars_and_repositories = false
+			modify_users = false
+			modify_policies = false
+			view_sidecars_and_repositories = false
+			view_audit_logs = false
+			modify_integrations = false
+			modify_roles = false
+			view_datamaps = false
+		}
+	}
+	`, updatedRoleName)
+}
+
+func testAccRoleCheck_OnlyFalsePermissions() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
+		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
+			onlyFalsePermissions),
+	)
+}
+
+func testAccRoleConfig_TrueAndFalsePermissions() string {
+	return fmt.Sprintf(`
+	resource "cyral_role" "test_role" {
+		name="%s"
+		permissions {
+			modify_sidecars_and_repositories = true
+			modify_users = true
+			modify_policies = true
+			view_sidecars_and_repositories = true
+			view_audit_logs = false
+			modify_integrations = false
+			modify_roles = false
+			view_datamaps = false
+		}
+	}
+	`, updatedRoleName)
+}
+
+func testAccRoleCheck_TrueAndFalsePermissions() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
+		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
+			trueAndFalsePermissions),
+	)
+}
+
+func testAccRoleConfig_OnlyTruePermissions() string {
+	return fmt.Sprintf(`
+	resource "cyral_role" "test_role" {
+		name="%s"
+		permissions {
+			modify_sidecars_and_repositories = true
+			modify_users = true
+			modify_policies = true
+			view_sidecars_and_repositories = true
+			view_audit_logs = true
+			modify_integrations = true
+			modify_roles = true
+			view_datamaps = true
+		}
+	}
+	`, updatedRoleName)
+}
+
+func testAccRoleCheck_OnlyTruePermissions() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
+		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
+			onlyTruePermissions),
+	)
+}
