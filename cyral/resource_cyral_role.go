@@ -28,7 +28,6 @@ type RoleDataResponse struct {
 	Permissions []*PermissionInfo `json:"roles,omitempty"`
 }
 
-// Permissions correspond to Roles in API.
 type PermissionInfo struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`

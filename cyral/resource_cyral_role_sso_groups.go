@@ -103,11 +103,11 @@ var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
 	},
 }
 
-func (request RoleSSOGroupsDataRequest) WriteToSchema(d *schema.ResourceData) {
+func (data RoleSSOGroupsDataRequest) WriteToSchema(d *schema.ResourceData) {
 	d.SetId(fmt.Sprintf("%s/SSOGroups", d.Get("role_id")))
 }
 
-func (request *RoleSSOGroupsDataRequest) ReadFromSchema(d *schema.ResourceData) {
+func (data *RoleSSOGroupsDataRequest) ReadFromSchema(d *schema.ResourceData) {
 	var SSOGroupsMappings []*SSOGroup
 
 	if ssoGroups, ok := d.GetOk("sso_group"); ok {
@@ -123,17 +123,17 @@ func (request *RoleSSOGroupsDataRequest) ReadFromSchema(d *schema.ResourceData) 
 		}
 	}
 
-	request.SSOGroupsMappings = SSOGroupsMappings
+	data.SSOGroupsMappings = SSOGroupsMappings
 }
 
-func (request RoleSSOGroupsDataRequest) MarshalJSON() ([]byte, error) {
-	return json.Marshal(request.SSOGroupsMappings)
+func (data RoleSSOGroupsDataRequest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(data.SSOGroupsMappings)
 }
 
-func (response RoleSSOGroupsDataResponse) WriteToSchema(d *schema.ResourceData) {
+func (data RoleSSOGroupsDataResponse) WriteToSchema(d *schema.ResourceData) {
 	var flatSSOGroupsMappings []interface{}
 
-	for _, ssoGroup := range response.SSOGroupsMappings {
+	for _, ssoGroup := range data.SSOGroupsMappings {
 		ssoGroupMap := make(map[string]interface{})
 		ssoGroupMap["id"] = ssoGroup.Id
 		ssoGroupMap["group_name"] = ssoGroup.GroupName
@@ -145,4 +145,4 @@ func (response RoleSSOGroupsDataResponse) WriteToSchema(d *schema.ResourceData) 
 	d.Set("sso_group", flatSSOGroupsMappings)
 }
 
-func (response *RoleSSOGroupsDataResponse) ReadFromSchema(d *schema.ResourceData) {}
+func (data *RoleSSOGroupsDataResponse) ReadFromSchema(d *schema.ResourceData) {}
