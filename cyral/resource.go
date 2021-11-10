@@ -115,9 +115,13 @@ func DeleteResource(config ResourceOperationConfig) schema.DeleteContextFunc {
 		log.Printf("[DEBUG] Init %s", config.Name)
 		c := m.(*client.Client)
 
+		if config.ResourceData != nil {
+			config.ResourceData.ReadFromSchema(d)
+		}
+
 		url := config.CreateURL(d, c)
 
-		if _, err := c.DoRequest(url, config.HttpMethod, nil); err != nil {
+		if _, err := c.DoRequest(url, config.HttpMethod, config.ResourceData); err != nil {
 			return createError("Unable to delete integration", fmt.Sprintf("%v", err))
 		}
 

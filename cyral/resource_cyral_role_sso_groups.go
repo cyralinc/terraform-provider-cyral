@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type RoleSSOGroupsDataRequest struct {
+type RoleSSOGroupsCreateRequest struct {
 	SSOGroupsMappings []*SSOGroup `json:"mappings,omitempty"`
 }
 
-type RoleSSOGroupsDataResponse struct {
+type RoleSSOGroupsReadResponse struct {
 	SSOGroupsMappings []*SSOGroup `json:"mappings,omitempty"`
 }
 
@@ -24,21 +24,26 @@ type SSOGroup struct {
 	IdentityProviderId string `json:"connectionName,omitempty"`
 }
 
+type RoleSSOGroupsDeleteRequest struct {
+	SSOGroupsMappingsIds []string `json:"mappings,omitempty"`
+}
+
 func resourceRoleSSOGroups() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: CreateResource(createRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
 		ReadContext:   ReadResource(readRoleSSOGroupsConfig),
-		UpdateContext: UpdateResource(updateRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
 		DeleteContext: DeleteResource(deleteRoleSSOGroupsConfig),
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"sso_group": {
 				Type:     schema.TypeSet,
 				Required: true,
+				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -48,10 +53,12 @@ func resourceRoleSSOGroups() *schema.Resource {
 						"group_name": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"idp_id": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 					},
 				},
@@ -70,8 +77,8 @@ var createRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	ResourceData: &RoleSSOGroupsDataRequest{},
-	ResponseData: &RoleSSOGroupsDataRequest{},
+	ResourceData: &RoleSSOGroupsCreateRequest{},
+	ResponseData: &RoleSSOGroupsCreateRequest{},
 }
 
 var readRoleSSOGroupsConfig = ResourceOperationConfig{
@@ -81,17 +88,7 @@ var readRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	ResponseData: &RoleSSOGroupsDataResponse{},
-}
-
-var updateRoleSSOGroupsConfig = ResourceOperationConfig{
-	Name:       "resourceRoleSSOGroupsUpdate",
-	HttpMethod: http.MethodPatch,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
-			d.Get("role_id").(string))
-	},
-	ResourceData: &RoleSSOGroupsDataRequest{},
+	ResponseData: &RoleSSOGroupsReadResponse{},
 }
 
 var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
@@ -101,13 +98,14 @@ var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
+	ResourceData: &RoleSSOGroupsDeleteRequest{},
 }
 
-func (data RoleSSOGroupsDataRequest) WriteToSchema(d *schema.ResourceData) {
+func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) {
 	d.SetId(fmt.Sprintf("%s/SSOGroups", d.Get("role_id")))
 }
 
-func (data *RoleSSOGroupsDataRequest) ReadFromSchema(d *schema.ResourceData) {
+func (data *RoleSSOGroupsCreateRequest) ReadFromSchema(d *schema.ResourceData) {
 	var SSOGroupsMappings []*SSOGroup
 
 	if ssoGroups, ok := d.GetOk("sso_group"); ok {
@@ -126,11 +124,11 @@ func (data *RoleSSOGroupsDataRequest) ReadFromSchema(d *schema.ResourceData) {
 	data.SSOGroupsMappings = SSOGroupsMappings
 }
 
-func (data RoleSSOGroupsDataRequest) MarshalJSON() ([]byte, error) {
+func (data RoleSSOGroupsCreateRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(data.SSOGroupsMappings)
 }
 
-func (data RoleSSOGroupsDataResponse) WriteToSchema(d *schema.ResourceData) {
+func (data RoleSSOGroupsReadResponse) WriteToSchema(d *schema.ResourceData) {
 	var flatSSOGroupsMappings []interface{}
 
 	for _, ssoGroup := range data.SSOGroupsMappings {
@@ -145,4 +143,26 @@ func (data RoleSSOGroupsDataResponse) WriteToSchema(d *schema.ResourceData) {
 	d.Set("sso_group", flatSSOGroupsMappings)
 }
 
-func (data *RoleSSOGroupsDataResponse) ReadFromSchema(d *schema.ResourceData) {}
+func (data *RoleSSOGroupsReadResponse) ReadFromSchema(d *schema.ResourceData) {}
+
+func (data RoleSSOGroupsDeleteRequest) WriteToSchema(d *schema.ResourceData) {}
+
+func (data *RoleSSOGroupsDeleteRequest) ReadFromSchema(d *schema.ResourceData) {
+	var SSOGroupsMappingsIds []string
+
+	if ssoGroups, ok := d.GetOk("sso_group"); ok {
+		ssoGroups := ssoGroups.(*schema.Set).List()
+
+		for _, ssoGroup := range ssoGroups {
+			ssoGroup := ssoGroup.(map[string]interface{})
+
+			SSOGroupsMappingsIds = append(SSOGroupsMappingsIds, ssoGroup["id"].(string))
+		}
+	}
+
+	data.SSOGroupsMappingsIds = SSOGroupsMappingsIds
+}
+
+func (data RoleSSOGroupsDeleteRequest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(data.SSOGroupsMappingsIds)
+}
