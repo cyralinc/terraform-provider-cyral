@@ -66,8 +66,6 @@ func (data *CreateResourceIntegrationOktaResponse) ReadFromSchema(d *schema.Reso
 	data.ID = "okta"
 }
 
-type KeycloakProvider struct{}
-
 type ResourceIntegrationOktaIdentityProviderPayload struct {
 	Keycloak KeycloakProvider `json:"keyCloakProvider"`
 }
