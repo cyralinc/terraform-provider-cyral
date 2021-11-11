@@ -1,6 +1,6 @@
 # Okta IdP Integration Resource
 
-Provides integration with Okta identity provider to allow single-sign on to Cyral.
+Provides [integration with Okta](https://cyral.com/docs/sso/sso-okta#in-cyral-management-console-create-okta-integration) identity provider to allow single-sign on to Cyral.
 
 ## Example Usage
 

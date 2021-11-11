@@ -1,6 +1,6 @@
 # Azure Active Directory IdP Integration Resource
 
-Provides integration with Azure Active Directory identity provider to allow single-sign on to Cyral.
+Provides [integration with Azure Active Directory](https://cyral.com/docs/sso/sso-azure-ad#add-azure-ad-integration-to-cyral) identity provider to allow single-sign on to Cyral.
 
 ## Example Usage
 
