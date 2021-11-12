@@ -11,15 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var identityProvider string
-
-func resourceIntegrationIdP(idp, deprecationMessage string) *schema.Resource {
-	identityProvider = idp
+func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
 		DeprecationMessage: deprecationMessage,
-		CreateContext:      resourceIntegrationIdPCreate,
+		CreateContext:      resourceIntegrationIdPCreate(identityProvider),
 		ReadContext:        resourceIntegrationIdPRead,
-		UpdateContext:      resourceIntegrationIdPUpdate,
+		UpdateContext:      resourceIntegrationIdPUpdate(identityProvider),
 		DeleteContext:      resourceIntegrationIdPDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -219,43 +216,45 @@ func resourceIntegrationIdP(idp, deprecationMessage string) *schema.Resource {
 	}
 }
 
-func resourceIntegrationIdPCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	diag := CreateResource(
-		ResourceOperationConfig{
-			Name:       "resourceIntegrationIdPCreate - Integration",
-			HttpMethod: http.MethodPost,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-				return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
-			},
-			ResourceData: &SAMLIntegrationData{
-				SAMLSetting: &SAMLSetting{
-					IdentityProvider: identityProvider,
-				},
-			},
-			ResponseData: &AliasBasedResponse{},
-		}, readIntegrationIdPConfig,
-	)(ctx, d, m)
-
-	if !diag.HasError() {
-		diag = CreateResource(
+func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		diag := CreateResource(
 			ResourceOperationConfig{
-				Name:       "resourceIntegrationIdPCreate - IdentityProvider",
+				Name:       "resourceIntegrationIdPCreate - Integration",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
+					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
 				},
-				ResourceData: &IdentityProviderData{},
-				ResponseData: &IdentityProviderData{},
-			}, readIdentityProviderConfig,
+				ResourceData: &SAMLIntegrationData{
+					SAMLSetting: &SAMLSetting{
+						IdentityProvider: identityProvider,
+					},
+				},
+				ResponseData: &AliasBasedResponse{},
+			}, readIntegrationIdPConfig,
 		)(ctx, d, m)
 
-		if diag.HasError() {
-			// Clean Up Integration IdP
-			DeleteResource(deleteIntegrationIdPConfig)(ctx, d, m)
-		}
-	}
+		if !diag.HasError() {
+			diag = CreateResource(
+				ResourceOperationConfig{
+					Name:       "resourceIntegrationIdPCreate - IdentityProvider",
+					HttpMethod: http.MethodPost,
+					CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+						return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
+					},
+					ResourceData: &IdentityProviderData{},
+					ResponseData: &IdentityProviderData{},
+				}, readIdentityProviderConfig,
+			)(ctx, d, m)
 
-	return diag
+			if diag.HasError() {
+				// Clean Up Integration IdP
+				DeleteResource(deleteIntegrationIdPConfig)(ctx, d, m)
+			}
+		}
+
+		return diag
+	}
 }
 
 func resourceIntegrationIdPRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -268,23 +267,25 @@ func resourceIntegrationIdPRead(ctx context.Context, d *schema.ResourceData, m i
 	return diag
 }
 
-func resourceIntegrationIdPUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	diag := UpdateResource(
-		ResourceOperationConfig{
-			Name:       "resourceIntegrationIdPUpdate - Integration",
-			HttpMethod: http.MethodPut,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-				return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
-			},
-			ResourceData: &SAMLIntegrationData{
-				SAMLSetting: &SAMLSetting{
-					IdentityProvider: identityProvider,
+func resourceIntegrationIdPUpdate(identityProvider string) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+		diag := UpdateResource(
+			ResourceOperationConfig{
+				Name:       "resourceIntegrationIdPUpdate - Integration",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 				},
-			},
-		}, readIntegrationIdPConfig,
-	)(ctx, d, m)
+				ResourceData: &SAMLIntegrationData{
+					SAMLSetting: &SAMLSetting{
+						IdentityProvider: identityProvider,
+					},
+				},
+			}, readIntegrationIdPConfig,
+		)(ctx, d, m)
 
-	return diag
+		return diag
+	}
 }
 
 func resourceIntegrationIdPDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
