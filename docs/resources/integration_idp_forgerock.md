@@ -1,6 +1,6 @@
 # Forgerock IdP Integration Resource
 
-Provides integration with Forgerock identity provider to allow single-sign on to Cyral.
+Provides [integration with Forgerock](https://cyral.com/docs/sso/sso-forgerock#add-forgerock-idp-to-cyral) identity provider to allow single-sign on to Cyral.
 
 ## Example Usage
 
