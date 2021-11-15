@@ -157,6 +157,13 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Datadog](./docs/resource_integration_datadog.md)
 - [Resource Integration ELK](./docs/resource_integration_elk.md)
 - [Resource Integration Hashicorp Vault](./docs/resource_integration_hc_vault.md)
+- [Resource Integration IdP AAD](./docs/resources/integration_idp_aad.md)
+- [Resource Integration IdP ADFS](./docs/resources/integration_idp_adfs.md)
+- [Resource Integration IdP Forgerock](./docs/resources/integration_idp_forgerock.md)
+- [Resource Integration IdP GSuite](./docs/resources/integration_idp_gsuite.md)
+- [Resource Integration IdP Okta](./docs/resources/integration_idp_okta.md)
+  - See also: [Cyral IdP Integration Module for Okta](https://github.com/cyralinc/terraform-cyral-idp-okta)
+- [Resource Integration IdP Ping One](./docs/resources/integration_idp_ping_one.md)
 - [Resource Integration Logstash](./docs/resource_integration_logstash.md)
 - [Resource Integration Looker](./docs/resource_integration_looker.md)
 - [Resource Integration Okta](./docs/resource_integration_okta.md)
@@ -164,16 +171,11 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration Pager Duty](./docs/resource_integration_pager_duty.md)
 - [Resource Integration Slack Alerts](./docs/resource_integration_slack_alerts.md)
 - [Resource Integration Splunk](./docs/resource_integration_splunk.md)
-- [Resource Integration IdP AAD](./docs/resources/integration_idp_aad.md)
-- [Resource Integration IdP ADFS](./docs/resources/integration_idp_adfs.md)
-- [Resource Integration IdP Forgerock](./docs/resources/integration_idp_forgerock.md)
-- [Resource Integration IdP GSuite](./docs/resources/integration_idp_gsuite.md)
-- [Resource Integration IdP Okta](./docs/resources/integration_idp_okta.md)
-- [Resource Integration IdP Ping One](./docs/resources/integration_idp_ping_one.md)
 - [Resource Integration Sumo Logic](./docs/resource_integration_sumo_logic.md)
 - [Resource Policy](./docs/resource_policy.md)
 - [Resource Policy Rule](./docs/resource_policy_rule.md)
-- [Resource Repository](./docs/resource_repository.md)
+- [Resource Repository](./docs/resources/repository.md)
+  - See also: [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config)
 - [Resource Repository Analysis Configuration](./docs/resource_repository_conf_analysis.md)
 - [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
 - [Resource Repository Binding](./docs/resource_repository_binding.md)
@@ -242,7 +244,7 @@ Copy the desired binary file created in directory `out` (see "Build Instructions
 
 Run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
-### Terraform v0.13 and v0.14
+### Terraform v0.13+
 
 If you **are** running the provider with the same user and machine you built the provider using steps in `Build Instructions`, you should just run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
