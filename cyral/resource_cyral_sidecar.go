@@ -21,6 +21,7 @@ type SidecarData struct {
 	Name            string          `json:"name"`
 	Labels          []string        `json:"labels"`
 	SidecarProperty SidecarProperty `json:"properties"`
+	UserEndpoint    string          `json:userEndpoint`
 }
 
 type SidecarProperty struct {
@@ -49,6 +50,10 @@ func resourceSidecar() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"user_endpoint": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -80,9 +85,6 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
-	d.Set("name", response.Name)
-	d.Set("labels", response.Labels)
-	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 
 	return resourceSidecarRead(ctx, d, m)
 }
@@ -108,6 +110,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("name", response.Name)
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 	d.Set("labels", response.Labels)
+	d.Set("user_endpoint", response.UserEndpoint)
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -168,5 +171,6 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (Sidec
 		Name:            d.Get("name").(string),
 		Labels:          sidecarDataLabels,
 		SidecarProperty: sp,
+		UserEndpoint:    d.Get("user_endpoint").(string),
 	}, nil
 }
