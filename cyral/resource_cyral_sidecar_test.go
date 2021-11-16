@@ -13,6 +13,7 @@ var initialSidecarConfig SidecarData = SidecarData{
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "cloudFormation",
 	},
+	UserEndpoint: "some.user.endpoint",
 }
 
 var updatedSidecarConfigDocker SidecarData = SidecarData{
@@ -21,6 +22,7 @@ var updatedSidecarConfigDocker SidecarData = SidecarData{
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "docker",
 	},
+	UserEndpoint: "some.updated.docker.user.endpoint",
 }
 
 var updatedSidecarConfigHelm SidecarData = SidecarData{
@@ -29,6 +31,7 @@ var updatedSidecarConfigHelm SidecarData = SidecarData{
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "helm",
 	},
+	UserEndpoint: "some.updated.helm.user.endpoint",
 }
 
 var updatedSidecarConfigTF SidecarData = SidecarData{
@@ -37,6 +40,7 @@ var updatedSidecarConfigTF SidecarData = SidecarData{
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "terraform",
 	},
+	UserEndpoint: "some.updated.tf.user.endpoint",
 }
 
 func TestAccSidecarResource(t *testing.T) {
@@ -86,5 +90,6 @@ func formatSidecarDataIntoConfig(data SidecarData) string {
       	name = "%s"
       	deployment_method = "%s"
 		labels = ["%s"]
-      }`, data.Name, data.SidecarProperty.DeploymentMethod, data.Labels[0])
+		user_endpoint = "%s"
+      }`, data.Name, data.SidecarProperty.DeploymentMethod, data.Labels[0], data.UserEndpoint)
 }
