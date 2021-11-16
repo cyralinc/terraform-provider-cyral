@@ -21,7 +21,7 @@ This provider is compatible with both Auth0 or Keycloak-based CPs. Some initial 
     2. Select the API `https://cyral-api.com`;
     3. Select scopes: `read:users`;
     4. Finish the creation by clicking `Authorize`;
-3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./docs/provider.md) documentation how to set those two parameters.
+3. In the application just created, access `Settings` and copy `Client ID` and `Client Secret`. Use these parameters to set up the provider. See the [provider](./docs/index.md) documentation how to set those two parameters.
 
 ### Keycloak (Control planes from v2.22 onwards)
 
@@ -31,7 +31,7 @@ A `Service Account` must be created in order to use the provider. It can be crea
 
 <img src="docs/images/create_service_account.png">
 
-Confirm the account creation by clicking on the `CREATE` button. This will generate a `Client ID` and a `Client Secret` that should be used in the [provider configuration](./docs/provider.md).
+Confirm the account creation by clicking on the `CREATE` button. This will generate a `Client ID` and a `Client Secret` that should be used in the [provider configuration](./docs/index.md).
 
 #### Rotate Credentials
 
@@ -152,7 +152,7 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Data Source SAML Certificate](./docs/data-sources/saml_certificate.md)
 - [Data Source Sidecar CFT Template](./docs/data-sources/sidecar_cft_template.md)
 - [Data Source SAML Configuration](./docs/data-sources/saml_configuration.md)
-- [Provider](./docs/provider.md)
+- [Provider](./docs/index.md)
 - [Resource Datamap](./docs/resources/datamap.md)
 - [Resource Integration Datadog](./docs/resources/integration_datadog.md)
 - [Resource Integration ELK](./docs/resources/integration_elk.md)
