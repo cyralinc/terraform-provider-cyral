@@ -2,10 +2,10 @@
 
 CRUD operations for Splunk integration.
 
-## Usage
+## Example Usage
 
 ```hcl
-resource "cyral_integration_splunk" "SOME_RESOURCE_NAME" {
+resource "cyral_integration_splunk" "some_resource_name" {
     name = ""
     access_token = ""
     port = 0
@@ -15,7 +15,7 @@ resource "cyral_integration_splunk" "SOME_RESOURCE_NAME" {
 }
 ```
 
-## Variables
+## Argument Reference
 
 |  Name          |  Default  |  Description                                                          | Required |
 |:---------------|:---------:|:----------------------------------------------------------------------|:--------:|
@@ -27,7 +27,7 @@ resource "cyral_integration_splunk" "SOME_RESOURCE_NAME" {
 | `use_tls`      |           | Should the comunication with Splunk use TLS encryption?               | Yes      |
 
 
-## Outputs
+## Attribute Reference
 
 |  Name        |  Description                                                        |
 |:-------------|:--------------------------------------------------------------------|

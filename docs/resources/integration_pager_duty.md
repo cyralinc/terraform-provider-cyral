@@ -1,17 +1,17 @@
-# Pager Duty Integration
+# Pager Duty Integration Resource
 
 CRUD operations for Pager Duty integration.
 
-## Usage
+## Example Usage
 
 ```hcl
-resource "cyral_integration_pager_duty" "SOME_RESOURCE_NAME" {
+resource "cyral_integration_pager_duty" "some_resource_name" {
     name = ""
     api_token = ""
 }
 ```
 
-## Variables
+## Argument Reference
 
 | Name        | Default | Description                                                     | Required |
 |:------------|:-------:|:----------------------------------------------------------------|:--------:|
@@ -19,7 +19,7 @@ resource "cyral_integration_pager_duty" "SOME_RESOURCE_NAME" {
 | `api_token` |         | API token for the Pager Duty integration.                       | Yes      |
 
 
-## Outputs
+## Attribute Reference
 
 |  Name        |  Description                                                        |
 |:-------------|:--------------------------------------------------------------------|

@@ -61,7 +61,7 @@ curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/sc
 bash rotate-keycloak-service-account-secret.sh
 ```
 
-## Usage
+## Example Usage
 
 The code below is just a simple example of how to use the Cyral Terraform Provider with Terraform `v0.13+`. Refer to the "Supported Elements" section for more details on data sources, resources and the provider itself.
 
@@ -149,14 +149,14 @@ terraform import cyral_repository.my_resource_name myrepo
 ```
 
 ## Supported Elements
-- [Data Source SAML Certificate](./docs/data_source_saml_certificate.md)
-- [Data Source Sidecar CFT Template](./docs/data_source_sidecar_cft_template.md)
+- [Data Source SAML Certificate](./docs/data-sources/saml_certificate.md)
+- [Data Source Sidecar CFT Template](./docs/data-sources/sidecar_cft_template.md)
 - [Data Source SAML Configuration](./docs/data-sources/saml_configuration.md)
 - [Provider](./docs/provider.md)
-- [Resource Datamap](./docs/resource_datamap.md)
-- [Resource Integration Datadog](./docs/resource_integration_datadog.md)
-- [Resource Integration ELK](./docs/resource_integration_elk.md)
-- [Resource Integration Hashicorp Vault](./docs/resource_integration_hc_vault.md)
+- [Resource Datamap](./docs/resources/datamap.md)
+- [Resource Integration Datadog](./docs/resources/integration_datadog.md)
+- [Resource Integration ELK](./docs/resources/integration_elk.md)
+- [Resource Integration Hashicorp Vault](./docs/resources/integration_hc_vault.md)
 - [Resource Integration IdP AAD](./docs/resources/integration_idp_aad.md)
 - [Resource Integration IdP ADFS](./docs/resources/integration_idp_adfs.md)
 - [Resource Integration IdP Forgerock](./docs/resources/integration_idp_forgerock.md)
@@ -164,25 +164,25 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Integration IdP Okta](./docs/resources/integration_idp_okta.md)
   - See also: [Cyral IdP Integration Module for Okta](https://github.com/cyralinc/terraform-cyral-idp-okta)
 - [Resource Integration IdP Ping One](./docs/resources/integration_idp_ping_one.md)
-- [Resource Integration Logstash](./docs/resource_integration_logstash.md)
-- [Resource Integration Looker](./docs/resource_integration_looker.md)
-- [Resource Integration Okta](./docs/resource_integration_okta.md)
-- [Resource Integration Microsoft Teams](./docs/resource_integration_microsoft_teams.md)
-- [Resource Integration Pager Duty](./docs/resource_integration_pager_duty.md)
-- [Resource Integration Slack Alerts](./docs/resource_integration_slack_alerts.md)
-- [Resource Integration Splunk](./docs/resource_integration_splunk.md)
-- [Resource Integration Sumo Logic](./docs/resource_integration_sumo_logic.md)
-- [Resource Policy](./docs/resource_policy.md)
-- [Resource Policy Rule](./docs/resource_policy_rule.md)
+- [Resource Integration Logstash](./docs/resources/integration_logstash.md)
+- [Resource Integration Looker](./docs/resources/integration_looker.md)
+- [Resource Integration Okta](./docs/resources/integration_okta.md)
+- [Resource Integration Microsoft Teams](./docs/resources/integration_microsoft_teams.md)
+- [Resource Integration Pager Duty](./docs/resources/integration_pager_duty.md)
+- [Resource Integration Slack Alerts](./docs/resources/integration_slack_alerts.md)
+- [Resource Integration Splunk](./docs/resources/integration_splunk.md)
+- [Resource Integration Sumo Logic](./docs/resources/integration_sumo_logic.md)
+- [Resource Policy](./docs/resources/policy.md)
+- [Resource Policy Rule](./docs/resources/policy_rule.md)
 - [Resource Repository](./docs/resources/repository.md)
   - See also: [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config)
-- [Resource Repository Analysis Configuration](./docs/resource_repository_conf_analysis.md)
-- [Resource Repository Authentication Configuration](./docs/resource_repository_conf_auth.md)
-- [Resource Repository Binding](./docs/resource_repository_binding.md)
-- [Resource Repository Identity Map](./docs/resource_repository_identity_map.md)
+- [Resource Repository Analysis Configuration](./docs/resources/repository_conf_analysis.md)
+- [Resource Repository Authentication Configuration](./docs/resources/repository_conf_auth.md)
+- [Resource Repository Binding](./docs/resources/repository_binding.md)
+- [Resource Repository Identity Map](./docs/resources/repository_identity_map.md)
 - [Resource Repository Local Account](./docs/resources/repository_local_account.md)
-- [Resource Sidecar](./docs/resource_sidecar.md)
-- [Resource Sidecar Credentials](./docs/resource_sidecar_credentials.md)
+- [Resource Sidecar](./docs/resources/sidecar.md)
+- [Resource Sidecar Credentials](./docs/resources/sidecar_credentials.md)
 
 ## Configuration Templates
 

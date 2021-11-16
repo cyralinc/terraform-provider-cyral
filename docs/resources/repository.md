@@ -9,7 +9,7 @@ This module provides the repository configuration options as shown in Cyral UI.
 ## Example Usage
 
 ```hcl
-resource "cyral_repository" "SOME_RESOURCE_NAME" {
+resource "cyral_repository" "some_resource_name" {
     host = ""
     port = 0
     type = ""

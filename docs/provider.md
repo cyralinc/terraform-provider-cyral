@@ -1,8 +1,9 @@
 # Provider
 
-The provider is the base element and it must be used to inform application-wide parameters.
+The provider is the base element and must be used to inform application-wide
+parameters, like the Cyral control plane reference and authentication secrets.
 
-## Usage
+## Example Usage
 
 - Terraform v12
 
@@ -32,6 +33,15 @@ provider "cyral" {
 }
 ```
 
+## Argument Reference
+
+* `auth_provider` - (Optional) Authorization provider in use by the Control Plane (valid values: `auth0`, `keycloak`). Default: `keycloak`.
+* `auth0_audience` - (Optional) Auth0 audience.
+* `auth0_domain` - (Optional) Auth0 domain name.
+* `client_id` - (Optional) Client id used to authenticate against the Control Plane.
+* `client_secret` - (Optional) Client secret used to authenticate against the Control Plane.
+* `control_plane` - (Required) Control plane host and API port (ex: `some-cp.cyral.com:8000`)
+
 ----
 
 Authentication parameters `client_id` and `client_secret` are defined as optional in the provider body once they can be set through environment variables in order to avoid storing secrets in source code repositories. The environment variables corresponds to `CYRAL_TF_CLIENT_ID` and `CYRAL_TF_CLIENT_SECRET` respectivelly and can be defined as follows:
@@ -49,14 +59,3 @@ export CYRAL_TF_CLIENT_SECRET=""
 set CYRAL_TF_CLIENT_ID=""
 set CYRAL_TF_CLIENT_SECRET=""
 ```
-
-## Variables
-
-|  Name             |  Default     |  Description                                                                           | Required |
-|:------------------|:------------:|:---------------------------------------------------------------------------------------|:--------:|
-| `auth_provider`   | `"keycloak"` | Authorization provider in use by the Control Plane (valid values: `auth0`, `keycloak`) | No       |
-| `auth0_audience`  |              | Auth0 audience (ex: `cyral-api.com`)                                                   | No       |
-| `auth0_domain`    |              | Auth0 domain name (ex: `dev-cyral.auth0.com`)                                          | No       |
-| `client_id`       |              | Client id (ex: `abcdef1234567`)                                                        | No       |
-| `client_secret`   |              | Client secret (ex: `0123456789QWERTYUIOPASDFGHJKLZXCVBNM`)                             | No       |
-| `control_plane`   |              | Control plane host and API port (ex: `some-cp.cyral.com:8000`)                         | Yes      |

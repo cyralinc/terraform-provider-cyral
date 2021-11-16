@@ -1,30 +1,7 @@
-# Sidecar Credentials
+# Sidecar Credentials Resource
 
 Create new credentials for Cyral sidecar.
 
-## Usage
-
-```hcl
-resource "cyral_sidecar_credentials" "SOME_RESOURCE_NAME" {
-  sidecar_id = cyral_sidecar.SOME_SIDECAR_RESOURCE_NAME.id
-}
-```
-
-## Variables
-
-| Name         | Default | Description                                                | Required |
-| :----------- | :-----: | :--------------------------------------------------------  | :------: |
-| `sidecar_id` |         | ID of the sidecar which the credentials will be generated. |   Yes    |
-
-## Outputs
-
-| Name            | Description                                     |
-| :-------------- | :---------------------------------------------- |
-| `id`            | Unique ID of the resource in the Control Plane. |
-| `client_id`     | Sidecar Client ID.                              |
-| `client_secret` | Sidecar Client Secret.                          |
-
-## Remote backend
 Consider using a remote backend to encrypt the state of this resource if it sounds appropriate. For instance:
 
 ```hcl
@@ -52,8 +29,28 @@ terraform init -backend-config=PATH
 
 Where `PATH` is the path to the partial configuration file.
 
-## See also
+See also:
 
 - [Remote Backends](https://www.terraform.io/docs/language/settings/backends/remote.html)
 - [S3 remote backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
 - [Partial Configuration](https://www.terraform.io/docs/language/settings/backends/configuration.html#partial-configuration)
+
+
+## Example Usage
+
+```hcl
+resource "cyral_sidecar_credentials" "some_resource_name" {
+  sidecar_id = cyral_sidecar.SOME_SIDECAR_RESOURCE_NAME.id
+}
+```
+
+## Argument Reference
+
+* `sidecar_id` - (Required) ID of the sidecar which the credentials will be generated.
+
+## Attribute Reference
+
+* `id` - Unique ID of the resource in the Control Plane.
+* `client_id` - Sidecar Client ID.
+* `client_secret` - Sidecar Client Secret.
+
