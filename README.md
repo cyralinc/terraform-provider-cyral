@@ -64,7 +64,7 @@ export TF_ACC=true
 
 2. Run `make`
 
-### Running project built locally
+### Running Project Built Locally
 
 #### Terraform v0.12
 
@@ -74,16 +74,4 @@ Run `terraform init` and proceed with `terraform apply` normally to execute your
 
 ### Terraform v0.13+
 
-**If you are running** the provider with the same user and machine you built the provider using steps in [Build Instructions](#build-instructions), you should just run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
-
-**If you are not running** the provider with the same user *or* are not in the same machine that you built the provider, you must copy the binaries in directory `out` to the local registry as follows:
-
-```bash
-cd terraform-provider-cyral
-cp out/${OS_ARCH}/${BINARY} ~/.terraform.d/plugins/cyral.com/terraform/cyral/${VERSION}/${OS_ARCH}
-```
-
-Where:
-* **OS_ARCH** corresponds to the distribution (`darwin_amd64` or `linux_amd64`);
-* **BINARY** corresponds to the binary name. Ex: `terraform-provider-cyral_v0.1.0`;
-* **VERSION** corresponds to the version number withouth `v`. Ex: `0.1.0`.
+Build the project using steps in [Build Instructions](#build-instructions), then proceed normally with `terraform init` and `terraform apply` commands.
