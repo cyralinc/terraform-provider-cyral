@@ -108,7 +108,6 @@ bash rotate-keycloak-service-account-secret.sh
 - [Data Source SAML Certificate](./data-sources/saml_certificate.md)
 - [Data Source Sidecar CFT Template](./data-sources/sidecar_cft_template.md)
 - [Data Source SAML Configuration](./data-sources/saml_configuration.md)
-- [Provider](./index.md)
 - [Resource Datamap](./resources/datamap.md)
 - [Resource Integration Datadog](./resources/integration_datadog.md)
 - [Resource Integration ELK](./resources/integration_elk.md)
