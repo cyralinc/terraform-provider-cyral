@@ -1,6 +1,8 @@
-# Deploy Native Repository Credentials to AWS Secrets Manager
+---
+page_title: "Deploy Native Repository Credentials to AWS Secrets Manager"
+---
 
-Use the following code as an example to deploy a native repository credential to AWS Secrets Manager and also to associate it to a Cyral Repository that can be later bind to a sidecar.
+Use the following code as an example to deploy a native repository credential to AWS Secrets Manager and also to associate it to a Cyral Repository that can be later bound to a sidecar.
 
 ```hcl
 # All information related to the database that will be mapped

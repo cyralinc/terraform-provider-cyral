@@ -15,7 +15,7 @@ provider "cyral" {
 }
 ```
 
-- Terraform v13 and v14
+- Terraform v13+
 
 ```hcl
 terraform {
