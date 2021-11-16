@@ -68,13 +68,13 @@ export TF_ACC=true
 
 #### Terraform v0.12
 
-Copy the desired binary file created in directory `out` (see "Build Instructions") to the root folder containing those `.tf` files that will be used to handle Cyral Terraform provider resources.
+Copy the desired binary file created in directory `out` (see [Build Instructions](build-instructions#)) to the root folder containing those `.tf` files that will be used to handle Cyral Terraform provider resources.
 
 Run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
 ### Terraform v0.13+
 
-**If you are running** the provider with the same user and machine you built the provider using steps in `Build Instructions`, you should just run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
+**If you are running** the provider with the same user and machine you built the provider using steps in [Build Instructions](build-instructions#), you should just run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
 **If you are not running** the provider with the same user *or* are not in the same machine that you built the provider, you must copy the binaries in directory `out` to the local registry as follows:
 
