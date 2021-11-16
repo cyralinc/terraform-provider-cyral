@@ -88,7 +88,7 @@ That will generate a new `Client Secret` that you can copy and use to replace th
 
 #### New Credentials
 
-A `Service Account` must be created in order to use the provider. It can be created by the [script provided in the scripts folder](./scripts/create-keycloak-service-account.sh). You can run it with the command below:
+A `Service Account` must be created in order to use the provider. It can be created by the [script provided in the scripts folder](../scripts/create-keycloak-service-account.sh). You can run it with the command below:
 
 ```bash
 curl https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/scripts/create-keycloak-service-account.sh -O
