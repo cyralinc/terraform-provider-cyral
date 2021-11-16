@@ -85,10 +85,6 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ID)
-	d.Set("name", response.Name)
-	d.Set("labels", response.Labels)
-	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
-	d.Set("user_endpoint", response.UserEndpoint)
 
 	return resourceSidecarRead(ctx, d, m)
 }
