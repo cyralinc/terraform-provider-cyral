@@ -1,4 +1,4 @@
-# Sidecar CFT Template
+# Sidecar CFT Template Data Source
 
 Retrieves the CloudFormation deployment template for a given sidecar.
 
