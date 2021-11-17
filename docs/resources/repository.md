@@ -1,6 +1,6 @@
 # Repository Resource
 
-Provides a resource to handle repositories.
+Provides a resource to [track repositories](https://cyral.com/docs/manage-repositories/repo-track).
 
 See also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config).
 This module provides the repository configuration options as shown in Cyral UI.
@@ -9,7 +9,7 @@ This module provides the repository configuration options as shown in Cyral UI.
 ## Example Usage
 
 ```hcl
-resource "cyral_repository" "SOME_RESOURCE_NAME" {
+resource "cyral_repository" "some_resource_name" {
     host = ""
     port = 0
     type = ""
