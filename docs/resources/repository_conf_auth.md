@@ -1,6 +1,6 @@
 # Repository Authentication Configuration Resource
 
-Provides Repository Authentication Configuration.
+Provides a resource that allows configuring the [Repository Authentication settings in the Advanced tab](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication).
 
 ## Example Usage
 

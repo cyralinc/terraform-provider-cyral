@@ -1,6 +1,6 @@
 # Sidecar Resource
 
-Provides a resource to handle sidecars.
+Provides a resource to [manage sidecars](https://cyral.com/docs/sidecars/sidecar-manage).
 
 ## Example Usage
 

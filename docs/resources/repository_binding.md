@@ -1,6 +1,6 @@
 # Repository Binding Resource
 
-Allows binding repositories to sidecars.
+Allows [binding repositories to sidecars](https://cyral.com/docs/sidecars/sidecar-assign-repo).
 
 ## Example Usage
 

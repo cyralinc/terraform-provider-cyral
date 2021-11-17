@@ -1,6 +1,6 @@
 # Pager Duty Integration Resource
 
-CRUD operations for Pager Duty integration.
+Provides [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral).
 
 ## Example Usage
 
@@ -13,14 +13,9 @@ resource "cyral_integration_pager_duty" "some_resource_name" {
 
 ## Argument Reference
 
-| Name        | Default | Description                                                     | Required |
-|:------------|:-------:|:----------------------------------------------------------------|:--------:|
-| `name`      |         | Integration name that will be used internally in Control Plane. | Yes      |
-| `api_token` |         | API token for the Pager Duty integration.                       | Yes      |
-
+* `name` - (Required) Integration name that will be used internally in Control Plane.
+* `api_token` - (Required) API token for the PagerDuty integration.
 
 ## Attribute Reference
 
-|  Name        |  Description                                                        |
-|:-------------|:--------------------------------------------------------------------|
-| `id`         | Unique ID of the resource in the Control Plane.                     |
+* `id` - The ID of this resource.

@@ -1,6 +1,6 @@
-# Splunk Integration
+# Splunk Integration Resource
 
-CRUD operations for Splunk integration.
+Provides [integration with Splunk](https://cyral.com/docs/integrations/siem/splunk/#procedure).
 
 ## Example Usage
 
@@ -17,18 +17,13 @@ resource "cyral_integration_splunk" "some_resource_name" {
 
 ## Argument Reference
 
-|  Name          |  Default  |  Description                                                          | Required |
-|:---------------|:---------:|:----------------------------------------------------------------------|:--------:|
-| `name`         |           | Integration name that will be used internally in Control Plane.       | Yes      |
-| `access_token` |           | Splunk Access Token.                                                  | Yes      |
-| `port`         |           | Splunk Host Port.                                                     | Yes      |
-| `host`         |           | Splunk Host.                                                          | Yes      |
-| `index`        |           | Splunk data index name.                                               | Yes      |
-| `use_tls`      |           | Should the comunication with Splunk use TLS encryption?               | Yes      |
-
+* `name` - (Required) Integration name that will be used internally in Control Plane.
+* `access_token` - (Required) Splunk Access Token.
+* `port` - (Required) Splunk Host Port.
+* `host` - (Required) Splunk Host.
+* `index` - (Required) Splunk data index name.
+* `use_tls` - (Required) Should the comunication with Splunk use TLS encryption?
 
 ## Attribute Reference
 
-|  Name        |  Description                                                        |
-|:-------------|:--------------------------------------------------------------------|
-| `id`         | Unique ID of the resource in the Control Plane.                     |
+* `id` - The ID of this resource.

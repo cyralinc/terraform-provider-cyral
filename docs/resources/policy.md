@@ -20,9 +20,8 @@ resource "cyral_policy" "some_resource_name" {
 * `description` - (Optional) String that describes the policy (ex: `your_policy_description`).
 * `enabled` - (Optional) Boolean that causes a policy to be enabled or disabled.
 * `name` - (Required) Policy name that will be used internally in Control Plane (ex: `your_policy_name`).
-* `properties`
+* `properties` - (Optional) Policy properties requiring a `name` and a `description`.
 * `tags` - (Optional) Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).
-* `type`
 
 For more information, see the [Policy Guide](https://cyral.com/docs/policy#policy).
 
@@ -32,4 +31,4 @@ For more information, see the [Policy Guide](https://cyral.com/docs/policy#polic
 * `created` - Policy creation timestamp.
 * `last_updated` - Last update timestamp.
 * `version` - Incremental counter for every update on the policy.
-
+* `type` - Policy type.

@@ -1,6 +1,6 @@
 # Microsoft Teams Integration Resource
 
-Provides integration with Microsoft Teams.
+Provides [integration with Microsoft Teams](https://cyral.com/docs/integrations/messaging/microsoft-teams/).
 
 ## Example Usage
 

@@ -1,6 +1,6 @@
 # Repository Identity Map Resource
 
-Provides Repository Identity Maps configuration.
+Provides [Repository Identity Maps configuration](https://cyral.com/docs/manage-repositories/repo-id-map/).
 
 ## Example Usage
 

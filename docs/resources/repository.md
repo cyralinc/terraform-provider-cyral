@@ -1,6 +1,6 @@
 # Repository Resource
 
-Provides a resource to handle repositories.
+Provides a resource to [track repositories](https://cyral.com/docs/manage-repositories/repo-track).
 
 See also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config).
 This module provides the repository configuration options as shown in Cyral UI.

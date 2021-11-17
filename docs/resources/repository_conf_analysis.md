@@ -1,7 +1,7 @@
 # Repository Analysis Configuration Resource
 
 Provides Repository Analysis Configuration. This resource allows configuring both
-`Log Settings` and `Advanced` (Logs, Alerts, Analysis and Enforcement) configurations
+[Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) (Logs, Alerts, Analysis and Enforcement) configurations
 for Data Repositories.
 
 ## Example Usage

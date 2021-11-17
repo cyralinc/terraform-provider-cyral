@@ -1,6 +1,6 @@
 # Sidecar Credentials Resource
 
-Create new credentials for Cyral sidecar.
+Create new [credentials for Cyral sidecar](https://cyral.com/docs/sidecars/sidecar-manage/#rotate-the-client-secret-for-a-sidecar).
 
 Consider using a remote backend to encrypt the state of this resource if it sounds appropriate. For instance:
 

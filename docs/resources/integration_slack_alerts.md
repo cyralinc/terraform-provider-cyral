@@ -1,6 +1,6 @@
 # Slack Alerts Integration Resource
 
-Provides integration with Slack to push alerts.
+Provides [integration with Slack to push alerts](https://cyral.com/docs/integrations/messaging/slack).
 
 ## Example Usage
 
