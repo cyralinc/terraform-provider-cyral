@@ -125,19 +125,6 @@ resource "cyral_repository_binding" "repo_binding" {
     sidecar_id    = cyral_sidecar.my_sidecar_name.id
 }
 
-resource "cyral_role" "some_role" {
-    name="some role"
-    permissions {
-      view_sidecars_and_repositories = true
-      modify_sidecars_and_repositories = true
-      modify_policies = true
-      modify_integrations = true
-      modify_users = true
-      modify_roles = true
-      view_audit_logs = true
-    }
-}
-
 resource "cyral_datamap" "my_datamap_name" {
     mapping {
         label = "CCN"
@@ -194,7 +181,6 @@ terraform import cyral_repository.my_resource_name myrepo
 - [Resource Repository Local Account](./docs/resources/repository_local_account.md)
 - [Resource Sidecar](./docs/resource_sidecar.md)
 - [Resource Sidecar Credentials](./docs/resource_sidecar_credentials.md)
-- [Resource Role](./docs/resource_role.md)
 
 ## Configuration Templates
 
