@@ -1,3 +1,10 @@
+## 2.2.1 (November 12, 2021)
+
+Minimum required Control Plane version: `v2.25.0`.
+
+### Bug fixes:
+* **Fix IdP registration at CP-level**: [#128](https://github.com/cyralinc/terraform-provider-cyral/pull/128);
+
 ## 2.2.0 (November 4, 2021)
 
 Minimum required Control Plane version: `v2.25.0`.

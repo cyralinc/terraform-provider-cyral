@@ -14,7 +14,7 @@ vVERSION:=$(shell git tag --sort v:refname | tail -n1)
 VERSION:=$(shell git tag --sort v:refname | tail -n1 | sed 's/v//g')
 VERSION+sha:=$(VERSION)+$(shell git rev-parse --short HEAD)
 
-HOSTNAME=cyral.com
+HOSTNAME=local
 NAMESPACE=terraform
 NAME=cyral
 BINARY=terraform-provider-$(NAME)_$(vVERSION)

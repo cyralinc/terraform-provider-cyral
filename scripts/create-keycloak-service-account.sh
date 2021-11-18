@@ -34,5 +34,5 @@ then
 fi
 
 echo "Use both \`clientId\` and \`clientSecret\` returned above to set up your provider."
-echo "See the provider documentation in https://github.com/cyralinc/terraform-provider-cyral/blob/main/docs/provider.md how to set those two parameters."
+echo "See the provider documentation in https://github.com/cyralinc/terraform-provider-cyral/blob/main/docs/index.md how to set those two parameters."
 echo

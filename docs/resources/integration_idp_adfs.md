@@ -1,6 +1,6 @@
 # Active Directory Federation Services IdP Integration Resource
 
-Provides integration with Active Directory Federation Services identity provider to 
+Provides [integration with Active Directory Federation Services](https://cyral.com/docs/sso/sso-adfs#add-your-adfs-as-an-idp-in-cyral) identity provider to 
 allow single-sign on to Cyral.
 
 ## Example Usage
