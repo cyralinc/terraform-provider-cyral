@@ -143,7 +143,8 @@ func testAccRoleSSOGroupsConfig_SingleSSOGroup() string {
 
 func testAccRoleSSOGroupsCheck_SingleSSOGroup() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttrPair("cyral_role_sso_groups.test_role_sso_groups", "role_id",
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "role_id",
 			"cyral_role.test_role", "id"),
 		resource.TestCheckResourceAttr("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.#", "1"),
@@ -151,8 +152,12 @@ func testAccRoleSSOGroupsCheck_SingleSSOGroup() resource.TestCheckFunc {
 			"sso_group.0.id"),
 		resource.TestCheckResourceAttr("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.0.group_name", "Everyone"),
-		resource.TestCheckResourceAttrPair("cyral_role_sso_groups.test_role_sso_groups",
-			"sso_group.0.idp_id", "cyral_integration_idp_okta.test_idp_integration", "id"),
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_id",
+			"cyral_integration_idp_okta.test_idp_integration", "id"),
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_name",
+			"cyral_integration_idp_okta.test_idp_integration", "samlp.0.display_name"),
 	)
 }
 
@@ -186,7 +191,8 @@ func testAccRoleSSOGroupsConfig_MultipleSSOGroups() string {
 
 func testAccRoleSSOGroupsCheck_MultipleSSOGroups() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttrPair("cyral_role_sso_groups.test_role_sso_groups", "role_id",
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "role_id",
 			"cyral_role.test_role", "id"),
 		resource.TestCheckResourceAttr("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.#", "2"),
@@ -194,13 +200,21 @@ func testAccRoleSSOGroupsCheck_MultipleSSOGroups() resource.TestCheckFunc {
 			"sso_group.0.id"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.*", map[string]string{"group_name": "Admin"}),
-		resource.TestCheckResourceAttrPair("cyral_role_sso_groups.test_role_sso_groups",
-			"sso_group.0.idp_id", "cyral_integration_idp_okta.test_idp_integration", "id"),
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_id",
+			"cyral_integration_idp_okta.test_idp_integration", "id"),
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_name",
+			"cyral_integration_idp_okta.test_idp_integration", "samlp.0.display_name"),
 		resource.TestCheckResourceAttrSet("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.1.id"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.*", map[string]string{"group_name": "Dev"}),
-		resource.TestCheckResourceAttrPair("cyral_role_sso_groups.test_role_sso_groups",
-			"sso_group.1.idp_id", "cyral_integration_idp_okta.test_idp_integration", "id"),
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.1.idp_id",
+			"cyral_integration_idp_okta.test_idp_integration", "id"),
+		resource.TestCheckResourceAttrPair(
+			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.1.idp_name",
+			"cyral_integration_idp_okta.test_idp_integration", "samlp.0.display_name"),
 	)
 }

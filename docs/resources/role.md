@@ -1,6 +1,6 @@
 # Role Resource
 
-Provides a resource to manage [roles for Cyral control plane users](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users).
+Provides a resource to manage [roles for Cyral control plane users](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users). See also: [Role SSO Groups](./role_sso_groups.md).
 
 ## Example Usage
 

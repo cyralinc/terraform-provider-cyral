@@ -20,8 +20,10 @@ type RoleSSOGroupsReadResponse struct {
 type SSOGroup struct {
 	Id        string `json:"id,omitempty"`
 	GroupName string `json:"groupName,omitempty"`
-	// IdentityProviderId corresponds to ConnectionName in API.
-	IdentityProviderId string `json:"connectionName,omitempty"`
+	// IdentityProviderId corresponds to ConnectionAlias in API.
+	IdentityProviderId string `json:"connectionAlias,omitempty"`
+	// IdentityProviderName corresponds to ConnectionName in API.
+	IdentityProviderName string `json:"connectionName,omitempty"`
 }
 
 type RoleSSOGroupsDeleteRequest struct {
@@ -59,6 +61,10 @@ func resourceRoleSSOGroups() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
+						},
+						"idp_name": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -136,6 +142,7 @@ func (data RoleSSOGroupsReadResponse) WriteToSchema(d *schema.ResourceData) {
 		ssoGroupMap["id"] = ssoGroup.Id
 		ssoGroupMap["group_name"] = ssoGroup.GroupName
 		ssoGroupMap["idp_id"] = ssoGroup.IdentityProviderId
+		ssoGroupMap["idp_name"] = ssoGroup.IdentityProviderName
 
 		flatSSOGroupsMappings = append(flatSSOGroupsMappings, ssoGroupMap)
 	}

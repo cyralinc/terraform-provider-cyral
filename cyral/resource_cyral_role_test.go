@@ -55,6 +55,10 @@ func TestAccRoleResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`The argument "name" is required`),
 			},
 			{
+				Config:      testAccRoleConfig_MultiplePermissionsBlock(),
+				ExpectError: regexp.MustCompile(`No more than 1 "permissions" blocks are allowed`),
+			},
+			{
 				Config: testAccRoleConfig_DefaultValues(),
 				Check:  testAccRoleCheck_DefaultValues(),
 			},
@@ -83,6 +87,18 @@ func testAccRoleConfig_EmptyRoleName() string {
 	resource "cyral_role" "test_role" {
 	}
 	`
+}
+
+func testAccRoleConfig_MultiplePermissionsBlock() string {
+	return fmt.Sprintf(`
+	resource "cyral_role" "test_role" {
+		name="%s"
+		permissions{
+		}
+		permissions{
+		}
+	}
+	`, initialRoleName)
 }
 
 func testAccRoleConfig_DefaultValues() string {
