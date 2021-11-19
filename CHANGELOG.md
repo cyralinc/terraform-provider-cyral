@@ -1,3 +1,15 @@
+## 2.3.0 (November 19, 2021)
+
+Minimum required Control Plane version: `v2.25.3`.
+
+### Bug fixes:
+* **Fix documentation accordingly to Terraform standards**: [#131](https://github.com/cyralinc/terraform-provider-cyral/pull/131);
+
+### Features:
+* **Add resource to manage sso groups to roles**: [#106](https://github.com/cyralinc/terraform-provider-cyral/pull/106);
+* **Add docs reference to Okta IdP module**: [#129](https://github.com/cyralinc/terraform-provider-cyral/pull/129);
+* **Add sidecar user endpoint**: [#132](https://github.com/cyralinc/terraform-provider-cyral/pull/132);
+
 ## 2.2.1 (November 12, 2021)
 
 Minimum required Control Plane version: `v2.25.0`.
