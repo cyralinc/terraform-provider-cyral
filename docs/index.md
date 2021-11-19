@@ -73,7 +73,7 @@ set CYRAL_TF_CLIENT_SECRET=""
 
 A `Service Account` must be created in order to use the provider. It can be created through the control plane UI, accessing the `Service accounts` section in the left menu and clicking on the `+` button. Choose a name for the new service account and select the following roles so you can use all the provider functions:
 
-<img src="images/create_service_account.jpg">
+<img src="https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/docs/images/create_service_account.png">
 
 Confirm the account creation by clicking on the `CREATE` button. This will generate a `Client ID` and a `Client Secret` that should be used in the [provider configuration](#example-usage).
 
@@ -81,7 +81,7 @@ Confirm the account creation by clicking on the `CREATE` button. This will gener
 
 To rotate secrets for existing service accounts, select a specific service account in the UI, and then click on the button `ROTATE CLIENT SECRET` as the image below suggests:
 
-<img src="images/rotate_client_secret.jpg">
+<img src="https://raw.githubusercontent.com/cyralinc/terraform-provider-cyral/main/docs/images/rotate_client_secret.png">
 
 That will generate a new `Client Secret` that you can copy and use to replace the old one.
 
