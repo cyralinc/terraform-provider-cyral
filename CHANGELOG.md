@@ -1,3 +1,10 @@
+## 2.3.1 (November 19, 2021)
+
+Minimum required Control Plane version: `v2.25.3`.
+
+### Bug fixes:
+* **Fix image links**: [#133](https://github.com/cyralinc/terraform-provider-cyral/pull/133);
+
 ## 2.3.0 (November 19, 2021)
 
 Minimum required Control Plane version: `v2.25.3`.
