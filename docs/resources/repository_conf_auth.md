@@ -19,7 +19,7 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 * `repository_id` - (Required) The ID of the repository to be configured.
 * `allow_native_auth` - (Optional) Should the comunication allow native authentication?
 * `client_tls` - (Optional) Is the repo Client using TLS?
-* `identity_provider` - (Optional) The name of the okta identity provider.
+* `identity_provider` - (Optional) The name of the identity provider.
 * `repo_tls` - (Optional) Is TLS enabled for the repository?
 
 
