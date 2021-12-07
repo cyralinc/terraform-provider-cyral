@@ -15,6 +15,7 @@ const (
 	auth0              = "auth0"
 	EnvVarClientID     = "CYRAL_TF_CLIENT_ID"
 	EnvVarClientSecret = "CYRAL_TF_CLIENT_SECRET"
+	EnvVarCPURL        = "CYRAL_TF_CONTROL_PLANE"
 )
 
 // Provider defines and initializes the Cyral provider
@@ -73,8 +74,9 @@ func Provider() *schema.Provider {
 				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientSecret, nil),
 			},
 			"control_plane": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc(EnvVarCPURL, nil),
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
