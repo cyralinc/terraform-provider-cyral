@@ -93,7 +93,6 @@ func TestAccRepositoryAccountEnviromentVariable(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
-		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testConfigEnviromentVariable,
@@ -113,7 +112,6 @@ func TestAccRepositoryAccountAwsHashicorpVault(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
-		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testConfigHashicorpVault,
@@ -133,7 +131,6 @@ func TestAccRepositoryAccountCyralStorage(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
-		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testConfigCyralStorage,
@@ -153,7 +150,6 @@ func TestAccRepositoryAccountAwsSecretResource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
-		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testConfigAwsSecret,
@@ -173,7 +169,6 @@ func TestAccRepositoryAccountAwsIamResource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
-		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testConfigAwsIam,

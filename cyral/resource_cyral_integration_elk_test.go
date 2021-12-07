@@ -25,7 +25,6 @@ func TestAccELKIntegrationResource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
-		PreCheck:          func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
