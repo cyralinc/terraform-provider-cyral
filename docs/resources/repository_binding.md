@@ -18,37 +18,53 @@ resource "cyral_repository_binding" "some_resource_name" {
 
 ### Bind multiple repositories
 
-It is possible to create and bind multiple repositories at once by using a `local` variable and `count` parameter:
+It is possible to create and bind multiple repositories at once by using a `local` variable and `for_each` parameter:
 
 ```hcl
 locals {
-    repos = [
-        ["mongodb", "mongodb.cyral.com", 27017, "mymongodb"],
-        ["mariadb", "mariadb.cyral.com", 3310, "mymariadb"],
-        ["postgresql", "postgresql.cyral.com", 5432, "mypostgresql"]
-    ]
+  repos = {
+    mymongodb = {
+      host          = "mongodb.cyral.com"
+      port          = 27017
+      type          = "mongodb"
+      listener_port = 27117
+    }
+    mymariadb = {
+      host          = "mariadb.cyral.com"
+      port          = 3306
+      listener_port = 3310
+      type          = "mariadb"
+    }
+    mypostgresql = {
+      host          = "postgresql.cyral.com"
+      port          = 5436
+      listener_port = 5432
+      type          = "postgresql"
+    }
+  }
 }
 
 resource "cyral_repository" "repositories" {
-    count = length(local.repos)
+  for_each = local.repos
 
-    type  = local.repos[count.index][0]
-    host  = local.repos[count.index][1]
-    port  = local.repos[count.index][2]
-    name  = local.repos[count.index][3]
+  name = each.key
+  type = each.value.type
+  host = each.value.host
+  port = each.value.port
 }
 
 resource "cyral_sidecar" "my_sidecar_name" {
-    name = "mysidecar"
-    tags = ["deploymentMethod:cloudFormation", "tag1"]
+  name = "mysidecar"
+  tags = ["deploymentMethod:cloudFormation", "tag1"]
 }
 
 resource "cyral_repository_binding" "repo_binding" {
-    enabled       = true
-    count         = length(local.repos)
-    repository_id = cyral_repository.repositories[count.index].id
-    listener_port = cyral_repository.repositories[count.index].port
-    sidecar_id    = cyral_sidecar.my_sidecar_name.id
+  for_each = local.repos
+
+  enabled       = true
+  repository_id = cyral_repository.repositories[each.key].id
+  listener_port = each.value.listener_port
+  sidecar_id    = cyral_sidecar.my_sidecar_name.id
 }
 ```
 

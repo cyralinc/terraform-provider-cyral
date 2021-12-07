@@ -22,7 +22,7 @@ resource "cyral_integration_splunk" "some_resource_name" {
 * `port` - (Required) Splunk Host Port.
 * `host` - (Required) Splunk Host.
 * `index` - (Required) Splunk data index name.
-* `use_tls` - (Required) Should the comunication with Splunk use TLS encryption?
+* `use_tls` - (Required) Should the communication with Splunk use TLS encryption?
 
 ## Attribute Reference
 
