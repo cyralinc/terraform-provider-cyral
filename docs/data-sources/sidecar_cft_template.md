@@ -23,7 +23,7 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 * `sidecar_id` - (Required) ID of the sidecar which the template will be generated.
 * `log_integration_id` - (Optional) ID of the log integration that will be used by this template.
 * `metrics_integration_id` - (Optional) ID of the metrics integration that will be used by this template.
-* `aws_configuration` - (Required) AWS parameters for `cloudFormation` deployment method.
+* `aws_configuration` - (Required) AWS parameters for `cloudFormation` deployment method. See [aws_configuration](#aws_configuration) below for more details.
 
 ### aws_configuration
 
