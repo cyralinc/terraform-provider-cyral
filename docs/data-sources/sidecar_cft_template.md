@@ -24,6 +24,9 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 * `log_integration_id` - (Optional) ID of the log integration that will be used by this template.
 * `metrics_integration_id` - (Optional) ID of the metrics integration that will be used by this template.
 * `aws_configuration` - (Required) AWS parameters for `cloudFormation` deployment method.
+
+### aws_configuration
+
 * `publicly_accessible` - (Required) Defines a public IP and an internet-facing LB if set to `true`.
 * `key_name` - (Optional) Key-pair name that will be associated to the sidecar EC2 instances.
 

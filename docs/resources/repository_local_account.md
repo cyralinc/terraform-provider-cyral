@@ -71,10 +71,12 @@ resource "cyral_repository_local_account" "some_resource_name" {
 ## Argument Reference
 
 * `repository_id` - (Required) ID of the repository that will be used by the local account.
-* `aws_iam` - (Optional) Credential option to set the local account from AWS IAM.
-* `aws_secrets_manager` - (Optional) Credential option to set the local account from AWS Secrets Manager.
-* `cyral_storage` - (Optional) Credential option to set the local account from Cyral Storage.
-* `hashicorp_vault` - (Optional) Credential option to set the local account from Hashicorp Vault.
+* `aws_iam` - (Optional) Credential option to set the local account from AWS IAM. See [aws_iam](#aws_iam) below for more details.
+* `aws_secrets_manager` - (Optional) Credential option to set the local account from AWS Secrets Manager. See [aws_secrets_manager](#aws_secrets_manager) below for more details.
+* `cyral_storage` - (Optional) Credential option to set the local account from Cyral Storage. See [cyral_storage](#cyral_storage) below for more details.
+* `hashicorp_vault` - (Optional) Credential option to set the local account from Hashicorp Vault. See [hashicorp_vault](#hashicorp_vault) below for more details.
+
+### aws_iam
 
 The `aws_iam` object supports the following arguments:
 
@@ -82,11 +84,15 @@ The `aws_iam` object supports the following arguments:
 * `local_account` - (Required) Local account name.
 * `role_arn` - (Required) AWS IAM role ARN.
 
+### aws_secrets_manager
+
 The `aws_secrets_manager` object supports the following arguments:
 
 * `database_name` - (Optional) Database name that the local account corresponds to.
 * `local_account` - (Required) Local account name.
 * `secret_arn` - (Required) ARN of the AWS Secret Manager that stores the credential.
+
+### cyral_storage
 
 The `cyral_storage` object supports the following arguments:
 
@@ -94,11 +100,15 @@ The `cyral_storage` object supports the following arguments:
 * `local_account` - (Required) Local account name.
 * `password` - (Required) Local account password.
 
+### hashicorp_vault
+
 The `hashicorp_vault` object supports the following arguments:
 
 * `database_name` - (Optional) Database name that the local account corresponds to.
 * `local_account` - (Required) Local account name.
 * `path` - (Required) Hashicorp Vault path.
+
+### environment_variable
 
 The `environment_variable` object supports the following arguments:
 
