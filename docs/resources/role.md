@@ -33,7 +33,9 @@ resource "cyral_role" "some_resource_name" {
 ## Argument Reference
 
 * `name` - (Required) The name of the role.
-* `permissions` - (Optional) A block responsible for configuring the role permissions.
+* `permissions` - (Optional) A block responsible for configuring the role permissions. See [permissions](#permissions) below for more details.
+
+### permissions
 
 The `permissions` object supports the following:
 

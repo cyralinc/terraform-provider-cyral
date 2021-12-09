@@ -69,11 +69,13 @@ resource "cyral_integration_idp_gsuite" "some_resource_name" {
 
 ## Argument Reference
 
-* `samlp` - (Required) It contains the top-level configuration for an identity provider.
+* `samlp` - (Required) It contains the top-level configuration for an identity provider. See [samlp](#samlp) below for more details.
+
+### samlp
 
 The `samlp` object supports the following:
 
-* `config` - (Required) The SAML configuration for this IdP Integration.
+* `config` - (Required) The SAML configuration for this IdP Integration. See [config](#config) below for more details.
 * `provider_id` - (Optional) This is the provider ID of `saml`. Defaults to `saml`.
 * `disabled` - (Optional) Disable maps to Keycloak's `enabled` field. Defaults to `false`.
 * `first_broker_login_flow_alias` - (Optional) Alias of authentication flow, which is triggered after `First Login` with this identity provider. Term `First Login` means that no Keycloak account is currently linked to the authenticated identity provider account. Defaults to `SAML_First_Broker`.
@@ -83,6 +85,8 @@ The `samlp` object supports the following:
 * `add_read_token_role_on_create` - (Optional) Adds read token role on creation. Defaults to `false`.
 * `trust_email` - (Optional) If the identity provider supplies an email address this email address will be trusted. If the realm required email validation, users that log in from this identity provider will not have to go through the email verification process. Defaults to `false`.
 * `link_only` - (Optional) If true, users cannot log in through this identity provider. They can only link to this identity provider. This is useful if you don't want to allow login from the identity provider, but want to integrate with an identity provider. Defaults to `false`.
+
+#### config
 
 The `config` object supports the following:
 
