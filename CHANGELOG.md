@@ -1,3 +1,15 @@
+## 2.4.0 (December 8, 2021)
+
+Minimum required Control Plane version: `v2.25.3`.
+
+### Documentation improvements:
+* **Remove wrong 'okta' reference**: [#135](https://github.com/cyralinc/terraform-provider-cyral/pull/135);
+* **Update examples to use for_each instead of count**: [#137](https://github.com/cyralinc/terraform-provider-cyral/pull/137);
+* **Fix wrong flattened resources in docs**: [#142](https://github.com/cyralinc/terraform-provider-cyral/pull/142);
+
+### Features:
+* **Add CYRAL_TF_CONTROL_PLANE env var support**: [#139](https://github.com/cyralinc/terraform-provider-cyral/pull/139);
+
 ## 2.3.1 (November 19, 2021)
 
 Minimum required Control Plane version: `v2.25.3`.
