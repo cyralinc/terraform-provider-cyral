@@ -97,13 +97,21 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
-		return createError(fmt.Sprintf("Unable to read sidecar. SidecarID: %s",
-			d.Id()), fmt.Sprintf("%v", err))
+		// Currently, the sidecar API always returns a status code of 500 for every error,
+		// so its not possible to distinguish if the error returned is related to
+		// a 404 Not Found or not. This way, once this is fixed in the sidecar API,
+		// we should handle the error here by its status code, and only remove the
+		// resource from the state (d.SetId("")) if it returns a 404 Not Found,
+		// otherwise we should return the error in the Diagnostics.
+		log.Printf("[DEBUG] Unable to read sidecar. SidecarID: %s. "+
+			"Removing it from state. Error: %v", d.Id(), err)
+		d.SetId("")
+		return diag.Diagnostics{}
 	}
 
 	response := SidecarData{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
+		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
