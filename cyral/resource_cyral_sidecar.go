@@ -112,7 +112,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 			log.Printf("[DEBUG] Sidecar not found. SidecarID: %s. "+
 				"Removing it from state. Error: %v", d.Id(), err)
 			d.SetId("")
-			return diag.Diagnostics{}
+			return nil
 		}
 
 		return createError(fmt.Sprintf("Unable to read sidecar. SidecarID: %s",
