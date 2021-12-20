@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -97,13 +98,30 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
+		// Currently, the sidecar API always returns a status code of 500 for every error,
+		// so its not possible to distinguish if the error returned is related to
+		// a 404 Not Found or not by its status code. This way, a workaround for that is to
+		// check if the error message matches a 'Failed to extract info for wrapper' message,
+		// since thats the current message returned when the sidecar is not found. Once this
+		// issue is fixed in the sidecar API, we should handle the error here by its status
+		// code, and only remove the resource from the state (d.SetId("")) if it returns a 404
+		// Not Found.
+		matched, regexpError := regexp.MatchString("Failed to extract info for wrapper",
+			err.Error())
+		if regexpError == nil && matched {
+			log.Printf("[DEBUG] Sidecar not found. SidecarID: %s. "+
+				"Removing it from state. Error: %v", d.Id(), err)
+			d.SetId("")
+			return nil
+		}
+
 		return createError(fmt.Sprintf("Unable to read sidecar. SidecarID: %s",
 			d.Id()), fmt.Sprintf("%v", err))
 	}
 
 	response := SidecarData{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
+		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
