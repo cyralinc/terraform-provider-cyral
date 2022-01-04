@@ -271,6 +271,7 @@ func resourceRepositoryIdentityMap(deprecate bool) *schema.Resource {
 			"identity_name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"access_duration": {
 				Type:     schema.TypeSet,
