@@ -1,3 +1,11 @@
+## 2.4.1 (January 5, 2022)
+
+Minimum required Control Plane version: `v2.25.3`.
+
+### Bug fixes:
+* **Terraform provider creates a new identity map instead of updating old one when state changes**: [#152](https://github.com/cyralinc/terraform-provider-cyral/pull/152);
+* **Fixes issue about missing sidecar returning 500 error**: [#148](https://github.com/cyralinc/terraform-provider-cyral/pull/148);
+
 ## 2.4.0 (December 8, 2021)
 
 Minimum required Control Plane version: `v2.25.3`.
