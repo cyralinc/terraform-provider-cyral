@@ -256,18 +256,22 @@ func resourceRepositoryIdentityMap(deprecate bool) *schema.Resource {
 			"repository_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"repository_local_account_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"identity_type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"identity_name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"access_duration": {
 				Type:     schema.TypeSet,
