@@ -7,7 +7,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/hcl/v2 v2.8.2 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.1
-	github.com/rickb777/date v1.16.1
-	golang.org/x/tools v0.0.0-20201028111035-eafbe7b904eb // indirect
+	github.com/rickb777/date v1.17.0
 	google.golang.org/api v0.34.0 // indirect
 )
