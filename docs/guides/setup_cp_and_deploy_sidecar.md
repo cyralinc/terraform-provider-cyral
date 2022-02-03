@@ -50,7 +50,7 @@ locals {
 
         # Set the allowed CIDR block for SSH access to the sidecar
         ssh_inbound_cidr = ["0.0.0.0/0"]
-        # Set the allowed CIDR block for database access to the sidecar
+        # Set the allowed CIDR block for database access through the sidecar
         db_inbound_cidr = ["0.0.0.0/0"]
         # Set the allowed CIDR block for health check requests to the sidecar
         healthcheck_inbound_cidr = ["0.0.0.0/0"]
