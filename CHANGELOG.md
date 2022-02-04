@@ -1,3 +1,10 @@
+## 2.4.2 (February 3, 2022)
+
+Minimum required Control Plane version: `v2.25.3`.
+
+### Documentation improvements:
+* **Guide for setting up CP and deploy a sidecar**: [#156](https://github.com/cyralinc/terraform-provider-cyral/pull/156);
+
 ## 2.4.1 (January 5, 2022)
 
 Minimum required Control Plane version: `v2.25.3`.
