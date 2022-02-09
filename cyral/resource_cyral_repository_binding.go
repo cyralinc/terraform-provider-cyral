@@ -40,10 +40,12 @@ func resourceRepositoryBinding() *schema.Resource {
 			"sidecar_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"repository_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"listener_port": {
 				Type:     schema.TypeInt,
