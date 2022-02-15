@@ -1,3 +1,10 @@
+## 2.4.3 (February 15, 2022)
+
+Minimum required Control Plane version: `v2.25.3`.
+
+### Bug fixes:
+* **Modifying repository_binding resource is not removing old resource**: [#159](https://github.com/cyralinc/terraform-provider-cyral/pull/159);
+
 ## 2.4.2 (February 3, 2022)
 
 Minimum required Control Plane version: `v2.25.3`.
