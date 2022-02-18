@@ -1,10 +1,8 @@
-
 # Cyral Terraform Provider
 
 The Cyral Terraform Provider contains resources that can be used to interact with the Cyral API through Terraform code. It allows customers to maintain a history of changes in Cyral environment by transforming configurations into code and use Terraform to control state changes.
 
 Our provider uses the same naming conventions and organization as stated in Terraform guidelines for [writing custom providers](https://www.terraform.io/docs/extend/writing-custom-providers.html).
-
 
 ## Documentation
 
@@ -20,20 +18,20 @@ See below a list of guides that can be used to deploy some predefined scenarios:
 
 - [Add native repository credentials to AWS Secrets Manager](./docs/guides/native_credentials_aws_sm.md)
 
-
 ## Building and Testing
 
 ### Build Instructions
 
 In order to build this repository, follow the steps below:
 
- 1. Clone [terraform-provider-cyral](https://github.com/cyralinc/terraform-provider-cyral) repo from GitHub;
+1.  Clone [terraform-provider-cyral](https://github.com/cyralinc/terraform-provider-cyral) repo from GitHub;
 
- 2. Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and later.
+2.  Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and later.
 
 Alternatively, you can use the dockerfile to build the image using `make docker-compose/build`
 
 To use the local provider, the module must be configured to use the local provider path as follows:
+
 ```hcl
 terraform {
   required_providers {
@@ -63,6 +61,17 @@ export TF_ACC=true
 ```
 
 2. Run `make`
+
+### Commit instructions
+
+This project uses [pre-commit](https://pre-commit.com/) to automatically lint changes during the commit process.
+
+Before committing a change, you will need to install [`pre-commit`](https://pre-commit.com/#install) and then install
+the hooks by running the following command in the root of the repository:
+
+```shell
+pre-commit install
+```
 
 ### Running Project Built Locally
 

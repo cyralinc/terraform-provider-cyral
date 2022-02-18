@@ -1,0 +1,22 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0 # Use the ref you want to point at
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: pretty-format-json
+        args:
+          - --autofix
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.5.1
+    hooks:
+      - id: prettier
+        stages: [commit]
+  - repo: https://github.com/turo/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: go-fmt
+      - id: go-mod-tidy
+      - id: go-build
