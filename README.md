@@ -73,6 +73,20 @@ the hooks by running the following command in the root of the repository:
 pre-commit install
 ```
 
+This repository following `Conventional Commits` for message formatting.
+See: https://www.conventionalcommits.org/en/v1.0.0/
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+You can use commitizen to help generate commit messages.
+See: http://commitizen.github.io/cz-cli/
+
 ### Running Project Built Locally
 
 #### Terraform v0.12
