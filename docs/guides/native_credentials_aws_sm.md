@@ -42,7 +42,7 @@ resource "cyral_repository_local_account" "my_repo_account" {
 # information on how to initialize it correctly.
 provider "aws" {
     # By deploying the secret to the same account and region of your
-    # sidecar and using the name suggested in my_repository_secret, 
+    # sidecar and using the name suggested in my_repository_secret,
     # the sidecar will gain access to the secret automatically.
     region = "us-east-1"
 }

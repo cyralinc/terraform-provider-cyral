@@ -13,9 +13,9 @@ resource "cyral_integration_microsoft_teams" "some_resource_name" {
 
 ## Argument Reference
 
-* `name` - (Required) Integration name that will be used internally in Control Plane.
-* `url` - (Required) Microsoft Teams webhook URL.
+- `name` - (Required) Integration name that will be used internally in Control Plane.
+- `url` - (Required) Microsoft Teams webhook URL.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.

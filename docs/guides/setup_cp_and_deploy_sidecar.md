@@ -2,7 +2,7 @@
 page_title: "Create a sidecar and repository in Cyral control plane and bring up the sidecar on AWS"
 ---
 
-Use the following code to get a basic scenario with sidecar and repository set in the Cyral 
+Use the following code to get a basic scenario with sidecar and repository set in the Cyral
 control plane and then bring this sidecar up on your AWS account.
 
 By running this example you will have a fully functional sidecar on your AWS account to
@@ -71,7 +71,7 @@ provider "aws" {
 }
 
 provider "cyral" {
-    # Follow the instructions in the Cyral Terraform Provider page to set up the 
+    # Follow the instructions in the Cyral Terraform Provider page to set up the
     # credentials: https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
     client_id = ""
     client_secret = ""
@@ -108,11 +108,11 @@ module "cyral_sidecar" {
 
     source  = "cyralinc/sidecar-aws/cyral"
     # Use the module version that is compatible with your sidecar. This
-    # information can be extracted from the template downloaded from 
+    # information can be extracted from the template downloaded from
     # the UI.
     version = "2.5.4"
 
-    sidecar_id = cyral_sidecar.mysql_sidecar.id 
+    sidecar_id = cyral_sidecar.mysql_sidecar.id
 
     name_prefix = local.sidecar.sidecar_name_prefix
 

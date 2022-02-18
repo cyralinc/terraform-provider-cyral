@@ -59,9 +59,9 @@ func setupHCVaultIntegrationTest(integrationData HCVaultIntegration) (string, re
 func formatHCVaultIntegrationDataIntoConfig(data HCVaultIntegration) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_hc_vault" "hc_vault_integration" {
-		auth_method = "%s" 
-		auth_type = "%s" 
-		name = "%s" 
-		server = "%s" 
+		auth_method = "%s"
+		auth_type = "%s"
+		name = "%s"
+		server = "%s"
 	}`, data.AuthMethod, data.AuthType, data.Name, data.Server)
 }

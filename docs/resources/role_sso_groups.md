@@ -58,19 +58,18 @@ resource "cyral_role_sso_groups" "some_role_sso_groups" {
 
 ## Argument Reference
 
-* `role_id` - (Required) The ID of the role resource that will be configured.
-* `sso_group` - (Required) A block responsible for mapping an SSO group to a role. See [sso_group](#sso_group) below for more details.
+- `role_id` - (Required) The ID of the role resource that will be configured.
+- `sso_group` - (Required) A block responsible for mapping an SSO group to a role. See [sso_group](#sso_group) below for more details.
 
 ### sso_group
 
 The `sso_group` object supports the following:
 
-* `group_name` - (Required) The name of the SSO group to be mapped.
-* `idp_id` - (Required) The ID of the identity provider integration to be mapped.
-
+- `group_name` - (Required) The name of the SSO group to be mapped.
+- `idp_id` - (Required) The ID of the identity provider integration to be mapped.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
-* `sso_group.*.id` - The ID of an SSO group mapping.
-* `sso_group.*.idp_name` - The name of the identity provider integration of an SSO group mapping.
+- `id` - The ID of this resource.
+- `sso_group.*.id` - The ID of an SSO group mapping.
+- `sso_group.*.idp_name` - The name of the identity provider integration of an SSO group mapping.

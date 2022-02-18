@@ -13,10 +13,9 @@ resource "cyral_integration_sumo_logic" "some_resource_name" {
 
 ## Argument Reference
 
-* `name` - (Required) Integration name that will be used internally in Control Plane.
-* `address` - (Required) Sumo Logic Address.
-
+- `name` - (Required) Integration name that will be used internally in Control Plane.
+- `address` - (Required) Sumo Logic Address.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.

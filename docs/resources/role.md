@@ -32,22 +32,22 @@ resource "cyral_role" "some_resource_name" {
 
 ## Argument Reference
 
-* `name` - (Required) The name of the role.
-* `permissions` - (Optional) A block responsible for configuring the role permissions. See [permissions](#permissions) below for more details.
+- `name` - (Required) The name of the role.
+- `permissions` - (Optional) A block responsible for configuring the role permissions. See [permissions](#permissions) below for more details.
 
 ### permissions
 
 The `permissions` object supports the following:
 
-* `modify_sidecars_and_repositories` - (Optional) Allows modifying sidecars and repositories for this role. Defaults to `false`.
-* `modify_users` - (Optional) Allows modifying users for this role. Defaults to `false`.
-* `modify_policies` - (Optional) Allows modifying policies for this role. Defaults to `false`.
-* `view_sidecars_and_repositories` - (Optional) Allows viewing sidecars and repositories for this role. Defaults to `false`.
-* `view_audit_logs` - (Optional) Allows viewing audit logs for this role. Defaults to `false`.
-* `modify_integrations` - (Optional) Allows modifying integrations for this role. Defaults to `false`.
-* `modify_roles` - (Optional) Allows modifying roles for this role. Defaults to `false`.
-* `view_datamaps` - (Optional) Allows viewing datamaps for this role. Defaults to `false`.
+- `modify_sidecars_and_repositories` - (Optional) Allows modifying sidecars and repositories for this role. Defaults to `false`.
+- `modify_users` - (Optional) Allows modifying users for this role. Defaults to `false`.
+- `modify_policies` - (Optional) Allows modifying policies for this role. Defaults to `false`.
+- `view_sidecars_and_repositories` - (Optional) Allows viewing sidecars and repositories for this role. Defaults to `false`.
+- `view_audit_logs` - (Optional) Allows viewing audit logs for this role. Defaults to `false`.
+- `modify_integrations` - (Optional) Allows modifying integrations for this role. Defaults to `false`.
+- `modify_roles` - (Optional) Allows modifying roles for this role. Defaults to `false`.
+- `view_datamaps` - (Optional) Allows viewing datamaps for this role. Defaults to `false`.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.

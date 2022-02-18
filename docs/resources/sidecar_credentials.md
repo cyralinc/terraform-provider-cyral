@@ -35,7 +35,6 @@ See also:
 - [S3 remote backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
 - [Partial Configuration](https://www.terraform.io/docs/language/settings/backends/configuration.html#partial-configuration)
 
-
 ## Example Usage
 
 ```hcl
@@ -46,11 +45,10 @@ resource "cyral_sidecar_credentials" "some_resource_name" {
 
 ## Argument Reference
 
-* `sidecar_id` - (Required) ID of the sidecar which the credentials will be generated.
+- `sidecar_id` - (Required) ID of the sidecar which the credentials will be generated.
 
 ## Attribute Reference
 
-* `id` - Unique ID of the resource in the Control Plane.
-* `client_id` - Sidecar Client ID.
-* `client_secret` - Sidecar Client Secret.
-
+- `id` - Unique ID of the resource in the Control Plane.
+- `client_id` - Sidecar Client ID.
+- `client_secret` - Sidecar Client Secret.

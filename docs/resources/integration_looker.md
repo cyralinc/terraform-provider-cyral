@@ -14,10 +14,10 @@ resource "cyral_integration_looker" "some_resource_name" {
 
 ## Argument Reference
 
-* `client_id` - (Required) Looker client id.
-* `client_secret` - (Required) Looker client secret.
-* `url` - (Required) Looker integration url.
+- `client_id` - (Required) Looker client id.
+- `client_secret` - (Required) Looker client secret.
+- `url` - (Required) Looker integration url.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.

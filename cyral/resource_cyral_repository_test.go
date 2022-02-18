@@ -55,7 +55,7 @@ func setupRepositoryTest(integrationData RepoData) (string, resource.TestCheckFu
 
 func formatRepoDataIntoConfig(data RepoData) string {
 	return fmt.Sprintf(`
-	resource "cyral_repository" "test_repo_repository" {	
+	resource "cyral_repository" "test_repo_repository" {
 		type  = "%s"
 		host  = "%s"
 		port  = %d

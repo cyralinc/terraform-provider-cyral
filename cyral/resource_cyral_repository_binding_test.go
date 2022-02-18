@@ -78,7 +78,7 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 	}
 
 	resource "cyral_repository" "test_repo_binding_repository_1" {
-		name  = "tf-provider-repo-binding-repo-1"	
+		name  = "tf-provider-repo-binding-repo-1"
 		type  = "mongodb"
 		host  = "mongodb.cyral.com"
 		port  = 27017
@@ -89,7 +89,7 @@ func formatRepoBindingDataIntoConfig(data RepoBindingData) string {
 		deployment_method = "cloudFormation"
 	}
 
-	resource "cyral_repository" "test_repo_binding_repository_2" {	
+	resource "cyral_repository" "test_repo_binding_repository_2" {
 		name  = "tf-provider-repo-binding-repo-2"
 		type  = "mongodb"
 		host  = "mongodb.cyral.com"

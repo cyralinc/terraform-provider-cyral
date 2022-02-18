@@ -192,7 +192,7 @@ func setupRepositoryAccountTest(integrationData RepositoryLocalAccountResource) 
 
 func formatRepoAccountIntoConfig(data RepositoryLocalAccountResource) string {
 	return fmt.Sprintf(`
-	  %s 
+	  %s
 	  `, formatRepoAccountAuthConfig(data))
 }
 
@@ -204,7 +204,7 @@ func formatRepoAccountAuthConfig(data RepositoryLocalAccountResource) string {
 		port = 3306
 		name = "%s"
 	}
-	
+
 	resource "cyral_repository_local_account" "tf_test_repository_account" {
 		repository_id = cyral_repository.tf_test_repository.id
 		%s
