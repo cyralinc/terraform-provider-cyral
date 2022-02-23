@@ -15,11 +15,11 @@ resource "cyral_integration_hc_vault" "some_resource_name" {
 
 ## Argument Reference
 
-* `name` - (Required) Integration name that will be used internally in Control Plane.
-* `auth_type` - (Required) Authentication type for the integration.
-* `server` - (Required) The server on which the vault service is running.
-* `auth_method` - (Required) The authentication method for the integration.
+- `name` - (Required) Integration name that will be used internally in Control Plane.
+- `auth_type` - (Required) Authentication type for the integration.
+- `server` - (Required) The server on which the vault service is running.
+- `auth_method` - (Required) The authentication method for the integration.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.

@@ -102,7 +102,7 @@ func formatRepositoryIdentityMapDataIntoConfig(data RepositoryIdentityMapResourc
 		port = 3333
 		name = "tf-repo-test"
 	}
-	
+
 	resource "cyral_repository_local_account" "tf_test_repository_account" {
 		repository_id = cyral_repository.test_repo_repository.id
 		enviroment_variable {
@@ -111,7 +111,7 @@ func formatRepositoryIdentityMapDataIntoConfig(data RepositoryIdentityMapResourc
 			variable_name = "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME"
 		}
 	}
-	
+
 	`
 	if data.AccessDuration != nil {
 		config = fmt.Sprintf(`%s

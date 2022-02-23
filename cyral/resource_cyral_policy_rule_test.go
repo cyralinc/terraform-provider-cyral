@@ -76,19 +76,19 @@ func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
 			port = 3306
 			name = "tf-test-mysql"
 	  }
-	  
+
 	  resource "cyral_sidecar" "tf_test_sidecar" {
 			name = "tf-test-sidecar"
 			deployment_method = "cloudFormation"
 	  }
-	  
+
 	  resource "cyral_repository_binding" "repo_binding" {
 			enabled       = true
 			repository_id = cyral_repository.tf_test_repository.id
 			listener_port = 3307
 			sidecar_id    = cyral_sidecar.tf_test_sidecar.id
 	  }
-	  
+
 	  resource "cyral_datamap" "test_datamap" {
 			mapping {
 				label = "TEST_CCN"
@@ -98,12 +98,12 @@ func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
 				}
 			}
 	  }
-	
+
 
 	resource "cyral_policy" "policy_rule_test_policy" {
 		data = ["TEST_CCN"]
 		description = "description"
-		enabled = true 
+		enabled = true
 		name = "policy_rule_test_policy"
 		tags = ["PCI"]
 	}

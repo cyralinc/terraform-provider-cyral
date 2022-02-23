@@ -20,16 +20,16 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 
 ## Argument Reference
 
-* `sidecar_id` - (Required) ID of the sidecar which the template will be generated.
-* `log_integration_id` - (Optional) ID of the log integration that will be used by this template.
-* `metrics_integration_id` - (Optional) ID of the metrics integration that will be used by this template.
-* `aws_configuration` - (Required) AWS parameters for `cloudFormation` deployment method. See [aws_configuration](#aws_configuration) below for more details.
+- `sidecar_id` - (Required) ID of the sidecar which the template will be generated.
+- `log_integration_id` - (Optional) ID of the log integration that will be used by this template.
+- `metrics_integration_id` - (Optional) ID of the metrics integration that will be used by this template.
+- `aws_configuration` - (Required) AWS parameters for `cloudFormation` deployment method. See [aws_configuration](#aws_configuration) below for more details.
 
 ### aws_configuration
 
-* `publicly_accessible` - (Required) Defines a public IP and an internet-facing LB if set to `true`.
-* `key_name` - (Optional) Key-pair name that will be associated to the sidecar EC2 instances.
+- `publicly_accessible` - (Required) Defines a public IP and an internet-facing LB if set to `true`.
+- `key_name` - (Optional) Key-pair name that will be associated to the sidecar EC2 instances.
 
 ## Attribute Reference
 
-* `template` - The output variable that will contain the template.
+- `template` - The output variable that will contain the template.

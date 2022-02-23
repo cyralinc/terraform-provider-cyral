@@ -5,7 +5,6 @@ Provides a resource to [track repositories](https://cyral.com/docs/manage-reposi
 See also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config).
 This module provides the repository configuration options as shown in Cyral UI.
 
-
 ## Example Usage
 
 ```hcl
@@ -18,7 +17,6 @@ resource "cyral_repository" "some_resource_name" {
 ```
 
 You may also use the same resource declaration to handle multiple repositories at once by using a `local` variable and `for_each` parameter:
-
 
 ```hcl
 locals {
@@ -53,10 +51,10 @@ resource "cyral_repository" "repositories" {
 
 ## Argument Reference
 
-* `host` - (Required): Repository host name (ex: `somerepo.cyral.com`)
-* `port` - (Required): Repository access port (ex: `3306`)
-* `type` - (Required): Repository type (see the list of supported types below)
-  * Accepted values: 
+- `host` - (Required): Repository host name (ex: `somerepo.cyral.com`)
+- `port` - (Required): Repository access port (ex: `3306`)
+- `type` - (Required): Repository type (see the list of supported types below)
+  - Accepted values:
     - `bigquery`
     - `cassandra`
     - `denodo`
@@ -71,7 +69,8 @@ resource "cyral_repository" "repositories" {
     - `s3`
     - `snowflake`
     - `sqlserver`
-* `name` - (Required): Repository name that will be used internally in Control Plane (ex: `your_repo_name`)
+- `name` - (Required): Repository name that will be used internally in Control Plane (ex: `your_repo_name`)
 
 ## Attribute Reference
-* `id` - The ID of this resource.
+
+- `id` - The ID of this resource.

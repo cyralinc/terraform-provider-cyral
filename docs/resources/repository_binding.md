@@ -70,12 +70,12 @@ resource "cyral_repository_binding" "repo_binding" {
 
 ## Argument Reference
 
-* `enabled` - (Optional) Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`.
-* `repository_id` - (Required) ID of the repository that will be bound to the sidecar.
-* `sidecar_id` - (Required) ID of the sidecar that the repository(ies) will be bound to.
-* `listener_port` - (Required) Port in which the sidecar will listen for the given repository.
-* `listener_host` - (Optional) Address in which the sidecar will listen for the given repository. By default, the sidecar will listen in all interfaces.
+- `enabled` - (Optional) Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`.
+- `repository_id` - (Required) ID of the repository that will be bound to the sidecar.
+- `sidecar_id` - (Required) ID of the sidecar that the repository(ies) will be bound to.
+- `listener_port` - (Required) Port in which the sidecar will listen for the given repository.
+- `listener_host` - (Optional) Address in which the sidecar will listen for the given repository. By default, the sidecar will listen in all interfaces.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.

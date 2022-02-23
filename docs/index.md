@@ -42,14 +42,14 @@ provider "cyral" {
 
 ## Argument Reference
 
-* `auth_provider` - (Optional) Authorization provider in use by the Control Plane (valid values: `auth0`, `keycloak`). Default: `keycloak`.
-* `auth0_audience` - (Optional) Auth0 audience.
-* `auth0_domain` - (Optional) Auth0 domain name.
-* `client_id` - (Optional) Client id used to authenticate against the Control Plane.
-* `client_secret` - (Optional) Client secret used to authenticate against the Control Plane.
-* `control_plane` - (Required) Control plane host and API port (ex: `some-cp.cyral.com:8000`)
+- `auth_provider` - (Optional) Authorization provider in use by the Control Plane (valid values: `auth0`, `keycloak`). Default: `keycloak`.
+- `auth0_audience` - (Optional) Auth0 audience.
+- `auth0_domain` - (Optional) Auth0 domain name.
+- `client_id` - (Optional) Client id used to authenticate against the Control Plane.
+- `client_secret` - (Optional) Client secret used to authenticate against the Control Plane.
+- `control_plane` - (Required) Control plane host and API port (ex: `some-cp.cyral.com:8000`)
 
-----
+---
 
 Authentication parameters `client_id` and `client_secret` are defined as optional in the provider body once they can be set through environment variables in order to avoid storing secrets in source code repositories. The environment variables corresponds to `CYRAL_TF_CLIENT_ID` and `CYRAL_TF_CLIENT_SECRET` respectivelly and can be defined as follows:
 

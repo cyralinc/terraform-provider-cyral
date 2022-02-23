@@ -21,12 +21,12 @@ resource "cyral_repository_identity_map" "some_resource_name" {
 
 ## Argument Reference
 
-* `repository_id` - (Required) ID of the repository that this identity will be associated to.
-* `repository_local_account_id` - (Required) ID of the local account that this identity will be associated to.
-* `identity_type` - (Required) Identity type: `user` or `group`.
-* `identity_name` - (Required) Identity name. Ex: `myusername`, `me@myemail.com`.
-* `access_duration` - (Optional) Access duration defined as a sum of days, hours, minutes and seconds. If omitted or all fields are set to zero, the access duration will be infinity.
+- `repository_id` - (Required) ID of the repository that this identity will be associated to.
+- `repository_local_account_id` - (Required) ID of the local account that this identity will be associated to.
+- `identity_type` - (Required) Identity type: `user` or `group`.
+- `identity_name` - (Required) Identity name. Ex: `myusername`, `me@myemail.com`.
+- `access_duration` - (Optional) Access duration defined as a sum of days, hours, minutes and seconds. If omitted or all fields are set to zero, the access duration will be infinity.
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.

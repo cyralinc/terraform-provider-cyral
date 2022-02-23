@@ -16,13 +16,12 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 
 ## Argument Reference
 
-* `repository_id` - (Required) The ID of the repository to be configured.
-* `allow_native_auth` - (Optional) Should the communication allow native authentication?
-* `client_tls` - (Optional) Is the repo Client using TLS?
-* `identity_provider` - (Optional) The name of the identity provider.
-* `repo_tls` - (Optional) Is TLS enabled for the repository?
-
+- `repository_id` - (Required) The ID of the repository to be configured.
+- `allow_native_auth` - (Optional) Should the communication allow native authentication?
+- `client_tls` - (Optional) Is the repo Client using TLS?
+- `identity_provider` - (Optional) The name of the identity provider.
+- `repo_tls` - (Optional) Is TLS enabled for the repository?
 
 ## Attribute Reference
 
-* `id` - The ID of this resource.
+- `id` - The ID of this resource.
