@@ -10,7 +10,7 @@ Allows [binding repositories to sidecars](https://cyral.com/docs/sidecars/sideca
 resource "cyral_repository_binding" "some_resource_name" {
     enabled = true|false
     repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
-    sidecar_id    = cyral_repository.SOME_SIDECAR_RESOURCE_NAME.id
+    sidecar_id    = cyral_sidecar.SOME_SIDECAR_RESOURCE_NAME.id
     listener_port = 0
     listener_host = "0.0.0.0"
 }
