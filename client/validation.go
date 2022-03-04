@@ -16,6 +16,7 @@ func ValidateRepoType(param string) error {
 	validValues := map[string]bool{
 		"bigquery":   true,
 		"cassandra":  true,
+		"denodo":     true,
 		"dremio":     true,
 		"galera":     true,
 		"mariadb":    true,
