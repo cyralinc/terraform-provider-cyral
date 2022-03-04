@@ -63,7 +63,7 @@ resource "cyral_repository_binding" "repo_binding" {
 
   enabled       = true
   repository_id = cyral_repository.repositories[each.key].id
-  listener_port = each.value.listener_port
+  listener_port = each.value.port
   sidecar_id    = cyral_sidecar.my_sidecar_name.id
 }
 ```
