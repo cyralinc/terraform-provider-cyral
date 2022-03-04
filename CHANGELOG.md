@@ -1,3 +1,19 @@
+## 2.4.4 (March 3, 2022)
+
+Minimum required Control Plane version: `v2.25.3`.
+
+### Bug fixes:
+
+- **Added denodo to the validValues map**: [#169](https://github.com/cyralinc/terraform-provider-cyral/pull/169);
+
+### Documentation improvements:
+
+- **Change cyral_repository to cyral_sidecar for the sidecar_id**: [#165](https://github.com/cyralinc/terraform-provider-cyral/pull/165);
+
+### Others:
+
+- **ci: adds pre-commit support**: [#162](https://github.com/cyralinc/terraform-provider-cyral/pull/162);
+
 ## 2.4.3 (February 15, 2022)
 
 Minimum required Control Plane version: `v2.25.3`.
