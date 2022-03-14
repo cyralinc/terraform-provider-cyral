@@ -39,8 +39,10 @@ func (data *PagerDutyIntegration) ReadFromSchema(d *schema.ResourceData) {
 	msl, _ := json.Marshal(token)
 	data.Parameters = string(msl)
 
+	data.Purpose = "authorization"
+
 	// API information for typing
-	data.BuiltInType = "pagerduty"
+	data.TemplateType = "pagerduty"
 	data.Category = "builtin"
 }
 
@@ -49,7 +51,10 @@ var ReadPagerDutyIntegrationConfig = ResourceOperationConfig{
 	Name:       "PagerDutyIntegrationResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/authorizationPolicies/%s", c.ControlPlane, d.Id())
+		return fmt.Sprintf(
+			"https://%s/v1/integrations/confExtensions/instances/authorization/%s",
+			c.ControlPlane, d.Id(),
+		)
 	},
 	ResponseData: &PagerDutyIntegration{},
 }
@@ -61,7 +66,9 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 				Name:       "PagerDutyIntegrationResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/authorizationPolicies", c.ControlPlane)
+					return fmt.Sprintf(
+						"https://%s/v1/integrations/confExtensions/instances", c.ControlPlane,
+					)
 				},
 				ResourceData: &PagerDutyIntegration{},
 				ResponseData: &IDBasedResponse{},
@@ -73,7 +80,9 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 				Name:       "PagerDutyIntegrationResourceUpdate",
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/authorizationPolicies/%s", c.ControlPlane, d.Id())
+					return fmt.Sprintf(
+						"https://%s/v1/integrations/confExtensions/instances/%s", c.ControlPlane, d.Id(),
+					)
 				},
 				ResourceData: &PagerDutyIntegration{},
 			}, ReadPagerDutyIntegrationConfig,
@@ -83,7 +92,10 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 				Name:       "PagerDutyIntegrationResourceDelete",
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/authorizationPolicies/%s", c.ControlPlane, d.Id())
+					return fmt.Sprintf(
+						"https://%s/v1/integrations/confExtensions/instances/authorization/%s",
+						c.ControlPlane, d.Id(),
+					)
 				},
 			},
 		),
