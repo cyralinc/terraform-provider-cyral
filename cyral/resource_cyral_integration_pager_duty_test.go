@@ -8,15 +8,13 @@ import (
 )
 
 var initialPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-
 	Name:       "unitTest-name",
 	Parameters: "unitTest-parameters",
 }
 
 var updatedPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-
-	Name:       "unitTest-parameters-updated",
-	Parameters: "unitTest-name-updated",
+	Name:       "unitTest-name-updated",
+	Parameters: "unitTest-parameters-updated",
 }
 
 func TestAccPagerDutyIntegrationResource(t *testing.T) {
@@ -53,7 +51,7 @@ func setupPagerDutyIntegrationTest(integrationData PagerDutyIntegration) (string
 func formatPagerDutyIntegrationDataIntoConfig(data PagerDutyIntegration) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_pager_duty" "pager_duty_integration" {
-	name = "%s"
-	api_token = "%s"
+		name = "%s"
+		api_token = "%s"
 	}`, data.Name, data.Parameters)
 }
