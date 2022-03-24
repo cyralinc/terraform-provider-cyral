@@ -70,6 +70,7 @@ func resourcePolicy() *schema.Resource {
 			"properties": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Deprecated: "This field might be removed in a future release.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
