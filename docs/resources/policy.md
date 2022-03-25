@@ -21,7 +21,7 @@ resource "cyral_policy" "some_resource_name" {
 - `enabled` - (Optional) Boolean that causes a policy to be enabled or disabled.
 - `name` - (Required) Policy name that will be used internally in Control Plane (ex: `your_policy_name`).
 - `tags` - (Optional) Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).
-- `properties` - (Optional) Policy properties requiring a `name` and a `description`. **This argument is deprecated and might be removed in a future release.**
+- `properties` - (Optional) Policy properties requiring a `name` and a `description`. **This argument is deprecated and will be removed in a future release.**
 
 For more information, see the [Policy Guide](https://cyral.com/docs/policy#policy).
 
