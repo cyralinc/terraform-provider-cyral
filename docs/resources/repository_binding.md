@@ -8,11 +8,12 @@ Allows [binding repositories to sidecars](https://cyral.com/docs/sidecars/sideca
 
 ```hcl
 resource "cyral_repository_binding" "some_resource_name" {
-    enabled = true|false
+    enabled = true
     repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
     sidecar_id    = cyral_sidecar.SOME_SIDECAR_RESOURCE_NAME.id
     listener_port = 0
     listener_host = "0.0.0.0"
+    select_sidecar_as_idp_access_gateway = false
 }
 ```
 
@@ -75,6 +76,7 @@ resource "cyral_repository_binding" "repo_binding" {
 - `sidecar_id` - (Required) ID of the sidecar that the repository(ies) will be bound to.
 - `listener_port` - (Required) Port in which the sidecar will listen for the given repository.
 - `listener_host` - (Optional) Address in which the sidecar will listen for the given repository. By default, the sidecar will listen in all interfaces.
+- `select_sidecar_as_idp_access_gateway` - (Optional) Indicates whether or not the sidecar in the binding configuration is selected as the Access Gateway for Identity Provider users connecting to the underlying data repository. Defaults to `false`.
 
 ## Attribute Reference
 
