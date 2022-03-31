@@ -13,10 +13,11 @@ import (
 )
 
 type RepoBindingData struct {
-	SidecarID    string
-	RepositoryID string
-	Enabled      bool
-	Listener     Listener `json:"listener"`
+	SidecarID                 string
+	RepositoryID              string
+	Enabled                   bool
+	SidecarAsIdPAccessGateway bool     `json:"isSelectedIdentityProviderSidecar,omitempty"`
+	Listener                  Listener `json:"listener"`
 }
 
 type Listener struct {
@@ -56,6 +57,11 @@ func resourceRepositoryBinding() *schema.Resource {
 				Optional: true,
 				Default:  "0.0.0.0",
 			},
+			"sidecar_as_idp_access_gateway": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -67,10 +73,7 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 	log.Printf("[DEBUG] Init resourceRepositoryBindingCreate")
 	c := m.(*client.Client)
 
-	resourceData, err := getRepoBindingDataFromResource(c, d)
-	if err != nil {
-		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
-	}
+	resourceData := getRepoBindingDataFromResource(d)
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
 		resourceData.SidecarID, resourceData.RepositoryID)
@@ -80,8 +83,6 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(fmt.Sprintf("%s-%s", resourceData.SidecarID, resourceData.RepositoryID))
-	d.Set("sidecar_id", resourceData.SidecarID)
-	d.Set("repository_id", resourceData.RepositoryID)
 
 	return resourceRepositoryBindingRead(ctx, d, m)
 }
@@ -101,10 +102,7 @@ func resourceRepositoryBindingRead(ctx context.Context, d *schema.ResourceData, 
 			sidecarID, repositoryID), fmt.Sprintf("%v", err))
 	}
 
-	response := RepoBindingData{
-		SidecarID:    sidecarID,
-		RepositoryID: repositoryID,
-	}
+	response := RepoBindingData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return createError(fmt.Sprintf("Unable to unmarshall JSON. SidecarID: %s, RepositoryID: %s",
 			sidecarID, repositoryID), fmt.Sprintf("%v", err))
@@ -112,8 +110,7 @@ func resourceRepositoryBindingRead(ctx context.Context, d *schema.ResourceData, 
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("enabled", response.Enabled)
-	d.Set("sidecar_id", response.SidecarID)
-	d.Set("repository_id", response.RepositoryID)
+	d.Set("sidecar_as_idp_access_gateway", response.SidecarAsIdPAccessGateway)
 	d.Set("listener_port", response.Listener.Port)
 	if host := response.Listener.Host; host != "" {
 		d.Set("listener_host", response.Listener.Host)
@@ -127,16 +124,10 @@ func resourceRepositoryBindingUpdate(ctx context.Context, d *schema.ResourceData
 	log.Printf("[DEBUG] Init resourceRepositoryBindingUpdate")
 	c := m.(*client.Client)
 
-	resourceData, err := getRepoBindingDataFromResource(c, d)
-	if err != nil {
-		return createError("Unable to update repository", fmt.Sprintf("%v", err))
-	}
+	resourceData := getRepoBindingDataFromResource(d)
 
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
-		resourceData.SidecarID, resourceData.RepositoryID)
-
-	if _, err = c.DoRequest(url, http.MethodPut, resourceData); err != nil {
-		return createError("Unable to update repository", fmt.Sprintf("%v", err))
+	if err := updateRepositoryBinding(c, resourceData); err != nil {
+		return createError("Unable to update repository binding", fmt.Sprintf("%v", err))
 	}
 
 	log.Printf("[DEBUG] End resourceRepositoryBindingUpdate")
@@ -148,10 +139,19 @@ func resourceRepositoryBindingDelete(ctx context.Context, d *schema.ResourceData
 	log.Printf("[DEBUG] Init resourceRepositoryBindingDelete")
 	c := m.(*client.Client)
 
-	sidecarID := d.Get("sidecar_id").(string)
-	repositoryID := d.Get("repository_id").(string)
+	// SidecarAsIdPAccessGateway is set to false to stop
+	// using the bound sidecar as the Access Gateway for Identity
+	// Provider users. This is needed so that the binding can
+	// be deleted, otherwise it will throw a validation error.
+	resourceData := getRepoBindingDataFromResource(d)
+	resourceData.SidecarAsIdPAccessGateway = false
+	if err := updateRepositoryBinding(c, resourceData); err != nil {
+		return createError("Unable to delete repository binding",
+			fmt.Sprintf("%v", err))
+	}
 
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane, sidecarID, repositoryID)
+	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
+		resourceData.SidecarID, resourceData.RepositoryID)
 
 	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
 		return createError("Unable to delete repository binding", fmt.Sprintf("%v", err))
@@ -162,14 +162,22 @@ func resourceRepositoryBindingDelete(ctx context.Context, d *schema.ResourceData
 	return diag.Diagnostics{}
 }
 
-func getRepoBindingDataFromResource(c *client.Client, d *schema.ResourceData) (RepoBindingData, error) {
+func getRepoBindingDataFromResource(d *schema.ResourceData) RepoBindingData {
 	return RepoBindingData{
-		Enabled:      d.Get("enabled").(bool),
-		SidecarID:    d.Get("sidecar_id").(string),
-		RepositoryID: d.Get("repository_id").(string),
+		Enabled:                   d.Get("enabled").(bool),
+		SidecarID:                 d.Get("sidecar_id").(string),
+		RepositoryID:              d.Get("repository_id").(string),
+		SidecarAsIdPAccessGateway: d.Get("sidecar_as_idp_access_gateway").(bool),
 		Listener: Listener{
 			Host: d.Get("listener_host").(string),
 			Port: d.Get("listener_port").(int),
 		},
-	}, nil
+	}
+}
+
+func updateRepositoryBinding(c *client.Client, resourceData RepoBindingData) error {
+	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
+		resourceData.SidecarID, resourceData.RepositoryID)
+	_, err := c.DoRequest(url, http.MethodPut, resourceData)
+	return err
 }
