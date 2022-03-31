@@ -1,3 +1,11 @@
+## 2.5.1 (March 31, 2022)
+
+Minimum required Control Plane version: `v2.29.0`.
+
+### Bug fixes:
+
+- **Update hadolint, gorelease and go version**: [#181](https://github.com/cyralinc/terraform-provider-cyral/pull/181);
+
 ## 2.5.0 (March 31, 2022)
 
 Minimum required Control Plane version: `v2.29.0`.
@@ -8,9 +16,11 @@ Minimum required Control Plane version: `v2.29.0`.
 - **Fix PagerDuty resource due to confExtensions breaking changes**: [#173](https://github.com/cyralinc/terraform-provider-cyral/pull/173);
 
 ### Features:
+
 - **Add Access Gateway support for repo binding resource**: [#180](https://github.com/cyralinc/terraform-provider-cyral/pull/180);
 
 ### Deprecate:
+
 - **Deprecate properties field from policy resource**: [#178](https://github.com/cyralinc/terraform-provider-cyral/pull/178);
 
 ## 2.4.4 (March 3, 2022)
