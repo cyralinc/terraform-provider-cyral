@@ -22,8 +22,8 @@ var updatedConfig RepoBindingData = RepoBindingData{
 		Host: "host-updated.com",
 		Port: 4321,
 	},
-	Enabled:                         true,
-	SelectSidecarAsIdpAccessGateway: false,
+	Enabled:                   true,
+	SidecarAsIdPAccessGateway: false,
 }
 
 func TestAccRepositoryBindingResource(t *testing.T) {
@@ -86,7 +86,7 @@ func testAccRepositoryBindingCheck_DefaultValues() resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
 			"enabled", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
-			"select_sidecar_as_idp_access_gateway", "false"),
+			"sidecar_as_idp_access_gateway", "false"),
 	)
 }
 
@@ -110,10 +110,10 @@ func testAccRepositoryBindingConfig_UpdatedIDs() string {
 		listener_port = %d
 		listener_host = "%s"
 		enabled = %t
-		select_sidecar_as_idp_access_gateway = %t
+		sidecar_as_idp_access_gateway = %t
 	}`, updatedConfig.SidecarID, updatedConfig.RepositoryID,
 		updatedConfig.Listener.Port, updatedConfig.Listener.Host,
-		updatedConfig.Enabled, updatedConfig.SelectSidecarAsIdpAccessGateway)
+		updatedConfig.Enabled, updatedConfig.SidecarAsIdPAccessGateway)
 }
 
 func testAccRepositoryBindingCheck_UpdatedIDs() resource.TestCheckFunc {
@@ -134,7 +134,7 @@ func testAccRepositoryBindingCheck_UpdatedIDs() resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
 			"enabled", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
-			"select_sidecar_as_idp_access_gateway", "false"),
+			"sidecar_as_idp_access_gateway", "false"),
 	)
 }
 
@@ -158,7 +158,7 @@ func testAccRepositoryBindingConfig_AccessGatewayEnabled() string {
 		listener_port = %d
 		listener_host = "%s"
 		enabled = %t
-		select_sidecar_as_idp_access_gateway = true
+		sidecar_as_idp_access_gateway = true
 	}`, updatedConfig.SidecarID, updatedConfig.RepositoryID,
 		updatedConfig.Listener.Port, updatedConfig.Listener.Host,
 		updatedConfig.Enabled)
@@ -182,6 +182,6 @@ func testAccRepositoryBindingCheck_AccessGatewayEnabled() resource.TestCheckFunc
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
 			"enabled", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
-			"select_sidecar_as_idp_access_gateway", "true"),
+			"sidecar_as_idp_access_gateway", "true"),
 	)
 }

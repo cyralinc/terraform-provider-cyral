@@ -13,11 +13,11 @@ import (
 )
 
 type RepoBindingData struct {
-	SidecarID                       string
-	RepositoryID                    string
-	Enabled                         bool
-	SelectSidecarAsIdpAccessGateway bool     `json:"isSelectedIdentityProviderSidecar,omitempty"`
-	Listener                        Listener `json:"listener"`
+	SidecarID                 string
+	RepositoryID              string
+	Enabled                   bool
+	SidecarAsIdPAccessGateway bool     `json:"isSelectedIdentityProviderSidecar,omitempty"`
+	Listener                  Listener `json:"listener"`
 }
 
 type Listener struct {
@@ -57,7 +57,7 @@ func resourceRepositoryBinding() *schema.Resource {
 				Optional: true,
 				Default:  "0.0.0.0",
 			},
-			"select_sidecar_as_idp_access_gateway": {
+			"sidecar_as_idp_access_gateway": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -110,7 +110,7 @@ func resourceRepositoryBindingRead(ctx context.Context, d *schema.ResourceData, 
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("enabled", response.Enabled)
-	d.Set("select_sidecar_as_idp_access_gateway", response.SelectSidecarAsIdpAccessGateway)
+	d.Set("sidecar_as_idp_access_gateway", response.SidecarAsIdPAccessGateway)
 	d.Set("listener_port", response.Listener.Port)
 	if host := response.Listener.Host; host != "" {
 		d.Set("listener_host", response.Listener.Host)
@@ -139,12 +139,12 @@ func resourceRepositoryBindingDelete(ctx context.Context, d *schema.ResourceData
 	log.Printf("[DEBUG] Init resourceRepositoryBindingDelete")
 	c := m.(*client.Client)
 
-	// SelectSidecarAsIdpAccessGateway is set to false to stop
+	// SidecarAsIdPAccessGateway is set to false to stop
 	// using the bound sidecar as the Access Gateway for Identity
 	// Provider users. This is needed so that the binding can
 	// be deleted, otherwise it will throw a validation error.
 	resourceData := getRepoBindingDataFromResource(d)
-	resourceData.SelectSidecarAsIdpAccessGateway = false
+	resourceData.SidecarAsIdPAccessGateway = false
 	if err := updateRepositoryBinding(c, resourceData); err != nil {
 		return createError("Unable to delete repository binding",
 			fmt.Sprintf("%v", err))
@@ -164,10 +164,10 @@ func resourceRepositoryBindingDelete(ctx context.Context, d *schema.ResourceData
 
 func getRepoBindingDataFromResource(d *schema.ResourceData) RepoBindingData {
 	return RepoBindingData{
-		Enabled:                         d.Get("enabled").(bool),
-		SidecarID:                       d.Get("sidecar_id").(string),
-		RepositoryID:                    d.Get("repository_id").(string),
-		SelectSidecarAsIdpAccessGateway: d.Get("select_sidecar_as_idp_access_gateway").(bool),
+		Enabled:                   d.Get("enabled").(bool),
+		SidecarID:                 d.Get("sidecar_id").(string),
+		RepositoryID:              d.Get("repository_id").(string),
+		SidecarAsIdPAccessGateway: d.Get("sidecar_as_idp_access_gateway").(bool),
 		Listener: Listener{
 			Host: d.Get("listener_host").(string),
 			Port: d.Get("listener_port").(int),
