@@ -62,6 +62,13 @@ docker/clean:
 	rm -rf ./out
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
+docker/docs:
+	docker-compose run app go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
+#	rm -rf ./docs/data-sources
+#	rm -rf ./docs/resources
+#	cp -r docs/data-sources ./docs/data-sources
+#	cp -r docs/resources ./docs/resources
+
 local/test:
 	$(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race -timeout 20m
 
