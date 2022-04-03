@@ -11,7 +11,7 @@ protect your database. Read the comments and update the necessary parameters as 
 See also the [Cyral sidecar module for AWS](https://registry.terraform.io/modules/cyralinc/sidecar-aws/cyral/latest)
 for more details on how the sidecar is deployed to AWS.
 
-```hcl
+```terraform
 terraform {
   required_providers {
     cyral = {
