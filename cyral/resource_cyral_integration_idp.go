@@ -13,6 +13,7 @@ import (
 
 func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
+		Description: fmt.Sprintf("%v", idpDefaultValues(identityProvider, "resource_description")),
 		DeprecationMessage: deprecationMessage,
 		CreateContext:      resourceIntegrationIdPCreate(identityProvider),
 		ReadContext:        resourceIntegrationIdPRead,
@@ -21,187 +22,224 @@ func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "The ID of the integration.",
+				Description: "The ID of this resource, which corresponds to the IdP Integration `alias`.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
 			"draft_alias": {
+				Description: "An `alias` that uniquely identifies a IdP Integration draft. If set, will delete any "+
+				"correspondent draft and create a new IdP Integration with the same `alias`. Defaults to `\"\"`.",
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 				ForceNew: true,
 			},
 			"samlp": {
+				Description: "It contains the top-level configuration for an identity provider.",
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"provider_id": {
+							Description: "This is the provider ID of `saml`. Defaults to `saml`.",
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "saml",
 						},
 						"disabled": {
+							Description: "Disable maps to Keycloak's `enabled` field. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"first_broker_login_flow_alias": {
+							Description: "Alias of authentication flow, which is triggered after `First Login` with this identity provider. Term `First Login` means that no Keycloak account is currently linked to the authenticated identity provider account. Defaults to `SAML_First_Broker`.",
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "SAML_First_Broker",
 						},
 						"post_broker_login_flow_alias": {
+							Description: "Alias of authentication flow, which is triggered after each login with this identity provider. Useful if you want additional verification of each user authenticated with this identity provider (for example OTP). Leave this empty if you need no any additional authenticators to be triggered after login with this identity provider. Defaults to `\"\"`.",
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "",
 						},
 						"display_name": {
+							Description: "Name of the IdP Integration displayed in the control plane. Defaults to `" + 
+							fmt.Sprintf("%v", idpDefaultValues(identityProvider, "display_name")) + "`",
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  idpDefaultValues(identityProvider, "display_name"),
 						},
 						"store_token": {
+							Description: "Enable if tokens must be stored after authenticating users. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"add_read_token_role_on_create": {
+							Description: "Adds read token role on creation. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"trust_email": {
+							Description: "If the identity provider supplies an email address this email address will be trusted. If the realm required email validation, users that log in from this identity provider will not have to go through the email verification process. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"link_only": {
+							Description: "If true, users cannot log in through this identity provider. They can only link to this identity provider. This is useful if you don't want to allow login from the identity provider, but want to integrate with an identity provider. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"internal_id": {
+							Description: "An ID that is auto-generated internally for this IdP Integration.",
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"config": {
+							Description: "The SAML configuration for this IdP Integration.",
 							Type:     schema.TypeSet,
 							Required: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disable_using_jwks_url": {
+										Description: "By default, the jwks URL is used for all SAML connections. Defaults to `false`.",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"sync_mode": {
+										Description: "Defaults to `FORCE` if unset.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "FORCE",
 									},
 									"name_id_policy_format": {
+										Description: "Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,
 											"name_id_policy_format"),
 									},
 									"principal_type": {
+										Description: "Defaults to `SUBJECT` if unset.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "SUBJECT",
 									},
 									"signature_type": {
+										Description: "Defaults to `RSA_SHA256` if unset.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "RSA_SHA256",
 									},
 									"saml_xml_key_name_tranformer": {
+										Description: "Defaults to `KEY_ID` if unset.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,
 											"saml_xml_key_name_tranformer"),
 									},
 									"hide_on_login_page": {
+										Description: "Defaults to `false` if unset.",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"back_channel_supported": {
+										Description: "Defaults to `false` if unset.",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"disable_post_binding_response": {
+										Description: "Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"disable_post_binding_authn_request": {
+										Description: "Indicates whether the AuthnRequest must be sent using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"disable_post_binding_logout": {
+										Description: "Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,
 											"disable_post_binding_logout"),
 									},
 									"want_assertions_encrypted": {
+										Description: "Indicates whether the service provider expects an encrypted Assertion. Defaults to `false`.",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"disable_force_authentication": {
+										Description: "Indicates whether the identity provider must authenticate the presenter directly rather than rely on a previous security context. Defaults to `false`",
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
 									"gui_order": {
+										Description: "GUI order. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
 									},
 									"single_sign_on_service_url": {
+										Description: "The URL that must be used to send authentication requests (SAML AuthnRequest).",
 										Type:     schema.TypeString,
 										Required: true,
 									},
 									"single_logout_service_url": {
+										Description: "The URL that must be used to send logout requests. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,
 											"single_logout_service_url"),
 									},
 									"xml_sig_key_info_key_name_transformer": {
+										Description: "Defaults to `KEY_ID` if unset.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,
 											"xml_sig_key_info_key_name_transformer"),
 									},
 									"signing_certificate": {
+										Description: "The signing certificate used to validate signatures. Required if signature validation is enabled. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
 									},
 									"allowed_clock_skew": {
+										Description: "Clock skew in seconds that is tolerated when validating identity provider tokens. Defaults to `0`.",
 										Type:     schema.TypeInt,
 										Optional: true,
 										Default:  0,
 									},
 									"saml_metadata_url": {
+										Description: "This is the full SAML metadata URL that was used to import the SAML configuration. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
 									},
 									"base_64_saml_metadata_document": {
+										Description: "This is the full SAML metadata document that was used to import the SAML configuration, Base64 encoded. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
 									},
 									"ldap_group_attribute": {
+										Description: "The type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,
@@ -354,22 +392,28 @@ var (
 		"saml_xml_key_name_tranformer":          "CERT_SUBJECT",
 		"single_logout_service_url":             "",
 		"xml_sig_key_info_key_name_transformer": "CERT_SUBJECT",
+		"resource_description": "Provides [integration with Active Directory Federation Services](https://cyral.com/docs/sso/sso-adfs#add-your-adfs-as-an-idp-in-cyral) identity provider to allow single-sign on to Cyral.",
 	}
 	aadDefaultValuesMap = map[string]interface{}{
 		"display_name": "Azure Active Directory",
+		"resource_description": "Provides [integration with Azure Active Directory](https://cyral.com/docs/sso/sso-azure-ad#add-azure-ad-integration-to-cyral) identity provider to allow single-sign on to Cyral.",
 	}
 	forgerockDefaultValuesMap = map[string]interface{}{
 		"display_name":         "Forgerock",
 		"ldap_group_attribute": "cn",
+		"resource_description": "Provides [integration with Forgerock](https://cyral.com/docs/sso/sso-forgerock#add-forgerock-idp-to-cyral) identity provider to allow single-sign on to Cyral.",
 	}
 	gsuiteDefaultValuesMap = map[string]interface{}{
 		"display_name": "GSuite",
+		"resource_description": "Provides integration with GSuite identity provider to allow single-sign on to Cyral.",
 	}
 	oktaDefaultValuesMap = map[string]interface{}{
 		"display_name": "Okta",
+		"resource_description": "Provides [integration with Okta](https://cyral.com/docs/sso/sso-okta#in-cyral-management-console-create-okta-integration) identity provider to allow single-sign on to Cyral.",
 	}
 	pingoneDefaultValuesMap = map[string]interface{}{
 		"display_name": "PingOne",
+		"resource_description": "Provides integration with PingOne identity provider to allow single-sign on to Cyral.",
 	}
 )
 

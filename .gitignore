@@ -12,3 +12,6 @@ vendor/
 
 # IDEs
 .idea/
+
+# Documentation for depreacated resources
+docs/resources/integration_sso_*.md
