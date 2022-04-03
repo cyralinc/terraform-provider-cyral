@@ -68,12 +68,13 @@ func resourceIntegrationHCVault() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the integration.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"auth_method": {
 				Required: true,
-				Type:     schema.TypeString,
-			},
-			"id": {
-				Computed: true,
 				Type:     schema.TypeString,
 			},
 			"auth_type": {

@@ -67,6 +67,11 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the integration.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,

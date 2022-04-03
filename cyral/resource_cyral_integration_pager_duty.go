@@ -102,8 +102,9 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Computed: true,
-				Type:     schema.TypeString,
+				Description: "The ID of the integration.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"name": {
 				Required: true,

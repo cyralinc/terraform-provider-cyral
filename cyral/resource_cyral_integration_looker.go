@@ -70,6 +70,11 @@ func resourceIntegrationLooker() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the integration.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"client_id": {
 				Type:      schema.TypeString,
 				Required:  true,

@@ -20,6 +20,11 @@ func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema
 		DeleteContext:      resourceIntegrationIdPDelete,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the integration.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"draft_alias": {
 				Type:     schema.TypeString,
 				Optional: true,
