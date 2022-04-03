@@ -36,6 +36,8 @@ var ReadDatadogConfig = ResourceOperationConfig{
 
 func resourceIntegrationDatadog() *schema.Resource {
 	return &schema.Resource{
+		Description: "Provides [integration with DataDog](https://cyral.com/docs/integrations/apm/datadog/) " +
+		"to push sidecar logs and/or metrics.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "DatadogResourceCreate",
@@ -68,11 +70,18 @@ func resourceIntegrationDatadog() *schema.Resource {
 			},
 		),
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the integration.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
+				Description: "Integration name that will be used internally in the control plane.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"api_key": {
+				Description: "Datadog API key.",
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
