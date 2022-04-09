@@ -47,14 +47,14 @@ data "cyral_saml_configuration" "some_data_source_name" {
 - `disable_want_authn_requests_signed` (Boolean) Indicates whether the identity provider expects a signed AuthnRequest.
 - `gui_order` (String) GUI order.
 - `hide_on_login_page` (Boolean) Defaults to `false` if unset.
-- `ldap_group_attribute` (String) The type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
+- `ldap_group_attribute` (String) Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
 - `name_id_policy_format` (String) Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.
 - `principal_type` (String) Defaults to `SUBJECT` if unset.
 - `saml_xml_key_name_tranformer` (String) Defaults to `KEY_ID` if unset.
 - `signature_type` (String) Defaults to `RSA_SHA256` if unset.
-- `signing_certificate` (String) The signing certificate used to validate signatures. Required if signature validation is enabled.
-- `single_logout_service_url` (String) The URL that must be used to send logout requests.
-- `single_sign_on_service_url` (String) The URL that must be used to send authentication requests (SAML AuthnRequest).
+- `signing_certificate` (String) Signing certificate used to validate signatures. Required if signature validation is enabled.
+- `single_logout_service_url` (String) URL that must be used to send logout requests.
+- `single_sign_on_service_url` (String) URL that must be used to send authentication requests (SAML AuthnRequest).
 - `sync_mode` (String) Defaults to `FORCE` if unset.
 - `want_assertions_encrypted` (Boolean) Indicates whether the service provider expects an encrypted Assertion.
 - `xml_sig_key_info_key_name_transformer` (String) Defaults to `KEY_ID` if unset.

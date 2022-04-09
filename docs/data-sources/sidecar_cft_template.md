@@ -37,7 +37,7 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 - `id` (String) The ID of this resource.
 - `log_integration_id` (String) ID of the log integration that will be used by this template.
 - `metrics_integration_id` (String) ID of the metrics integration that will be used by this template.
-- `template` (String) The output variable that will contain the template.
+- `template` (String) Output variable with the template.
 
 <a id="nestedblock--aws_configuration"></a>
 ### Nested Schema for `aws_configuration`
