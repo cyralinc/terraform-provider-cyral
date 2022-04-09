@@ -128,12 +128,12 @@ func dataSourceSAMLConfiguration() *schema.Resource {
 			"single_sign_on_service_url": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The URL that must be used to send authentication requests (SAML AuthnRequest).",
+				Description: "URL that must be used to send authentication requests (SAML AuthnRequest).",
 			},
 			"single_logout_service_url": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The URL that must be used to send logout requests.",
+				Description: "URL that must be used to send logout requests.",
 			},
 			"xml_sig_key_info_key_name_transformer": {
 				Type:        schema.TypeString,
@@ -143,7 +143,7 @@ func dataSourceSAMLConfiguration() *schema.Resource {
 			"signing_certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The signing certificate used to validate signatures. Required if signature validation is enabled.",
+				Description: "Signing certificate used to validate signatures. Required if signature validation is enabled.",
 			},
 			"allowed_clock_skew": {
 				Type:        schema.TypeInt,
@@ -153,7 +153,7 @@ func dataSourceSAMLConfiguration() *schema.Resource {
 			"ldap_group_attribute": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: "The type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an " +
+				Description: "Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an " +
 					"LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and " +
 					"the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.",
 			},

@@ -80,7 +80,7 @@ func resourceIntegrationSplunk() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "The ID of the integration.",
+				Description: "ID of this resource in Cyral environment",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},

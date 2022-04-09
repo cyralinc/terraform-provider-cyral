@@ -22,7 +22,7 @@ func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "The ID of this resource, which corresponds to the IdP Integration `alias`.",
+				Description: "ID of this resource, which corresponds to the IdP Integration `alias`.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
@@ -102,7 +102,7 @@ func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema
 							Computed: true,
 						},
 						"config": {
-							Description: "The SAML configuration for this IdP Integration.",
+							Description: "SAML configuration for this IdP Integration.",
 							Type:     schema.TypeSet,
 							Required: true,
 							MaxItems: 1,
@@ -196,12 +196,12 @@ func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema
 										Default:  "",
 									},
 									"single_sign_on_service_url": {
-										Description: "The URL that must be used to send authentication requests (SAML AuthnRequest).",
+										Description: "URL that must be used to send authentication requests (SAML AuthnRequest).",
 										Type:     schema.TypeString,
 										Required: true,
 									},
 									"single_logout_service_url": {
-										Description: "The URL that must be used to send logout requests. Defaults to `\"\"`.",
+										Description: "URL that must be used to send logout requests. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,
@@ -215,7 +215,7 @@ func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema
 											"xml_sig_key_info_key_name_transformer"),
 									},
 									"signing_certificate": {
-										Description: "The signing certificate used to validate signatures. Required if signature validation is enabled. Defaults to `\"\"`.",
+										Description: "Signing certificate used to validate signatures. Required if signature validation is enabled. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
@@ -233,13 +233,13 @@ func resourceIntegrationIdP(identityProvider, deprecationMessage string) *schema
 										Default:  "",
 									},
 									"base_64_saml_metadata_document": {
-										Description: "This is the full SAML metadata document that was used to import the SAML configuration, Base64 encoded. Defaults to `\"\"`.",
+										Description: "Full SAML metadata document that was used to import the SAML configuration, Base64 encoded. Defaults to `\"\"`.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "",
 									},
 									"ldap_group_attribute": {
-										Description: "The type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.",
+										Description: "Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.",
 										Type:     schema.TypeString,
 										Optional: true,
 										Default: idpDefaultValues(identityProvider,

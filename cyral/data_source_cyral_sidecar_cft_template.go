@@ -71,7 +71,7 @@ func dataSourceSidecarCftTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "The output variable that will contain the template.",
+				Description: "Output variable with the template.",
 			},
 		},
 		Importer: &schema.ResourceImporter{
