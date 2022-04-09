@@ -82,14 +82,14 @@ resource "cyral_integration_idp_gsuite" "some_resource_name" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource, which corresponds to the IdP Integration `alias`.
+- `id` (String) ID of this resource, which corresponds to the IdP Integration `alias`.
 
 <a id="nestedblock--samlp"></a>
 ### Nested Schema for `samlp`
 
 Required:
 
-- `config` (Block Set, Min: 1, Max: 1) The SAML configuration for this IdP Integration. (see [below for nested schema](#nestedblock--samlp--config))
+- `config` (Block Set, Min: 1, Max: 1) SAML configuration for this IdP Integration. (see [below for nested schema](#nestedblock--samlp--config))
 
 Optional:
 
@@ -112,13 +112,13 @@ Read-Only:
 
 Required:
 
-- `single_sign_on_service_url` (String) The URL that must be used to send authentication requests (SAML AuthnRequest).
+- `single_sign_on_service_url` (String) URL that must be used to send authentication requests (SAML AuthnRequest).
 
 Optional:
 
 - `allowed_clock_skew` (Number) Clock skew in seconds that is tolerated when validating identity provider tokens. Defaults to `0`.
 - `back_channel_supported` (Boolean) Defaults to `false` if unset.
-- `base_64_saml_metadata_document` (String) This is the full SAML metadata document that was used to import the SAML configuration, Base64 encoded. Defaults to `""`.
+- `base_64_saml_metadata_document` (String) Full SAML metadata document that was used to import the SAML configuration, Base64 encoded. Defaults to `""`.
 - `disable_force_authentication` (Boolean) Indicates whether the identity provider must authenticate the presenter directly rather than rely on a previous security context. Defaults to `false`
 - `disable_post_binding_authn_request` (Boolean) Indicates whether the AuthnRequest must be sent using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
 - `disable_post_binding_logout` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
@@ -126,14 +126,14 @@ Optional:
 - `disable_using_jwks_url` (Boolean) By default, the jwks URL is used for all SAML connections. Defaults to `false`.
 - `gui_order` (String) GUI order. Defaults to `""`.
 - `hide_on_login_page` (Boolean) Defaults to `false` if unset.
-- `ldap_group_attribute` (String) The type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
+- `ldap_group_attribute` (String) Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
 - `name_id_policy_format` (String) Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.
 - `principal_type` (String) Defaults to `SUBJECT` if unset.
 - `saml_metadata_url` (String) This is the full SAML metadata URL that was used to import the SAML configuration. Defaults to `""`.
 - `saml_xml_key_name_tranformer` (String) Defaults to `KEY_ID` if unset.
 - `signature_type` (String) Defaults to `RSA_SHA256` if unset.
-- `signing_certificate` (String) The signing certificate used to validate signatures. Required if signature validation is enabled. Defaults to `""`.
-- `single_logout_service_url` (String) The URL that must be used to send logout requests. Defaults to `""`.
+- `signing_certificate` (String) Signing certificate used to validate signatures. Required if signature validation is enabled. Defaults to `""`.
+- `single_logout_service_url` (String) URL that must be used to send logout requests. Defaults to `""`.
 - `sync_mode` (String) Defaults to `FORCE` if unset.
 - `want_assertions_encrypted` (Boolean) Indicates whether the service provider expects an encrypted Assertion. Defaults to `false`.
 - `xml_sig_key_info_key_name_transformer` (String) Defaults to `KEY_ID` if unset.
