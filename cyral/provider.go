@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,6 +18,16 @@ const (
 	EnvVarClientSecret = "CYRAL_TF_CLIENT_SECRET"
 	EnvVarCPURL        = "CYRAL_TF_CONTROL_PLANE"
 )
+
+func init() {
+	schema.ResourceDescriptionBuilder = func(s *schema.Resource) string {
+		desc := s.Description
+		if s.DeprecationMessage != "" {
+			desc = fmt.Sprintf("**Deprecated.** %s", s.DeprecationMessage)
+		}
+		return strings.TrimSpace(desc)
+	}
+}
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {

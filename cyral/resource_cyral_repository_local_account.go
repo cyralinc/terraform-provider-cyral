@@ -243,6 +243,7 @@ var ReadRepositoryLocalAccountConfig = ResourceOperationConfig{
 
 func resourceRepositoryLocalAccount() *schema.Resource {
 	awsIAMSchema := &schema.Schema{
+		Description: "Credential option to set the local account from AWS IAM. See [aws_iam](#aws_iam) below for more details.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -254,14 +255,17 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
+					Description: "Database name that the local account corresponds to.",
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"local_account": {
+					Description: "Local account name.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
 				"role_arn": {
+					Description: "AWS IAM role ARN.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
@@ -270,6 +274,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	awsSecretsSchema := &schema.Schema{
+		Description: "Credential option to set the local account from AWS Secrets Manager. See [aws_secrets_manager](#aws_secrets_manager) below for more details.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -281,14 +286,17 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
+					Description: "Database name that the local account corresponds to.",
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"local_account": {
+					Description: "Local account name.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
 				"secret_arn": {
+					Description: "ARN of the AWS Secret Manager that stores the credential.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
@@ -297,6 +305,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	cyralStorageSchema := &schema.Schema{
+		Description: "Credential option to set the local account from Cyral Storage. See [cyral_storage](#cyral_storage) below for more details.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -308,14 +317,17 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
+					Description: "Database name that the local account corresponds to.",
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"local_account": {
+					Description: "Local account name.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
 				"password": {
+					Description: "Local account password.",
 					Type:      schema.TypeString,
 					Required:  true,
 					Sensitive: true,
@@ -325,6 +337,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	hashicorpVaultSchema := &schema.Schema{
+		Description: "Credential option to set the local account from Hashicorp Vault. See [hashicorp_vault](#hashicorp_vault) below for more details.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -336,14 +349,17 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
+					Description: "Database name that the local account corresponds to.",
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"local_account": {
+					Description: "Local account name.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
 				"path": {
+					Description: "Hashicorp Vault path.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
@@ -352,6 +368,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	enviromentVariableSchema := &schema.Schema{
+		Description: "",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -363,14 +380,17 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
+					Description: "Database name that the local account corresponds to.",
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"local_account": {
+					Description: "Local account name.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
 				"variable_name": {
+					Description: "Name of the environment variable that will store credentials.",
 					Type:     schema.TypeString,
 					Required: true,
 				},
@@ -414,7 +434,13 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 			},
 		),
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"repository_id": {
+				Description: "ID of the repository that will be used by the local account.",
 				Type:     schema.TypeString,
 				Required: true,
 			},

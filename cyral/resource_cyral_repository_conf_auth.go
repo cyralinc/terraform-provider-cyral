@@ -96,6 +96,7 @@ var ReadConfAuthConfig = ResourceOperationConfig{
 
 func resourceRepositoryConfAuth() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "ConfAuthResourceCreate",
@@ -129,23 +130,33 @@ func resourceRepositoryConfAuth() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"repository_id": {
+				Description: "The ID of the repository to be configured.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"allow_native_auth": {
+				Description: "Should the communication allow native authentication?",
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"client_tls": {
+				Description: "Is the repo Client using TLS?",
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"identity_provider": {
+				Description: "The ID (Alias) of the identity provider integration.",
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"repo_tls": {
+				Description: "Is TLS enabled for the repository?",
 				Type:     schema.TypeString,
 				Optional: true,
 			},

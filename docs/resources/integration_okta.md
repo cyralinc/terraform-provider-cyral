@@ -3,12 +3,12 @@
 page_title: "cyral_integration_okta Resource - cyral"
 subcategory: ""
 description: |-
-  
+  Deprecated. Use cyral_integration_idp_okta instead.
 ---
 
 # cyral_integration_okta (Resource)
 
-
+**Deprecated.** Use `cyral_integration_idp_okta` instead.
 
 
 
