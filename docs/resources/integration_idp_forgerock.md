@@ -6,7 +6,7 @@ Manages [integration with Forgerock](https://cyral.com/docs/sso/sso-forgerock#ad
 
 ### Integration with Default Configuration
 
-```hcl
+```terraform
 resource "cyral_integration_idp_forgerock" "some_resource_name" {
   samlp {
     config {
@@ -18,7 +18,7 @@ resource "cyral_integration_idp_forgerock" "some_resource_name" {
 
 ### Integration using SAML Configuration Data Source
 
-```hcl
+```terraform
 locals {
   config = data.cyral_saml_configuration.some_data_source_name
 }
