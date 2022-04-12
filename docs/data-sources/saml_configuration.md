@@ -30,7 +30,7 @@ data "cyral_saml_configuration" "some_data_source_name" {
 ### Optional
 
 - `base_64_saml_metadata_document` (String) (Required unless using `saml_metadata_url`) This is the full SAML metadata document that should be used to parse a SAML configuration, Base64 encoded.
-- `id` (String) The ID of this resource.
+- `id` (String) ID of this resource in Cyral environment.
 - `saml_metadata_url` (String) (Required unless using `base_64_saml_metadata_document`) This is the full SAML metadata URL we should use to parse to a SAML configuration.
 
 ### Read-Only

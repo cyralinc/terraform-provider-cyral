@@ -34,7 +34,7 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
+- `id` (String) ID of this resource in Cyral environment.
 - `log_integration_id` (String) ID of the log integration that will be used by this template.
 - `metrics_integration_id` (String) ID of the metrics integration that will be used by this template.
 - `template` (String) Output variable with the template.

@@ -22,7 +22,7 @@ data "cyral_saml_certificate" "some_data_source_name" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
+- `id` (String) ID of this resource in Cyral environment.
 
 ### Read-Only
 
