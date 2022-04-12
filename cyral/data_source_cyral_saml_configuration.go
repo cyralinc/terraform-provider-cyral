@@ -22,6 +22,11 @@ func dataSourceSAMLConfiguration() *schema.Resource {
 		Description: "Parses a SAML metadata URL or a Base64 document into a SAML configuration.",
 		ReadContext: dataSourceSAMLConfigurationRead,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "Computed ID for this resource (locally computed to be used in Terraform state).",
+				Computed: true,
+				Type: schema.TypeString,
+			},
 			"saml_metadata_url": {
 				Type:         schema.TypeString,
 				Optional:     true,

@@ -30,6 +30,11 @@ func dataSourceSidecarCftTemplate() *schema.Resource {
 			"`terraform-cyral-sidecar-aws` module.",
 		Read: getSidecarCftTemplate,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "Same as `sidecar_id`.",
+				Computed: true,
+				Type: schema.TypeString,
+			},
 			"sidecar_id": {
 				Type:        schema.TypeString,
 				Required:    true,
