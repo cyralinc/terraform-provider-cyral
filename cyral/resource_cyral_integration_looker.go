@@ -37,6 +37,7 @@ var ReadLookerConfig = ResourceOperationConfig{
 
 func resourceIntegrationLooker() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages integration with Looker.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "LookerResourceCreate",
@@ -76,16 +77,19 @@ func resourceIntegrationLooker() *schema.Resource {
 				Computed:    true,
 			},
 			"client_id": {
+				Description: "Looker client id.",
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
 			"client_secret": {
+				Description: "Looker client secret.",
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
 			"url": {
+				Description: "Looker integration url.",
 				Type:     schema.TypeString,
 				Required: true,
 			},

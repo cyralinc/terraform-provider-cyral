@@ -1,6 +1,6 @@
 # cyral_integration_idp_ping_one (Resource)
 
-Provides integration with PingOne identity provider to allow single-sign on to Cyral.
+Manages integration with PingOne identity provider to allow single-sign on to Cyral.
 
 ## Example Usage
 

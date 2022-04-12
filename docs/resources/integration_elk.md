@@ -3,12 +3,12 @@
 page_title: "cyral_integration_elk Resource - cyral"
 subcategory: ""
 description: |-
-  Provides integration with ELK https://cyral.com/docs/integrations/siem/elk/ to push sidecar metrics.
+  Manages integration with ELK https://cyral.com/docs/integrations/siem/elk/ to push sidecar metrics.
 ---
 
 # cyral_integration_elk (Resource)
 
-Provides [integration with ELK](https://cyral.com/docs/integrations/siem/elk/) to push sidecar metrics.
+Manages [integration with ELK](https://cyral.com/docs/integrations/siem/elk/) to push sidecar metrics.
 
 ## Example Usage
 

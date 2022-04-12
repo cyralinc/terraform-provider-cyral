@@ -392,28 +392,28 @@ var (
 		"saml_xml_key_name_tranformer":          "CERT_SUBJECT",
 		"single_logout_service_url":             "",
 		"xml_sig_key_info_key_name_transformer": "CERT_SUBJECT",
-		"resource_description": "Provides [integration with Active Directory Federation Services](https://cyral.com/docs/sso/sso-adfs#add-your-adfs-as-an-idp-in-cyral) identity provider to allow single-sign on to Cyral.",
+		"resource_description": "Manages [integration with Active Directory Federation Services](https://cyral.com/docs/sso/sso-adfs#add-your-adfs-as-an-idp-in-cyral) identity provider to allow single-sign on to Cyral.",
 	}
 	aadDefaultValuesMap = map[string]interface{}{
 		"display_name": "Azure Active Directory",
-		"resource_description": "Provides [integration with Azure Active Directory](https://cyral.com/docs/sso/sso-azure-ad#add-azure-ad-integration-to-cyral) identity provider to allow single-sign on to Cyral.",
+		"resource_description": "Manages [integration with Azure Active Directory](https://cyral.com/docs/sso/sso-azure-ad#add-azure-ad-integration-to-cyral) identity provider to allow single-sign on to Cyral.",
 	}
 	forgerockDefaultValuesMap = map[string]interface{}{
 		"display_name":         "Forgerock",
 		"ldap_group_attribute": "cn",
-		"resource_description": "Provides [integration with Forgerock](https://cyral.com/docs/sso/sso-forgerock#add-forgerock-idp-to-cyral) identity provider to allow single-sign on to Cyral.",
+		"resource_description": "Manages [integration with Forgerock](https://cyral.com/docs/sso/sso-forgerock#add-forgerock-idp-to-cyral) identity provider to allow single-sign on to Cyral.",
 	}
 	gsuiteDefaultValuesMap = map[string]interface{}{
 		"display_name": "GSuite",
-		"resource_description": "Provides integration with GSuite identity provider to allow single-sign on to Cyral.",
+		"resource_description": "Manages integration with GSuite identity provider to allow single-sign on to Cyral.",
 	}
 	oktaDefaultValuesMap = map[string]interface{}{
 		"display_name": "Okta",
-		"resource_description": "Provides [integration with Okta](https://cyral.com/docs/sso/sso-okta#in-cyral-management-console-create-okta-integration) identity provider to allow single-sign on to Cyral.",
+		"resource_description": "Manages [integration with Okta](https://cyral.com/docs/sso/sso-okta#in-cyral-management-console-create-okta-integration) identity provider to allow single-sign on to Cyral.",
 	}
 	pingoneDefaultValuesMap = map[string]interface{}{
 		"display_name": "PingOne",
-		"resource_description": "Provides integration with PingOne identity provider to allow single-sign on to Cyral.",
+		"resource_description": "Manages integration with PingOne identity provider to allow single-sign on to Cyral.",
 	}
 )
 

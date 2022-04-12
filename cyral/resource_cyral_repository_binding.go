@@ -27,6 +27,7 @@ type Listener struct {
 
 func resourceRepositoryBinding() *schema.Resource {
 	return &schema.Resource{
+		Description: "",
 		CreateContext: resourceRepositoryBindingCreate,
 		ReadContext:   resourceRepositoryBindingRead,
 		UpdateContext: resourceRepositoryBindingUpdate,
@@ -34,30 +35,36 @@ func resourceRepositoryBinding() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"enabled": {
+				Description: "",
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
 			"sidecar_id": {
+				Description: "",
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 			"repository_id": {
+				Description: "",
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 			"listener_port": {
+				Description: "",
 				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"listener_host": {
+				Description: "",
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "0.0.0.0",
 			},
 			"sidecar_as_idp_access_gateway": {
+				Description: "",
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,

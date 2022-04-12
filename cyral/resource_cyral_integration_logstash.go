@@ -43,6 +43,7 @@ var ReadLogstashConfig = ResourceOperationConfig{
 
 func resourceIntegrationLogstash() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages integration with Logstash.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "LogstashResourceCreate",
@@ -82,23 +83,28 @@ func resourceIntegrationLogstash() *schema.Resource {
 				Computed:    true,
 			},
 			"name": {
+				Description: "Integration name that will be used internally in the control plane.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"endpoint": {
+				Description: "The endpoint used to connect to Logstash.",
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
 			"use_mutual_authentication": {
+				Description: "Logstash configured to use mutual authentication.",
 				Type:     schema.TypeBool,
 				Required: true,
 			},
 			"use_private_certificate_chain": {
+				Description: "Logstash configured to use private certificate chain.",
 				Type:     schema.TypeBool,
 				Required: true,
 			},
 			"use_tls": {
+				Description: "Logstash configured to use mutual TLS.",
 				Type:     schema.TypeBool,
 				Required: true,
 			},

@@ -35,7 +35,7 @@ var ReadHCVaultIntegrationConfig = ResourceOperationConfig{
 
 func resourceIntegrationHCVault() *schema.Resource {
 	return &schema.Resource{
-		Description: "Provides integration with Hashicorp Vault to store secrets.",
+		Description: "Manages integration with Hashicorp Vault to store secrets.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "HCVaultIntegrationResourceCreate",

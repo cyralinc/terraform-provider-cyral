@@ -46,6 +46,7 @@ var ReadSplunkConfig = ResourceOperationConfig{
 
 func resourceIntegrationSplunk() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [integration with Splunk](https://cyral.com/docs/integrations/siem/splunk/#procedure).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SplunkResourceCreate",
@@ -85,27 +86,33 @@ func resourceIntegrationSplunk() *schema.Resource {
 				Computed:    true,
 			},
 			"name": {
+				Description: "Integration name that will be used internally in the control plane.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"access_token": {
+				Description: "Splunk access token.",
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
 			"port": {
+				Description: "Splunk host port.",
 				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"host": {
+				Description: "Splunk host.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"index": {
+				Description: "Splunk data index name.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"use_tls": {
+				Description: "Should the communication with Splunk use TLS encryption?",
 				Type:     schema.TypeBool,
 				Required: true,
 			},

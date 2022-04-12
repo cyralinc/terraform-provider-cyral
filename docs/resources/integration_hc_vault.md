@@ -3,12 +3,12 @@
 page_title: "cyral_integration_hc_vault Resource - cyral"
 subcategory: ""
 description: |-
-  Provides integration with Hashicorp Vault to store secrets.
+  Manages integration with Hashicorp Vault to store secrets.
 ---
 
 # cyral_integration_hc_vault (Resource)
 
-Provides integration with Hashicorp Vault to store secrets.
+Manages integration with Hashicorp Vault to store secrets.
 
 ## Example Usage
 

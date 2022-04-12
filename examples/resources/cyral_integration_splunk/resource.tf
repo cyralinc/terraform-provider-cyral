@@ -4,5 +4,5 @@ resource "cyral_integration_splunk" "some_resource_name" {
     port = 0
     host = ""
     index = ""
-    use_tls = false|true
+    use_tls = true
 }

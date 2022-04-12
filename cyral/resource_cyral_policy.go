@@ -33,16 +33,20 @@ type PolicyMetadata struct {
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [policies](https://cyral.com/docs/reference/policy). See also: [Policy Rule](./policy_rule.md)." +
+			"For more information, see the [Policy Guide](https://cyral.com/docs/policy#policy).",
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
 		DeleteContext: resourcePolicyDelete,
 		Schema: map[string]*schema.Schema{
 			"created": {
+				Description: "Timestamp for the policy creation.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"data": {
+				Description: "List that specify which data fields a policy manages. Each field is represented by the LABEL you established for it in your data map. The actual location of that data (the names of fields, columns, or databases that hold it) is listed in the data map.",
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -50,20 +54,24 @@ func resourcePolicy() *schema.Resource {
 				},
 			},
 			"description": {
+				Description: "String that describes the policy (ex: `your_policy_description`).",
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
 			"enabled": {
+				Description: "Boolean that causes a policy to be enabled or disabled.",
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
 			"last_updated": {
+				Description: "Timestamp for the last update performed in this policy.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"name": {
+				Description: "Policy name that will be used internally in Control Plane (ex: `your_policy_name`).",
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -85,6 +93,7 @@ func resourcePolicy() *schema.Resource {
 				},
 			},
 			"tags": {
+				Description: "Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).",
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -92,10 +101,12 @@ func resourcePolicy() *schema.Resource {
 				},
 			},
 			"type": {
+				Description: "Policy type.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"version": {
+				Description: "Incremental counter for every update on the policy.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},
