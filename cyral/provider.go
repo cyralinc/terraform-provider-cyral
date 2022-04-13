@@ -35,16 +35,16 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"auth_provider": {
 				Description: "Auth0-based control planes are no longer supported. Use `keycloak` " +
-				    "or remove the variable declaration",
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  keycloak,
+					"or remove the variable declaration",
+				Type:       schema.TypeString,
+				Optional:   true,
+				Default:    keycloak,
 				Deprecated: "Auth0-based control planes are no longer supported.",
 			},
 			"auth0_audience": {
 				Description: "Auth0 audience.",
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
 				RequiredWith: []string{
 					"auth0_domain",
 				},
@@ -52,34 +52,34 @@ func Provider() *schema.Provider {
 			},
 			"auth0_domain": {
 				Description: "Auth0 domain name.",
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
 				RequiredWith: []string{
 					"auth0_audience",
 				},
 				Deprecated: "Auth0-based control planes are no longer supported.",
 			},
 			"auth0_client_id": {
-				Description: "Auth0 client id.",
+				Description:   "Auth0 client id.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_ID", nil),
 				ConflictsWith: []string{"client_id"},
-				Deprecated: "Auth0-based control planes are no longer supported.",
+				Deprecated:    "Auth0-based control planes are no longer supported.",
 			},
 			"auth0_client_secret": {
-				Description: "Auth0 client secret.",
+				Description:   "Auth0 client secret.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
 				ConflictsWith: []string{"client_secret"},
-				Deprecated: "Auth0-based control planes are no longer supported.",
+				Deprecated:    "Auth0-based control planes are no longer supported.",
 			},
 			"client_id": {
 				Description: "Client id used to authenticate against the control plane. Can be ommited and " +
-				    "declared using the environment variable `CYRAL_TF_CLIENT_ID`.",
+					"declared using the environment variable `CYRAL_TF_CLIENT_ID`.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
@@ -88,7 +88,7 @@ func Provider() *schema.Provider {
 			},
 			"client_secret": {
 				Description: "Client secret used to authenticate against the control plane. Can be ommited and " +
-				    "declared using the environment variable `CYRAL_TF_CLIENT_SECRET`.",
+					"declared using the environment variable `CYRAL_TF_CLIENT_SECRET`.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,

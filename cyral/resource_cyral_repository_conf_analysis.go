@@ -31,7 +31,7 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages Repository Analysis Configuration. This resource allows configuring both " +
 			"[Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) " +
-			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) "+
+			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) " +
 			"(Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.",
 		CreateContext: resourceRepositoryConfAnalysisCreate,
 		ReadContext:   resourceRepositoryConfAnalysisRead,
@@ -46,11 +46,11 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 			},
 			"repository_id": {
 				Description: "The ID of an existing data repository resource that will be configured.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"redact": {
-				Description: "Valid values are: `all`, `none` and `watched`. If set to `all` it will enable the redact of all literal values, `none` will disable it, and `watched` will only redact values from tracked fields set in the Datamap.",
+				Description:  "Valid values are: `all`, `none` and `watched`. If set to `all` it will enable the redact of all literal values, `none` will disable it, and `watched` will only redact values from tracked fields set in the Datamap.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "all",
@@ -58,34 +58,34 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 			},
 			"alert_on_violation": {
 				Description: "If set to `true` it will enable alert on policy violations.",
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
 			},
 			"disable_pre_configured_alerts": {
 				Description: "If set to `false` it will keep preconfigured alerts enabled.",
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 			},
 			"block_on_violation": {
 				Description: "If set to `true` it will enable query blocking in case of a policy violation.",
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 			},
 			"disable_filter_analysis": {
 				Description: "If set to `false` it will keep filter analysis enabled.",
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 			},
 			"rewrite_on_violation": {
 				Description: "If set to `true` it will enable rewriting queries on violations.",
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 			},
 			"comment_annotation_groups": {
 				Description: "Valid values are: `identity`, `client`, `repo`, `sidecar`. The default behavior is to set only the `identity` when this option is enabled, but you can also opt to add the contents of `client`, `repo`, `sidecar` logging blocks as query comments. See also [Logging additional data as comments on a query](https://support.cyral.com/support/solutions/articles/44002218978)",
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: client.ValidateRepositoryConfAnalysisCommentAnnotationGroups(),

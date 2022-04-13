@@ -31,7 +31,7 @@ type SidecarProperty struct {
 
 func resourceSidecar() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [sidecars](https://cyral.com/docs/sidecars/sidecar-manage).",
+		Description:   "Manages [sidecars](https://cyral.com/docs/sidecars/sidecar-manage).",
 		CreateContext: resourceSidecarCreate,
 		ReadContext:   resourceSidecarRead,
 		UpdateContext: resourceSidecarUpdate,
@@ -45,26 +45,26 @@ func resourceSidecar() *schema.Resource {
 			},
 			"name": {
 				Description: "Sidecar name that will be used internally in Control Plane (ex: `your_sidecar_name`).",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"deployment_method": {
 				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`).",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"labels": {
 				Description: "Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.",
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"user_endpoint": {
 				Description: "User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.",
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

@@ -109,14 +109,14 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 			},
 			"name": {
 				Description: "Integration name that will be used internally in the control plane.",
-				Required: true,
-				Type:     schema.TypeString,
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"api_token": {
 				Description: "API token for the PagerDuty integration.",
-				Required:  true,
-				Sensitive: true,
-				Type:      schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Type:        schema.TypeString,
 			},
 		},
 		Importer: &schema.ResourceImporter{

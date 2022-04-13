@@ -76,24 +76,24 @@ func resourceIntegrationHCVault() *schema.Resource {
 			},
 			"auth_method": {
 				Description: "Authentication method for the integration.",
-				Required: true,
-				Type:     schema.TypeString,
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"auth_type": {
 				Description: "Authentication type for the integration.",
-				Required: true,
-				Type:     schema.TypeString,
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"name": {
 				Description: "Integration name that will be used internally in the control plane.",
-				Required: true,
-				Type:     schema.TypeString,
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"server": {
 				Description: "Server on which the vault service is running.",
-				Required:  true,
-				Sensitive: true,
-				Type:      schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Type:        schema.TypeString,
 			},
 		},
 		Importer: &schema.ResourceImporter{

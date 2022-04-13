@@ -61,18 +61,18 @@ func resourceRepository() *schema.Resource {
 			},
 			"host": {
 				Description: "Repository host name (ex: `somerepo.cyral.com`).",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"port": {
 				Description: "Repository access port (ex: `3306`).",
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
 			},
 			"name": {
 				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`)",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

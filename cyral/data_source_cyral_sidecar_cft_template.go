@@ -32,8 +32,8 @@ func dataSourceSidecarCftTemplate() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "Same as `sidecar_id`.",
-				Computed: true,
-				Type: schema.TypeString,
+				Computed:    true,
+				Type:        schema.TypeString,
 			},
 			"sidecar_id": {
 				Type:        schema.TypeString,

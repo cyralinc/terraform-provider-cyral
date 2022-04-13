@@ -137,28 +137,28 @@ func resourceRepositoryConfAuth() *schema.Resource {
 			},
 			"repository_id": {
 				Description: "The ID of the repository to be configured.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"allow_native_auth": {
 				Description: "Should the communication allow native authentication?",
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 			},
 			"client_tls": {
 				Description: "Is the repo Client using TLS?",
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"identity_provider": {
 				Description: "The ID (Alias) of the identity provider integration.",
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"repo_tls": {
 				Description: "Is TLS enabled for the repository?",
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

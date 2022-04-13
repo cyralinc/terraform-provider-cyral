@@ -24,7 +24,7 @@ type SidecarCredentialsData struct {
 
 func resourceSidecarCredentials() *schema.Resource {
 	return &schema.Resource{
-		Description: "Create new [credentials for Cyral sidecar](https://cyral.com/docs/sidecars/sidecar-manage/#rotate-the-client-secret-for-a-sidecar).",
+		Description:   "Create new [credentials for Cyral sidecar](https://cyral.com/docs/sidecars/sidecar-manage/#rotate-the-client-secret-for-a-sidecar).",
 		CreateContext: resourceSidecarCredentialsCreate,
 		ReadContext:   resourceSidecarCredentialsRead,
 		DeleteContext: resourceSidecarCredentialsDelete,
@@ -37,20 +37,20 @@ func resourceSidecarCredentials() *schema.Resource {
 			},
 			"sidecar_id": {
 				Description: "ID of the sidecar to create new credentials.",
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"client_id": {
 				Description: "Sidecar client ID.",
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"client_secret": {
 				Description: "Sidecar client secret.",
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
 			},
 		},
 

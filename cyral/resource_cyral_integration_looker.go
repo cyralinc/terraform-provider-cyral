@@ -78,20 +78,20 @@ func resourceIntegrationLooker() *schema.Resource {
 			},
 			"client_id": {
 				Description: "Looker client id.",
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 			"client_secret": {
 				Description: "Looker client secret.",
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 			"url": {
 				Description: "Looker integration url.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

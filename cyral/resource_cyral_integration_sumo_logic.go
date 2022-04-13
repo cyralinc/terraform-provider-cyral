@@ -75,14 +75,14 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 			},
 			"name": {
 				Description: "Integration name that will be used internally in the control plane.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"address": {
 				Description: "Sumo Logic address.",
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

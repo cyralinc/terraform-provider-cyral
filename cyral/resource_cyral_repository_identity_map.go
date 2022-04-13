@@ -205,7 +205,7 @@ func resourceRepositoryIdentityMap(deprecate bool) *schema.Resource {
 	}
 
 	return &schema.Resource{
-		Description: "Manages [Repository Identity Maps] configuration(https://cyral.com/docs/manage-repositories/repo-id-map/).",
+		Description:        "Manages [Repository Identity Maps] configuration(https://cyral.com/docs/manage-repositories/repo-id-map/).",
 		DeprecationMessage: deprecationMessage,
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
@@ -261,53 +261,53 @@ func resourceRepositoryIdentityMap(deprecate bool) *schema.Resource {
 			},
 			"repository_id": {
 				Description: "ID of the repository that this identity will be associated to.",
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"repository_local_account_id": {
 				Description: "ID of the local account that this identity will be associated to.",
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"identity_type": {
 				Description: "Identity type: `user` or `group`.",
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"identity_name": {
 				Description: "Identity name. Ex: `myusername`, `me@myemail.com`.",
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"access_duration": {
 				Description: "Access duration defined as a sum of days, hours, minutes and seconds. If omitted or all fields are set to zero, the access duration will be infinity.",
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
 							Description: "Access duration days.",
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 						"hours": {
 							Description: "Access duration hours.",
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 						"minutes": {
 							Description: "Access duration minutes.",
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 						"seconds": {
 							Description: "Access duration seconds.",
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 					},
 				},

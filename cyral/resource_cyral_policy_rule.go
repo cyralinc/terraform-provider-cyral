@@ -46,8 +46,8 @@ type Identity struct {
 func ruleSchema(description string) *schema.Schema {
 	return &schema.Schema{
 		Description: description,
-		Type:     schema.TypeList,
-		Optional: true,
+		Type:        schema.TypeList,
+		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"additional_checks": {
@@ -63,8 +63,8 @@ func ruleSchema(description string) *schema.Schema {
 				},
 				"dataset_rewrites": {
 					Description: "",
-					Type:     schema.TypeList,
-					Optional: true,
+					Type:        schema.TypeList,
+					Optional:    true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"dataset": {
@@ -110,7 +110,7 @@ func resourcePolicyRule() *schema.Resource {
 			"\n> 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them." +
 			"\n> 2. Each contexted rule comprises these fields: `data`, `rows`, `severity` `additional_checks`, `dataset_rewrites`. The only required fields are `data` and `rows`." +
 			"\n> 3. The rules block does not need to include all three operation types (reads, updates and deletes); actions you omit are disallowed." +
-			"\n> 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address." +		
+			"\n> 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address." +
 			"\n\nFor more information, see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).",
 		CreateContext: resourcePolicyRuleCreate,
 		ReadContext:   resourcePolicyRuleRead,
@@ -119,16 +119,16 @@ func resourcePolicyRule() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
 				Description: "The ID of the policy you are adding this rule to.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"deletes": ruleSchema("A contexted rule for accesses of the type `delete`."),
 			"reads":   ruleSchema("A contexted rule for accesses of the type `read`."),
 			"updates": ruleSchema("A contexted rule for accesses of the type `update`."),
 			"hosts": {
 				Description: "Hosts specification that limits access to only those users connecting from a certain network location.",
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

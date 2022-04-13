@@ -80,18 +80,18 @@ func resourceIntegrationELK() *schema.Resource {
 			},
 			"name": {
 				Description: "Integration name that will be used internally in the control plane.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"kibana_url": {
 				Description: "Kibana URL.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"es_url": {
 				Description: "Elastic Search URL.",
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

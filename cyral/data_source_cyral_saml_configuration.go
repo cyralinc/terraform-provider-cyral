@@ -24,8 +24,8 @@ func dataSourceSAMLConfiguration() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "Computed ID for this resource (locally computed to be used in Terraform state).",
-				Computed: true,
-				Type: schema.TypeString,
+				Computed:    true,
+				Type:        schema.TypeString,
 			},
 			"saml_metadata_url": {
 				Type:         schema.TypeString,
