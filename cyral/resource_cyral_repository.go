@@ -26,25 +26,51 @@ type RepoData struct {
 
 func resourceRepository() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [repositories](https://cyral.com/docs/manage-repositories/repo-track)." +
+			"\n\nSee also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config)." +
+			"\nThis module provides the repository configuration options as shown in Cyral UI.",
 		CreateContext: resourceRepositoryCreate,
 		ReadContext:   resourceRepositoryRead,
 		UpdateContext: resourceRepositoryUpdate,
 		DeleteContext: resourceRepositoryDelete,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"type": {
+				Description: "Repository type. List of supported types:" +
+					"\n  - `bigquery`" +
+					"\n  - `cassandra`" +
+					"\n  - `denodo`" +
+					"\n  - `dremio`" +
+					"\n  - `galera`" +
+					"\n  - `mariadb`" +
+					"\n  - `mongodb`" +
+					"\n  - `mysql`" +
+					"\n  - `oracle`" +
+					"\n  - `postgresql`" +
+					"\n  - `redshift`" +
+					"\n  - `s3`" +
+					"\n  - `snowflake`" +
+					"\n  - `sqlserver`",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"host": {
+				Description: "Repository host name (ex: `somerepo.cyral.com`).",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"port": {
+				Description: "Repository access port (ex: `3306`).",
 				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"name": {
+				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`)",
 				Type:     schema.TypeString,
 				Required: true,
 			},

@@ -243,7 +243,7 @@ var ReadRepositoryLocalAccountConfig = ResourceOperationConfig{
 
 func resourceRepositoryLocalAccount() *schema.Resource {
 	awsIAMSchema := &schema.Schema{
-		Description: "Credential option to set the local account from AWS IAM. See [aws_iam](#aws_iam) below for more details.",
+		Description: "Credential option to set the local account from AWS IAM.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -274,7 +274,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	awsSecretsSchema := &schema.Schema{
-		Description: "Credential option to set the local account from AWS Secrets Manager. See [aws_secrets_manager](#aws_secrets_manager) below for more details.",
+		Description: "Credential option to set the local account from AWS Secrets Manager.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -305,7 +305,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	cyralStorageSchema := &schema.Schema{
-		Description: "Credential option to set the local account from Cyral Storage. See [cyral_storage](#cyral_storage) below for more details.",
+		Description: "Credential option to set the local account from Cyral Storage.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -337,7 +337,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	hashicorpVaultSchema := &schema.Schema{
-		Description: "Credential option to set the local account from Hashicorp Vault. See [hashicorp_vault](#hashicorp_vault) below for more details.",
+		Description: "Credential option to set the local account from Hashicorp Vault.",
 		Type:     schema.TypeSet,
 		Optional: true,
 		ConflictsWith: []string{
@@ -399,6 +399,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	return &schema.Resource{
+		Description: "Manages repository local accounts.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "RepositoryLocalAccountResourceCreate",

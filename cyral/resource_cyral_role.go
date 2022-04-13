@@ -36,58 +36,74 @@ type PermissionInfo struct {
 
 func resourceRole() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [roles for Cyral control plane users](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users). See also: [Role SSO Groups](./role_sso_groups.md).",
 		CreateContext: resourceRoleCreate,
 		ReadContext:   resourceRoleRead,
 		UpdateContext: resourceRoleUpdate,
 		DeleteContext: resourceRoleDelete,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
+				Description: "The name of the role.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"permissions": {
+				Description: "A block responsible for configuring the role permissions.",
 				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"modify_sidecars_and_repositories": {
+							Description: "Allows modifying sidecars and repositories for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"modify_users": {
+							Description: "Allows modifying users for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"modify_policies": {
+							Description: "Allows modifying policies for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"view_sidecars_and_repositories": {
+							Description: "Allows viewing sidecars and repositories for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"view_audit_logs": {
+							Description: "Allows viewing audit logs for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"modify_integrations": {
+							Description: "Allows modifying integrations for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"modify_roles": {
+							Description: "Allows modifying roles for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 						"view_datamaps": {
+							Description: "Allows viewing datamaps for this role. Defaults to `false`.",
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
