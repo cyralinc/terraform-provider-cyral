@@ -1,6 +1,6 @@
 //go:build tools
 
-package tools
+package tfdocs
 
 import (
 	// document generation
