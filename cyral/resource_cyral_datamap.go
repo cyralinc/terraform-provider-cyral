@@ -55,7 +55,7 @@ func resourceDatamap() *schema.Resource {
 										Required: true,
 									},
 									"attributes": {
-										Type:     schema.TypeList,
+										Type:     schema.TypeSet,
 										Required: true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -187,7 +187,7 @@ func getSensitiveDataFromResource(d *schema.ResourceData) (SensitiveData, error)
 		for _, labelInfo := range labelInfoList {
 			labelInfoMap := labelInfo.(map[string]interface{})
 
-			attrs := labelInfoMap["attributes"].([]interface{})
+			attrs := labelInfoMap["attributes"].(*schema.Set).List()
 			attributes := []string{}
 
 			for _, attr := range attrs {
@@ -208,7 +208,7 @@ func getSensitiveDataFromResource(d *schema.ResourceData) (SensitiveData, error)
 
 func validateMappingBlock(d *schema.ResourceData) error {
 	labelsSet := make(map[string]bool)
-	var labels []string
+	var repeatedLabels []string
 	mappings := d.Get("mapping").(*schema.Set).List()
 
 	for _, m := range mappings {
@@ -217,14 +217,14 @@ func validateMappingBlock(d *schema.ResourceData) error {
 		label := labelMap["label"].(string)
 
 		if labelsSet[label] {
-			labels = append(labels, label)
+			repeatedLabels = append(repeatedLabels, label)
 		} else {
 			labelsSet[label] = true
 		}
 	}
 
-	if len(labels) > 0 {
-		return fmt.Errorf("there is more than one mapping block with the same label, please join them into one, labels: %v", labels)
+	if len(repeatedLabels) > 0 {
+		return fmt.Errorf("there is more than one mapping block with the same label, please join them into one, labels: %v", repeatedLabels)
 	}
 
 	return nil
@@ -239,7 +239,7 @@ func flattenSensitiveData(sensitiveData *SensitiveData) []interface{} {
 
 			labelMap["label"] = label
 
-			labelInfoList := make([]interface{}, len(repoAttrsList), len(repoAttrsList))
+			labelInfoList := make([]interface{}, len(repoAttrsList))
 
 			for i, repoAttr := range repoAttrsList {
 				labelInfoMap := make(map[string]interface{})

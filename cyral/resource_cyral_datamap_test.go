@@ -1,91 +1,141 @@
 package cyral
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-type DataMapConfig struct {
-	Label string
-}
-
-var initialDataMapConfig DataMapConfig = DataMapConfig{
-	Label: "CNN",
-}
-var updatedDataMapConfig DataMapConfig = DataMapConfig{
-	Label: "CNN-updated",
-}
-
 func TestAccDatamapResource(t *testing.T) {
-	testConfig, testFunc := setupDatamapTest(initialDataMapConfig)
-	testUpdateConfig, testUpdateFunc := setupDatamapTest(updatedDataMapConfig)
-
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testConfig,
-				Check:  testFunc,
+				Config: testAccDatamapConfig_InitialConfig(),
+				Check:  testAccDatamapCheck_InitialConfig(),
 			},
 			{
-				Config: testUpdateConfig,
-				Check:  testUpdateFunc,
+				Config: testAccDatamapConfig_UpdatedConfig(),
+				Check:  testAccDatamapCheck_UpdatedConfig(),
 			},
 		},
 	})
 }
 
-func setupDatamapTest(integrationData DataMapConfig) (string, resource.TestCheckFunc) {
-	configuration := formatDataMapIntoConfig(integrationData)
-
-	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckTypeSetElemNestedAttrs("cyral_datamap.test_datamap", "mapping.*", map[string]string{
-			"label": integrationData.Label,
-		}))
-
-	return configuration, testFunction
-}
-
-func formatDataMapIntoConfig(data DataMapConfig) string {
-	return fmt.Sprintf(`
-		resource "cyral_repository" "tf_test_repository" {
-			type = "mysql"
-			host = "http://mysql.local/"
-			port = 3306
-			name = "tf-test-mysql"
-	  }
-
-	  resource "cyral_sidecar" "tf_test_sidecar" {
-			name = "tf-test-sidecar"
-			deployment_method = "cloudFormation"
-	  }
-
-	  resource "cyral_repository_binding" "repo_binding" {
-			enabled       = true
-			repository_id = cyral_repository.tf_test_repository.id
-			listener_port = 3307
-			sidecar_id    = cyral_sidecar.tf_test_sidecar.id
-	  }
-
-	  resource "cyral_datamap" "test_datamap" {
-			mapping {
-				label = "%s"
-				data_location {
-				repo       = cyral_repository.tf_test_repository.name
-				attributes = ["database.table.column"]
-				}
-			}
-	  }`, data.Label)
-}
-
-func formatAttibutes(list []string) string {
-	currentResp := fmt.Sprintf("\"%s\"", list[0])
-	if len(list) > 1 {
-		for _, item := range list[1:] {
-			currentResp = fmt.Sprintf("%s, \"%s\"", currentResp, item)
-		}
+func testAccDatamapConfig_InitialConfig() string {
+	return `
+	resource "cyral_repository" "repo_1" {
+		type = "mysql"
+		host = "some-host.com"
+		port = 3306
+		name = "tf-test-mysql"
 	}
-	return currentResp
+
+	resource "cyral_datamap" "datamap_1" {
+		mapping {
+			label = "CNN"
+			data_location {
+				repo       = cyral_repository.repo_1.name
+				attributes = [
+					"schema.table.attribute-a",
+					"schema.table.attribute-b",
+					"schema.table.attribute-c",
+					"schema.table.attribute-d",
+				]
+			}
+		}
+	}`
+}
+
+func testAccDatamapCheck_InitialConfig() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckTypeSetElemNestedAttrs("cyral_datamap.datamap_1",
+			"mapping.*",
+			map[string]string{
+				"label":                        "CNN",
+				"data_location.#":              "1",
+				"data_location.0.repo":         "tf-test-mysql",
+				"data_location.0.attributes.#": "4",
+			},
+		),
+		resource.TestCheckNoResourceAttr("cyral_datamap.datamap_1",
+			"last_updated",
+		),
+	)
+}
+
+func testAccDatamapConfig_UpdatedConfig() string {
+	return `
+	resource "cyral_repository" "repo_1" {
+		type = "mysql"
+		host = "some-host.com"
+		port = 3306
+		name = "tf-test-mysql"
+	}
+
+	resource "cyral_repository" "repo_2" {
+		type = "mariadb"
+		host = "some-host.com"
+		port = 1234
+		name = "tf-test-mariadb"
+	}
+
+	resource "cyral_datamap" "datamap_1" {
+		mapping {
+			label = "CNN-UPDATED"
+			data_location {
+				repo       = cyral_repository.repo_1.name
+				attributes = [
+					"schema.table.attribute-a",
+					"schema.table.attribute-b",
+					"schema.table.attribute-c",
+					"schema.table.attribute-d",
+				]
+			}
+			data_location {
+				repo       = cyral_repository.repo_2.name
+				attributes = [
+					"schema.table.attribute-1",
+					"schema.table.attribute-2",
+					"schema.table.attribute-3",
+					"schema.table.attribute-4",
+				]
+			}
+		}
+		mapping {
+			label = "EMAIL"
+			data_location {
+				repo       = cyral_repository.repo_2.name
+				attributes = [
+					"schema.table.attribute-5",
+					"schema.table.attribute-6",
+					"schema.table.attribute-7",
+				]
+			}
+		}
+	}`
+}
+
+func testAccDatamapCheck_UpdatedConfig() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckTypeSetElemNestedAttrs("cyral_datamap.datamap_1",
+			"mapping.*",
+			map[string]string{
+				"label":           "CNN-UPDATED",
+				"data_location.#": "2",
+			},
+		),
+		resource.TestCheckTypeSetElemNestedAttrs("cyral_datamap.datamap_1",
+			"mapping.*",
+			map[string]string{
+				"label":                        "EMAIL",
+				"data_location.#":              "1",
+				"data_location.0.repo":         "tf-test-mariadb",
+				"data_location.0.attributes.#": "3",
+			},
+		),
+		resource.TestCheckResourceAttrSet("cyral_datamap.datamap_1",
+			"last_updated",
+		),
+	)
 }
