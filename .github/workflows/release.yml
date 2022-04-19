@@ -20,8 +20,6 @@ jobs:
     steps:
       - id: readconfig
         run: |
-          echo '1'
-          cat ./config.json
           echo '2'
           cat ../config.json
           echo 'CONFIG_JSON<<EOF' >> $GITHUB_ENV
