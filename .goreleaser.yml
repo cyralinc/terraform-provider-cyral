@@ -47,8 +47,32 @@ signs:
       - "${signature}"
       - "--detach-sign"
       - "${artifact}"
-release:
-  # If you want to manually examine the release before its live, uncomment this line:
-  # draft: true
 changelog:
-  skip: true
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore"
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+  groups:
+    - title: "New Features"
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 10
+    - title: Others
+      order: 999
+
+release:
+  header: |
+    ## {{ .Tag }} ({{ .Date }})
+
+    Minimum required control plane version: `{{.Env.MIN_CONTROL_PLANE_VERSION}}`.
+  footer: |
+    **Full Changelog**: https://github.com/cyralinc/terraform-provider-cyral/compare/{{ .PreviousTag }}...{{ .Tag }}
