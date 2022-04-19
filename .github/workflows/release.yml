@@ -24,6 +24,9 @@ jobs:
         run: |
           echo $(pwd)
           echo $(ls -la)
+          cd ..
+          echo $(pwd)
+          echo $(ls -la)
           JSON=$(cat ./config.json)
           echo "::set-output name=matrix::${JSON//'%'/'%25'}"
   goreleaser:
