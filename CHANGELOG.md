@@ -1,3 +1,11 @@
+## 2.5.2 (April 19, 2022)
+
+Minimum required Control Plane version: `v2.29.0`.
+
+### Bug fixes:
+
+- **Datamap resource is always suggesting an update on terraform plan**: [#187](https://github.com/cyralinc/terraform-provider-cyral/pull/187);
+
 ## 2.5.1 (March 31, 2022)
 
 Minimum required Control Plane version: `v2.29.0`.
