@@ -43,7 +43,7 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
-          MIN_CONTROL_PLANE_VERSION: ${{fromJson(steps.readconfig.outputs.config).minControlPlaneVersion}}
+          MIN_CONTROL_PLANE_VERSION: ${{ fromJson(steps.readconfig.outputs.config).minControlPlaneVersion }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           # GitHub sets this automatically
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
