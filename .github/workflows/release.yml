@@ -21,9 +21,9 @@ jobs:
       - id: readconfig
         run: |
           echo '2'
-          cat ../config.json
+          cat config.json
           echo 'CONFIG_JSON<<EOF' >> $GITHUB_ENV
-          cat ./config.json >> $GITHUB_ENV
+          cat config.json >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2.3.4
