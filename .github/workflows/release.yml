@@ -15,9 +15,22 @@ on:
     tags:
       - "v*"
 jobs:
+  filereader:
+    runs-on: ubuntu-latest
+    outputs:
+      file: ${{ steps.set-file.outputs.matrix }}
+    steps:
+      - id: set-file
+        run: |
+          JSON=$(cat ./config.json)
+          echo "::set-output name=matrix::${JSON//'%'/'%25'}"
   goreleaser:
     runs-on: ubuntu-latest
     steps:
+      - id: readconfig
+        run: |
+          JSON=$(cat ./config.json)
+          echo "::set-output name=config::${JSON//'%'/'%25'}"
       - name: Checkout
         uses: actions/checkout@v2.3.4
       - name: Unshallow
@@ -39,7 +52,7 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
-          MIN_CONTROL_PLANE_VERSION: $(cat ./MIN_CP_VERSION)
+          MIN_CONTROL_PLANE_VERSION: ${{fromJson(steps.readconfig.outputs.config).minControlPlaneVersion}}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           # GitHub sets this automatically
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
