@@ -18,15 +18,22 @@ type CreateSidecarResponse struct {
 }
 
 type SidecarData struct {
-	ID              string          `json:"id"`
-	Name            string          `json:"name"`
-	Labels          []string        `json:"labels"`
-	SidecarProperty SidecarProperty `json:"properties"`
-	UserEndpoint    string          `json:userEndpoint`
+	ID                       string                             `json:"id"`
+	Name                     string                             `json:"name"`
+	Labels                   []string                           `json:"labels"`
+	SidecarProperty          SidecarProperty                    `json:"properties"`
+	UserEndpoint             string                             `json:"userEndpoint"`
+	CertificateBundleSecrets map[string]CertificateBundleSecret `json:"certificateBundleSecrets"`
 }
 
 type SidecarProperty struct {
 	DeploymentMethod string `json:"deploymentMethod"`
+}
+
+type CertificateBundleSecret struct {
+	Engine   string `json:"engine"`
+	SecretId string `json:"secretId"`
+	Type     string `json:"type"`
 }
 
 func resourceSidecar() *schema.Resource {
@@ -55,6 +62,34 @@ func resourceSidecar() *schema.Resource {
 			"user_endpoint": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"certificate_bundle_secrets": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sidecar": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"engine": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"secret_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -129,6 +164,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
+	d.Set("certificate_bundle_secrets", response.CertificateBundleSecrets)
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -170,10 +206,15 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 	return diag.Diagnostics{}
 }
 
-func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (SidecarData, error) {
+func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*SidecarData, error) {
+	log.Printf("[DEBUG] Init getSidecarDataFromResource")
+	if err := validateCertificateBundleSecretsBlock(d); err != nil {
+		return nil, err
+	}
+
 	deploymentMethod := d.Get("deployment_method").(string)
 	if err := client.ValidateDeploymentMethod(deploymentMethod); err != nil {
-		return SidecarData{}, err
+		return &SidecarData{}, err
 	}
 
 	sp := SidecarProperty{
@@ -184,11 +225,54 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (Sidec
 	for i, label := range labels {
 		sidecarDataLabels[i] = (label).(string)
 	}
-	return SidecarData{
-		ID:              d.Id(),
-		Name:            d.Get("name").(string),
-		Labels:          sidecarDataLabels,
-		SidecarProperty: sp,
-		UserEndpoint:    d.Get("user_endpoint").(string),
+	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
+	cbsMap := make(map[string]CertificateBundleSecret)
+	for _, c := range rdCBS {
+		typeMap := c.(map[string]interface{})
+		cbsType := typeMap["type"].(string)
+		secretId := typeMap["secretId"].(string)
+		engine := typeMap["engine"].(string)
+		cbs := CertificateBundleSecret{
+			SecretId: secretId,
+			Engine:   engine,
+			Type:     cbsType,
+		}
+		cbsMap[cbsType] = cbs
+	}
+	log.Printf("[DEBUG] end getSidecarDataFromResource")
+	return &SidecarData{
+		ID:                       d.Id(),
+		Name:                     d.Get("name").(string),
+		Labels:                   sidecarDataLabels,
+		SidecarProperty:          sp,
+		UserEndpoint:             d.Get("user_endpoint").(string),
+		CertificateBundleSecrets: cbsMap,
 	}, nil
+}
+
+func validateCertificateBundleSecretsBlock(d *schema.ResourceData) error {
+	log.Printf("[DEBUG] Init validateCertificateBundleSecretsBlock")
+	set := make(map[string]bool)
+	var repeated []string
+	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
+
+	for _, c := range rdCBS {
+		typeMap := c.(map[string]interface{})
+
+		cbsType := typeMap["type"].(string)
+		if set[cbsType] {
+			repeated = append(repeated, cbsType)
+		} else {
+			set[cbsType] = true
+		}
+	}
+
+	log.Printf("[DEBUG] end validateCertificateBundleSecretsBlock")
+
+	if len(repeated) > 0 {
+		return fmt.Errorf("there is more than one `certificate_bundle_secret`"+
+			" block with the same type. Types must be unique. Repeated types: %v", repeated)
+	}
+
+	return nil
 }
