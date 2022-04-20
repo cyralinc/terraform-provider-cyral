@@ -18,17 +18,19 @@ type CreateSidecarResponse struct {
 }
 
 type SidecarData struct {
-	ID                       string                             `json:"id"`
-	Name                     string                             `json:"name"`
-	Labels                   []string                           `json:"labels"`
-	SidecarProperty          SidecarProperty                    `json:"properties"`
-	UserEndpoint             string                             `json:"userEndpoint"`
-	CertificateBundleSecrets map[string]CertificateBundleSecret `json:"certificateBundleSecrets"`
+	ID                       string                   `json:"id"`
+	Name                     string                   `json:"name"`
+	Labels                   []string                 `json:"labels"`
+	SidecarProperty          SidecarProperty          `json:"properties"`
+	UserEndpoint             string                   `json:"userEndpoint"`
+	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets"`
 }
 
 type SidecarProperty struct {
 	DeploymentMethod string `json:"deploymentMethod"`
 }
+
+type CertificateBundleSecrets map[string]CertificateBundleSecret
 
 type CertificateBundleSecret struct {
 	Engine   string `json:"engine"`
@@ -70,7 +72,7 @@ func resourceSidecar() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"sidecar": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"engine": {
@@ -164,7 +166,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
-	d.Set("certificate_bundle_secrets", response.CertificateBundleSecrets)
+	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(&response.CertificateBundleSecrets))
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -275,4 +277,34 @@ func validateCertificateBundleSecretsBlock(d *schema.ResourceData) error {
 	}
 
 	return nil
+}
+
+func flattenCertificateBundleSecrets(cbs *CertificateBundleSecrets) []interface{} {
+	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
+	if cbs != nil {
+		flatCBS := make([]interface{}, 0, len(*cbs))
+
+		for key, val := range *cbs {
+			cbsMap := make(map[string]interface{})
+
+			fooCB := make(map[string]string)
+			if val.SecretId != "" {
+				fooCB["secret_id"] = val.SecretId
+			}
+			if val.Engine != "" {
+				fooCB["engine"] = val.Engine
+			}
+			if val.Type != "" {
+				fooCB["type"] = val.Type
+			}
+			cbsMap[key] = fooCB
+			flatCBS = append(flatCBS, cbsMap)
+		}
+
+		log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
+		return flatCBS
+	}
+
+	log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
+	return make([]interface{}, 0)
 }
