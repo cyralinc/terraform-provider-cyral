@@ -66,15 +66,17 @@ func resourceSidecar() *schema.Resource {
 				Optional: true,
 			},
 			"certificate_bundle_secrets": {
-				Type:     schema.TypeSet,
-				MaxItems: 1,
-				Optional: true,
+				Description: "Certificate bundle secrets details.",
+				Type:        schema.TypeSet,
+				MaxItems:    1,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"sidecar": {
-							Type:     schema.TypeSet,
-							MaxItems: 1,
-							Optional: true,
+							Description: "eneral-purpose certificate bundle for the sidecar.",
+							Type:        schema.TypeSet,
+							MaxItems:    1,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"engine": {
@@ -82,12 +84,14 @@ func resourceSidecar() *schema.Resource {
 										Optional: true,
 									},
 									"secret_id": {
-										Type:     schema.TypeString,
-										Required: true,
+										Description: "Secret identification for the given `type`.",
+										Type:        schema.TypeString,
+										Required:    true,
 									},
 									"type": {
-										Type:     schema.TypeString,
-										Required: true,
+										Description: "Secret type. Valid values are `aws` and `k8s`.",
+										Type:        schema.TypeString,
+										Required:    true,
 									},
 								},
 							},
