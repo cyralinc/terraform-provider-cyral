@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var cftSidecarConfig SidecarData = SidecarData{
-	Name:   "sidecar-test",
+var cftSidecarConfig *SidecarData = &SidecarData{
+	Name:   "tf-provider-TestAccSidecarCftTemplateDataSource",
 	Labels: []string{"test"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "cloudFormation",
@@ -29,7 +29,7 @@ func TestAccSidecarCftTemplateDataSource(t *testing.T) {
 	})
 }
 
-func setupSidecarCftTemplateTest(sidecarData SidecarData) (string, resource.TestCheckFunc) {
+func setupSidecarCftTemplateTest(sidecarData *SidecarData) (string, resource.TestCheckFunc) {
 	configuration := formatSidecarDataIntoConfig(sidecarData) +
 		formatSidecarCftTemplateDataIntoConfig()
 

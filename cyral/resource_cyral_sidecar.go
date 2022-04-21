@@ -33,9 +33,9 @@ type SidecarProperty struct {
 type CertificateBundleSecrets map[string]CertificateBundleSecret
 
 type CertificateBundleSecret struct {
-	Engine   string `json:"engine"`
-	SecretId string `json:"secretId"`
-	Type     string `json:"type"`
+	Engine   string `json:"engine,omitempty"`
+	SecretId string `json:"secretId,omitempty"`
+	Type     string `json:"type,omitempty"`
 }
 
 func resourceSidecar() *schema.Resource {
@@ -67,11 +67,13 @@ func resourceSidecar() *schema.Resource {
 			},
 			"certificate_bundle_secrets": {
 				Type:     schema.TypeSet,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"sidecar": {
 							Type:     schema.TypeSet,
+							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -210,9 +212,6 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 
 func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*SidecarData, error) {
 	log.Printf("[DEBUG] Init getSidecarDataFromResource")
-	if err := validateCertificateBundleSecretsBlock(d); err != nil {
-		return nil, err
-	}
 
 	deploymentMethod := d.Get("deployment_method").(string)
 	if err := client.ValidateDeploymentMethod(deploymentMethod); err != nil {
@@ -227,20 +226,9 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	for i, label := range labels {
 		sidecarDataLabels[i] = (label).(string)
 	}
-	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
-	cbsMap := make(map[string]CertificateBundleSecret)
-	for _, c := range rdCBS {
-		typeMap := c.(map[string]interface{})
-		cbsType := typeMap["type"].(string)
-		secretId := typeMap["secretId"].(string)
-		engine := typeMap["engine"].(string)
-		cbs := CertificateBundleSecret{
-			SecretId: secretId,
-			Engine:   engine,
-			Type:     cbsType,
-		}
-		cbsMap[cbsType] = cbs
-	}
+
+	cbs := getCertificateBundleSecret(d)
+
 	log.Printf("[DEBUG] end getSidecarDataFromResource")
 	return &SidecarData{
 		ID:                       d.Id(),
@@ -248,63 +236,72 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 		Labels:                   sidecarDataLabels,
 		SidecarProperty:          sp,
 		UserEndpoint:             d.Get("user_endpoint").(string),
-		CertificateBundleSecrets: cbsMap,
+		CertificateBundleSecrets: *cbs,
 	}, nil
 }
 
-func validateCertificateBundleSecretsBlock(d *schema.ResourceData) error {
-	log.Printf("[DEBUG] Init validateCertificateBundleSecretsBlock")
-	set := make(map[string]bool)
-	var repeated []string
-	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
-
-	for _, c := range rdCBS {
-		typeMap := c.(map[string]interface{})
-
-		cbsType := typeMap["type"].(string)
-		if set[cbsType] {
-			repeated = append(repeated, cbsType)
-		} else {
-			set[cbsType] = true
-		}
-	}
-
-	log.Printf("[DEBUG] end validateCertificateBundleSecretsBlock")
-
-	if len(repeated) > 0 {
-		return fmt.Errorf("there is more than one `certificate_bundle_secret`"+
-			" block with the same type. Types must be unique. Repeated types: %v", repeated)
-	}
-
-	return nil
-}
-
-func flattenCertificateBundleSecrets(cbs *CertificateBundleSecrets) []interface{} {
+func flattenCertificateBundleSecrets(cbs *CertificateBundleSecrets) *[]interface{} {
 	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
 	if cbs != nil {
 		flatCBS := make([]interface{}, 0, len(*cbs))
 
 		for key, val := range *cbs {
-			cbsMap := make(map[string]interface{})
+			log.Printf(fmt.Sprintf("[DEBUG] key: %v", key))
+			log.Printf(fmt.Sprintf("[DEBUG] val: %v", val))
 
-			fooCB := make(map[string]string)
+			contentCB := make(map[string]interface{})
 			if val.SecretId != "" {
-				fooCB["secret_id"] = val.SecretId
+				contentCB["secret_id"] = val.SecretId
 			}
 			if val.Engine != "" {
-				fooCB["engine"] = val.Engine
+				contentCB["engine"] = val.Engine
 			}
 			if val.Type != "" {
-				fooCB["type"] = val.Type
+				contentCB["type"] = val.Type
 			}
-			cbsMap[key] = fooCB
-			flatCBS = append(flatCBS, cbsMap)
+			cb := make([]map[string]interface{}, 0, 1)
+			cb = append(cb, make(map[string]interface{}))
+			cb[0][key] = [1]map[string]interface{}{contentCB}
+			flatCBS = append(flatCBS, &cb)
 		}
 
 		log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
-		return flatCBS
+		return &flatCBS
 	}
 
 	log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
-	return make([]interface{}, 0)
+	return nil
+}
+
+func getCertificateBundleSecret(d *schema.ResourceData) *CertificateBundleSecrets {
+	log.Printf("[DEBUG] Init getCertificateBundleSecret")
+	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
+	ret := make(CertificateBundleSecrets)
+
+	if len(rdCBS) > 0 {
+		cbsMap := rdCBS[0].(map[string]interface{})
+		for k, v := range cbsMap {
+			vList := v.(*schema.Set).List()
+			// k = "sidecar" or other direct internal elements of certificate_bundle_secrets
+			// Also one element on this list due to MaxItems...
+			if len(vList) > 0 {
+				vMap := vList[0].(map[string]interface{})
+				engine := ""
+				if val, ok := vMap["engine"]; val != nil && ok {
+					engine = val.(string)
+				}
+				cbsType := vMap["type"].(string)
+				secretId := vMap["secret_id"].(string)
+				cbs := CertificateBundleSecret{
+					SecretId: secretId,
+					Engine:   engine,
+					Type:     cbsType,
+				}
+				ret[k] = cbs
+			}
+		}
+	}
+
+	log.Printf("[DEBUG] end getCertificateBundleSecret")
+	return &ret
 }
