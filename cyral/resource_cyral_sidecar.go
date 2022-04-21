@@ -244,33 +244,30 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	}, nil
 }
 
-func flattenCertificateBundleSecrets(cbs *CertificateBundleSecrets) *[]interface{} {
+func flattenCertificateBundleSecrets(cbs *CertificateBundleSecrets) []interface{} {
 	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
 	if cbs != nil {
-		flatCBS := make([]interface{}, 0, len(*cbs))
+		flatCBS := make([]interface{}, 1)
+		cb := make(map[string]interface{})
 
+		contentCB := make([]interface{}, 0, len(*cbs))
 		for key, val := range *cbs {
-			log.Printf(fmt.Sprintf("[DEBUG] key: %v", key))
-			log.Printf(fmt.Sprintf("[DEBUG] val: %v", val))
+			log.Printf("[DEBUG] key: %v", key)
+			log.Printf("[DEBUG] val: %v", val)
 
-			contentCB := make(map[string]interface{})
-			if val.SecretId != "" {
-				contentCB["secret_id"] = val.SecretId
-			}
-			if val.Engine != "" {
-				contentCB["engine"] = val.Engine
-			}
-			if val.Type != "" {
-				contentCB["type"] = val.Type
-			}
-			cb := make([]map[string]interface{}, 0, 1)
-			cb = append(cb, make(map[string]interface{}))
-			cb[0][key] = [1]map[string]interface{}{contentCB}
-			flatCBS = append(flatCBS, &cb)
+			contentCBMap := make(map[string]interface{})
+			contentCBMap["secret_id"] = val.SecretId
+			contentCBMap["engine"] = val.Engine
+			contentCBMap["type"] = val.Type
+
+			contentCB = append(contentCB, contentCBMap)
 		}
 
-		log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
-		return &flatCBS
+		cb["sidecar"] = contentCB
+		flatCBS[0] = cb
+
+		log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
+		return flatCBS
 	}
 
 	log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
