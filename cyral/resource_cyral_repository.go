@@ -10,6 +10,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 type GetRepoByIDResponse struct {
@@ -36,6 +37,22 @@ func resourceRepository() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"bigquery",
+					"cassandra",
+					"denodo",
+					"dremio",
+					"galera",
+					"mariadb",
+					"mongodb",
+					"mysql",
+					"oracle",
+					"postgresql",
+					"redshift",
+					"snowflake",
+					"s3",
+					"sqlserver",
+				}, false),
 			},
 			"host": {
 				Type:     schema.TypeString,
@@ -158,11 +175,6 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
-	repoType := d.Get("type").(string)
-
-	if err := client.ValidateRepoType(repoType); err != nil {
-		return RepoData{}, err
-	}
 	labels := d.Get("labels").([]interface{})
 	repositoryDataLabels := make([]string, len(labels))
 	for i, label := range labels {
@@ -171,7 +183,7 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 
 	return RepoData{
 		ID:       d.Id(),
-		RepoType: repoType,
+		RepoType: d.Get("type").(string),
 		Host:     d.Get("host").(string),
 		Name:     d.Get("name").(string),
 		Port:     d.Get("port").(int),

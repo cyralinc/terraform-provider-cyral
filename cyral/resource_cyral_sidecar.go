@@ -11,6 +11,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 type CreateSidecarResponse struct {
@@ -30,7 +31,7 @@ type SidecarProperty struct {
 	DeploymentMethod string `json:"deploymentMethod"`
 }
 
-type CertificateBundleSecrets map[string]CertificateBundleSecret
+type CertificateBundleSecrets map[string]*CertificateBundleSecret
 
 type CertificateBundleSecret struct {
 	Engine   string `json:"engine,omitempty"`
@@ -53,6 +54,9 @@ func resourceSidecar() *schema.Resource {
 			"deployment_method": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"docker", "cloudFormation", "terraform", "helm", "helm3", "automated", "custom", "terraformGKE",
+				}, false),
 			},
 			"labels": {
 				Type:     schema.TypeList,
@@ -73,7 +77,7 @@ func resourceSidecar() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"sidecar": {
-							Description: "eneral-purpose certificate bundle for the sidecar.",
+							Description: "General-purpose certificate bundle for the sidecar.",
 							Type:        schema.TypeSet,
 							MaxItems:    1,
 							Optional:    true,
@@ -92,6 +96,10 @@ func resourceSidecar() *schema.Resource {
 										Description: "Secret type. Valid values are `aws` and `k8s`.",
 										Type:        schema.TypeString,
 										Required:    true,
+										ValidateFunc: validation.StringInSlice([]string{
+											"aws",
+											"k8s",
+										}, false),
 									},
 								},
 							},
@@ -218,9 +226,6 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	log.Printf("[DEBUG] Init getSidecarDataFromResource")
 
 	deploymentMethod := d.Get("deployment_method").(string)
-	if err := client.ValidateDeploymentMethod(deploymentMethod); err != nil {
-		return &SidecarData{}, err
-	}
 
 	sp := SidecarProperty{
 		DeploymentMethod: deploymentMethod,
@@ -247,27 +252,32 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 func flattenCertificateBundleSecrets(cbs *CertificateBundleSecrets) []interface{} {
 	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
 	if cbs != nil {
-		flatCBS := make([]interface{}, 1)
-		cb := make(map[string]interface{})
+		if _, ok := (*cbs)["sidecar"]; ok {
+			flatCBS := make([]interface{}, 1)
+			cb := make(map[string]interface{})
 
-		contentCB := make([]interface{}, 0, len(*cbs))
-		for key, val := range *cbs {
-			log.Printf("[DEBUG] key: %v", key)
-			log.Printf("[DEBUG] val: %v", val)
+			contentCB := make([]interface{}, 0, len(*cbs))
+			for key, val := range *cbs {
+				// Ignore self-signed certificates
+				if key != "sidecar-generated-selfsigned" {
+					log.Printf("[DEBUG] key: %v", key)
+					log.Printf("[DEBUG] val: %v", val)
 
-			contentCBMap := make(map[string]interface{})
-			contentCBMap["secret_id"] = val.SecretId
-			contentCBMap["engine"] = val.Engine
-			contentCBMap["type"] = val.Type
+					contentCBMap := make(map[string]interface{})
+					contentCBMap["secret_id"] = val.SecretId
+					contentCBMap["engine"] = val.Engine
+					contentCBMap["type"] = val.Type
 
-			contentCB = append(contentCB, contentCBMap)
+					contentCB = append(contentCB, contentCBMap)
+				}
+			}
+
+			cb["sidecar"] = contentCB
+			flatCBS[0] = cb
+
+			log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
+			return flatCBS
 		}
-
-		cb["sidecar"] = contentCB
-		flatCBS[0] = cb
-
-		log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
-		return flatCBS
 	}
 
 	log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
@@ -283,9 +293,10 @@ func getCertificateBundleSecret(d *schema.ResourceData) *CertificateBundleSecret
 		cbsMap := rdCBS[0].(map[string]interface{})
 		for k, v := range cbsMap {
 			vList := v.(*schema.Set).List()
-			// k = "sidecar" or other direct internal elements of certificate_bundle_secrets
-			// Also one element on this list due to MaxItems...
-			if len(vList) > 0 {
+			// 1. k = "sidecar" or other direct internal elements of certificate_bundle_secrets
+			// 2. Also one element on this list due to MaxItems...
+			// 3. Ignore self signed certificates
+			if len(vList) > 0 && k != "sidecar-generated-selfsigned" {
 				vMap := vList[0].(map[string]interface{})
 				engine := ""
 				if val, ok := vMap["engine"]; val != nil && ok {
@@ -298,9 +309,14 @@ func getCertificateBundleSecret(d *schema.ResourceData) *CertificateBundleSecret
 					Engine:   engine,
 					Type:     cbsType,
 				}
-				ret[k] = cbs
+				ret[k] = &cbs
 			}
 		}
+	}
+
+	// If the occurence of `sidecar` does not exist, set it to an empty certificate bundle
+	if _, ok := ret["sidecar"]; !ok {
+		ret["sidecar"] = &CertificateBundleSecret{}
 	}
 
 	log.Printf("[DEBUG] end getCertificateBundleSecret")
