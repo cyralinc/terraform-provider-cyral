@@ -55,7 +55,8 @@ func resourceSidecar() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"docker", "cloudFormation", "terraform", "helm", "helm3", "automated", "custom", "terraformGKE",
+					"docker", "cloudFormation", "terraform", "helm", "helm3",
+					"automated", "custom", "terraformGKE",
 				}, false),
 			},
 			"labels": {
@@ -70,30 +71,34 @@ func resourceSidecar() *schema.Resource {
 				Optional: true,
 			},
 			"certificate_bundle_secrets": {
-				Description: "Certificate bundle secrets details.",
-				Type:        schema.TypeSet,
-				MaxItems:    1,
-				Optional:    true,
+				Description: "Certificate Bundle Secret is a configuration that holds data about the" +
+					" location of a particular TLS certificate bundle in a secrets manager.",
+				Type:     schema.TypeSet,
+				MaxItems: 1,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"sidecar": {
-							Description: "General-purpose certificate bundle for the sidecar.",
+							Description: "Certificate Bundle Secret for sidecar.",
 							Type:        schema.TypeSet,
 							MaxItems:    1,
 							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"engine": {
+										Description: "Engine is the name of the engine used with the given secrets" +
+											" manager type, when applicable.",
 										Type:     schema.TypeString,
 										Optional: true,
 									},
 									"secret_id": {
-										Description: "Secret identification for the given `type`.",
-										Type:        schema.TypeString,
-										Required:    true,
+										Description: "Secret ID is the identifier or location for the secret that" +
+											" holds the certificate bundle.",
+										Type:     schema.TypeString,
+										Required: true,
 									},
 									"type": {
-										Description: "Secret type. Valid values are `aws` and `k8s`.",
+										Description: "Type identifies the secret manager used to store the secret.",
 										Type:        schema.TypeString,
 										Required:    true,
 										ValidateFunc: validation.StringInSlice([]string{

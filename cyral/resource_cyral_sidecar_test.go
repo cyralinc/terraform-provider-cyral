@@ -9,7 +9,7 @@ import (
 
 func getTestCBS() *CertificateBundleSecrets {
 	cbs := make(CertificateBundleSecrets)
-	cbs["sidecar"] = CertificateBundleSecret{
+	cbs["sidecar"] = &CertificateBundleSecret{
 		SecretId: "someSecret",
 		Type:     "aws",
 		Engine:   "someEngine",
