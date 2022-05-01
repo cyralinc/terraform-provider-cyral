@@ -17,11 +17,12 @@ type GetRepoByIDResponse struct {
 }
 
 type RepoData struct {
-	ID       string `json:"id"`
-	RepoType string `json:"type"`
-	Name     string `json:"name"`
-	Host     string `json:"repoHost"`
-	Port     int    `json:"repoPort"`
+	ID       string   `json:"id"`
+	RepoType string   `json:"type"`
+	Name     string   `json:"name"`
+	Host     string   `json:"repoHost"`
+	Port     int      `json:"repoPort"`
+	Labels   []string `json:"labels"`
 }
 
 func resourceRepository() *schema.Resource {
@@ -47,6 +48,13 @@ func resourceRepository() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"labels": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -106,6 +114,7 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m inter
 	d.Set("host", response.Repo.Host)
 	d.Set("port", response.Repo.Port)
 	d.Set("name", response.Repo.Name)
+	d.Set("labels", response.Repo.Labels)
 
 	log.Printf("[DEBUG] End resourceRepositoryRead")
 
@@ -153,6 +162,11 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 	if err := client.ValidateRepoType(repoType); err != nil {
 		return RepoData{}, err
 	}
+	labels := d.Get("labels").([]interface{})
+	repositoryDataLabels := make([]string, len(labels))
+	for i, label := range labels {
+		repositoryDataLabels[i] = (label).(string)
+	}
 
 	return RepoData{
 		ID:       d.Id(),
@@ -160,5 +174,6 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 		Host:     d.Get("host").(string),
 		Name:     d.Get("name").(string),
 		Port:     d.Get("port").(int),
+		Labels:   repositoryDataLabels,
 	}, nil
 }
