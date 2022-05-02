@@ -213,8 +213,92 @@ func TestAccRepositoryLocalAccountResource_EnvironmentVariable(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			{ // Deprecated: Should be removed in the next MAJOR release
+				Config:      testAccRepositoryLocalAccountConfig_UseEnvVarTogetherWithDeprecated(),
+				ExpectError: regexp.MustCompile("Error: Invalid combination of arguments"),
+			},
+			{ // Deprecated: Should be removed in the next MAJOR release
+				Config: testAccRepositoryLocalAccountConfig_DeprecatedEnvironmentVariable(),
+				Check:  testAccRepositoryLocalAccountCheck_DeprecatedEnvironmentVariable(),
+			},
 		},
 	})
+}
+
+func testAccRepositoryLocalAccountConfig_UseEnvVarTogetherWithDeprecated() string {
+	return `
+	resource "cyral_repository" "tf_test_repository" {
+		type = "postgresql"
+		host = "http://postgres.local/"
+		port = 5432
+		name = "tf-test-postgres-multiple-secret-managers"
+	}
+
+	resource "cyral_repository_local_account" "tf_test_repository_account" {
+		repository_id = cyral_repository.tf_test_repository.id
+		environment_variable {
+			database_name = "some-db-name-1"
+			local_account = "some-local-account"
+			variable_name = "CYRAL_DBSECRETS_SOME_VARIABLE_NAME"
+		}
+		enviroment_variable {
+			database_name = "some-db-name-2"
+			local_account = "some-local-account"
+			variable_name = "CYRAL_DBSECRETS_SOME_VARIABLE_NAME"
+		}
+	}
+	`
+}
+
+func testAccRepositoryLocalAccountConfig_DeprecatedEnvironmentVariable() string {
+	return `
+	resource "cyral_repository" "tf_test_repository" {
+		type = "postgresql"
+		host = "http://postgres.local/"
+		port = 5432
+		name = "tf-test-postgres-multiple-secret-managers"
+	}
+
+	resource "cyral_repository_local_account" "tf_test_repository_account" {
+		repository_id = cyral_repository.tf_test_repository.id
+		enviroment_variable {
+			database_name = "some-db-name"
+			local_account = "some-local-account"
+			variable_name = "CYRAL_DBSECRETS_SOME_VARIABLE_NAME"
+		}
+	}
+	`
+}
+
+func testAccRepositoryLocalAccountCheck_DeprecatedEnvironmentVariable() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		// Ensure that non-deprecated argument is not set.
+		resource.TestCheckNoResourceAttr(
+			"cyral_repository_local_account.tf_test_repository_account",
+			"environment_variable.0.database_name",
+		),
+		resource.TestCheckNoResourceAttr(
+			"cyral_repository_local_account.tf_test_repository_account",
+			"environment_variable.0.local_account",
+		),
+		resource.TestCheckNoResourceAttr(
+			"cyral_repository_local_account.tf_test_repository_account",
+			"environment_variable.0.variable_name",
+		),
+		// Check values for deprecated argument.
+		resource.TestCheckResourceAttr(
+			"cyral_repository_local_account.tf_test_repository_account",
+			"enviroment_variable.0.database_name", "some-db-name",
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_repository_local_account.tf_test_repository_account",
+			"enviroment_variable.0.local_account", "some-local-account",
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_repository_local_account.tf_test_repository_account",
+			"enviroment_variable.0.variable_name", "CYRAL_DBSECRETS_SOME_VARIABLE_NAME",
+		),
+	)
 }
 
 func TestAccRepositoryLocalAccountResource_HashicorpVault(t *testing.T) {

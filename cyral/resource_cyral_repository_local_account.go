@@ -128,24 +128,48 @@ type EnvironmentVariableResource struct {
 }
 
 func (resource EnvironmentVariableResource) WriteToSchema(d *schema.ResourceData) {
-	d.Set("environment_variable", []interface{}{
-		map[string]interface{}{
-			"database_name": resource.DatabaseName,
-			"local_account": resource.RepoAccount,
-			"variable_name": resource.VariableName,
-		},
-	})
+	_, useDeprecatedArgument := d.GetOk("enviroment_variable")
+
+	if useDeprecatedArgument { // Deprecated: should be removed in the next MAJOR release
+		d.Set("enviroment_variable", []interface{}{
+			map[string]interface{}{
+				"database_name": resource.DatabaseName,
+				"local_account": resource.RepoAccount,
+				"variable_name": resource.VariableName,
+			},
+		})
+	} else {
+		d.Set("environment_variable", []interface{}{
+			map[string]interface{}{
+				"database_name": resource.DatabaseName,
+				"local_account": resource.RepoAccount,
+				"variable_name": resource.VariableName,
+			},
+		})
+	}
 }
 
 func (resource *EnvironmentVariableResource) ReadFromSchema(d *schema.ResourceData) {
-	data := d.Get("environment_variable").(*schema.Set)
+	deprecatedData, useDeprecatedArgument := d.GetOk("enviroment_variable")
 
-	for _, id := range data.List() {
-		idMap := id.(map[string]interface{})
+	if useDeprecatedArgument { // Deprecated: should be removed in the next MAJOR release
+		for _, id := range deprecatedData.(*schema.Set).List() {
+			idMap := id.(map[string]interface{})
 
-		resource.DatabaseName = idMap["database_name"].(string)
-		resource.RepoAccount = idMap["local_account"].(string)
-		resource.VariableName = idMap["variable_name"].(string)
+			resource.DatabaseName = idMap["database_name"].(string)
+			resource.RepoAccount = idMap["local_account"].(string)
+			resource.VariableName = idMap["variable_name"].(string)
+		}
+	} else {
+		data := d.Get("environment_variable").(*schema.Set)
+
+		for _, id := range data.List() {
+			idMap := id.(map[string]interface{})
+
+			resource.DatabaseName = idMap["database_name"].(string)
+			resource.RepoAccount = idMap["local_account"].(string)
+			resource.VariableName = idMap["variable_name"].(string)
+		}
 	}
 }
 
@@ -232,34 +256,26 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 	if _, hasAwsIam := d.GetOk("aws_iam"); hasAwsIam {
 		repoAccount.AwsIAM = &AwsIAMResource{}
 		repoAccount.AwsIAM.ReadFromSchema(d)
-	}
-
-	if _, hasAwsSecretsManager := d.GetOk("aws_secrets_manager"); hasAwsSecretsManager {
+	} else if _, hasAwsSecretsManager := d.GetOk("aws_secrets_manager"); hasAwsSecretsManager {
 		repoAccount.AwsSecretsManager = &AwsSecretsManagerResource{}
 		repoAccount.AwsSecretsManager.ReadFromSchema(d)
-	}
-
-	if _, hasCyralStorage := d.GetOk("cyral_storage"); hasCyralStorage {
+	} else if _, hasCyralStorage := d.GetOk("cyral_storage"); hasCyralStorage {
 		repoAccount.CyralStorage = &CyralStorageResource{}
 		repoAccount.CyralStorage.ReadFromSchema(d)
-	}
-
-	if _, hasHashicorpVault := d.GetOk("hashicorp_vault"); hasHashicorpVault {
+	} else if _, hasHashicorpVault := d.GetOk("hashicorp_vault"); hasHashicorpVault {
 		repoAccount.HashicorpVault = &HashicorpVaultResource{}
 		repoAccount.HashicorpVault.ReadFromSchema(d)
-	}
-
-	if _, hasEnvironmentVariable := d.GetOk("environment_variable"); hasEnvironmentVariable {
+	} else if _, hasDeprecatedEnvVar := d.GetOk("enviroment_variable"); hasDeprecatedEnvVar {
+		// Deprecated: should be removed in the next MAJOR version
 		repoAccount.EnvironmentVariable = &EnvironmentVariableResource{}
 		repoAccount.EnvironmentVariable.ReadFromSchema(d)
-	}
-
-	if _, hasKubernetesSecret := d.GetOk("kubernetes_secret"); hasKubernetesSecret {
+	} else if _, hasEnvironmentVariable := d.GetOk("environment_variable"); hasEnvironmentVariable {
+		repoAccount.EnvironmentVariable = &EnvironmentVariableResource{}
+		repoAccount.EnvironmentVariable.ReadFromSchema(d)
+	} else if _, hasKubernetesSecret := d.GetOk("kubernetes_secret"); hasKubernetesSecret {
 		repoAccount.KubernetesSecret = &KubernetesSecretResource{}
 		repoAccount.KubernetesSecret.ReadFromSchema(d)
-	}
-
-	if data, hasRepoId := d.GetOk("repository_id"); hasRepoId {
+	} else if data, hasRepoId := d.GetOk("repository_id"); hasRepoId {
 		repoId := data.(string)
 		repoAccount.RepoID = &repoId
 	}
@@ -286,6 +302,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		"aws_secrets_manager",
 		"cyral_storage",
 		"hashicorp_vault",
+		"enviroment_variable", // Deprecated: should be removed in the next MAJOR release
 		"environment_variable",
 		"kubernetes_secret",
 	}
@@ -376,6 +393,31 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 					Required: true,
 				},
 				"path": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			},
+		},
+	}
+
+	// Deprecated: should be removed in the next MAJOR release
+	environmentVariableSchemaDeprecated := &schema.Schema{
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
+		Deprecated:   "This argument is deprecated, use 'environment_variable' instead.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"database_name": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"local_account": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"variable_name": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
@@ -486,6 +528,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 			"aws_secrets_manager":  awsSecretsManagerSchema,
 			"cyral_storage":        cyralStorageSchema,
 			"hashicorp_vault":      hashicorpVaultSchema,
+			"enviroment_variable":  environmentVariableSchemaDeprecated,
 			"environment_variable": environmentVariableSchema,
 			"kubernetes_secret":    kubernetesSecretSchema,
 		},
