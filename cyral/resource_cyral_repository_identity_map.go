@@ -197,13 +197,7 @@ var ReadRepositoryIdentityMapConfig = ResourceOperationConfig{
 	ResponseData: &RepositoryIdentityMapAPIResponse{},
 }
 
-func resourceRepositoryIdentityMap(deprecate bool) *schema.Resource {
-	deprecationMessage := ""
-
-	if deprecate {
-		deprecationMessage = "Use `cyral_repository_identity_map` instead."
-	}
-
+func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
 		DeprecationMessage: deprecationMessage,
 		CreateContext: CreateResource(
