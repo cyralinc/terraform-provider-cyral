@@ -217,7 +217,6 @@ func (resource *CreateRepoAccountResponse) ReadFromSchema(d *schema.ResourceData
 }
 
 type RepositoryLocalAccountResource struct {
-	RepoID              *string                      `json:"-"`
 	AwsIAM              *AwsIAMResource              `json:"awsIAM,omitempty"`
 	AwsSecretsManager   *AwsSecretsManagerResource   `json:"awsSecretsManager,omitempty"`
 	CyralStorage        *CyralStorageResource        `json:"cyralStorage,omitempty"`
@@ -228,10 +227,6 @@ type RepositoryLocalAccountResource struct {
 
 func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.ResourceData) {
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema START")
-
-	if repoAccount.RepoID != nil {
-		d.Set("repository_id", repoAccount.RepoID)
-	}
 
 	if repoAccount.AwsIAM != nil {
 		repoAccount.AwsIAM.WriteToSchema(d)
@@ -275,9 +270,6 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 	} else if _, hasKubernetesSecret := d.GetOk("kubernetes_secret"); hasKubernetesSecret {
 		repoAccount.KubernetesSecret = &KubernetesSecretResource{}
 		repoAccount.KubernetesSecret.ReadFromSchema(d)
-	} else if data, hasRepoId := d.GetOk("repository_id"); hasRepoId {
-		repoId := data.(string)
-		repoAccount.RepoID = &repoId
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema END")
@@ -523,6 +515,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 			"repository_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"aws_iam":              awsIAMSchema,
 			"aws_secrets_manager":  awsSecretsManagerSchema,
