@@ -275,20 +275,20 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema END")
 }
 
-var ReadRepositoryLocalAccountConfig = ResourceOperationConfig{
-	Name:       "RepositoryLocalAccountResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		repository_id := d.Get("repository_id")
-		return fmt.Sprintf(
-			"https://%s/v1/repos/%s/repoAccounts/%s",
-			c.ControlPlane, repository_id, d.Id(),
-		)
-	},
-	ResponseData: &RepositoryLocalAccountResource{},
-}
-
 func resourceRepositoryLocalAccount() *schema.Resource {
+	ReadRepositoryLocalAccountConfig := ResourceOperationConfig{
+		Name:       "RepositoryLocalAccountResourceRead",
+		HttpMethod: http.MethodGet,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			repository_id := d.Get("repository_id")
+			return fmt.Sprintf(
+				"https://%s/v1/repos/%s/repoAccounts/%s",
+				c.ControlPlane, repository_id, d.Id(),
+			)
+		},
+		ResponseData: &RepositoryLocalAccountResource{},
+	}
+
 	secretManagersTypes := []string{
 		"aws_iam",
 		"aws_secrets_manager",
