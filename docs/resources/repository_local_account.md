@@ -144,4 +144,4 @@ The `kubernetes_secret` object supports the following arguments:
 
 ## Attribute Reference
 
-- `id` - The ID of this resource.
+- `id` - ID of this resource in Cyral environment.
