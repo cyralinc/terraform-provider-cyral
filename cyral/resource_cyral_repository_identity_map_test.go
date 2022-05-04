@@ -105,7 +105,7 @@ func formatRepositoryIdentityMapDataIntoConfig(data RepositoryIdentityMapResourc
 
 	resource "cyral_repository_local_account" "tf_test_repository_account" {
 		repository_id = cyral_repository.test_repo_repository.id
-		enviroment_variable {
+		environment_variable {
 			database_name = "tf_test_db_name"
 			local_account = "tf_test_repo_account"
 			variable_name = "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME"
