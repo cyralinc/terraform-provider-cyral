@@ -50,8 +50,9 @@ func resourceRepository() *schema.Resource {
 				Required: true,
 			},
 			"labels": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Description: "labels enable you to categorize your repository",
+				Type:        schema.TypeList,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

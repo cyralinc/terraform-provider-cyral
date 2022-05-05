@@ -50,6 +50,7 @@ func setupRepositoryTest(integrationData RepoData) (string, resource.TestCheckFu
 		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository", "host", integrationData.Host),
 		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository", "port", fmt.Sprintf("%d", integrationData.Port)),
 		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository", "name", integrationData.Name),
+		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository", "labels.#", "2"),
 	)
 
 	return configuration, testFunction
@@ -62,6 +63,6 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		host  = "%s"
 		port  = %d
 		name  = "%s"
-		labels = ["%s"]
-	}`, data.RepoType, data.Host, data.Port, data.Name, data.Labels)
+		labels = [%s]
+	}`, data.RepoType, data.Host, data.Port, data.Name, formatAttibutes(data.Labels))
 }
