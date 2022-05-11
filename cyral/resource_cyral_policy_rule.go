@@ -98,7 +98,7 @@ func resourcePolicyRule() *schema.Resource {
 					Default:  "low",
 				},
 				"rate_limit": {
-					Description: "Create a rate limit inside of policy rules",
+					Description: "Rate Limit specify the limit of calls that user can make within a given time period",
 					Type:        schema.TypeInt,
 					Optional:    true,
 				},
