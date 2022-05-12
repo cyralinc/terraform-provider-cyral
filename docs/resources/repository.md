@@ -13,6 +13,7 @@ resource "cyral_repository" "some_resource_name" {
     port = 0
     type = ""
     name = ""
+    labels = [""]
 }
 ```
 
@@ -25,16 +26,19 @@ locals {
       host = "mongodb.cyral.com"
       port = 27017
       type = "mongodb"
+      labels = ["rds", "us-east-2"]
     }
     mymariadb = {
       host = "mariadb.cyral.com"
       port = 3310
       type = "mariadb"
+      labels = ["rds", "us-east-1"]
     }
     mypostgresql = {
       host = "postgresql.cyral.com"
       port = 5432
       type = "postgresql"
+      labels = ["rds", "us-east-1"]
     }
   }
 }
@@ -46,6 +50,7 @@ resource "cyral_repository" "repositories" {
   type  = each.value.type
   host  = each.value.host
   port  = each.value.port
+  labels = each.value.labels
 }
 ```
 
@@ -70,6 +75,7 @@ resource "cyral_repository" "repositories" {
     - `snowflake`
     - `sqlserver`
 - `name` - (Required): Repository name that will be used internally in Control Plane (ex: `your_repo_name`)
+- `labels` - (Optional): labels enable you to categorize your repository
 
 ## Attribute Reference
 
