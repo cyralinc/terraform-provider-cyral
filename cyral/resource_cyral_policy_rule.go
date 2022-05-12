@@ -89,8 +89,9 @@ func resourcePolicyRule() *schema.Resource {
 					},
 				},
 				"rows": {
-					Type:     schema.TypeInt,
-					Required: true,
+					Description: "How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.",
+					Type:        schema.TypeInt,
+					Required:    true,
 				},
 				"severity": {
 					Type:     schema.TypeString,
