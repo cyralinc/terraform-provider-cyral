@@ -85,10 +85,13 @@ resource "cyral_policy_rule" "some_resource_name" {
 
 - `deletes` (Block List) A contexted rule for accesses of the type `delete`. (see [below for nested schema](#nestedblock--deletes))
 - `hosts` (List of String) Hosts specification that limits access to only those users connecting from a certain network location.
-- `id` (String) The ID of this resource.
 - `identities` (Block List, Max: 1) Identities specification that specifies the people, applications, or groups this rule applies to. Every rule except your default rule has one. It can have 4 fields: `db_roles`, `groups`, `users` and `services`. (see [below for nested schema](#nestedblock--identities))
 - `reads` (Block List) A contexted rule for accesses of the type `read`. (see [below for nested schema](#nestedblock--reads))
 - `updates` (Block List) A contexted rule for accesses of the type `update`. (see [below for nested schema](#nestedblock--updates))
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 <a id="nestedblock--deletes"></a>
 
@@ -97,12 +100,13 @@ resource "cyral_policy_rule" "some_resource_name" {
 Required:
 
 - `data` (List of String)
-- `rows` (Number)
+- `rows` (Number) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
 
 Optional:
 
 - `additional_checks` (String)
 - `dataset_rewrites` (Block List) (see [below for nested schema](#nestedblock--deletes--dataset_rewrites))
+- `rate_limit` (Number) Rate Limit specifies the limit of calls that a user can make within a given time period.
 - `severity` (String)
 
 <a id="nestedblock--deletes--dataset_rewrites"></a>
@@ -134,12 +138,13 @@ Optional:
 Required:
 
 - `data` (List of String)
-- `rows` (Number)
+- `rows` (Number) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
 
 Optional:
 
 - `additional_checks` (String)
 - `dataset_rewrites` (Block List) (see [below for nested schema](#nestedblock--reads--dataset_rewrites))
+- `rate_limit` (Number) Rate Limit specifies the limit of calls that a user can make within a given time period.
 - `severity` (String)
 
 <a id="nestedblock--reads--dataset_rewrites"></a>
@@ -160,12 +165,13 @@ Required:
 Required:
 
 - `data` (List of String)
-- `rows` (Number)
+- `rows` (Number) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
 
 Optional:
 
 - `additional_checks` (String)
 - `dataset_rewrites` (Block List) (see [below for nested schema](#nestedblock--updates--dataset_rewrites))
+- `rate_limit` (Number) Rate Limit specifies the limit of calls that a user can make within a given time period.
 - `severity` (String)
 
 <a id="nestedblock--updates--dataset_rewrites"></a>

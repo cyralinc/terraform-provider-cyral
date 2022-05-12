@@ -35,13 +35,13 @@ resource "cyral_policy" "some_resource_name" {
 - `data` (List of String) List that specify which data fields a policy manages. Each field is represented by the LABEL you established for it in your data map. The actual location of that data (the names of fields, columns, or databases that hold it) is listed in the data map.
 - `description` (String) String that describes the policy (ex: `your_policy_description`).
 - `enabled` (Boolean) Boolean that causes a policy to be enabled or disabled.
-- `id` (String) The ID of this resource.
 - `properties` (Block Set, Deprecated) (see [below for nested schema](#nestedblock--properties))
 - `tags` (List of String) Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).
 
 ### Read-Only
 
 - `created` (String) Timestamp for the policy creation.
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp for the last update performed in this policy.
 - `type` (String) Policy type.
 - `version` (String) Incremental counter for every update on the policy.

@@ -81,6 +81,10 @@ resource "cyral_repository" "repositories" {
   - `snowflake`
   - `sqlserver`
 
+### Optional
+
+- `labels` (List of String) labels enable you to categorize your repository
+
 ### Read-Only
 
 - `id` (String) ID of this resource in Cyral environment

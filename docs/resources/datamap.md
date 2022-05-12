@@ -49,8 +49,11 @@ resource "cyral_datamap" "some_resource_name" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the latest update performed on the datamap.
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 <a id="nestedblock--mapping"></a>
 
@@ -67,7 +70,7 @@ Required:
 
 Required:
 
-- `attributes` (List of String) List containing the specific locations of the data within the repo, following the pattern `{SCHEMA}.{TABLE}.{ATTRIBUTE}` (ex: `[your_schema_name.your_table_name.your_attr_name]`).
+- `attributes` (Set of String) List containing the specific locations of the data within the repo, following the pattern `{SCHEMA}.{TABLE}.{ATTRIBUTE}` (ex: `[your_schema_name.your_table_name.your_attr_name]`).
 
 > Note: When referencing data in Dremio repository, please include the complete location in `attributes`, separating spaces by dots. For example, an attribute `my_attr` from table `my_tbl` within space `inner_space` within space `outer_space` would be referenced as `outer_space.inner_space.my_tbl.my_attr`. For more information, please see the [Policy Guide](https://cyral.com/docs/reference/policy/).
 

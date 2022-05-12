@@ -69,7 +69,7 @@ resource "cyral_role_sso_groups" "some_role_sso_groups" {
 - `role_id` (String) The ID of the role resource that will be configured.
 - `sso_group` (Block Set, Min: 1) A block responsible for mapping an SSO group to a role. (see [below for nested schema](#nestedblock--sso_group))
 
-### Optional
+### Read-Only
 
 - `id` (String) The ID of this resource.
 

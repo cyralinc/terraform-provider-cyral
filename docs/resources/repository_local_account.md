@@ -3,12 +3,12 @@
 page_title: "cyral_repository_local_account Resource - cyral"
 subcategory: ""
 description: |-
-  Manages repository local accounts.
+  Manages repository local accounts https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account.
 ---
 
 # cyral_repository_local_account (Resource)
 
-Manages repository local accounts.
+Manages [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account).
 
 ## Example Usage
 
@@ -73,15 +73,17 @@ resource "cyral_repository_local_account" "some_resource_name" {
 
 ### Optional
 
-- `aws_iam` (Block Set) Credential option to set the local account from AWS IAM. (see [below for nested schema](#nestedblock--aws_iam))
-- `aws_secrets_manager` (Block Set) Credential option to set the local account from AWS Secrets Manager. (see [below for nested schema](#nestedblock--aws_secrets_manager))
-- `cyral_storage` (Block Set) Credential option to set the local account from Cyral Storage. (see [below for nested schema](#nestedblock--cyral_storage))
-- `enviroment_variable` (Block Set) (see [below for nested schema](#nestedblock--enviroment_variable))
-- `hashicorp_vault` (Block Set) Credential option to set the local account from Hashicorp Vault. (see [below for nested schema](#nestedblock--hashicorp_vault))
+- `aws_iam` (Block Set, Max: 1) Credential option to set the local account from AWS IAM. (see [below for nested schema](#nestedblock--aws_iam))
+- `aws_secrets_manager` (Block Set, Max: 1) Credential option to set the local account from AWS Secrets Manager. (see [below for nested schema](#nestedblock--aws_secrets_manager))
+- `cyral_storage` (Block Set, Max: 1) Credential option to set the local account from Cyral Storage. (see [below for nested schema](#nestedblock--cyral_storage))
+- `enviroment_variable` (Block Set, Max: 1, Deprecated) Credential option to set the local account from Environment Variable. (see [below for nested schema](#nestedblock--enviroment_variable))
+- `environment_variable` (Block Set, Max: 1) Credential option to set the local account from Environment Variable. (see [below for nested schema](#nestedblock--environment_variable))
+- `hashicorp_vault` (Block Set, Max: 1) Credential option to set the local account from Hashicorp Vault. (see [below for nested schema](#nestedblock--hashicorp_vault))
+- `kubernetes_secret` (Block Set, Max: 1) Credential option to set the local account from Kubernetes Secret. (see [below for nested schema](#nestedblock--kubernetes_secret))
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+- `id` (String) ID of this resource in Cyral environment.
 
 <a id="nestedblock--aws_iam"></a>
 
@@ -135,6 +137,19 @@ Optional:
 
 - `database_name` (String) Database name that the local account corresponds to.
 
+<a id="nestedblock--environment_variable"></a>
+
+### Nested Schema for `environment_variable`
+
+Required:
+
+- `local_account` (String) Local account name.
+- `variable_name` (String) Name of the environment variable that will store credentials.
+
+Optional:
+
+- `database_name` (String) Database name that the local account corresponds to.
+
 <a id="nestedblock--hashicorp_vault"></a>
 
 ### Nested Schema for `hashicorp_vault`
@@ -143,6 +158,20 @@ Required:
 
 - `local_account` (String) Local account name.
 - `path` (String) Hashicorp Vault path.
+
+Optional:
+
+- `database_name` (String) Database name that the local account corresponds to.
+
+<a id="nestedblock--kubernetes_secret"></a>
+
+### Nested Schema for `kubernetes_secret`
+
+Required:
+
+- `local_account` (String) Local account name.
+- `secret_key` (String) Name of the key that stores the credentials within the secret.
+- `secret_name` (String) Name of the secret in kubernetes.
 
 Optional:
 
