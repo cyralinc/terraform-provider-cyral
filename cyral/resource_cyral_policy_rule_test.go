@@ -8,27 +8,39 @@ import (
 )
 
 type PolicyRuleConfig struct {
-	DeletedSeverity string
-	UpdatedSeverity string
-	ReadSeverity    string
+	DeletedSeverity  string
+	UpdatedSeverity  string
+	ReadSeverity     string
+	DeletedRateLimit int
+	UpdatedRateLimit int
+	ReadRateLimit    int
 }
 
 var initialPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
-	DeletedSeverity: "medium",
-	UpdatedSeverity: "high",
-	ReadSeverity:    "low",
+	DeletedSeverity:  "medium",
+	UpdatedSeverity:  "high",
+	ReadSeverity:     "low",
+	DeletedRateLimit: 1,
+	UpdatedRateLimit: 2,
+	ReadRateLimit:    3,
 }
 
 var updated1PolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
-	DeletedSeverity: "low",
-	UpdatedSeverity: "medium",
-	ReadSeverity:    "high",
+	DeletedSeverity:  "low",
+	UpdatedSeverity:  "medium",
+	ReadSeverity:     "high",
+	DeletedRateLimit: 2,
+	UpdatedRateLimit: 3,
+	ReadRateLimit:    4,
 }
 
 var updated2PolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
-	DeletedSeverity: "high",
-	UpdatedSeverity: "low",
-	ReadSeverity:    "medium",
+	DeletedSeverity:  "high",
+	UpdatedSeverity:  "low",
+	ReadSeverity:     "medium",
+	DeletedRateLimit: 5,
+	UpdatedRateLimit: 6,
+	ReadRateLimit:    7,
 }
 
 func TestAccPolicyRuleResource(t *testing.T) {
@@ -118,16 +130,19 @@ func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
 			data = ["TEST_CCN"]
 			rows = 1
 			severity = "%s"
+			rate_limit = %d
 		}
 		reads {
 			data = ["TEST_CCN"]
 			rows = 1
 			severity = "%s"
+			rate_limit = %d
 		}
 		updates {
 			data = ["TEST_CCN"]
 			rows = 1
 			severity = "%s"
+			rate_limit = %d
 		}
-	}`, data.DeletedSeverity, data.ReadSeverity, data.UpdatedSeverity)
+	}`, data.DeletedSeverity, data.DeletedRateLimit, data.ReadSeverity, data.ReadRateLimit, data.UpdatedSeverity, data.UpdatedRateLimit)
 }

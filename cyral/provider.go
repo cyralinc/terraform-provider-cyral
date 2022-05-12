@@ -87,7 +87,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_datamap":                     resourceDatamap(),
-			"cyral_identity_map":                resourceRepositoryIdentityMap(true),
+			"cyral_identity_map":                resourceRepositoryIdentityMap("Use `cyral_repository_identity_map` instead."),
 			"cyral_integration_datadog":         resourceIntegrationDatadog(),
 			"cyral_integration_elk":             resourceIntegrationELK(),
 			"cyral_integration_hc_vault":        resourceIntegrationHCVault(),
@@ -117,7 +117,7 @@ func Provider() *schema.Provider {
 			"cyral_repository_binding":          resourceRepositoryBinding(),
 			"cyral_repository_conf_analysis":    resourceRepositoryConfAnalysis(),
 			"cyral_repository_conf_auth":        resourceRepositoryConfAuth(),
-			"cyral_repository_identity_map":     resourceRepositoryIdentityMap(false),
+			"cyral_repository_identity_map":     resourceRepositoryIdentityMap(""),
 			"cyral_repository_local_account":    resourceRepositoryLocalAccount(),
 			"cyral_role":                        resourceRole(),
 			"cyral_role_sso_groups":             resourceRoleSSOGroups(),

@@ -37,13 +37,13 @@ func (resource *AwsIAMResource) ReadFromSchema(d *schema.ResourceData) {
 	}
 }
 
-type AwsSecretsResource struct {
+type AwsSecretsManagerResource struct {
 	DatabaseName string `json:"databaseName"`
 	RepoAccount  string `json:"repoAccount"`
 	SecretArn    string `json:"secretARN"`
 }
 
-func (resource AwsSecretsResource) WriteToSchema(d *schema.ResourceData) {
+func (resource AwsSecretsManagerResource) WriteToSchema(d *schema.ResourceData) {
 	d.Set("aws_secrets_manager", []interface{}{
 		map[string]interface{}{
 			"database_name": resource.DatabaseName,
@@ -53,7 +53,7 @@ func (resource AwsSecretsResource) WriteToSchema(d *schema.ResourceData) {
 	})
 }
 
-func (resource *AwsSecretsResource) ReadFromSchema(d *schema.ResourceData) {
+func (resource *AwsSecretsManagerResource) ReadFromSchema(d *schema.ResourceData) {
 	data := d.Get("aws_secrets_manager").(*schema.Set)
 
 	for _, id := range data.List() {
@@ -121,14 +121,22 @@ func (resource *HashicorpVaultResource) ReadFromSchema(d *schema.ResourceData) {
 	}
 }
 
-type EnviromentVariableResource struct {
+type EnvironmentVariableResource struct {
 	DatabaseName string `json:"databaseName"`
 	RepoAccount  string `json:"repoAccount"`
 	VariableName string `json:"variableName"`
 }
 
-func (resource EnviromentVariableResource) WriteToSchema(d *schema.ResourceData) {
-	d.Set("enviroment_variable", []interface{}{
+func (resource EnvironmentVariableResource) WriteToSchema(d *schema.ResourceData) {
+	_, useDeprecatedArgument := d.GetOk("enviroment_variable")
+
+	argument := "environment_variable"
+	if useDeprecatedArgument {
+		// Deprecated: should be removed in the next MAJOR release
+		argument = "enviroment_variable"
+	}
+
+	d.Set(argument, []interface{}{
 		map[string]interface{}{
 			"database_name": resource.DatabaseName,
 			"local_account": resource.RepoAccount,
@@ -137,15 +145,53 @@ func (resource EnviromentVariableResource) WriteToSchema(d *schema.ResourceData)
 	})
 }
 
-func (resource *EnviromentVariableResource) ReadFromSchema(d *schema.ResourceData) {
-	data := d.Get("enviroment_variable").(*schema.Set)
+func (resource *EnvironmentVariableResource) ReadFromSchema(d *schema.ResourceData) {
+	_, useDeprecatedArgument := d.GetOk("enviroment_variable")
 
+	argument := "environment_variable"
+	if useDeprecatedArgument {
+		// Deprecated: should be removed in the next MAJOR release
+		argument = "enviroment_variable"
+	}
+
+	data := d.Get(argument).(*schema.Set)
 	for _, id := range data.List() {
 		idMap := id.(map[string]interface{})
 
 		resource.DatabaseName = idMap["database_name"].(string)
 		resource.RepoAccount = idMap["local_account"].(string)
 		resource.VariableName = idMap["variable_name"].(string)
+	}
+}
+
+type KubernetesSecretResource struct {
+	DatabaseName string `json:"databaseName"`
+	RepoAccount  string `json:"repoAccount"`
+	SecretName   string `json:"secretName"`
+	SecretKey    string `json:"secretKey"`
+}
+
+func (resource KubernetesSecretResource) WriteToSchema(d *schema.ResourceData) {
+	d.Set("kubernetes_secret", []interface{}{
+		map[string]interface{}{
+			"database_name": resource.DatabaseName,
+			"local_account": resource.RepoAccount,
+			"secret_name":   resource.SecretName,
+			"secret_key":    resource.SecretKey,
+		},
+	})
+}
+
+func (resource *KubernetesSecretResource) ReadFromSchema(d *schema.ResourceData) {
+	data := d.Get("kubernetes_secret").(*schema.Set)
+
+	for _, id := range data.List() {
+		idMap := id.(map[string]interface{})
+
+		resource.DatabaseName = idMap["database_name"].(string)
+		resource.RepoAccount = idMap["local_account"].(string)
+		resource.SecretName = idMap["secret_name"].(string)
+		resource.SecretKey = idMap["secret_key"].(string)
 	}
 }
 
@@ -162,34 +208,29 @@ func (resource *CreateRepoAccountResponse) ReadFromSchema(d *schema.ResourceData
 }
 
 type RepositoryLocalAccountResource struct {
-	RepoID             *string                     `json:"-"`
-	AwsIAM             *AwsIAMResource             `json:"awsIAM,omitempty"`
-	AwsSecretsManager  *AwsSecretsResource         `json:"awsSecretsManager,omitempty"`
-	CyralStorage       *CyralStorageResource       `json:"cyralStorage,omitempty"`
-	HashicorpVault     *HashicorpVaultResource     `json:"hashicorpVault,omitempty"`
-	EnviromentVariable *EnviromentVariableResource `json:"environmentVariable,omitempty"`
+	AwsIAM              *AwsIAMResource              `json:"awsIAM,omitempty"`
+	AwsSecretsManager   *AwsSecretsManagerResource   `json:"awsSecretsManager,omitempty"`
+	CyralStorage        *CyralStorageResource        `json:"cyralStorage,omitempty"`
+	HashicorpVault      *HashicorpVaultResource      `json:"hashicorpVault,omitempty"`
+	EnvironmentVariable *EnvironmentVariableResource `json:"environmentVariable,omitempty"`
+	KubernetesSecret    *KubernetesSecretResource    `json:"kubernetesSecret,omitempty"`
 }
 
 func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.ResourceData) {
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema START")
 
-	if repoAccount.RepoID != nil {
-		d.Set("repository_id", repoAccount.RepoID)
-	}
-
 	if repoAccount.AwsIAM != nil {
 		repoAccount.AwsIAM.WriteToSchema(d)
-
 	} else if repoAccount.AwsSecretsManager != nil {
 		repoAccount.AwsSecretsManager.WriteToSchema(d)
-
 	} else if repoAccount.CyralStorage != nil {
 		repoAccount.CyralStorage.WriteToSchema(d)
-
 	} else if repoAccount.HashicorpVault != nil {
 		repoAccount.HashicorpVault.WriteToSchema(d)
-	} else if repoAccount.EnviromentVariable != nil {
-		repoAccount.EnviromentVariable.WriteToSchema(d)
+	} else if repoAccount.EnvironmentVariable != nil {
+		repoAccount.EnvironmentVariable.WriteToSchema(d)
+	} else if repoAccount.KubernetesSecret != nil {
+		repoAccount.KubernetesSecret.WriteToSchema(d)
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema END")
@@ -201,191 +242,242 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 	if _, hasAwsIam := d.GetOk("aws_iam"); hasAwsIam {
 		repoAccount.AwsIAM = &AwsIAMResource{}
 		repoAccount.AwsIAM.ReadFromSchema(d)
-	}
-
-	if _, hasAwsSecretsManager := d.GetOk("aws_secrets_manager"); hasAwsSecretsManager {
-		repoAccount.AwsSecretsManager = &AwsSecretsResource{}
+	} else if _, hasAwsSecretsManager := d.GetOk("aws_secrets_manager"); hasAwsSecretsManager {
+		repoAccount.AwsSecretsManager = &AwsSecretsManagerResource{}
 		repoAccount.AwsSecretsManager.ReadFromSchema(d)
-	}
-
-	if _, hasCyralStorage := d.GetOk("cyral_storage"); hasCyralStorage {
+	} else if _, hasCyralStorage := d.GetOk("cyral_storage"); hasCyralStorage {
 		repoAccount.CyralStorage = &CyralStorageResource{}
 		repoAccount.CyralStorage.ReadFromSchema(d)
-	}
-
-	if _, hasHashicorpVault := d.GetOk("hashicorp_vault"); hasHashicorpVault {
+	} else if _, hasHashicorpVault := d.GetOk("hashicorp_vault"); hasHashicorpVault {
 		repoAccount.HashicorpVault = &HashicorpVaultResource{}
 		repoAccount.HashicorpVault.ReadFromSchema(d)
-	}
-
-	if _, hasEnviromentVariable := d.GetOk("enviroment_variable"); hasEnviromentVariable {
-		repoAccount.EnviromentVariable = &EnviromentVariableResource{}
-		repoAccount.EnviromentVariable.ReadFromSchema(d)
-	}
-
-	if data, hasRepoId := d.GetOk("repository_id"); hasRepoId {
-		repoId := data.(string)
-		repoAccount.RepoID = &repoId
+	} else if _, hasDeprecatedEnvVar := d.GetOk("enviroment_variable"); hasDeprecatedEnvVar {
+		// Deprecated: should be removed in the next MAJOR version
+		repoAccount.EnvironmentVariable = &EnvironmentVariableResource{}
+		repoAccount.EnvironmentVariable.ReadFromSchema(d)
+	} else if _, hasEnvironmentVariable := d.GetOk("environment_variable"); hasEnvironmentVariable {
+		repoAccount.EnvironmentVariable = &EnvironmentVariableResource{}
+		repoAccount.EnvironmentVariable.ReadFromSchema(d)
+	} else if _, hasKubernetesSecret := d.GetOk("kubernetes_secret"); hasKubernetesSecret {
+		repoAccount.KubernetesSecret = &KubernetesSecretResource{}
+		repoAccount.KubernetesSecret.ReadFromSchema(d)
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema END")
 }
 
-var ReadRepositoryLocalAccountConfig = ResourceOperationConfig{
-	Name:       "RepositoryLocalAccountResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		repository_id := d.Get("repository_id")
-		return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repository_id, d.Id())
-	},
-	ResponseData: &RepositoryLocalAccountResource{},
-}
-
 func resourceRepositoryLocalAccount() *schema.Resource {
-	awsIAMSchema := &schema.Schema{
-		Type:     schema.TypeSet,
-		Optional: true,
-		ConflictsWith: []string{
-			"aws_secrets_manager",
-			"cyral_storage",
-			"hashicorp_vault",
-			"enviroment_variable",
+	ReadRepositoryLocalAccountConfig := ResourceOperationConfig{
+		Name:       "RepositoryLocalAccountResourceRead",
+		HttpMethod: http.MethodGet,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			repository_id := d.Get("repository_id")
+			return fmt.Sprintf(
+				"https://%s/v1/repos/%s/repoAccounts/%s",
+				c.ControlPlane, repository_id, d.Id(),
+			)
 		},
+		ResponseData: &RepositoryLocalAccountResource{},
+	}
+
+	secretManagersTypes := []string{
+		"aws_iam",
+		"aws_secrets_manager",
+		"cyral_storage",
+		"hashicorp_vault",
+		"enviroment_variable", // Deprecated: should be removed in the next MAJOR release
+		"environment_variable",
+		"kubernetes_secret",
+	}
+
+	databaseNameDescription := "Database name that the local account corresponds to."
+	localAccountDescription := "Local account name."
+
+	awsIAMSchema := &schema.Schema{
+		Description:  "Credential option to set the local account from AWS IAM.",
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Description: databaseNameDescription,
+					Type:        schema.TypeString,
+					Optional:    true,
 				},
 				"local_account": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: localAccountDescription,
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 				"role_arn": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: "AWS IAM role ARN.",
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 			},
 		},
 	}
 
-	awsSecretsSchema := &schema.Schema{
-		Type:     schema.TypeSet,
-		Optional: true,
-		ConflictsWith: []string{
-			"aws_iam",
-			"cyral_storage",
-			"hashicorp_vault",
-			"enviroment_variable",
-		},
+	awsSecretsManagerSchema := &schema.Schema{
+		Description:  "Credential option to set the local account from AWS Secrets Manager.",
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Description: databaseNameDescription,
+					Type:        schema.TypeString,
+					Optional:    true,
 				},
 				"local_account": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: localAccountDescription,
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 				"secret_arn": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: "ARN of the AWS Secret Manager that stores the credential.",
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 			},
 		},
 	}
 
 	cyralStorageSchema := &schema.Schema{
-		Type:     schema.TypeSet,
-		Optional: true,
-		ConflictsWith: []string{
-			"aws_iam",
-			"aws_secrets_manager",
-			"hashicorp_vault",
-			"enviroment_variable",
-		},
+		Description:  "Credential option to set the local account from Cyral Storage.",
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Description: databaseNameDescription,
+					Type:        schema.TypeString,
+					Optional:    true,
 				},
 				"local_account": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: localAccountDescription,
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 				"password": {
-					Type:      schema.TypeString,
-					Required:  true,
-					Sensitive: true,
+					Description: "Local account password.",
+					Type:        schema.TypeString,
+					Required:    true,
+					Sensitive:   true,
 				},
 			},
 		},
 	}
 
 	hashicorpVaultSchema := &schema.Schema{
-		Type:     schema.TypeSet,
-		Optional: true,
-		ConflictsWith: []string{
-			"aws_iam",
-			"aws_secrets_manager",
-			"cyral_storage",
-			"enviroment_variable",
-		},
+		Description:  "Credential option to set the local account from Hashicorp Vault.",
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Description: databaseNameDescription,
+					Type:        schema.TypeString,
+					Optional:    true,
 				},
 				"local_account": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: localAccountDescription,
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 				"path": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: "Hashicorp Vault path.",
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 			},
 		},
 	}
 
-	enviromentVariableSchema := &schema.Schema{
-		Type:     schema.TypeSet,
-		Optional: true,
-		ConflictsWith: []string{
-			"aws_iam",
-			"aws_secrets_manager",
-			"hashicorp_vault",
-			"cyral_storage",
-		},
+	environmentVariableSchema := &schema.Schema{
+		Description:  "Credential option to set the local account from Environment Variable.",
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"database_name": {
-					Type:     schema.TypeString,
-					Optional: true,
+					Description: databaseNameDescription,
+					Type:        schema.TypeString,
+					Optional:    true,
 				},
 				"local_account": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: localAccountDescription,
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 				"variable_name": {
-					Type:     schema.TypeString,
-					Required: true,
+					Description: "Name of the environment variable that will store credentials.",
+					Type:        schema.TypeString,
+					Required:    true,
+				},
+			},
+		},
+	}
+
+	// Deprecated: should be removed in the next MAJOR release
+	environmentVariableSchemaDeprecated := *environmentVariableSchema
+	environmentVariableSchemaDeprecated.Deprecated = "This argument is deprecated, use " +
+		"'environment_variable' instead."
+
+	kubernetesSecretSchema := &schema.Schema{
+		Description:  "Credential option to set the local account from Kubernetes Secret.",
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"database_name": {
+					Description: databaseNameDescription,
+					Type:        schema.TypeString,
+					Optional:    true,
+				},
+				"local_account": {
+					Description: localAccountDescription,
+					Type:        schema.TypeString,
+					Required:    true,
+				},
+				"secret_name": {
+					Description: "Name of the secret in kubernetes.",
+					Type:        schema.TypeString,
+					Required:    true,
+				},
+				"secret_key": {
+					Description: "Name of the key that stores the credentials within the secret.",
+					Type:        schema.TypeString,
+					Required:    true,
 				},
 			},
 		},
 	}
 
 	return &schema.Resource{
+		Description: "Provides a resource to handle [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "RepositoryLocalAccountResourceCreate",
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					repository_id := d.Get("repository_id").(string)
-					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts", c.ControlPlane, repository_id)
+					return fmt.Sprintf(
+						"https://%s/v1/repos/%s/repoAccounts",
+						c.ControlPlane, repository_id,
+					)
 				},
 				ResourceData: &RepositoryLocalAccountResource{},
 				ResponseData: &CreateRepoAccountResponse{},
@@ -398,7 +490,10 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					repository_id := d.Get("repository_id").(string)
-					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repository_id, d.Id())
+					return fmt.Sprintf(
+						"https://%s/v1/repos/%s/repoAccounts/%s",
+						c.ControlPlane, repository_id, d.Id(),
+					)
 				},
 				ResourceData: &RepositoryLocalAccountResource{},
 			}, ReadRepositoryLocalAccountConfig,
@@ -409,20 +504,32 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				HttpMethod: http.MethodDelete,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					repository_id := d.Get("repository_id").(string)
-					return fmt.Sprintf("https://%s/v1/repos/%s/repoAccounts/%s", c.ControlPlane, repository_id, d.Id())
+					return fmt.Sprintf(
+						"https://%s/v1/repos/%s/repoAccounts/%s",
+						c.ControlPlane, repository_id, d.Id(),
+					)
 				},
 			},
 		),
 		Schema: map[string]*schema.Schema{
-			"repository_id": {
-				Type:     schema.TypeString,
-				Required: true,
+			"id": {
+				Description: "ID of this resource in Cyral environment.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
-			"aws_iam":             awsIAMSchema,
-			"aws_secrets_manager": awsSecretsSchema,
-			"cyral_storage":       cyralStorageSchema,
-			"hashicorp_vault":     hashicorpVaultSchema,
-			"enviroment_variable": enviromentVariableSchema,
+			"repository_id": {
+				Description: "ID of the repository that will be used by the local account.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+			},
+			"aws_iam":              awsIAMSchema,
+			"aws_secrets_manager":  awsSecretsManagerSchema,
+			"cyral_storage":        cyralStorageSchema,
+			"hashicorp_vault":      hashicorpVaultSchema,
+			"enviroment_variable":  &environmentVariableSchemaDeprecated,
+			"environment_variable": environmentVariableSchema,
+			"kubernetes_secret":    kubernetesSecretSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,

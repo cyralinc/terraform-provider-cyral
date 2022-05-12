@@ -27,6 +27,7 @@ type Rule struct {
 	DatasetRewrites  []DatasetRewrite `json:"datasetRewrites,omitempty"`
 	Rows             int              `json:"rows"`
 	Severity         string           `json:"severity"`
+	RateLimit        int              `json:"rateLimit"`
 }
 
 type DatasetRewrite struct {
@@ -95,6 +96,11 @@ func resourcePolicyRule() *schema.Resource {
 					Type:     schema.TypeString,
 					Optional: true,
 					Default:  "low",
+				},
+				"rate_limit": {
+					Description: "Rate Limit specifies the limit of calls that a user can make within a given time period.",
+					Type:        schema.TypeInt,
+					Optional:    true,
 				},
 			},
 		},
@@ -325,6 +331,7 @@ func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 			DatasetRewrites:  getDatasetRewrites(ruleMap["dataset_rewrites"].([]interface{})),
 			Rows:             ruleMap["rows"].(int),
 			Severity:         ruleMap["severity"].(string),
+			RateLimit:        ruleMap["rate_limit"].(int),
 		}
 
 		ruleList = append(ruleList, rule)
@@ -404,6 +411,7 @@ func flattenRulesList(rulesList []Rule) []interface{} {
 			ruleMap["dataset_rewrites"] = datasetRewriteList
 			ruleMap["rows"] = rule.Rows
 			ruleMap["severity"] = rule.Severity
+			ruleMap["rate_limit"] = rule.RateLimit
 
 			rules[i] = ruleMap
 		}
