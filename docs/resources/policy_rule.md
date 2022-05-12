@@ -64,7 +64,8 @@ resource "cyral_policy_rule" "some_resource_name" {
 - `updates` - (Optional) A contexted rule for accesses of the type `update`.
 - `deletes` - (Optional) A contexted rule for accesses of the type `delete`.
 - `hosts` - (Optional) Hosts specification that limits access to only those users connecting from a certain network location.
-- `rate_limit` - (Optional) Rate Limit specify the limit of calls that user can make within a given time period
+- `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
+
   > Notes:
   >
   > 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them.
