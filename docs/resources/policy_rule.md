@@ -25,6 +25,7 @@ resource "cyral_policy_rule" "some_resource_name" {
         }
         rows = 1
         severity = "low"
+        rate_limit = 10
     }
     reads {
         additional_checks = ""
@@ -37,6 +38,7 @@ resource "cyral_policy_rule" "some_resource_name" {
         }
         rows = 1
         severity = "low"
+        rate_limit = 10
     }
     updates {
         additional_checks = ""
@@ -49,6 +51,7 @@ resource "cyral_policy_rule" "some_resource_name" {
         }
         rows = 1
         severity = "low"
+        rate_limit = 10
     }
 }
 ```
@@ -61,13 +64,15 @@ resource "cyral_policy_rule" "some_resource_name" {
 - `updates` - (Optional) A contexted rule for accesses of the type `update`.
 - `deletes` - (Optional) A contexted rule for accesses of the type `delete`.
 - `hosts` - (Optional) Hosts specification that limits access to only those users connecting from a certain network location.
+- `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
 
-> Notes:
->
-> 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them.
-> 2. Each contexted rule comprises these fields: `data`, `rows`, `severity` `additional_checks`, `dataset_rewrites`. The only required fields are `data` and `rows`.
-> 3. The rules block does not need to include all three operation types (reads, updates and deletes); actions you omit are disallowed.
-> 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address.
+  > Notes:
+  >
+  > 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them.
+  > 2. Each contexted rule comprises these fields: `data`, `rows`, `severity` `additional_checks`, `dataset_rewrites`, `rate_limit`.
+  >    The only required fields are `data` and `rows`.
+  > 3. The rules block does not need to include all three operation types (reads, updates and deletes); actions you omit are disallowed.
+  > 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address.
 
 For more information, see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).
 
