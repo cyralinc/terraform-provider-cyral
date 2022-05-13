@@ -77,6 +77,6 @@ docker-compose/build: docker-compose/lint
 docker-compose/lint:
 	docker-compose run lint
 
-docker-compose/docs
+docker-compose/docs:
 	docker-compose run app go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
 #docker-compose run build pre-commit run --show-diff-on-failure --color=always --all-files
