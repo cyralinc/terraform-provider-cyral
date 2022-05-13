@@ -53,7 +53,7 @@ artifacts.
 
 To create the documentation automatically, run the commands:
 
-````
+```bash
 # Creates the documentation files from the source code
 make docker-compose/docs
 # Runs the pre-commit linter
@@ -102,4 +102,7 @@ Run `terraform init` and proceed with `terraform apply` normally to execute your
 ### Terraform v0.13+
 
 Build the project using steps in [Build Instructions](#build-instructions), then proceed normally with `terraform init` and `terraform apply` commands.
-````
+
+```
+
+```
