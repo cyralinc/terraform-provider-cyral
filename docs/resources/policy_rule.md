@@ -100,7 +100,7 @@ resource "cyral_policy_rule" "some_resource_name" {
 Required:
 
 - `data` (List of String)
-- `rows` (Number) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `rows` (Number) How many rows can be returned by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set to `-1`.
 
 Optional:
 
@@ -138,7 +138,7 @@ Optional:
 Required:
 
 - `data` (List of String)
-- `rows` (Number) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `rows` (Number) How many rows can be returned by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set to `-1`.
 
 Optional:
 
@@ -165,7 +165,7 @@ Required:
 Required:
 
 - `data` (List of String)
-- `rows` (Number) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `rows` (Number) How many rows can be returned by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set to `-1`.
 
 Optional:
 
