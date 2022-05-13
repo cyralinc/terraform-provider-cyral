@@ -18,7 +18,7 @@ See below a list of guides that can be used to deploy some predefined scenarios:
 
 - [Add native repository credentials to AWS Secrets Manager](./docs/guides/native_credentials_aws_sm.md)
 
-## Building and Testing
+## Building, Documenting and Testing
 
 ### Build Instructions
 
@@ -40,6 +40,24 @@ terraform {
     }
   }
 }
+```
+
+### Updating the Documentation
+
+This project uses [`terraform-plugin-docs`](https://github.com/hashicorp/terraform-plugin-docs).
+Add the attribute `Description` to the `Schema` in order to allow the documentation to be
+created automatically and following Terraform good practices. See any of the resources in folder
+`cyral` for guidance on how to document the `Schema`. See also folders `examples` and `templates`
+for more information on where and how to store examples and define templates for documentation
+artifacts.
+
+To create the documentation automatically, run the commands:
+
+````
+# Creates the documentation files from the source code
+make docker-compose/docs
+# Runs the pre-commit linter
+pre-commit run --show-diff-on-failure --color=always --all-files
 ```
 
 ### Test Instructions
@@ -84,3 +102,4 @@ Run `terraform init` and proceed with `terraform apply` normally to execute your
 ### Terraform v0.13+
 
 Build the project using steps in [Build Instructions](#build-instructions), then proceed normally with `terraform init` and `terraform apply` commands.
+````
