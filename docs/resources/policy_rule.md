@@ -42,14 +42,14 @@ resource "cyral_policy_rule" "some_resource_name" {
     }
     updates {
         additional_checks = ""
-        data = [""]
+        data = ["*"]
         dataset_rewrites {
             dataset = ""
             repo = ""
             substitution = ""
             parameters = [""]
         }
-        rows = 1
+        rows = -1
         severity = "low"
         rate_limit = 10
     }
@@ -64,7 +64,6 @@ resource "cyral_policy_rule" "some_resource_name" {
 - `updates` - (Optional) A contexted rule for accesses of the type `update`.
 - `deletes` - (Optional) A contexted rule for accesses of the type `delete`.
 - `hosts` - (Optional) Hosts specification that limits access to only those users connecting from a certain network location.
-- `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
 
   > Notes:
   >
@@ -75,6 +74,24 @@ resource "cyral_policy_rule" "some_resource_name" {
   > 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address.
 
 For more information, see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).
+
+### Reads
+
+- `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
+- `rows` - (Required) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `data` - (Required) Define which data can be access. Use name of data as string to define them. If you want to define `any` access, set the data key as `["*"]`.
+
+### Updates
+
+- `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
+- `rows` - (Required) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `data` - (Required) Define which data can be access. Use name of data as string to define them. If you want to define `any` access, set the data key as `["*"]`.
+
+### Deletes
+
+- `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
+- `rows` - (Required) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `data` - (Required) Define which data can be access. Use name of data as string to define them. If you want to define `any` access, set the data key as `["*"]`.
 
 ## Attribute Reference
 
