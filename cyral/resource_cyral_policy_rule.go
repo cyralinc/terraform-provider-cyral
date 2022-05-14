@@ -55,8 +55,9 @@ func resourcePolicyRule() *schema.Resource {
 					Optional: true,
 				},
 				"data": {
-					Type:     schema.TypeList,
-					Required: true,
+					Type:        schema.TypeList,
+					Description: "The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.",
+					Required:    true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},

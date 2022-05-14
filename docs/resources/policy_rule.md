@@ -42,7 +42,7 @@ resource "cyral_policy_rule" "some_resource_name" {
     }
     updates {
         additional_checks = ""
-        data = [""]
+        data = ["*"]
         dataset_rewrites {
             dataset = ""
             repo = ""
@@ -79,16 +79,19 @@ For more information, see the [Policy Guide](https://cyral.com/docs/policy#the-r
 
 - `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
 - `rows` - (Required) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `data` - (Required) The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.
 
 ### Updates
 
 - `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
 - `rows` - (Required) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `data` - (Required) The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.
 
 ### Deletes
 
 - `rate_limit` - (Optional) Rate Limit specifies the limit of calls that a user can make within a given time period.
 - `rows` - (Required) How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.
+- `data` - (Required) The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.
 
 ## Attribute Reference
 
