@@ -56,7 +56,7 @@ func resourcePolicyRule() *schema.Resource {
 				},
 				"data": {
 					Type:        schema.TypeList,
-					Description: "Define which data can be access. Use name of data as string to define them. If you want to define all access, set the data key as *.",
+					Description: "The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.",
 					Required:    true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
