@@ -99,7 +99,7 @@ resource "cyral_policy_rule" "some_resource_name" {
 
 Required:
 
-- `data` (List of String)
+- `data` (List of String) The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.
 - `rows` (Number) How many rows can be returned by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set to `-1`.
 
 Optional:
@@ -137,7 +137,7 @@ Optional:
 
 Required:
 
-- `data` (List of String)
+- `data` (List of String) The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.
 - `rows` (Number) How many rows can be returned by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set to `-1`.
 
 Optional:
@@ -164,7 +164,7 @@ Required:
 
 Required:
 
-- `data` (List of String)
+- `data` (List of String) The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.
 - `rows` (Number) How many rows can be returned by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set to `-1`.
 
 Optional:
