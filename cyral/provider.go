@@ -131,6 +131,7 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	log.Printf("[DEBUG] Init providerConfigure")
 	keycloakProvider := d.Get("auth_provider").(string) == keycloak
+	skipVerify := d.Get("skip_tls_verify_enable").(bool)
 
 	log.Printf("[DEBUG] keycloakProvider: %v", keycloakProvider)
 	clientID, clientSecret, diags := getCredentials(d, keycloakProvider)
@@ -148,7 +149,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		auth0Domain, clientSecret, controlPlane)
 
 	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-		controlPlane, keycloakProvider)
+		controlPlane, keycloakProvider, skipVerify)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,

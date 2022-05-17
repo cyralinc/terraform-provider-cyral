@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -30,15 +31,23 @@ type Client struct {
 	Token        string
 	TokenType    string
 	ControlPlane string
+	client *http.Client
 }
 
 // NewClient configures and returns a fully initialized Client.
 func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-	controlPlane string, keycloakProvider bool) (*Client, error) {
+	controlPlane string, keycloakProvider bool, skipTLSVerify bool) (*Client, error) {
 	log.Printf("[DEBUG] Init NewClient")
+	client := &http.Client{
+	    Transport: &http.Transport{
+	      TLSClientConfig: &tls.Config{
+	        InsecureSkipVerify: skipTLSVerify,
+	      },
+	    },
+	  }
 
 	if !keycloakProvider {
-		token, err := getAuth0Token(auth0Domain, clientID, clientSecret, auth0Audience)
+		token, err :=getAuth0Token(auth0Domain, clientID, clientSecret, auth0Audience, client)
 		if err != nil {
 			return nil, err
 		}
@@ -47,9 +56,10 @@ func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 			ControlPlane: controlPlane,
 			Token:        token.AccessToken,
 			TokenType:    token.TokenType,
+			  client: client,
 		}, nil
 	}
-	token, err := getKeycloakToken(controlPlane, clientID, clientSecret)
+	token, err := getKeycloakToken(controlPlane, clientID, clientSecret, client)
 	if err != nil {
 		return nil, err
 	}
@@ -62,10 +72,11 @@ func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
 		ControlPlane: controlPlane,
 		Token:        token.AccessToken,
 		TokenType:    token.TokenType,
+		  client: client,
 	}, nil
 }
 
-func getAuth0Token(domain, clientID, clientSecret, audience string) (TokenResponse, error) {
+func getAuth0Token(domain, clientID, clientSecret, audience string, client *http.Client) (TokenResponse, error) {
 	log.Printf("[DEBUG] Init getAuth0Token")
 
 	url := fmt.Sprintf("https://%s/oauth/token", domain)
@@ -91,7 +102,7 @@ func getAuth0Token(domain, clientID, clientSecret, audience string) (TokenRespon
 	}
 
 	req.Header.Add("content-type", "application/json")
-	res, err := http.DefaultClient.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		return TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
 	}
@@ -118,7 +129,7 @@ func getAuth0Token(domain, clientID, clientSecret, audience string) (TokenRespon
 	return token, nil
 }
 
-func getKeycloakToken(controlPlane, clientID, clientSecret string) (TokenResponse, error) {
+func getKeycloakToken(controlPlane, clientID, clientSecret string, client *http.Client) (TokenResponse, error) {
 	log.Printf("[DEBUG] Init getKeycloakToken")
 	url := fmt.Sprintf("https://%s/v1/users/oidc/token", controlPlane)
 
@@ -135,7 +146,7 @@ func getKeycloakToken(controlPlane, clientID, clientSecret string) (TokenRespons
 	}
 
 	req.Header.Add("content-type", "application/x-www-form-urlencoded")
-	res, err := http.DefaultClient.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		return TokenResponse{}, fmt.Errorf("unable execute keycloak request; err: %v", err)
 	}
@@ -197,7 +208,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	//req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
 
 	log.Printf("[DEBUG] Executing %s", httpMethod)
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
 	}
