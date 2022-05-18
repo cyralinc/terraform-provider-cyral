@@ -18,6 +18,7 @@ provider "cyral" {
     client_id = ""     # optional
     client_secret = "" # optional
     control_plane = "some-cp.cyral.com:8000"
+    tls_skip_verify_enable = true
 }
 ```
 
@@ -37,6 +38,7 @@ provider "cyral" {
     client_id = ""     # optional
     client_secret = "" # optional
     control_plane = "some-cp.cyral.com:8000"
+    tls_skip_verify_enable = true
 }
 ```
 
@@ -48,16 +50,18 @@ provider "cyral" {
 - `client_id` - (Optional) Client id used to authenticate against the Control Plane.
 - `client_secret` - (Optional) Client secret used to authenticate against the Control Plane.
 - `control_plane` - (Required) Control plane host and API port (ex: `some-cp.cyral.com:8000`)
+- `tls_skip_verify_enable` - (Optional) Define the TLS verification or not to make request in control_plane
 
 ---
 
-Authentication parameters `client_id` and `client_secret` are defined as optional in the provider body once they can be set through environment variables in order to avoid storing secrets in source code repositories. The environment variables corresponds to `CYRAL_TF_CLIENT_ID` and `CYRAL_TF_CLIENT_SECRET` respectivelly and can be defined as follows:
+Authentication parameters `client_id`, `client_secret` and `tls_skip_verify_enable` are defined as optional in the provider body once they can be set through environment variables in order to avoid storing secrets in source code repositories. The environment variables corresponds to `CYRAL_TF_CLIENT_ID`, `CYRAL_TF_CLIENT_SECRET` and `CYRAL_TF_TLS_SKIP_VERIFY_ENABLE` respectivelly and can be defined as follows:
 
 - Linux/Mac
 
 ```bash
 export CYRAL_TF_CLIENT_ID=""
 export CYRAL_TF_CLIENT_SECRET=""
+export CYRAL_TF_TLS_SKIP_VERIFY_ENABLE=true
 ```
 
 - Windows
@@ -65,6 +69,7 @@ export CYRAL_TF_CLIENT_SECRET=""
 ```
 set CYRAL_TF_CLIENT_ID=""
 set CYRAL_TF_CLIENT_SECRET=""
+set CYRAL_TF_TLS_SKIP_VERIFY_ENABLE=true
 ```
 
 ### Provider Credentials - UI

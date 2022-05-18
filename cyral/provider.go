@@ -81,6 +81,7 @@ func Provider() *schema.Provider {
 			},
 			"tls_skip_verify_enable": {
 				Type:        schema.TypeBool,
+				Description: "Define the TLS verification or not to make request in control_plane",
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc(EnvVarTLSSkipVerifyEnable, nil),
 			},
