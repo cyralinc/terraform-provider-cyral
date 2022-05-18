@@ -11,11 +11,12 @@ import (
 )
 
 const (
-	keycloak           = "keycloak"
-	auth0              = "auth0"
-	EnvVarClientID     = "CYRAL_TF_CLIENT_ID"
-	EnvVarClientSecret = "CYRAL_TF_CLIENT_SECRET"
-	EnvVarCPURL        = "CYRAL_TF_CONTROL_PLANE"
+	keycloak                  = "keycloak"
+	auth0                     = "auth0"
+	EnvVarClientID            = "CYRAL_TF_CLIENT_ID"
+	EnvVarClientSecret        = "CYRAL_TF_CLIENT_SECRET"
+	EnvVarCPURL               = "CYRAL_TF_CONTROL_PLANE"
+	EnvVarTLSSkipVerifyEnable = "CYRAL_TF_TLS_SKIP_VERIFY_ENABLE"
 )
 
 // Provider defines and initializes the Cyral provider
@@ -77,6 +78,11 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc(EnvVarCPURL, nil),
+			},
+			"tls_skip_verify_enable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc(EnvVarTLSSkipVerifyEnable, nil),
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -143,12 +149,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	auth0Domain := d.Get("auth0_domain").(string)
 	auth0Audience := d.Get("auth0_audience").(string)
 	controlPlane := d.Get("control_plane").(string)
+	tlsSkipVerifyEnable := d.Get("tls_skip_verify_enable").(bool)
 
-	log.Printf("[DEBUG] auth0Domain: %s ; auth0Audience: %s ; controlPlane: %s",
-		auth0Domain, clientSecret, controlPlane)
+	log.Printf("[DEBUG] auth0Domain: %s ; auth0Audience: %s ; controlPlane: %s ; tlsSkipVerifyEnable: %t",
+		auth0Domain, clientSecret, controlPlane, tlsSkipVerifyEnable)
 
 	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-		controlPlane, keycloakProvider)
+		controlPlane, keycloakProvider, tlsSkipVerifyEnable)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
