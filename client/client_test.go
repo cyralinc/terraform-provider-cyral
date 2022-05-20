@@ -174,7 +174,9 @@ func TestReqFail(t *testing.T) {
 		ts.URL = ts.URL + "/oauth/token"
 
 		if err != nil {
-			if !strings.Contains(err.Error(), fmt.Sprintf("status code %d", http.StatusBadRequest)) {
+			if !strings.Contains(strings.ToLower(err.Error()),
+				fmt.Sprintf("status code %d", http.StatusBadRequest),
+			) {
 				t.Error(fmt.Errorf("error in reqFail(); keycloakProvider: %t; err: %v",
 					keycloakProvider, err.Error()))
 			}
