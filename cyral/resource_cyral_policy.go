@@ -34,7 +34,7 @@ type PolicyMetadata struct {
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages [policies](https://cyral.com/docs/reference/policy). See also: [Policy Rule](./policy_rule.md)." +
-			"For more information, see the [Policy Guide](https://cyral.com/docs/policy#policy).",
+			" For more information, see the [Policy Guide](https://cyral.com/docs/policy#policy).",
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
