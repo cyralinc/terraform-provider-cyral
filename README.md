@@ -102,7 +102,3 @@ Run `terraform init` and proceed with `terraform apply` normally to execute your
 ### Terraform v0.13+
 
 Build the project using steps in [Build Instructions](#build-instructions), then proceed normally with `terraform init` and `terraform apply` commands.
-
-```
-
-```

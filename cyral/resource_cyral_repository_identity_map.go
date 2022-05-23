@@ -199,7 +199,7 @@ var ReadRepositoryIdentityMapConfig = ResourceOperationConfig{
 
 func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
-		Description:        "Manages [Repository Identity Maps] configuration(https://cyral.com/docs/manage-repositories/repo-id-map/).",
+		Description:        "Manages [Repository Identity Maps](https://cyral.com/docs/manage-repositories/repo-id-map/) configuration.",
 		DeprecationMessage: deprecationMessage,
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
