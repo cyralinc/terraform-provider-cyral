@@ -50,7 +50,7 @@ provider "cyral" {
 - `client_id` - (Optional) Client id used to authenticate against the Control Plane.
 - `client_secret` - (Optional) Client secret used to authenticate against the Control Plane.
 - `control_plane` - (Required) Control plane host and API port (ex: `some-cp.cyral.com:8000`)
-- `tls_skip_verify_enable` - (Optional) Define the TLS verification or not to make request in control_plane
+- `tls_skip_verify` - (Optional) Specifies if the client will verify the TLS server certificate used by the control plane. If set to `true`, the client will not verify the server certificate, hence, it will allow insecure connections to be established. This should be set only for testing and is not recommended to be used in production environments. Can be set through the `CYRAL_TF_TLS_SKIP_VERIFY` environment variable. Defaults to `false`.
 
 ---
 

@@ -57,8 +57,6 @@ func TestInvalidAuth0DomainValue(t *testing.T) {
 
 func TestServerDown(t *testing.T) {
 	test := func(keycloakProvider bool) {
-		// http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		}))
 
@@ -91,7 +89,6 @@ func TestTimeoutResponse(t *testing.T) {
 	test := func(keycloakProvider bool) {
 		// Disables client's certificate authority validation, in order to
 		// successfully mock https requests
-		// http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		}))
@@ -160,7 +157,6 @@ func TestReqFail(t *testing.T) {
 	test := func(keycloakProvider bool) {
 		// Disables client's certificate authority validation, in order to
 		// successfully mock https requests
-		// http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Any response different than 200 (http.StatusOK) is an error.

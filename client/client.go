@@ -106,7 +106,7 @@ func getAuth0Token(domain, clientID, clientSecret, audience string, client *http
 	if err != nil {
 		return TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
 	}
-	// defer res.Body.Close()
+	defer res.Body.Close()
 	log.Printf("[DEBUG] body: %v", res.Body)
 	if res.StatusCode != http.StatusOK {
 		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d. Response body: %v",
@@ -150,7 +150,7 @@ func getKeycloakToken(controlPlane, clientID, clientSecret string, client *http.
 	if err != nil {
 		return TokenResponse{}, fmt.Errorf("unable execute keycloak request; err: %v", err)
 	}
-	// defer res.Body.Close()
+	defer res.Body.Close()
 	log.Printf("[DEBUG] body: %v", res.Body)
 	if res.StatusCode != http.StatusOK {
 		msg := fmt.Sprintf("keycloak requisition fail. Response status code %d. Response body: %v",
@@ -209,7 +209,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
 	}
 
-	// defer res.Body.Close()
+	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict ||
 		(httpMethod == http.MethodPost && strings.Contains(strings.ToLower(res.Status), "already exists")) {
 		return nil, fmt.Errorf("resource possibly exists in the control plane. Response status: %s", res.Status)

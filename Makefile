@@ -66,7 +66,7 @@ docker/clean:
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
 local/test:
-	$(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race -timeout 20m
+	GOOS=darwin GOARCH=arm64 $(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race -timeout 20m
 
 docker-compose/build: docker-compose/lint
 	docker-compose build --build-arg VERSION="$(VERSION+sha)" build
