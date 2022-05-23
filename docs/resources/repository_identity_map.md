@@ -3,12 +3,12 @@
 page_title: "cyral_repository_identity_map Resource - cyral"
 subcategory: ""
 description: |-
-  Manages [Repository Identity Maps] configuration(https://cyral.com/docs/manage-repositories/repo-id-map/).
+  Manages Repository Identity Maps https://cyral.com/docs/manage-repositories/repo-id-map/ configuration.
 ---
 
 # cyral_repository_identity_map (Resource)
 
-Manages [Repository Identity Maps] configuration(https://cyral.com/docs/manage-repositories/repo-id-map/).
+Manages [Repository Identity Maps](https://cyral.com/docs/manage-repositories/repo-id-map/) configuration.
 
 ## Example Usage
 

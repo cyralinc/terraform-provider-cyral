@@ -18,7 +18,7 @@ resource "cyral_integration_idp_adfs" "some_resource_name" {
 
 ### Integration using SAML Configuration Data Source
 
-```hcterraforml
+```terraform
 locals {
   config = data.cyral_saml_configuration.some_data_source_name
 }

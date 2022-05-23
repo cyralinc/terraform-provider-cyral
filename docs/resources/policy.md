@@ -3,12 +3,12 @@
 page_title: "cyral_policy Resource - cyral"
 subcategory: ""
 description: |-
-  Manages policies https://cyral.com/docs/reference/policy. See also: Policy Rule ./policy_rule.md.For more information, see the Policy Guide https://cyral.com/docs/policy#policy.
+  Manages policies https://cyral.com/docs/reference/policy. See also: Policy Rule ./policy_rule.md. For more information, see the Policy Guide https://cyral.com/docs/policy#policy.
 ---
 
 # cyral_policy (Resource)
 
-Manages [policies](https://cyral.com/docs/reference/policy). See also: [Policy Rule](./policy_rule.md).For more information, see the [Policy Guide](https://cyral.com/docs/policy#policy).
+Manages [policies](https://cyral.com/docs/reference/policy). See also: [Policy Rule](./policy_rule.md). For more information, see the [Policy Guide](https://cyral.com/docs/policy#policy).
 
 ## Example Usage
 

@@ -24,4 +24,4 @@ data "cyral_saml_certificate" "some_data_source_name" {
 ### Read-Only
 
 - `certificate` (String) The X.509 certificate used for signing SAML requests.
-- `id` (String) Computed ID for this resource (locally computed to be used in Terraform state).
+- `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).

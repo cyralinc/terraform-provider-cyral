@@ -52,36 +52,51 @@ func ruleSchema(description string) *schema.Schema {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"additional_checks": {
+					Description: "Constraints on the data access specified in " +
+						"[Rego](https://www.openpolicyagent.org/docs/latest/policy-language/). " +
+						"See [Additional checks](https://cyral.com/docs/policy/rules/#additional-checks).",
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"data": {
-					Type:        schema.TypeList,
-					Description: "The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.",
-					Required:    true,
+					Type: schema.TypeList,
+					Description: "The data locations protected by this rule. " +
+						"Use `*` if you want to define `any` data location. " +
+						"For more information, see the " +
+						"[policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.",
+					Required: true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},
 				},
 				"dataset_rewrites": {
-					Description: "",
-					Type:        schema.TypeList,
-					Optional:    true,
+					Description: "Defines how requests should be rewritten in the case of " +
+						"policy violations. See [Request rewriting](https://cyral.com/docs/policy/rules/#request-rewriting).",
+					Type:     schema.TypeList,
+					Optional: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"dataset": {
+								Description: "The dataset that should be rewritten." +
+									"In the case of Snowflake, this denotes a fully qualified table name in the form: " +
+									"`<database>.<schema>.<table>`",
 								Type:     schema.TypeString,
 								Required: true,
 							},
 							"repo": {
-								Type:     schema.TypeString,
-								Required: true,
+								Description: "The name of the repository that the rewrite applies to.",
+								Type:        schema.TypeString,
+								Required:    true,
 							},
 							"substitution": {
-								Type:     schema.TypeString,
-								Required: true,
+								Description: "The request used to substitute references to the dataset.",
+								Type:        schema.TypeString,
+								Required:    true,
 							},
 							"parameters": {
+								Description: "The set of parameters used in the substitution request, " +
+									"these are references to fields in the activity log as described in " +
+									"the [Additional Checks section](https://cyral.com/docs/policy/rules/#additional-checks).",
 								Type:     schema.TypeList,
 								Required: true,
 								Elem: &schema.Schema{
@@ -92,11 +107,17 @@ func ruleSchema(description string) *schema.Schema {
 					},
 				},
 				"rows": {
-					Description: "How many rows can be returned by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set to `-1`.",
-					Type:        schema.TypeInt,
-					Required:    true,
+					Description: "The number of records (for example, rows or documents) that can " +
+						"be accessed/affected in a single statement. Use positive integer " +
+						"numbers to define how many records. If you want to define `any` " +
+						"number of records, set to `-1`.",
+					Type:     schema.TypeInt,
+					Required: true,
 				},
 				"severity": {
+					Description: "severity level that's recorded when someone violate this rule. " +
+						"This is an informational value. Settings: (`low` | `medium` | `high`). " +
+						"If not specified, the severity is considered to be low.",
 					Type:     schema.TypeString,
 					Optional: true,
 					Default:  "low",
@@ -142,7 +163,7 @@ func resourcePolicyRule() *schema.Resource {
 				},
 			},
 			"identities": {
-				Description: "Identities specification that specifies the people, applications, " +
+				Description: "Identities specifies the people, applications, " +
 					"or groups this rule applies to. Every rule except your default rule has one. " +
 					"It can have 4 fields: `db_roles`, `groups`, `users` and `services`.",
 				Type:     schema.TypeList,
@@ -151,29 +172,33 @@ func resourcePolicyRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"db_roles": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Database roles that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"groups": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Groups that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"services": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Services that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"users": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Users that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

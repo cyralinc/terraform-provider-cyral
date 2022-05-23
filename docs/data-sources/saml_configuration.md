@@ -47,7 +47,7 @@ data "cyral_saml_configuration" "some_data_source_name" {
 - `disable_want_authn_requests_signed` (Boolean) Indicates whether the identity provider expects a signed AuthnRequest.
 - `gui_order` (String) GUI order.
 - `hide_on_login_page` (Boolean) Defaults to `false` if unset.
-- `id` (String) Computed ID for this resource (locally computed to be used in Terraform state).
+- `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).
 - `ldap_group_attribute` (String) Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
 - `name_id_policy_format` (String) Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.
 - `principal_type` (String) Defaults to `SUBJECT` if unset.
