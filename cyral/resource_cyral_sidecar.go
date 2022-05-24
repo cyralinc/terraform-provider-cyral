@@ -89,7 +89,7 @@ func resourceSidecar() *schema.Resource {
 										Description: "Engine is the name of the engine used with the given secrets" +
 											" manager type, when applicable.",
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"secret_id": {
 										Description: "Secret ID is the identifier or location for the secret that" +
