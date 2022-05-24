@@ -83,6 +83,19 @@ resource "cyral_repository_local_account" "some_resource_name" {
 }
 ```
 
+### GCP Secret Manager
+
+```hcl
+resource "cyral_repository_local_account" "some_resource_name" {
+    repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
+    gcp_secret_manager {
+        database_name = ""
+        local_account = ""
+        secret_name = ""
+    }
+}
+```
+
 ## Argument Reference
 
 - `repository_id` - (Required) ID of the repository that will be used by the local account.
@@ -92,6 +105,7 @@ resource "cyral_repository_local_account" "some_resource_name" {
 - `hashicorp_vault` - (Optional) Credential option to set the local account from Hashicorp Vault. See [hashicorp_vault](#hashicorp_vault) below for more details.
 - `environment_variable` - (Optional) Credential option to set the local account from Environment Variable. See [environment_variable](#environment_variable) below for more details.
 - `kubernetes_secret` - (Optional) Credential option to set the local account from Kubernetes Secret. See [kubernetes_secret](#kubernetes_secret) below for more details.
+- `gcp_secret_manager` - (Optional) Credential option to set the local account from GCP Secret Manager. See [gcp_secret_manager](#gcp_secret_manager) below for more details.
 
 ### aws_iam
 
@@ -141,6 +155,14 @@ The `kubernetes_secret` object supports the following arguments:
 - `local_account` - (Required) Local account name.
 - `secret_name` - (Required) Name of the secret in kubernetes.
 - `secret_key` - (Required) Name of the key that stores the credentials within the secret.
+
+### gcp_secret_manager
+
+The `gcp_secret_manager` object supports the following arguments:
+
+- `database_name` - (Optional) Database name that the local account corresponds to.
+- `local_account` - (Required) Local account name.
+- `secret_name` - (Required) The unique identifier of the secret in GCP Secret Manager. Should obey one of the following formats: `projects/<project-name>/secrets/<secret-name>` or `projects/<project-name>/secrets/<secret-name>/versions/<version>`.
 
 ## Attribute Reference
 
