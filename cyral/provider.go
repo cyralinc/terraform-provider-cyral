@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	keycloak                  = "keycloak"
-	auth0                     = "auth0"
-	EnvVarClientID            = "CYRAL_TF_CLIENT_ID"
-	EnvVarClientSecret        = "CYRAL_TF_CLIENT_SECRET"
-	EnvVarCPURL               = "CYRAL_TF_CONTROL_PLANE"
-	EnvVarTLSSkipVerifyEnable = "CYRAL_TF_TLS_SKIP_VERIFY_ENABLE"
+	keycloak            = "keycloak"
+	auth0               = "auth0"
+	EnvVarClientID      = "CYRAL_TF_CLIENT_ID"
+	EnvVarClientSecret  = "CYRAL_TF_CLIENT_SECRET"
+	EnvVarCPURL         = "CYRAL_TF_CONTROL_PLANE"
+	EnvVarTLSSkipVerify = "CYRAL_TF_TLS_SKIP_VERIFY"
 )
 
 // Provider defines and initializes the Cyral provider
@@ -79,11 +79,11 @@ func Provider() *schema.Provider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc(EnvVarCPURL, nil),
 			},
-			"tls_skip_verify_enable": {
+			"tls_skip_verify": {
 				Type:        schema.TypeBool,
 				Description: "Define the TLS verification or not to make request in control_plane",
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc(EnvVarTLSSkipVerifyEnable, nil),
+				DefaultFunc: schema.EnvDefaultFunc(EnvVarTLSSkipVerify, nil),
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -150,13 +150,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	auth0Domain := d.Get("auth0_domain").(string)
 	auth0Audience := d.Get("auth0_audience").(string)
 	controlPlane := d.Get("control_plane").(string)
-	tlsSkipVerifyEnable := d.Get("tls_skip_verify_enable").(bool)
+	tlsSkipVerify := d.Get("tls_skip_verify").(bool)
 
-	log.Printf("[DEBUG] auth0Domain: %s ; auth0Audience: %s ; controlPlane: %s ; tlsSkipVerifyEnable: %t",
-		auth0Domain, clientSecret, controlPlane, tlsSkipVerifyEnable)
+	log.Printf("[DEBUG] auth0Domain: %s ; auth0Audience: %s ; controlPlane: %s ; tlsSkipVerify: %t",
+		auth0Domain, clientSecret, controlPlane, tlsSkipVerify)
 
 	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-		controlPlane, keycloakProvider, tlsSkipVerifyEnable)
+		controlPlane, keycloakProvider, tlsSkipVerify)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
