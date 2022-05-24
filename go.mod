@@ -8,5 +8,6 @@ require (
 	github.com/hashicorp/hcl/v2 v2.8.2 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.1
 	github.com/rickb777/date v1.17.0
+	github.com/stretchr/testify v1.7.1
 	google.golang.org/api v0.34.0 // indirect
 )

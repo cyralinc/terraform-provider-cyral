@@ -17,12 +17,13 @@ type GetRepoByIDResponse struct {
 }
 
 type RepoData struct {
-	ID       string   `json:"id"`
-	RepoType string   `json:"type"`
-	Name     string   `json:"name"`
-	Host     string   `json:"repoHost"`
-	Port     int      `json:"repoPort"`
-	Labels   []string `json:"labels"`
+	ID                  string   `json:"id"`
+	RepoType            string   `json:"type"`
+	Name                string   `json:"name"`
+	Host                string   `json:"repoHost"`
+	Port                int      `json:"repoPort"`
+	Labels              []string `json:"labels"`
+	MaxAllowedListeners uint32   `json:"maxAllowedListeners,omitempty"`
 }
 
 func resourceRepository() *schema.Resource {
