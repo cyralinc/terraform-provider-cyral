@@ -64,20 +64,14 @@ func resourceSidecarCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	log.Printf("[DEBUG] Init resourceSidecarCredentialsCreate")
 	c := m.(*client.Client)
 
-	payload := CreateSidecarCredentialsRequest{d.Get("sidecar_id").(string)}
+	sidecarId := d.Get("sidecar_id").(string)
 
-	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts", c.ControlPlane)
-
-	body, err := c.DoRequest(url, http.MethodPost, payload)
+	response, err := fetchSidecarCredentials(c, sidecarId)
 	if err != nil {
 		return createError("Unable to create sidecar credentials", fmt.Sprintf("%v", err))
 	}
 
-	response := SidecarCredentialsData{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", *response)
 
 	d.SetId(response.ClientID)
 	d.Set("client_id", response.ClientID)
@@ -125,4 +119,24 @@ func resourceSidecarCredentialsDelete(ctx context.Context, d *schema.ResourceDat
 	log.Printf("[DEBUG] End resourceSidecarCredentialsDelete")
 
 	return diag.Diagnostics{}
+}
+
+func fetchSidecarCredentials(c *client.Client, sidecarId string) (
+	*SidecarCredentialsData, error) {
+
+	payload := CreateSidecarCredentialsRequest{sidecarId}
+
+	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts", c.ControlPlane)
+
+	body, err := c.DoRequest(url, http.MethodPost, payload)
+	if err != nil {
+		return nil, fmt.Errorf("error when performing request: %w", err)
+	}
+
+	response := &SidecarCredentialsData{}
+	if err := json.Unmarshal(body, response); err != nil {
+		return nil, fmt.Errorf("error when unmarshalling JSON: %w", err)
+	}
+
+	return response, nil
 }
