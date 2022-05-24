@@ -76,8 +76,8 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 		sidecar_id = cyral_sidecar.sidecar_1.id
 		listener_port = 3306
 		enabled = true
-	} 
-	
+	}
+
 	resource "cyral_repository" "repo_2" {
 		name = "tf-provider-repo-2-bound-ports-sidecar"
 		type = "mongodb"

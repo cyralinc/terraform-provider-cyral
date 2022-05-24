@@ -40,9 +40,14 @@ type TCPListeners struct {
 
 func dataSourceSidecarBoundPorts() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieves all the sidecar ports that are bound to repositories.",
+		Description: "Retrieves all the ports of a given sidecar that are currently bound to repositories.",
 		ReadContext: dataSourceSidecarBoundPortsRead,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "Computed ID for this data source (locally computed to be used in Terraform state).",
+				Computed:    true,
+				Type:        schema.TypeString,
+			},
 			"sidecar_id": {
 				Description: "The ID of the sidecar.",
 				Type:        schema.TypeString,
