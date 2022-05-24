@@ -106,9 +106,9 @@ func getSidecarCftTemplate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	sidecarCredentials, err := fetchSidecarCredentials(c, sidecarId)
+	sidecarCredentials, err := createSidecarCredentials(c, sidecarId)
 	if err != nil {
-		return fmt.Errorf("unable to fetch sidecar credentials: %w", err)
+		return fmt.Errorf("unable to create sidecar credentials: %w", err)
 	}
 
 	body, err := getTemplateForSidecarProperties(
@@ -251,8 +251,4 @@ func getTemplateForSidecarProperties(
 	}
 
 	return c.DoRequest(url, http.MethodGet, nil)
-}
-
-func urlQuery(key, val string) string {
-	return fmt.Sprintf("&%s=%s", key, val)
 }
