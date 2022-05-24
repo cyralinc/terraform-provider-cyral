@@ -46,3 +46,13 @@ resource "cyral_repository_local_account" "some_resource_name" {
         variable_name = ""
     }
 }
+
+### GCP Secret Manager
+resource "cyral_repository_local_account" "some_resource_name" {
+    repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
+    gcp_secret_manager {
+        database_name = ""
+        local_account = ""
+        secret_name = ""
+    }
+}

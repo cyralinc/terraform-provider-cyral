@@ -18,7 +18,8 @@ func TestInvalidAuth0DomainFormat(t *testing.T) {
 			"^^^exampleInvalidDomain",
 			"ExampleAuth0Audience",
 			"SomeControlPlane",
-			keycloakProvider)
+			keycloakProvider,
+			true)
 
 		if err == nil {
 			t.Error(fmt.Errorf(
@@ -39,7 +40,8 @@ func TestInvalidAuth0DomainValue(t *testing.T) {
 			"invalidDomain",
 			"ExampleAuth0Audience",
 			"SomeControlPlane",
-			keycloakProvider)
+			keycloakProvider,
+			true)
 
 		if err == nil {
 			t.Error(fmt.Errorf(
@@ -55,8 +57,6 @@ func TestInvalidAuth0DomainValue(t *testing.T) {
 
 func TestServerDown(t *testing.T) {
 	test := func(keycloakProvider bool) {
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		}))
 
@@ -66,7 +66,8 @@ func TestServerDown(t *testing.T) {
 			ts.URL[8:len(ts.URL)],
 			"exampleAud",
 			"SomeControlPlane",
-			keycloakProvider)
+			keycloakProvider,
+			true)
 
 		ts.URL = ts.URL + "/oauth/token"
 
@@ -88,7 +89,6 @@ func TestTimeoutResponse(t *testing.T) {
 	test := func(keycloakProvider bool) {
 		// Disables client's certificate authority validation, in order to
 		// successfully mock https requests
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		}))
@@ -100,7 +100,7 @@ func TestTimeoutResponse(t *testing.T) {
 			ts.URL[8:len(ts.URL)],
 			"exampleAud",
 			"SomeControlPlane",
-			keycloakProvider)
+			keycloakProvider, true)
 
 		ts.URL = ts.URL + "/oauth/token"
 
@@ -139,7 +139,8 @@ func TestReqOK(t *testing.T) {
 			ts.URL[8:len(ts.URL)],
 			"exampleAud",
 			ts.URL[8:len(ts.URL)],
-			keycloakProvider)
+			keycloakProvider,
+			true)
 		ts.URL = ts.URL + "/oauth/token"
 
 		if err != nil {
@@ -156,7 +157,6 @@ func TestReqFail(t *testing.T) {
 	test := func(keycloakProvider bool) {
 		// Disables client's certificate authority validation, in order to
 		// successfully mock https requests
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Any response different than 200 (http.StatusOK) is an error.
@@ -169,7 +169,8 @@ func TestReqFail(t *testing.T) {
 			ts.URL[8:len(ts.URL)],
 			"exampleAud",
 			ts.URL[8:len(ts.URL)],
-			keycloakProvider)
+			keycloakProvider,
+			true)
 		ts.URL = ts.URL + "/oauth/token"
 
 		if err != nil {
