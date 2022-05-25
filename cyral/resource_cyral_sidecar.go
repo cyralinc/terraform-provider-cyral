@@ -11,6 +11,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 type CreateSidecarResponse struct {
@@ -18,15 +19,24 @@ type CreateSidecarResponse struct {
 }
 
 type SidecarData struct {
-	ID              string          `json:"id"`
-	Name            string          `json:"name"`
-	Labels          []string        `json:"labels"`
-	SidecarProperty SidecarProperty `json:"properties"`
-	UserEndpoint    string          `json:userEndpoint`
+	ID                       string                   `json:"id"`
+	Name                     string                   `json:"name"`
+	Labels                   []string                 `json:"labels"`
+	SidecarProperty          SidecarProperty          `json:"properties"`
+	UserEndpoint             string                   `json:"userEndpoint"`
+	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
 }
 
 type SidecarProperty struct {
 	DeploymentMethod string `json:"deploymentMethod"`
+}
+
+type CertificateBundleSecrets map[string]*CertificateBundleSecret
+
+type CertificateBundleSecret struct {
+	Engine   string `json:"engine,omitempty"`
+	SecretId string `json:"secretId,omitempty"`
+	Type     string `json:"type,omitempty"`
 }
 
 func resourceSidecar() *schema.Resource {
@@ -52,6 +62,10 @@ func resourceSidecar() *schema.Resource {
 				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`).",
 				Type:        schema.TypeString,
 				Required:    true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"docker", "cloudFormation", "terraform", "helm", "helm3",
+					"automated", "custom", "terraformGKE",
+				}, false),
 			},
 			"labels": {
 				Description: "Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.",
@@ -65,6 +79,48 @@ func resourceSidecar() *schema.Resource {
 				Description: "User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.",
 				Type:        schema.TypeString,
 				Optional:    true,
+			},
+			"certificate_bundle_secrets": {
+				Description: "Certificate Bundle Secret is a configuration that holds data about the" +
+					" location of a particular TLS certificate bundle in a secrets manager.",
+				Type:     schema.TypeSet,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sidecar": {
+							Description: "Certificate Bundle Secret for sidecar.",
+							Type:        schema.TypeSet,
+							MaxItems:    1,
+							Required:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"engine": {
+										Description: "Engine is the name of the engine used with the given secrets" +
+											" manager type, when applicable.",
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"secret_id": {
+										Description: "Secret ID is the identifier or location for the secret that" +
+											" holds the certificate bundle.",
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"type": {
+										Description: "Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.",
+										Type:        schema.TypeString,
+										Required:    true,
+										ValidateFunc: validation.StringInSlice([]string{
+											"aws",
+											"k8s",
+										}, false),
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 		Importer: &schema.ResourceImporter{
@@ -139,6 +195,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
+	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(response.CertificateBundleSecrets))
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -180,11 +237,10 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 	return diag.Diagnostics{}
 }
 
-func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (SidecarData, error) {
+func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*SidecarData, error) {
+	log.Printf("[DEBUG] Init getSidecarDataFromResource")
+
 	deploymentMethod := d.Get("deployment_method").(string)
-	if err := client.ValidateDeploymentMethod(deploymentMethod); err != nil {
-		return SidecarData{}, err
-	}
 
 	sp := SidecarProperty{
 		DeploymentMethod: deploymentMethod,
@@ -194,11 +250,90 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (Sidec
 	for i, label := range labels {
 		sidecarDataLabels[i] = (label).(string)
 	}
-	return SidecarData{
-		ID:              d.Id(),
-		Name:            d.Get("name").(string),
-		Labels:          sidecarDataLabels,
-		SidecarProperty: sp,
-		UserEndpoint:    d.Get("user_endpoint").(string),
+
+	cbs := getCertificateBundleSecret(d)
+
+	log.Printf("[DEBUG] end getSidecarDataFromResource")
+	return &SidecarData{
+		ID:                       d.Id(),
+		Name:                     d.Get("name").(string),
+		Labels:                   sidecarDataLabels,
+		SidecarProperty:          sp,
+		UserEndpoint:             d.Get("user_endpoint").(string),
+		CertificateBundleSecrets: cbs,
 	}, nil
+}
+
+func flattenCertificateBundleSecrets(cbs CertificateBundleSecrets) []interface{} {
+	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
+	var flatCBS []interface{}
+	if cbs != nil {
+		cb := make(map[string]interface{})
+
+		for key, val := range cbs {
+			// Ignore self-signed certificates
+			if key != "sidecar-generated-selfsigned" {
+				contentCB := make([]interface{}, 1)
+
+				log.Printf("[DEBUG] key: %v", key)
+				log.Printf("[DEBUG] val: %v", val)
+
+				contentCBMap := make(map[string]interface{})
+				contentCBMap["secret_id"] = val.SecretId
+				contentCBMap["engine"] = val.Engine
+				contentCBMap["type"] = val.Type
+
+				contentCB[0] = contentCBMap
+				cb[key] = contentCB
+			}
+		}
+
+		if len(cb) > 0 {
+			flatCBS = make([]interface{}, 1)
+			flatCBS[0] = cb
+		}
+	}
+
+	log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
+	return flatCBS
+}
+
+func getCertificateBundleSecret(d *schema.ResourceData) CertificateBundleSecrets {
+	log.Printf("[DEBUG] Init getCertificateBundleSecret")
+	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
+	ret := make(CertificateBundleSecrets)
+
+	if len(rdCBS) > 0 {
+		cbsMap := rdCBS[0].(map[string]interface{})
+		for k, v := range cbsMap {
+			vList := v.(*schema.Set).List()
+			// 1. k = "sidecar" or other direct internal elements of certificate_bundle_secrets
+			// 2. Also one element on this list due to MaxItems...
+			// 3. Ignore self signed certificates
+			if len(vList) > 0 && k != "sidecar-generated-selfsigned" {
+				vMap := vList[0].(map[string]interface{})
+				engine := ""
+				if val, ok := vMap["engine"]; val != nil && ok {
+					engine = val.(string)
+				}
+				cbsType := vMap["type"].(string)
+				secretId := vMap["secret_id"].(string)
+				cbs := CertificateBundleSecret{
+					SecretId: secretId,
+					Engine:   engine,
+					Type:     cbsType,
+				}
+				ret[k] = &cbs
+			}
+		}
+	}
+
+	// If the occurrence of `sidecar` does not exist, set it to an empty certificate bundle
+	// so that the API can remove the `sidecar` key from the persisted certificate bundle map.
+	if _, ok := ret["sidecar"]; !ok {
+		ret["sidecar"] = &CertificateBundleSecret{}
+	}
+
+	log.Printf("[DEBUG] end getCertificateBundleSecret")
+	return ret
 }

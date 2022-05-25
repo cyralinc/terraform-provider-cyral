@@ -174,7 +174,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if clientID == "" || clientSecret == "" {
 		return nil, diags
 	}
-	log.Printf("[DEBUG] clientID: %s ; clientSecret: %s", clientID, clientSecret)
 
 	auth0Domain := d.Get("auth0_domain").(string)
 	auth0Audience := d.Get("auth0_audience").(string)

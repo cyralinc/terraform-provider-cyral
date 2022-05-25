@@ -7,47 +7,61 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var initialSidecarConfig SidecarData = SidecarData{
-	Name:   "sidecar-test",
+func getTestCBS() *CertificateBundleSecrets {
+	cbs := make(CertificateBundleSecrets)
+	cbs["sidecar"] = &CertificateBundleSecret{
+		SecretId: "someSecret",
+		Type:     "aws",
+		Engine:   "someEngine",
+	}
+	return &cbs
+}
+
+var cloudFormationSidecarConfig *SidecarData = &SidecarData{
+	Name:   "tf-provider-TestAccSidecarResource-cft",
 	Labels: []string{"test1"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "cloudFormation",
 	},
-	UserEndpoint: "some.user.endpoint",
+	UserEndpoint:             "some.cft.user.endpoint",
+	CertificateBundleSecrets: *getTestCBS(),
 }
 
-var updatedSidecarConfigDocker SidecarData = SidecarData{
-	Name:   "sidecar-updated-test",
+var dockerSidecarConfig *SidecarData = &SidecarData{
+	Name:   "tf-provider-TestAccSidecarResource-docker",
 	Labels: []string{"test2"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "docker",
 	},
-	UserEndpoint: "some.updated.docker.user.endpoint",
+	UserEndpoint:             "some.docker.user.endpoint",
+	CertificateBundleSecrets: *getTestCBS(),
 }
 
-var updatedSidecarConfigHelm SidecarData = SidecarData{
-	Name:   "sidecar-updated-test",
+var helmSidecarConfig *SidecarData = &SidecarData{
+	Name:   "tf-provider-TestAccSidecarResource-helm",
 	Labels: []string{"test3"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "helm",
 	},
-	UserEndpoint: "some.updated.helm.user.endpoint",
+	UserEndpoint:             "some.helm.user.endpoint",
+	CertificateBundleSecrets: *getTestCBS(),
 }
 
-var updatedSidecarConfigTF SidecarData = SidecarData{
-	Name:   "sidecar-updated-test",
+var tfSidecarConfig *SidecarData = &SidecarData{
+	Name:   "tf-provider-TestAccSidecarResource-tf",
 	Labels: []string{"test4"},
 	SidecarProperty: SidecarProperty{
 		DeploymentMethod: "terraform",
 	},
-	UserEndpoint: "some.updated.tf.user.endpoint",
+	UserEndpoint:             "some.tf.user.endpoint",
+	CertificateBundleSecrets: *getTestCBS(),
 }
 
 func TestAccSidecarResource(t *testing.T) {
-	testConfig, testFunc := setupSidecarTest(initialSidecarConfig)
-	testUpdateConfigDocker, testUpdateFuncDocker := setupSidecarTest(updatedSidecarConfigDocker)
-	testUpdateConfigHelm, testUpdateFuncHelm := setupSidecarTest(updatedSidecarConfigHelm)
-	testUpdateConfigTF, testUpdateFuncTF := setupSidecarTest(updatedSidecarConfigTF)
+	testConfig, testFunc := setupSidecarTest(cloudFormationSidecarConfig)
+	testUpdateConfigDocker, testUpdateFuncDocker := setupSidecarTest(dockerSidecarConfig)
+	testUpdateConfigHelm, testUpdateFuncHelm := setupSidecarTest(helmSidecarConfig)
+	testUpdateConfigTF, testUpdateFuncTF := setupSidecarTest(tfSidecarConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -72,7 +86,7 @@ func TestAccSidecarResource(t *testing.T) {
 	})
 }
 
-func setupSidecarTest(integrationData SidecarData) (string, resource.TestCheckFunc) {
+func setupSidecarTest(integrationData *SidecarData) (string, resource.TestCheckFunc) {
 	configuration := formatSidecarDataIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
@@ -83,12 +97,25 @@ func setupSidecarTest(integrationData SidecarData) (string, resource.TestCheckFu
 	return configuration, testFunction
 }
 
-func formatSidecarDataIntoConfig(data SidecarData) string {
+func formatSidecarDataIntoConfig(data *SidecarData) string {
 	return fmt.Sprintf(`
       resource "cyral_sidecar" "test_sidecar" {
       	name = "%s"
       	deployment_method = "%s"
 		labels = ["%s"]
 		user_endpoint = "%s"
-      }`, data.Name, data.SidecarProperty.DeploymentMethod, data.Labels[0], data.UserEndpoint)
+		certificate_bundle_secrets {
+			sidecar {
+				secret_id = "%s"
+				type = "%s"
+				engine = "%s"
+			}
+		}
+      }`, data.Name,
+		data.SidecarProperty.DeploymentMethod,
+		data.Labels[0],
+		data.UserEndpoint,
+		data.CertificateBundleSecrets["sidecar"].SecretId,
+		data.CertificateBundleSecrets["sidecar"].Type,
+		data.CertificateBundleSecrets["sidecar"].Engine)
 }

@@ -7,16 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var cftSidecarConfig SidecarData = SidecarData{
-	Name:   "sidecar-test",
-	Labels: []string{"test"},
-	SidecarProperty: SidecarProperty{
-		DeploymentMethod: "cloudFormation",
-	},
-}
-
 func TestAccSidecarCftTemplateDataSource(t *testing.T) {
-	cftConfig, cftFunc := setupSidecarCftTemplateTest(cftSidecarConfig)
+	cftConfig, cftFunc := setupSidecarCftTemplateTest()
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -29,9 +21,8 @@ func TestAccSidecarCftTemplateDataSource(t *testing.T) {
 	})
 }
 
-func setupSidecarCftTemplateTest(sidecarData SidecarData) (string, resource.TestCheckFunc) {
-	configuration := formatSidecarDataIntoConfig(sidecarData) +
-		formatSidecarCftTemplateDataIntoConfig()
+func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
+	configuration := formatSidecarCftTemplateDataIntoConfig()
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestMatchOutput("output_template", regexp.MustCompile(`\w+`)),
@@ -42,6 +33,12 @@ func setupSidecarCftTemplateTest(sidecarData SidecarData) (string, resource.Test
 
 func formatSidecarCftTemplateDataIntoConfig() string {
 	return `
+	resource "cyral_sidecar" "test_sidecar" {
+		name = "tf-provider-TestAccSidecarCftTemplateDataSource"
+		deployment_method = "cloudFormation"
+		labels = ["test"]
+	}
+
 	resource "cyral_integration_elk" "elk" {
 		name = "my-elk-integration"
 		kibana_url = "kibana.local"
