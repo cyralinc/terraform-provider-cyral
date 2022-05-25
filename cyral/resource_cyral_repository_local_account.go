@@ -195,6 +195,34 @@ func (resource *KubernetesSecretResource) ReadFromSchema(d *schema.ResourceData)
 	}
 }
 
+type GcpSecretManagerResource struct {
+	DatabaseName string `json:"databaseName"`
+	RepoAccount  string `json:"repoAccount"`
+	SecretName   string `json:"secretName"`
+}
+
+func (resource GcpSecretManagerResource) WriteToSchema(d *schema.ResourceData) {
+	d.Set("gcp_secret_manager", []interface{}{
+		map[string]interface{}{
+			"database_name": resource.DatabaseName,
+			"local_account": resource.RepoAccount,
+			"secret_name":   resource.SecretName,
+		},
+	})
+}
+
+func (resource *GcpSecretManagerResource) ReadFromSchema(d *schema.ResourceData) {
+	data := d.Get("gcp_secret_manager").(*schema.Set)
+
+	for _, id := range data.List() {
+		idMap := id.(map[string]interface{})
+
+		resource.DatabaseName = idMap["database_name"].(string)
+		resource.RepoAccount = idMap["local_account"].(string)
+		resource.SecretName = idMap["secret_name"].(string)
+	}
+}
+
 type CreateRepoAccountResponse struct {
 	UUID string `json:"uuid"`
 }
@@ -214,6 +242,7 @@ type RepositoryLocalAccountResource struct {
 	HashicorpVault      *HashicorpVaultResource      `json:"hashicorpVault,omitempty"`
 	EnvironmentVariable *EnvironmentVariableResource `json:"environmentVariable,omitempty"`
 	KubernetesSecret    *KubernetesSecretResource    `json:"kubernetesSecret,omitempty"`
+	GcpSecretManager    *GcpSecretManagerResource    `json:"gcpSecretManager,omitempty"`
 }
 
 func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.ResourceData) {
@@ -231,6 +260,8 @@ func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.Resour
 		repoAccount.EnvironmentVariable.WriteToSchema(d)
 	} else if repoAccount.KubernetesSecret != nil {
 		repoAccount.KubernetesSecret.WriteToSchema(d)
+	} else if repoAccount.GcpSecretManager != nil {
+		repoAccount.GcpSecretManager.WriteToSchema(d)
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema END")
@@ -261,6 +292,9 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 	} else if _, hasKubernetesSecret := d.GetOk("kubernetes_secret"); hasKubernetesSecret {
 		repoAccount.KubernetesSecret = &KubernetesSecretResource{}
 		repoAccount.KubernetesSecret.ReadFromSchema(d)
+	} else if _, hasGcpSecretManager := d.GetOk("gcp_secret_manager"); hasGcpSecretManager {
+		repoAccount.GcpSecretManager = &GcpSecretManagerResource{}
+		repoAccount.GcpSecretManager.ReadFromSchema(d)
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema END")
@@ -288,6 +322,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		"enviroment_variable", // Deprecated: should be removed in the next MAJOR release
 		"environment_variable",
 		"kubernetes_secret",
+		"gcp_secret_manager",
 	}
 
 	databaseNameDescription := "Database name that the local account corresponds to."
@@ -466,8 +501,35 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 		},
 	}
 
+	gcpSecretManagerSchema := &schema.Schema{
+		Description:  "Credential option to set the local account from GCP Secret Manager.",
+		Type:         schema.TypeSet,
+		Optional:     true,
+		ExactlyOneOf: secretManagersTypes,
+		MaxItems:     1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"database_name": {
+					Description: databaseNameDescription,
+					Type:        schema.TypeString,
+					Optional:    true,
+				},
+				"local_account": {
+					Description: localAccountDescription,
+					Type:        schema.TypeString,
+					Required:    true,
+				},
+				"secret_name": {
+					Description: "The unique identifier of the secret in GCP Secret Manager. Should obey one of the following formats: `projects/<project-name>/secrets/<secret-name>` or `projects/<project-name>/secrets/<secret-name>/versions/<version>`.",
+					Type:        schema.TypeString,
+					Required:    true,
+				},
+			},
+		},
+	}
+
 	return &schema.Resource{
-		Description: "Provides a resource to handle [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account).",
+		Description: "Manages [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "RepositoryLocalAccountResourceCreate",
@@ -530,6 +592,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 			"enviroment_variable":  &environmentVariableSchemaDeprecated,
 			"environment_variable": environmentVariableSchema,
 			"kubernetes_secret":    kubernetesSecretSchema,
+			"gcp_secret_manager":   gcpSecretManagerSchema,
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,

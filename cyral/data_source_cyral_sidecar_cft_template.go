@@ -25,21 +25,32 @@ const CloudFormationDeploymentMethod = "cloudFormation"
 
 func dataSourceSidecarCftTemplate() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the CloudFormation deployment template for a given sidecar. This data source only " +
+			"supports sidecars with `cloudFormation` deployment method. For Terraform template, use our " +
+			"`terraform-cyral-sidecar-aws` module.",
 		Read: getSidecarCftTemplate,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "Same as `sidecar_id`.",
+				Computed:    true,
+				Type:        schema.TypeString,
+			},
 			"sidecar_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "ID of the sidecar which the template will be generated.",
 			},
 			"log_integration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: "ID of the log integration that will be used by this template.",
 			},
 			"metrics_integration_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: "ID of the metrics integration that will be used by this template.",
 			},
 			"aws_configuration": {
 				Type:     schema.TypeSet,
@@ -47,21 +58,25 @@ func dataSourceSidecarCftTemplate() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"publicly_accessible": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: "Defines a public IP and an internet-facing LB if set to `true`.",
 						},
 						"key_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "",
+							Description: "Key-pair name that will be associated to the sidecar EC2 instances.",
 						},
 					},
 				},
+				Description: "AWS parameters for `cloudFormation` deployment method.",
 			},
 			"template": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Output variable with the template.",
 			},
 		},
 		Importer: &schema.ResourceImporter{

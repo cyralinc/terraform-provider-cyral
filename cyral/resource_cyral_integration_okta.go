@@ -108,6 +108,11 @@ func resourceIntegrationOkta() *schema.Resource {
 		UpdateContext:      UpdateOktaIntegration,
 		DeleteContext:      DeleteOktaIntegration,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,

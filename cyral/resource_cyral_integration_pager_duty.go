@@ -61,6 +61,7 @@ var ReadPagerDutyIntegrationConfig = ResourceOperationConfig{
 
 func resourceIntegrationPagerDuty() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "PagerDutyIntegrationResourceCreate",
@@ -102,17 +103,20 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Computed: true,
-				Type:     schema.TypeString,
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"name": {
-				Required: true,
-				Type:     schema.TypeString,
+				Description: "Integration name that will be used internally in the control plane.",
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"api_token": {
-				Required:  true,
-				Sensitive: true,
-				Type:      schema.TypeString,
+				Description: "API token for the PagerDuty integration.",
+				Required:    true,
+				Sensitive:   true,
+				Type:        schema.TypeString,
 			},
 		},
 		Importer: &schema.ResourceImporter{

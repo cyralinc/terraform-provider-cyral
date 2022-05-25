@@ -34,6 +34,7 @@ var ReadMsTeamsConfig = ResourceOperationConfig{
 
 func resourceIntegrationMsTeams() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [integration with Microsoft Teams](https://cyral.com/docs/integrations/messaging/microsoft-teams/).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "MsTeamsResourceCreate",
@@ -67,14 +68,21 @@ func resourceIntegrationMsTeams() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Integration name that will be used internally in the control plane.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"url": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Description: "Microsoft Teams webhook URL.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
