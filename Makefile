@@ -31,12 +31,13 @@ local/build:
 
 local/install: local/build
 # Store in local registry to be used by Terraform 13 and 14
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
-	cp out/darwin_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
 	cp out/darwin_arm64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	cp out/linux_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
+	cp out/darwin_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
 
 docker/test:
 	docker-compose run -e CYRAL_TF_CONTROL_PLANE=$(CYRAL_TF_CONTROL_PLANE) -e CYRAL_TF_CLIENT_ID=$(CYRAL_TF_CLIENT_ID) \
@@ -69,7 +70,7 @@ docker/clean:
 	rm -rf ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}
 
 local/test:
-	$(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race -timeout 20m
+	GOOS=darwin GOARCH=arm64 $(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race -timeout 20m
 
 docker-compose/build: docker-compose/lint
 	docker-compose build --build-arg VERSION="$(VERSION+sha)" build

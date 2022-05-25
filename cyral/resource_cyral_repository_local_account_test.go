@@ -106,6 +106,22 @@ var updatedRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 	},
 }
 
+var initialRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
+	GcpSecretManager: &GcpSecretManagerResource{
+		DatabaseName: "tf-test-db-name",
+		RepoAccount:  "tf-test-repo-account",
+		SecretName:   "projects/1234567890/secrets/my-secret/versions/1",
+	},
+}
+
+var updatedRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
+	GcpSecretManager: &GcpSecretManagerResource{
+		DatabaseName: "tf-test-db-name-updated",
+		RepoAccount:  "tf-test-repo-account-updated",
+		SecretName:   "projects/1234567890/secrets/my-secret-updated/versions/2",
+	},
+}
+
 func TestAccRepositoryLocalAccountResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -173,6 +189,27 @@ func testAccRepositoryLocalAccountConfig_MultipleSecretManagersOfSameType() stri
 		}
 	}
 	`
+}
+
+func TestAccRepositoryLocalAccountResource_GcpSecretManager(t *testing.T) {
+	testInitialConfig, testInitialCheck :=
+		setupRepositoryLocalAccountTest(initialRepoAccountConfigGcpSecretManager)
+	testUpdatedConfig, testUpdatedCheck :=
+		setupRepositoryLocalAccountTest(updatedRepoAccountConfigGcpSecretManager)
+
+	resource.Test(t, resource.TestCase{
+		ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testInitialConfig,
+				Check:  testInitialCheck,
+			},
+			{
+				Config: testUpdatedConfig,
+				Check:  testUpdatedCheck,
+			},
+		},
+	})
 }
 
 func TestAccRepositoryLocalAccountResource_KubernetesSecret(t *testing.T) {
@@ -480,6 +517,17 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.KubernetesSecret.SecretName,
 			data.KubernetesSecret.SecretKey,
 		)
+	} else if data.GcpSecretManager != nil {
+		name = "tf-test-mysql-gcp-secret-manager"
+		config = fmt.Sprintf(`gcp_secret_manager {
+			database_name = "%s"
+			local_account = "%s"
+			secret_name = "%s"
+		  }`,
+			data.GcpSecretManager.DatabaseName,
+			data.GcpSecretManager.RepoAccount,
+			data.GcpSecretManager.SecretName,
+		)
 	}
 
 	return fmt.Sprintf(RepositoryAccountTemplate, name, config)
@@ -582,6 +630,21 @@ func getTestCheckForRepositoryLocalAccountResource(
 			resource.TestCheckResourceAttr(
 				"cyral_repository_local_account.tf_test_repository_account",
 				"kubernetes_secret.0.secret_key", data.KubernetesSecret.SecretKey,
+			),
+		)
+	} else if data.GcpSecretManager != nil {
+		testCheckFunc = resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(
+				"cyral_repository_local_account.tf_test_repository_account",
+				"gcp_secret_manager.0.database_name", data.GcpSecretManager.DatabaseName,
+			),
+			resource.TestCheckResourceAttr(
+				"cyral_repository_local_account.tf_test_repository_account",
+				"gcp_secret_manager.0.local_account", data.GcpSecretManager.RepoAccount,
+			),
+			resource.TestCheckResourceAttr(
+				"cyral_repository_local_account.tf_test_repository_account",
+				"gcp_secret_manager.0.secret_name", data.GcpSecretManager.SecretName,
 			),
 		)
 	}
