@@ -32,9 +32,31 @@ resource "cyral_sidecar" "some_resource_name" {
 
 ### Optional
 
+- `certificate_bundle_secrets` (Block Set, Max: 1) Certificate Bundle Secret is a configuration that holds data about the location of a particular TLS certificate bundle in a secrets manager. (see [below for nested schema](#nestedblock--certificate_bundle_secrets))
 - `labels` (List of String) Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.
 - `user_endpoint` (String) User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.
 
 ### Read-Only
 
 - `id` (String) ID of this resource in Cyral environment
+
+<a id="nestedblock--certificate_bundle_secrets"></a>
+
+### Nested Schema for `certificate_bundle_secrets`
+
+Required:
+
+- `sidecar` (Block Set, Min: 1, Max: 1) Certificate Bundle Secret for sidecar. (see [below for nested schema](#nestedblock--certificate_bundle_secrets--sidecar))
+
+<a id="nestedblock--certificate_bundle_secrets--sidecar"></a>
+
+### Nested Schema for `certificate_bundle_secrets.sidecar`
+
+Required:
+
+- `secret_id` (String) Secret ID is the identifier or location for the secret that holds the certificate bundle.
+- `type` (String) Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.
+
+Optional:
+
+- `engine` (String) Engine is the name of the engine used with the given secrets manager type, when applicable.
