@@ -26,35 +26,50 @@ type RepoAttrs struct {
 
 func resourceDatamap() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [Data map](https://cyral.com/docs/policy#data-map).",
 		CreateContext: resourceDatamapCreate,
 		ReadContext:   resourceDatamapRead,
 		UpdateContext: resourceDatamapUpdate,
 		DeleteContext: resourceDatamapDelete,
 		Schema: map[string]*schema.Schema{
 			"last_updated": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "Timestamp of the latest update performed on the datamap.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 			},
 			"mapping": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Description: "Block that supports mapping attributes in repos to a given label.",
+				Type:        schema.TypeSet,
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"label": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "Label given to the data specified in the corresponding list .",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 						"data_location": {
-							Type:     schema.TypeSet,
-							Required: true,
+							Description: "Block to inform a data location set: repository name and attributes specification.",
+							Type:        schema.TypeSet,
+							Required:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"repo": {
+										Description: "Name of the repository containing the data as specified through the " +
+											"Cyral management console.",
 										Type:     schema.TypeString,
 										Required: true,
 									},
 									"attributes": {
+										Description: "List containing the specific locations of the data within the repo, " +
+											"following the pattern `{SCHEMA}.{TABLE}.{ATTRIBUTE}` (ex: " +
+											"`[your_schema_name.your_table_name.your_attr_name]`).\n\n" +
+											"> Note: When referencing data in Dremio repository, please include the complete " +
+											"location in `attributes`, separating spaces by dots. For example, an attribute " +
+											"`my_attr` from table `my_tbl` within space `inner_space` within space `outer_space` " +
+											"would be referenced as `outer_space.inner_space.my_tbl.my_attr`. For more information, " +
+											"please see the [Policy Guide](https://cyral.com/docs/reference/policy/).",
 										Type:     schema.TypeSet,
 										Required: true,
 										Elem: &schema.Schema{

@@ -46,6 +46,7 @@ var ReadSplunkConfig = ResourceOperationConfig{
 
 func resourceIntegrationSplunk() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [integration with Splunk](https://cyral.com/docs/integrations/siem/splunk/#procedure).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SplunkResourceCreate",
@@ -79,30 +80,41 @@ func resourceIntegrationSplunk() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Integration name that will be used internally in the control plane.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"access_token": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Description: "Splunk access token.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Description: "Splunk host port.",
+				Type:        schema.TypeInt,
+				Required:    true,
 			},
 			"host": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Splunk host.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"index": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Splunk data index name.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"use_tls": {
-				Type:     schema.TypeBool,
-				Required: true,
+				Description: "Should the communication with Splunk use TLS encryption?",
+				Type:        schema.TypeBool,
+				Required:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

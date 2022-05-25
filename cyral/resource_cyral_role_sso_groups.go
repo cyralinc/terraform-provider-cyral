@@ -32,39 +32,46 @@ type RoleSSOGroupsDeleteRequest struct {
 
 func resourceRoleSSOGroups() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [mapping SSO groups to specific roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role) on Cyral control plane. See also: [Role](./role.md).",
 		CreateContext: CreateResource(createRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
 		ReadContext:   ReadResource(readRoleSSOGroupsConfig),
 		DeleteContext: DeleteResource(deleteRoleSSOGroupsConfig),
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The ID of the role resource that will be configured.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"sso_group": {
-				Type:     schema.TypeSet,
-				Required: true,
-				ForceNew: true,
+				Description: "A block responsible for mapping an SSO group to a role.",
+				Type:        schema.TypeSet,
+				Required:    true,
+				ForceNew:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The ID of an SSO group mapping.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"group_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Description: "The name of the SSO group to be mapped.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 						},
 						"idp_id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Description: "The ID of the identity provider integration to be mapped.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 						},
 						"idp_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The name of the identity provider integration of an SSO group mapping.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},

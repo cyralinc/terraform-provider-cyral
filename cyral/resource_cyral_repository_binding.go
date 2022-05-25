@@ -27,6 +27,7 @@ type Listener struct {
 
 func resourceRepositoryBinding() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages [repositories to sidecars binding](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
 		CreateContext: resourceRepositoryBindingCreate,
 		ReadContext:   resourceRepositoryBindingRead,
 		UpdateContext: resourceRepositoryBindingUpdate,
@@ -34,33 +35,44 @@ func resourceRepositoryBinding() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Description: "Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
 			},
 			"sidecar_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the sidecar that the repository(ies) will be bound to.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"repository_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the repository that will be bound to the sidecar.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"listener_port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Description: "Port in which the sidecar will listen for the given repository.",
+				Type:        schema.TypeInt,
+				Required:    true,
 			},
 			"listener_host": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "0.0.0.0",
+				Description: "Address in which the sidecar will listen for the given repository. By default, the sidecar will listen in all interfaces.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "0.0.0.0",
 			},
 			"sidecar_as_idp_access_gateway": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Indicates whether or not the sidecar in the binding configuration is selected as the Access Gateway for Identity Provider users connecting to the underlying data repository. Defaults to `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+			},
+			"id": {
+				Description: "Computed ID for this resource (locally computed to be used in Terraform state).",
+				Computed:    true,
+				Type:        schema.TypeString,
 			},
 		},
 		Importer: &schema.ResourceImporter{

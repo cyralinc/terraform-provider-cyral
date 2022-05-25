@@ -44,42 +44,59 @@ type Identity struct {
 	Users    []string `json:"users,omitempty"`
 }
 
-func resourcePolicyRule() *schema.Resource {
-	ruleSchema := &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
+func ruleSchema(description string) *schema.Schema {
+	return &schema.Schema{
+		Description: description,
+		Type:        schema.TypeList,
+		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"additional_checks": {
+					Description: "Constraints on the data access specified in " +
+						"[Rego](https://www.openpolicyagent.org/docs/latest/policy-language/). " +
+						"See [Additional checks](https://cyral.com/docs/policy/rules/#additional-checks).",
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"data": {
-					Type:        schema.TypeList,
-					Description: "The data locations protected by this rule. Use `*` if you want to define `any` data location. For more information, see the [policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.",
-					Required:    true,
+					Type: schema.TypeList,
+					Description: "The data locations protected by this rule. " +
+						"Use `*` if you want to define `any` data location. " +
+						"For more information, see the " +
+						"[policy rules](https://cyral.com/docs/policy/rules#contexted-rules) documentation.",
+					Required: true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},
 				},
 				"dataset_rewrites": {
+					Description: "Defines how requests should be rewritten in the case of " +
+						"policy violations. See [Request rewriting](https://cyral.com/docs/policy/rules/#request-rewriting).",
 					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"dataset": {
+								Description: "The dataset that should be rewritten." +
+									"In the case of Snowflake, this denotes a fully qualified table name in the form: " +
+									"`<database>.<schema>.<table>`",
 								Type:     schema.TypeString,
 								Required: true,
 							},
 							"repo": {
-								Type:     schema.TypeString,
-								Required: true,
+								Description: "The name of the repository that the rewrite applies to.",
+								Type:        schema.TypeString,
+								Required:    true,
 							},
 							"substitution": {
-								Type:     schema.TypeString,
-								Required: true,
+								Description: "The request used to substitute references to the dataset.",
+								Type:        schema.TypeString,
+								Required:    true,
 							},
 							"parameters": {
+								Description: "The set of parameters used in the substitution request, " +
+									"these are references to fields in the activity log as described in " +
+									"the [Additional Checks section](https://cyral.com/docs/policy/rules/#additional-checks).",
 								Type:     schema.TypeList,
 								Required: true,
 								Elem: &schema.Schema{
@@ -90,11 +107,17 @@ func resourcePolicyRule() *schema.Resource {
 					},
 				},
 				"rows": {
-					Description: "How many rows can be return by the policy rule. Use positive integer numbers to define how many rows. If you want to define `any` number of rows, set as `-1`.",
-					Type:        schema.TypeInt,
-					Required:    true,
+					Description: "The number of records (for example, rows or documents) that can " +
+						"be accessed/affected in a single statement. Use positive integer " +
+						"numbers to define how many records. If you want to define `any` " +
+						"number of records, set to `-1`.",
+					Type:     schema.TypeInt,
+					Required: true,
 				},
 				"severity": {
+					Description: "severity level that's recorded when someone violate this rule. " +
+						"This is an informational value. Settings: (`low` | `medium` | `high`). " +
+						"If not specified, the severity is considered to be low.",
 					Type:     schema.TypeString,
 					Optional: true,
 					Default:  "low",
@@ -107,57 +130,75 @@ func resourcePolicyRule() *schema.Resource {
 			},
 		},
 	}
+}
 
+func resourcePolicyRule() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [policy rules](https://cyral.com/docs/reference/policy/#rules). See also: [Policy](./policy.md)" +
+			"\n\n> Notes:\n>" +
+			"\n> 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them." +
+			"\n> 2. Each contexted rule comprises these fields: `data`, `rows`, `severity` `additional_checks`, `dataset_rewrites`. The only required fields are `data` and `rows`." +
+			"\n> 3. The rules block does not need to include all three operation types (reads, updates and deletes); actions you omit are disallowed." +
+			"\n> 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address." +
+			"\n\nFor more information, see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).",
 		CreateContext: resourcePolicyRuleCreate,
 		ReadContext:   resourcePolicyRuleRead,
 		UpdateContext: resourcePolicyRuleUpdate,
 		DeleteContext: resourcePolicyRuleDelete,
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The ID of the policy you are adding this rule to.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
-			"deletes": ruleSchema,
-			"reads":   ruleSchema,
-			"updates": ruleSchema,
+			"deletes": ruleSchema("A contexted rule for accesses of the type `delete`."),
+			"reads":   ruleSchema("A contexted rule for accesses of the type `read`."),
+			"updates": ruleSchema("A contexted rule for accesses of the type `update`."),
 			"hosts": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Description: "Hosts specification that limits access to only those users connecting from a certain network location.",
+				Type:        schema.TypeList,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"identities": {
+				Description: "Identities specifies the people, applications, " +
+					"or groups this rule applies to. Every rule except your default rule has one. " +
+					"It can have 4 fields: `db_roles`, `groups`, `users` and `services`.",
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"db_roles": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Database roles that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"groups": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Groups that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"services": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Services that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"users": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Description: "Users that this rule will apply to.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

@@ -199,6 +199,7 @@ var ReadRepositoryIdentityMapConfig = ResourceOperationConfig{
 
 func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
+		Description:        "Manages [Repository Identity Maps](https://cyral.com/docs/manage-repositories/repo-id-map/) configuration.",
 		DeprecationMessage: deprecationMessage,
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
@@ -247,46 +248,60 @@ func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 			},
 		),
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"repository_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the repository that this identity will be associated to.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"repository_local_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the local account that this identity will be associated to.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"identity_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "Identity type: `user` or `group`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"identity_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "Identity name. Ex: `myusername`, `me@myemail.com`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"access_duration": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Description: "Access duration defined as a sum of days, hours, minutes and seconds. If omitted or all fields are set to zero, the access duration will be infinity.",
+				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Description: "Access duration days.",
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 						"hours": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Description: "Access duration hours.",
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 						"minutes": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Description: "Access duration minutes.",
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 						"seconds": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Description: "Access duration seconds.",
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 					},
 				},

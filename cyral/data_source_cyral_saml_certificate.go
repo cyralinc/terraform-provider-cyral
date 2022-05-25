@@ -21,6 +21,11 @@ func dataSourceSAMLCertificate() *schema.Resource {
 			ResponseData: &SAMLCertificateData{},
 		}),
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "Computed ID for this data source (locally computed to be used in Terraform state).",
+				Computed:    true,
+				Type:        schema.TypeString,
+			},
 			"certificate": {
 				Type:        schema.TypeString,
 				Computed:    true,
