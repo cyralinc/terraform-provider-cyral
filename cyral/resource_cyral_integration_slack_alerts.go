@@ -34,6 +34,7 @@ var ReadSlackAlertsConfig = ResourceOperationConfig{
 
 func resourceIntegrationSlackAlerts() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [integration with Slack to push alerts](https://cyral.com/docs/integrations/messaging/slack).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SlackAlertsResourceCreate",
@@ -67,14 +68,21 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Integration name that will be used internally in the control plane.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"url": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Description: "Slack Alert Webhook url.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

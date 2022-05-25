@@ -39,6 +39,7 @@ var ReadELKConfig = ResourceOperationConfig{
 
 func resourceIntegrationELK() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages [integration with ELK](https://cyral.com/docs/integrations/siem/elk/) to push sidecar metrics.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "ELKResourceCreate",
@@ -72,17 +73,25 @@ func resourceIntegrationELK() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Integration name that will be used internally in the control plane.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"kibana_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Kibana URL.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"es_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Elastic Search URL.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

@@ -31,8 +31,8 @@ local/build:
 
 local/install: local/build
 # Store in local registry to be used by Terraform 13 and 14
-	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
 	cp out/darwin_arm64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	cp out/linux_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
@@ -46,11 +46,14 @@ docker/test:
 docker/build:
 	docker-compose run app $(GOFMT) -w .
 	docker-compose run -e GOOS=darwin -e GOARCH=amd64 app $(GOBUILD) -o out/darwin_amd64/terraform-provider-cyral_v$(VERSION) .
+	docker-compose run -e GOOS=darwin -e GOARCH=arm64 app $(GOBUILD) -o out/darwin_arm64/terraform-provider-cyral_v$(VERSION) .
 	docker-compose run -e GOOS=linux -e GOARCH=amd64 app $(GOBUILD) -o out/linux_amd64/terraform-provider-cyral_v$(VERSION) .
 	# Store in local registry to be used by Terraform 13 and 14
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
 	cp out/darwin_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
+	cp out/darwin_arm64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_arm64
 	cp out/linux_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/linux_amd64
 
 clean: local/clean
@@ -73,3 +76,7 @@ docker-compose/build: docker-compose/lint
 
 docker-compose/lint:
 	docker-compose run lint
+
+docker-compose/docs:
+	docker-compose run app go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
+#docker-compose run build pre-commit run --show-diff-on-failure --color=always --all-files

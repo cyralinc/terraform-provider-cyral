@@ -529,7 +529,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 	}
 
 	return &schema.Resource{
-		Description: "Provides a resource to handle [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account).",
+		Description: "Manages [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "RepositoryLocalAccountResourceCreate",

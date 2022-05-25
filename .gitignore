@@ -1,5 +1,4 @@
 # Local terraform testing files
-*.tf
 .terraform
 .terraform.lock.hcl
 terraform.tfstate*
@@ -14,3 +13,6 @@ vendor/
 # IDEs
 .idea/
 __debug_bin
+
+# Documentation for depreacated resources
+docs/resources/integration_sso_*.md

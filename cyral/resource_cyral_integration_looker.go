@@ -37,6 +37,7 @@ var ReadLookerConfig = ResourceOperationConfig{
 
 func resourceIntegrationLooker() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages integration with Looker.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "LookerResourceCreate",
@@ -70,19 +71,27 @@ func resourceIntegrationLooker() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"client_id": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Description: "Looker client id.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 			"client_secret": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Description: "Looker client secret.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 			"url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Looker integration url.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

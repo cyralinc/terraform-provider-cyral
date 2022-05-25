@@ -1,0 +1,71 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+### Integration with Default Configuration
+
+```terraform
+resource "cyral_integration_idp_forgerock" "some_resource_name" {
+  samlp {
+    config {
+      single_sign_on_service_url = "some_sso_url"
+    }
+  }
+}
+```
+
+### Integration using SAML Configuration Data Source
+
+```terraform
+locals {
+  config = data.cyral_saml_configuration.some_data_source_name
+}
+
+data "cyral_saml_configuration" "some_data_source_name" {
+  saml_metadata_url = "some_metadata_url"
+}
+
+resource "cyral_integration_idp_forgerock" "some_resource_name" {
+  samlp {
+    provider_id = "saml"
+    disabled = false
+    first_broker_login_flow_alias = "SAML_First_Broker"
+    post_broker_login_flow_alias = ""
+    display_name = "Custom-Forgerock"
+    store_token = false
+    add_read_token_role_on_create = false
+    trust_email = false
+    link_only = false
+    config {
+      single_sign_on_service_url = local.config.single_sign_on_service_url
+      single_logout_service_url = local.config.single_logout_service_url == "" ? null : local.config.single_logout_service_url
+      disable_using_jwks_url = local.config.disable_using_jwks_url
+      sync_mode = local.config.sync_mode == "" ? null : local.config.sync_mode
+      name_id_policy_format = local.config.name_id_policy_format == "" ? null : local.config.name_id_policy_format
+      principal_type = local.config.principal_type == "" ? null : local.config.principal_type
+      signature_type = local.config.signature_type == "" ? null : local.config.signature_type
+      saml_xml_key_name_tranformer = local.config.saml_xml_key_name_tranformer == "" ? null : local.config.saml_xml_key_name_tranformer
+      hide_on_login_page = local.config.hide_on_login_page
+      back_channel_supported = local.config.back_channel_supported
+      disable_post_binding_response = local.config.disable_post_binding_response
+      disable_post_binding_authn_request = local.config.disable_post_binding_authn_request
+      disable_post_binding_logout = local.config.disable_post_binding_logout
+      want_assertions_encrypted = local.config.want_assertions_encrypted
+      disable_force_authentication = local.config.disable_force_authentication
+      gui_order = local.config.gui_order == "" ? null : local.config.gui_order
+      xml_sig_key_info_key_name_transformer = local.config.xml_sig_key_info_key_name_transformer == "" ? null : local.config.xml_sig_key_info_key_name_transformer
+      signing_certificate = local.config.signing_certificate == "" ? null : local.config.signing_certificate
+      allowed_clock_skew = local.config.allowed_clock_skew
+      saml_metadata_url = local.config.saml_metadata_url == "" ? null : local.config.saml_metadata_url
+      base_64_saml_metadata_document = local.config.base_64_saml_metadata_document == "" ? null : local.config.base_64_saml_metadata_document
+      ldap_group_attribute = local.config.ldap_group_attribute == "" ? null : local.config.ldap_group_attribute
+    }
+  }
+}
+```
+
+-> When using the [SAML Configuration Data Source](../data-sources/saml_configuration.md) to configure this IdP Integration resource, consider verifying if the `string` attributes are `empty` like in the example above so that the resource arguments can be used with their default values, instead of setting them as empty.
+
+{{ .SchemaMarkdown | trimspace }}

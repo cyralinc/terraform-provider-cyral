@@ -35,6 +35,7 @@ var ReadHCVaultIntegrationConfig = ResourceOperationConfig{
 
 func resourceIntegrationHCVault() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages integration with Hashicorp Vault to store secrets.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "HCVaultIntegrationResourceCreate",
@@ -68,26 +69,31 @@ func resourceIntegrationHCVault() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"auth_method": {
-				Required: true,
-				Type:     schema.TypeString,
-			},
 			"id": {
-				Computed: true,
-				Type:     schema.TypeString,
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+			"auth_method": {
+				Description: "Authentication method for the integration.",
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"auth_type": {
-				Required: true,
-				Type:     schema.TypeString,
+				Description: "Authentication type for the integration.",
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"name": {
-				Required: true,
-				Type:     schema.TypeString,
+				Description: "Integration name that will be used internally in the control plane.",
+				Required:    true,
+				Type:        schema.TypeString,
 			},
 			"server": {
-				Required:  true,
-				Sensitive: true,
-				Type:      schema.TypeString,
+				Description: "Server on which the vault service is running.",
+				Required:    true,
+				Sensitive:   true,
+				Type:        schema.TypeString,
 			},
 		},
 		Importer: &schema.ResourceImporter{

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -19,48 +20,67 @@ const (
 	EnvVarTLSSkipVerify = "CYRAL_TF_TLS_SKIP_VERIFY"
 )
 
+func init() {
+	schema.ResourceDescriptionBuilder = func(s *schema.Resource) string {
+		desc := s.Description
+		if s.DeprecationMessage != "" {
+			desc = fmt.Sprintf("**Deprecated.** %s", s.DeprecationMessage)
+		}
+		return strings.TrimSpace(desc)
+	}
+}
+
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"auth_provider": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  keycloak,
+				Description: "Auth0-based control planes are no longer supported. Use `keycloak` " +
+					"or remove the variable declaration",
+				Type:       schema.TypeString,
+				Optional:   true,
+				Default:    keycloak,
+				Deprecated: "Auth0-based control planes are no longer supported.",
 			},
 			"auth0_audience": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Auth0 audience.",
+				Type:        schema.TypeString,
+				Optional:    true,
 				RequiredWith: []string{
 					"auth0_domain",
 				},
+				Deprecated: "Auth0-based control planes are no longer supported.",
 			},
 			"auth0_domain": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Auth0 domain name.",
+				Type:        schema.TypeString,
+				Optional:    true,
 				RequiredWith: []string{
 					"auth0_audience",
 				},
+				Deprecated: "Auth0-based control planes are no longer supported.",
 			},
 			"auth0_client_id": {
+				Description:   "Auth0 client id.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_ID", nil),
 				ConflictsWith: []string{"client_id"},
-				Deprecated: fmt.Sprintf("use provider variable 'client_id' or environment variable "+
-					"'%s' instead of 'auth0_client_id'", EnvVarClientID),
+				Deprecated:    "Auth0-based control planes are no longer supported.",
 			},
 			"auth0_client_secret": {
+				Description:   "Auth0 client secret.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
 				ConflictsWith: []string{"client_secret"},
-				Deprecated: fmt.Sprintf("use provider variable 'client_secret' or environment variable "+
-					"'%s' instead of 'auth0_client_secret'", EnvVarClientSecret),
+				Deprecated:    "Auth0-based control planes are no longer supported.",
 			},
 			"client_id": {
+				Description: "Client id used to authenticate against the control plane. Can be ommited and " +
+					"declared using the environment variable `CYRAL_TF_CLIENT_ID`.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
@@ -68,6 +88,8 @@ func Provider() *schema.Provider {
 				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientID, nil),
 			},
 			"client_secret": {
+				Description: "Client secret used to authenticate against the control plane. Can be ommited and " +
+					"declared using the environment variable `CYRAL_TF_CLIENT_SECRET`.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				Sensitive:     true,
@@ -75,13 +97,19 @@ func Provider() *schema.Provider {
 				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientSecret, nil),
 			},
 			"control_plane": {
+				Description: "Control plane host and API port (ex: `some-cp.cyral.com:8000`)",
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc(EnvVarCPURL, nil),
 			},
 			"tls_skip_verify": {
-				Type:        schema.TypeBool,
-				Description: "Define the TLS verification or not to make request in control_plane",
+				Type: schema.TypeBool,
+				Description: "Specifies if the client will verify the TLS server certificate " +
+					"used by the control plane. If set to `true`, the client will not verify " +
+					"the server certificate, hence, it will allow insecure connections to be " +
+					"established. This should be set only for testing and is not recommended " +
+					"to be used in production environments. Can be set through the " +
+					"`CYRAL_TF_TLS_SKIP_VERIFY` environment variable. Defaults to `false`.",
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc(EnvVarTLSSkipVerify, nil),
 			},

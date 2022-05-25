@@ -34,6 +34,7 @@ var ReadSumoLogicConfig = ResourceOperationConfig{
 
 func resourceIntegrationSumoLogic() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages integration with [Sumo Logic to push sidecar logs](https://cyral.com/docs/integrations/siem/sumo-logic/).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SumoLogicResourceCreate",
@@ -67,14 +68,21 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "ID of this resource in Cyral environment",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Integration name that will be used internally in the control plane.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"address": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Description: "Sumo Logic address.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
