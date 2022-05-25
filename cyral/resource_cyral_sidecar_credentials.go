@@ -12,10 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type CreateSidecarCredentialsRequest struct {
-	SidecarID string `json:"sidecarId"`
-}
-
 type SidecarCredentialsData struct {
 	SidecarID    string `json:"sidecarId"`
 	ClientID     string `json:"clientId"`

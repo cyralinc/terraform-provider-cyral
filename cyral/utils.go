@@ -8,6 +8,10 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
+type CreateSidecarCredentialsRequest struct {
+	SidecarID string `json:"sidecarId"`
+}
+
 func createSidecarCredentials(c *client.Client, sidecarId string) (
 	*SidecarCredentialsData, error) {
 
