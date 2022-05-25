@@ -108,7 +108,7 @@ func resourceSidecar() *schema.Resource {
 										Required: true,
 									},
 									"type": {
-										Description: "Type identifies the secret manager used to store the secret.",
+										Description: "Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.",
 										Type:        schema.TypeString,
 										Required:    true,
 										ValidateFunc: validation.StringInSlice([]string{
