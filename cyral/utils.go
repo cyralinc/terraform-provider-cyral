@@ -32,6 +32,10 @@ func createSidecarCredentials(c *client.Client, sidecarId string) (
 	return response, nil
 }
 
-func urlQuery(key, val string) string {
-	return fmt.Sprintf("&%s=%s", key, val)
+func urlQuery(kv map[string]string) string {
+	queryStr := "?"
+	for k, v := range kv {
+		queryStr += fmt.Sprintf("&%s=%s", k, v)
+	}
+	return queryStr
 }

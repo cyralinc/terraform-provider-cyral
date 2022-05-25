@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -242,12 +241,11 @@ func getTemplateForSidecarProperties(
 
 	var url string
 	if sidecarData.SidecarProperty.DeploymentMethod == CloudFormationDeploymentMethod {
-		url = fmt.Sprintf("https://%s/deploy/cft/?", controlPlane)
-		for k, v := range sidecarTemplatePropertiesKV {
-			url += urlQuery(k, v)
-		}
+		url = fmt.Sprintf("https://%s/deploy/cft/", controlPlane)
+		url += urlQuery(sidecarTemplatePropertiesKV)
 	} else {
-		return nil, errors.New("invalid deployment method, only cloudFormation is supported")
+		return nil, fmt.Errorf("invalid deployment method, only '%s' is supported",
+			CloudFormationDeploymentMethod)
 	}
 
 	return c.DoRequest(url, http.MethodGet, nil)
