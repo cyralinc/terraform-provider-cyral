@@ -8,5 +8,6 @@ require (
 	github.com/hashicorp/terraform-plugin-docs v0.8.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.16.0
 	github.com/rickb777/date v1.17.0
+	github.com/stretchr/testify v1.7.1
 	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d // indirect
 )
