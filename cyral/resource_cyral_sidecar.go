@@ -24,7 +24,7 @@ type SidecarData struct {
 	Labels                   []string                 `json:"labels"`
 	SidecarProperty          SidecarProperty          `json:"properties"`
 	UserEndpoint             string                   `json:"userEndpoint"`
-	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets"`
+	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
 }
 
 type SidecarProperty struct {
@@ -92,14 +92,14 @@ func resourceSidecar() *schema.Resource {
 							Description: "Certificate Bundle Secret for sidecar.",
 							Type:        schema.TypeSet,
 							MaxItems:    1,
-							Optional:    true,
+							Required:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"engine": {
 										Description: "Engine is the name of the engine used with the given secrets" +
 											" manager type, when applicable.",
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"secret_id": {
 										Description: "Secret ID is the identifier or location for the secret that" +
@@ -195,7 +195,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
-	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(&response.CertificateBundleSecrets))
+	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(response.CertificateBundleSecrets))
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
 
@@ -260,46 +260,45 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 		Labels:                   sidecarDataLabels,
 		SidecarProperty:          sp,
 		UserEndpoint:             d.Get("user_endpoint").(string),
-		CertificateBundleSecrets: *cbs,
+		CertificateBundleSecrets: cbs,
 	}, nil
 }
 
-func flattenCertificateBundleSecrets(cbs *CertificateBundleSecrets) []interface{} {
+func flattenCertificateBundleSecrets(cbs CertificateBundleSecrets) []interface{} {
 	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
+	var flatCBS []interface{}
 	if cbs != nil {
-		if _, ok := (*cbs)["sidecar"]; ok {
-			flatCBS := make([]interface{}, 1)
-			cb := make(map[string]interface{})
+		cb := make(map[string]interface{})
 
-			contentCB := make([]interface{}, 0, len(*cbs))
-			for key, val := range *cbs {
-				// Ignore self-signed certificates
-				if key != "sidecar-generated-selfsigned" {
-					log.Printf("[DEBUG] key: %v", key)
-					log.Printf("[DEBUG] val: %v", val)
+		for key, val := range cbs {
+			// Ignore self-signed certificates
+			if key != "sidecar-generated-selfsigned" {
+				contentCB := make([]interface{}, 1)
 
-					contentCBMap := make(map[string]interface{})
-					contentCBMap["secret_id"] = val.SecretId
-					contentCBMap["engine"] = val.Engine
-					contentCBMap["type"] = val.Type
+				log.Printf("[DEBUG] key: %v", key)
+				log.Printf("[DEBUG] val: %v", val)
 
-					contentCB = append(contentCB, contentCBMap)
-				}
+				contentCBMap := make(map[string]interface{})
+				contentCBMap["secret_id"] = val.SecretId
+				contentCBMap["engine"] = val.Engine
+				contentCBMap["type"] = val.Type
+
+				contentCB[0] = contentCBMap
+				cb[key] = contentCB
 			}
+		}
 
-			cb["sidecar"] = contentCB
+		if len(cb) > 0 {
+			flatCBS = make([]interface{}, 1)
 			flatCBS[0] = cb
-
-			log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
-			return flatCBS
 		}
 	}
 
-	log.Printf("[DEBUG] end flattenCertificateBundleSecrets")
-	return nil
+	log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
+	return flatCBS
 }
 
-func getCertificateBundleSecret(d *schema.ResourceData) *CertificateBundleSecrets {
+func getCertificateBundleSecret(d *schema.ResourceData) CertificateBundleSecrets {
 	log.Printf("[DEBUG] Init getCertificateBundleSecret")
 	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
 	ret := make(CertificateBundleSecrets)
@@ -329,11 +328,12 @@ func getCertificateBundleSecret(d *schema.ResourceData) *CertificateBundleSecret
 		}
 	}
 
-	// If the occurence of `sidecar` does not exist, set it to an empty certificate bundle
+	// If the occurrence of `sidecar` does not exist, set it to an empty certificate bundle
+	// so that the API can remove the `sidecar` key from the persisted certificate bundle map.
 	if _, ok := ret["sidecar"]; !ok {
 		ret["sidecar"] = &CertificateBundleSecret{}
 	}
 
 	log.Printf("[DEBUG] end getCertificateBundleSecret")
-	return &ret
+	return ret
 }
