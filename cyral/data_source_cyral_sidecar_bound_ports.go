@@ -105,6 +105,9 @@ func dataSourceSidecarBoundPortsRead(
 	d.SetId(uuid.New().String())
 	d.Set("bound_ports", boundPorts)
 
+	log.Printf("[DEBUG] Sidecar bound ports: %v", boundPorts)
+	log.Printf("[DEBUG] End dataSourceSidecarBoundPortsRead")
+
 	return diag.Diagnostics{}
 }
 
