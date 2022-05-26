@@ -1,3 +1,34 @@
+## 2.6.0 (May 27, 2022)
+
+Minimum required Control Plane version: `v2.32.0`.
+
+### Bug fixes:
+
+- **Improve provider error message when auth fails**: [#210](https://github.com/cyralinc/terraform-provider-cyral/pull/210);
+- **Fix issue with sidecar resource when configured with empty labels**: [#210](https://github.com/cyralinc/terraform-provider-cyral/pull/210);
+
+### Features:
+
+- **Add Kubernetes Secret support to cyral_repository_local_account resource**: [#193](https://github.com/cyralinc/terraform-provider-cyral/pull/193);
+- **Add GCP Secret Manager support to cyral_repository_local_account resource**: [#206](https://github.com/cyralinc/terraform-provider-cyral/pull/206);
+- **Add labels argument to cyral_repository resource**: [#192](https://github.com/cyralinc/terraform-provider-cyral/pull/192);
+- **Add rate_limit argument to cyral_policy_rule resource**: [#194](https://github.com/cyralinc/terraform-provider-cyral/pull/194);
+- **Add provider optional argument tls_skip_verify to configure TLS verification**: [#204](https://github.com/cyralinc/terraform-provider-cyral/pull/204);
+- **Add certificate_bundle_secrets argument to sidecar resource to support sidecar certificate bundle secrets**: [#190](https://github.com/cyralinc/terraform-provider-cyral/pull/190);
+- **Add cyral_sidecar_bound_ports data source to retrieve sidecar ports that are bound to repositories**: [#209](https://github.com/cyralinc/terraform-provider-cyral/pull/209);
+- **Add cyral_sidecar_id data source to return sidecar ID given a sidecar name**: [#211](https://github.com/cyralinc/terraform-provider-cyral/pull/211);
+- **Add cyral_sidecar_instance_ids data source to return sidecar instance IDs**: [#212](https://github.com/cyralinc/terraform-provider-cyral/pull/212);
+
+### Deprecate:
+
+- **Deprecate enviroment_variable argument of cyral_repository_local_account resource**: [#193](https://github.com/cyralinc/terraform-provider-cyral/pull/193);
+
+### Documentation improvements:
+
+- **Update policy docs to inform how to use 'any' for rows argument**: [#201](https://github.com/cyralinc/terraform-provider-cyral/pull/201);
+- **Update policy docs to inform how to use 'any' for data argument**: [#203](https://github.com/cyralinc/terraform-provider-cyral/pull/203);
+- **Update docs to be automatically generated**: [#183](https://github.com/cyralinc/terraform-provider-cyral/pull/183);
+
 ## 2.5.2 (April 19, 2022)
 
 Minimum required Control Plane version: `v2.29.0`.
