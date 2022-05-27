@@ -105,13 +105,7 @@ func getSidecarCftTemplate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	sidecarCredentials, err := createSidecarCredentials(c, sidecarId)
-	if err != nil {
-		return fmt.Errorf("unable to create sidecar credentials: %w", err)
-	}
-
-	body, err := getTemplateForSidecarProperties(
-		sidecarData, logging, metrics, c, d, sidecarCredentials)
+	body, err := getTemplateForSidecarProperties(sidecarData, logging, metrics, c, d)
 	if err != nil {
 		return err
 	}
@@ -197,7 +191,6 @@ func getTemplateForSidecarProperties(
 	metrics *[]integrationsData,
 	c *client.Client,
 	d *schema.ResourceData,
-	sidecarCredentials *SidecarCredentialsData,
 ) ([]byte, error) {
 	controlPlane := removePortFromURL(c.ControlPlane)
 
@@ -227,8 +220,8 @@ func getTemplateForSidecarProperties(
 		"KeyName":                 keyName,
 		"SidecarName":             sidecarData.Name,
 		"ControlPlane":            controlPlane,
-		"clientId":                sidecarCredentials.ClientID,
-		"clientSecret":            sidecarCredentials.ClientSecret,
+		"clientId":                "",
+		"clientSecret":            "",
 		"VPC":                     "",
 		"PublicSubnets":           "",
 		"ELKAddress":              "",

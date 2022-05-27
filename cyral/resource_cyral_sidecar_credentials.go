@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+type CreateSidecarCredentialsRequest struct {
+	SidecarID string `json:"sidecarId"`
+}
+
 type SidecarCredentialsData struct {
 	SidecarID    string `json:"sidecarId"`
 	ClientID     string `json:"clientId"`
@@ -60,14 +64,20 @@ func resourceSidecarCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	log.Printf("[DEBUG] Init resourceSidecarCredentialsCreate")
 	c := m.(*client.Client)
 
-	sidecarId := d.Get("sidecar_id").(string)
+	payload := CreateSidecarCredentialsRequest{d.Get("sidecar_id").(string)}
 
-	response, err := createSidecarCredentials(c, sidecarId)
+	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts", c.ControlPlane)
+
+	body, err := c.DoRequest(url, http.MethodPost, payload)
 	if err != nil {
 		return createError("Unable to create sidecar credentials", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", *response)
+	response := SidecarCredentialsData{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.SetId(response.ClientID)
 	d.Set("client_id", response.ClientID)
