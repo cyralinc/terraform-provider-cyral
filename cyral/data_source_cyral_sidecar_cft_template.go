@@ -201,11 +201,11 @@ func getTemplateForSidecarProperties(
 		}
 	}
 
-	logIntegrationValue, err := logIntegration.getValue()
+	logIntegrationValue, err := logIntegration.GetValue()
 	if err != nil {
 		return nil, err
 	}
-	metricIntegrationValue, err := metricIntegration.getValue()
+	metricIntegrationValue, err := metricIntegration.GetValue()
 	if err != nil {
 		return nil, err
 	}

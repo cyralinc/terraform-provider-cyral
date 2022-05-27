@@ -28,7 +28,7 @@ func NewDefaultIntegrationsData() *IntegrationsData {
 	}
 }
 
-func (isd *IntegrationsData) getValue() (string, error) {
+func (isd *IntegrationsData) GetValue() (string, error) {
 	var err error
 	defer func() {
 		if err != nil {

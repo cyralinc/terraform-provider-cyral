@@ -25,15 +25,15 @@ func sampleSplunkIntegrationsData() *IntegrationsData {
 	}
 }
 
-func TestGetValue_Default(t *testing.T) {
+func TestIntegrationsData_GetValue_Default(t *testing.T) {
 	integrationsData := NewDefaultIntegrationsData()
 	expected := NewDefaultIntegrationsData().Value.(string)
-	actual, err := integrationsData.getValue()
+	actual, err := integrationsData.GetValue()
 	require.NoError(t, err)
 	require.Equal(t, expected, actual)
 }
 
-func TestGetValue_Splunk(t *testing.T) {
+func TestIntegrationsData_GetValue_Splunk(t *testing.T) {
 	splunkIntegrationsData := sampleSplunkIntegrationsData()
 
 	expectedBytes, err := json.Marshal(SplunkIntegration{
@@ -47,7 +47,7 @@ func TestGetValue_Splunk(t *testing.T) {
 	})
 	require.NoError(t, err)
 	expected := string(expectedBytes)
-	actual, err := splunkIntegrationsData.getValue()
+	actual, err := splunkIntegrationsData.GetValue()
 	require.NoError(t, err)
 
 	require.Equal(t, expected, actual)
