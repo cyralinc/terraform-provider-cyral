@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	u "net/url"
 	"strings"
 )
@@ -151,10 +152,14 @@ func getKeycloakToken(controlPlane, clientID, clientSecret string, client *http.
 		return TokenResponse{}, fmt.Errorf("unable execute keycloak request; err: %v", err)
 	}
 	defer res.Body.Close()
-	log.Printf("[DEBUG] body: %v", res.Body)
+	respDump, err := httputil.DumpResponse(res, true)
+	if err != nil {
+		respDump = []byte(fmt.Sprintf("unable to dump HTTP response: %s", err.Error()))
+	}
+	log.Printf("[DEBUG] body:\n%s", respDump)
 	if res.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("keycloak requisition fail. Response status code %d. Response body: %v",
-			res.StatusCode, res.Body)
+		msg := fmt.Sprintf("keycloak requisition failed. Status code %d. Response body dump:\n%s",
+			res.StatusCode, respDump)
 		return TokenResponse{}, fmt.Errorf(msg)
 	}
 

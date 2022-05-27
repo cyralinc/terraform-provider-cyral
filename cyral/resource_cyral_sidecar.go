@@ -245,10 +245,13 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	sp := SidecarProperty{
 		DeploymentMethod: deploymentMethod,
 	}
+
 	labels := d.Get("labels").([]interface{})
-	sidecarDataLabels := make([]string, len(labels))
-	for i, label := range labels {
-		sidecarDataLabels[i] = (label).(string)
+	var sidecarDataLabels []string
+	for _, labelInterface := range labels {
+		if label, ok := labelInterface.(string); ok {
+			sidecarDataLabels = append(sidecarDataLabels, label)
+		}
 	}
 
 	cbs := getCertificateBundleSecret(d)

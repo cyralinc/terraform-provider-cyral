@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -186,16 +185,20 @@ func filterIntegrationData(integrations *[]integrationsData, id string) *integra
 	}
 }
 
-func getTemplateForSidecarProperties(sidecarData *SidecarData, logging *[]integrationsData, metrics *[]integrationsData, c *client.Client, d *schema.ResourceData) ([]byte, error) {
+func getTemplateForSidecarProperties(
+	sidecarData *SidecarData,
+	logging *[]integrationsData,
+	metrics *[]integrationsData,
+	c *client.Client,
+	d *schema.ResourceData,
+) ([]byte, error) {
 	controlPlane := removePortFromURL(c.ControlPlane)
 
 	logIntegrationID := d.Get("log_integration_id").(string)
-	log := filterIntegrationData(logging, logIntegrationID)
+	logIntegration := filterIntegrationData(logging, logIntegrationID)
 
 	metricsIntegrationID := d.Get("metrics_integration_id").(string)
-	metric := filterIntegrationData(metrics, metricsIntegrationID)
-
-	var url string
+	metricIntegration := filterIntegrationData(metrics, metricsIntegrationID)
 
 	var keyName string
 	var publiclyAccessible string
@@ -212,21 +215,30 @@ func getTemplateForSidecarProperties(sidecarData *SidecarData, logging *[]integr
 		}
 	}
 
+	sidecarTemplatePropertiesKV := map[string]string{
+		"SidecarId":               d.Get("sidecar_id").(string),
+		"KeyName":                 keyName,
+		"SidecarName":             sidecarData.Name,
+		"ControlPlane":            controlPlane,
+		"clientId":                "",
+		"clientSecret":            "",
+		"VPC":                     "",
+		"PublicSubnets":           "",
+		"ELKAddress":              "",
+		"publiclyAccessible":      publiclyAccessible,
+		"logIntegrationType":      logIntegration.Type,
+		"logIntegrationValue":     logIntegration.Value,
+		"metricsIntegrationType":  metricIntegration.Type,
+		"metricsIntegrationValue": metricIntegration.Value,
+	}
+
+	var url string
 	if sidecarData.SidecarProperty.DeploymentMethod == CloudFormationDeploymentMethod {
-		url = fmt.Sprintf("https://%s/deploy/cft/?SidecarId=%s&KeyName=%s&VPC=&SidecarName=%s&ControlPlane=%s&PublicSubnets=&ELKAddress=&publiclyAccessible=%s&logIntegrationType=%s&logIntegrationValue=%s&metricsIntegrationType=%s&metricsIntegrationValue=%s&",
-			controlPlane,
-			d.Get("sidecar_id").(string),
-			keyName,
-			sidecarData.Name,
-			controlPlane,
-			publiclyAccessible,
-			log.Type,
-			log.Value,
-			metric.Type,
-			metric.Value,
-		)
+		url = fmt.Sprintf("https://%s/deploy/cft/", controlPlane)
+		url += urlQuery(sidecarTemplatePropertiesKV)
 	} else {
-		return nil, errors.New("invalid deployment method, only cloudFormation is supported")
+		return nil, fmt.Errorf("invalid deployment method, only '%s' is supported",
+			CloudFormationDeploymentMethod)
 	}
 
 	return c.DoRequest(url, http.MethodGet, nil)
