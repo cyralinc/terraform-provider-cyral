@@ -7,25 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const (
-	sampleSplunkIntegrationsDataStr = `{
-  "id": "id1",
-  "name": "name1",
-  "label": "label1",
-  "value": {
-    "name": "name1",
-    "host": "host1",
-    "hecPort": 0,
-    "accessToken": "accessToken1",
-    "index": "index1",
-    "useTLS": false,
-    "cyralActivityLogsEnabled": false
-  },
-  "type": "splunk"
-}
-`
-)
-
 func sampleSplunkIntegrationsData() *IntegrationsData {
 	return &IntegrationsData{
 		Id:    "id1",
