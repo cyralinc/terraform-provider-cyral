@@ -9,12 +9,13 @@ import (
 )
 
 type SplunkIntegration struct {
-	Name        string `json:"name"`
-	AccessToken string `json:"accessToken"`
-	Port        int    `json:"hecPort,string"`
-	Host        string `json:"host"`
-	Index       string `json:"index"`
-	UseTLS      bool   `json:"useTLS"`
+	Name                     string `json:"name"`
+	AccessToken              string `json:"accessToken"`
+	Port                     int    `json:"hecPort,string"`
+	Host                     string `json:"host"`
+	Index                    string `json:"index"`
+	UseTLS                   bool   `json:"useTLS"`
+	CyralActivityLogsEnabled bool   `json:"cyralActivityLogsEnabled"`
 }
 
 func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData) {

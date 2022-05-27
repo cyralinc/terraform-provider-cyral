@@ -12,14 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type integrationsData struct {
-	Id    string `json:"id"`
-	Label string `json:"label"`
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Value string `json:"value"`
-}
-
 const CloudFormationDeploymentMethod = "cloudFormation"
 
 func dataSourceSidecarCftTemplate() *schema.Resource {
@@ -138,7 +130,7 @@ func getSidecarData(c *client.Client, d *schema.ResourceData) (*SidecarData, err
 	return &response, nil
 }
 
-func getLogIntegrations(c *client.Client, d *schema.ResourceData) (*[]integrationsData, error) {
+func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
 	url := fmt.Sprintf("https://%s/integrations/logging/", removePortFromURL(c.ControlPlane))
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
@@ -146,15 +138,15 @@ func getLogIntegrations(c *client.Client, d *schema.ResourceData) (*[]integratio
 		return nil, err
 	}
 
-	response := []integrationsData{}
+	response := []IntegrationsData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, nil
 }
 
-func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) (*[]integrationsData, error) {
+func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
 	url := fmt.Sprintf("https://%s/integrations/metrics", removePortFromURL(c.ControlPlane))
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
@@ -162,33 +154,27 @@ func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) (*[]integr
 		return nil, err
 	}
 
-	response := []integrationsData{}
+	response := []IntegrationsData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, nil
 }
 
-func filterIntegrationData(integrations *[]integrationsData, id string) *integrationsData {
-	for _, it := range *integrations {
+func filterIntegrationData(integrations []IntegrationsData, id string) *IntegrationsData {
+	for _, it := range integrations {
 		if it.Id == id {
 			return &it
 		}
 	}
-	return &integrationsData{
-		Id:    "id",
-		Type:  "default",
-		Value: "default",
-		Name:  "default",
-		Label: "default",
-	}
+	return NewDefaultIntegrationsData()
 }
 
 func getTemplateForSidecarProperties(
 	sidecarData *SidecarData,
-	logging *[]integrationsData,
-	metrics *[]integrationsData,
+	logging []IntegrationsData,
+	metrics []IntegrationsData,
 	c *client.Client,
 	d *schema.ResourceData,
 ) ([]byte, error) {
@@ -215,6 +201,15 @@ func getTemplateForSidecarProperties(
 		}
 	}
 
+	logIntegrationValue, err := logIntegration.GetValue()
+	if err != nil {
+		return nil, err
+	}
+	metricIntegrationValue, err := metricIntegration.GetValue()
+	if err != nil {
+		return nil, err
+	}
+
 	sidecarTemplatePropertiesKV := map[string]string{
 		"SidecarId":               d.Get("sidecar_id").(string),
 		"KeyName":                 keyName,
@@ -227,9 +222,9 @@ func getTemplateForSidecarProperties(
 		"ELKAddress":              "",
 		"publiclyAccessible":      publiclyAccessible,
 		"logIntegrationType":      logIntegration.Type,
-		"logIntegrationValue":     logIntegration.Value,
+		"logIntegrationValue":     logIntegrationValue,
 		"metricsIntegrationType":  metricIntegration.Type,
-		"metricsIntegrationValue": metricIntegration.Value,
+		"metricsIntegrationValue": metricIntegrationValue,
 	}
 
 	var url string
