@@ -1,3 +1,10 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+```terraform
 data "cyral_sidecar_cft_template" "some_data_source_name" {
     sidecar_id = cyral_sidecar.SOME_SIDECAR_RESOURCE_NAME.id
     log_integration_id = SOME_CYRAL_INTEGRATION.SOME_INTEGRATION_NAME.id
@@ -7,3 +14,8 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
         key_name = "some-ec2-key-name"
     }
 }
+```
+
+-> To configure credentials for the parameters `SidecarClientID` and `SidecarClientSecret` of the template, see the [Sidecar Credentials Resource](../resources/sidecar_credentials.md).
+
+{{ .SchemaMarkdown | trimspace }}
