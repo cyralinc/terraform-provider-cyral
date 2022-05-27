@@ -25,7 +25,6 @@ func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData) {
 	d.Set("host", data.Host)
 	d.Set("index", data.Index)
 	d.Set("use_tls", data.UseTLS)
-	// d.Set("cyral_activity_logs_enabled", data.CyralActivityLogsEnabled)
 }
 
 func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) {
@@ -35,7 +34,6 @@ func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) {
 	data.Host = d.Get("host").(string)
 	data.Index = d.Get("index").(string)
 	data.UseTLS = d.Get("use_tls").(bool)
-	// data.CyralActivityLogsEnabled = d.Get("cyral_activity_logs_enabled").(bool)
 }
 
 var ReadSplunkConfig = ResourceOperationConfig{
@@ -119,12 +117,6 @@ func resourceIntegrationSplunk() *schema.Resource {
 				Type:        schema.TypeBool,
 				Required:    true,
 			},
-			/* "cyral_activity_logs_enabled": {
-				Description: "Should enable Cyral activity logs.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-			}, */
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
