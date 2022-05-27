@@ -46,6 +46,7 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 - `id` (String) Same as `sidecar_id`.
 
 <a id="nestedblock--aws_configuration"></a>
+
 ### Nested Schema for `aws_configuration`
 
 Required:
