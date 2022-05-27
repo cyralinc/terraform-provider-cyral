@@ -120,6 +120,7 @@ func Provider() *schema.Provider {
 			"cyral_sidecar_bound_ports":  dataSourceSidecarBoundPorts(),
 			"cyral_sidecar_cft_template": dataSourceSidecarCftTemplate(),
 			"cyral_sidecar_id":           dataSourceSidecarID(),
+			"cyral_sidecar_instance_ids": dataSourceSidecarInstanceIDs(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
