@@ -10,7 +10,7 @@ const (
 	integrationTypeSplunk = "splunk"
 )
 
-type integrationsData struct {
+type IntegrationsData struct {
 	Id    string      `json:"id"`
 	Type  string      `json:"type"`
 	Name  string      `json:"name"`
@@ -18,8 +18,8 @@ type integrationsData struct {
 	Value interface{} `json:"value"`
 }
 
-func newDefaultIntegrationsData() *integrationsData {
-	return &integrationsData{
+func NewDefaultIntegrationsData() *IntegrationsData {
+	return &IntegrationsData{
 		Id:    "id",
 		Type:  "default",
 		Name:  "default",
@@ -28,7 +28,7 @@ func newDefaultIntegrationsData() *integrationsData {
 	}
 }
 
-func (isd *integrationsData) getValue() (string, error) {
+func (isd *IntegrationsData) getValue() (string, error) {
 	var err error
 	defer func() {
 		if err != nil {

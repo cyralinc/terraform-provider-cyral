@@ -130,7 +130,7 @@ func getSidecarData(c *client.Client, d *schema.ResourceData) (*SidecarData, err
 	return &response, nil
 }
 
-func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]integrationsData, error) {
+func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
 	url := fmt.Sprintf("https://%s/integrations/logging/", removePortFromURL(c.ControlPlane))
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
@@ -138,7 +138,7 @@ func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]integration
 		return nil, err
 	}
 
-	response := []integrationsData{}
+	response := []IntegrationsData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]integration
 	return response, nil
 }
 
-func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) ([]integrationsData, error) {
+func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
 	url := fmt.Sprintf("https://%s/integrations/metrics", removePortFromURL(c.ControlPlane))
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
@@ -154,7 +154,7 @@ func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) ([]integra
 		return nil, err
 	}
 
-	response := []integrationsData{}
+	response := []IntegrationsData{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, err
 	}
@@ -162,19 +162,19 @@ func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) ([]integra
 	return response, nil
 }
 
-func filterIntegrationData(integrations []integrationsData, id string) *integrationsData {
+func filterIntegrationData(integrations []IntegrationsData, id string) *IntegrationsData {
 	for _, it := range integrations {
 		if it.Id == id {
 			return &it
 		}
 	}
-	return newDefaultIntegrationsData()
+	return NewDefaultIntegrationsData()
 }
 
 func getTemplateForSidecarProperties(
 	sidecarData *SidecarData,
-	logging []integrationsData,
-	metrics []integrationsData,
+	logging []IntegrationsData,
+	metrics []IntegrationsData,
 	c *client.Client,
 	d *schema.ResourceData,
 ) ([]byte, error) {
