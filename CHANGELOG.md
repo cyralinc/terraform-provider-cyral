@@ -6,6 +6,7 @@ Minimum required Control Plane version: `v2.32.0`.
 
 - **Improve provider error message when auth fails**: [#210](https://github.com/cyralinc/terraform-provider-cyral/pull/210);
 - **Fix issue with sidecar resource when configured with empty labels**: [#210](https://github.com/cyralinc/terraform-provider-cyral/pull/210);
+- **Fix bug where cyral_sidecar_cft_template data source was crashing when configured with Splunk log integrations**: [#215](https://github.com/cyralinc/terraform-provider-cyral/pull/215);
 
 ### Features:
 
