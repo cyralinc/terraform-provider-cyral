@@ -1,3 +1,11 @@
+## 2.6.1 (May 31, 2022)
+
+Minimum required Control Plane version: `v2.32.0`.
+
+### Documentation:
+
+- **Fix broken links in documentation**: [#216](https://github.com/cyralinc/terraform-provider-cyral/pull/216);
+
 ## 2.6.0 (May 27, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
@@ -24,7 +32,7 @@ Minimum required Control Plane version: `v2.32.0`.
 
 - **Deprecate enviroment_variable argument of cyral_repository_local_account resource**: [#193](https://github.com/cyralinc/terraform-provider-cyral/pull/193);
 
-### Documentation improvements:
+### Documentation:
 
 - **Update policy docs to inform how to use 'any' for rows argument**: [#201](https://github.com/cyralinc/terraform-provider-cyral/pull/201);
 - **Update policy docs to inform how to use 'any' for data argument**: [#203](https://github.com/cyralinc/terraform-provider-cyral/pull/203);
@@ -71,7 +79,7 @@ Minimum required Control Plane version: `v2.25.3`.
 
 - **Added denodo to the validValues map**: [#169](https://github.com/cyralinc/terraform-provider-cyral/pull/169);
 
-### Documentation improvements:
+### Documentation:
 
 - **Change cyral_repository to cyral_sidecar for the sidecar_id**: [#165](https://github.com/cyralinc/terraform-provider-cyral/pull/165);
 
@@ -91,7 +99,7 @@ Minimum required Control Plane version: `v2.25.3`.
 
 Minimum required Control Plane version: `v2.25.3`.
 
-### Documentation improvements:
+### Documentation:
 
 - **Guide for setting up CP and deploy a sidecar**: [#156](https://github.com/cyralinc/terraform-provider-cyral/pull/156);
 
@@ -108,7 +116,7 @@ Minimum required Control Plane version: `v2.25.3`.
 
 Minimum required Control Plane version: `v2.25.3`.
 
-### Documentation improvements:
+### Documentation:
 
 - **Remove wrong 'okta' reference**: [#135](https://github.com/cyralinc/terraform-provider-cyral/pull/135);
 - **Update examples to use for_each instead of count**: [#137](https://github.com/cyralinc/terraform-provider-cyral/pull/137);
