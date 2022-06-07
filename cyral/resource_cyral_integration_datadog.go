@@ -14,15 +14,17 @@ type DatadogIntegration struct {
 	APIKey string `json:"apiKey"`
 }
 
-func (data DatadogIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data DatadogIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("api_key", data.APIKey)
+	return nil
 }
 
-func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.ID = d.Id()
 	data.Name = d.Get("name").(string)
 	data.APIKey = d.Get("api_key").(string)
+	return nil
 }
 
 var ReadDatadogConfig = ResourceOperationConfig{
@@ -31,7 +33,7 @@ var ReadDatadogConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &DatadogIntegration{},
+	NewResponseData: func() ResponseData { return new(DatadogIntegration) },
 }
 
 func resourceIntegrationDatadog() *schema.Resource {
@@ -45,8 +47,8 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
-				ResourceData: &DatadogIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return new(DatadogIntegration) },
+				NewResponseData: func() ResponseData { return new(IDBasedResponse) },
 			}, ReadDatadogConfig,
 		),
 		ReadContext: ReadResource(ReadDatadogConfig),
@@ -57,7 +59,7 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &DatadogIntegration{},
+				NewResourceData: func() ResourceData { return new(DatadogIntegration) },
 			}, ReadDatadogConfig,
 		),
 		DeleteContext: DeleteResource(
