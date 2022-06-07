@@ -1,3 +1,11 @@
+## 2.6.2 (June 6, 2022)
+
+Minimum required Control Plane version: `v2.32.0`.
+
+### Documentation:
+
+- **Fix repository name for IdP Okta module**: [#220](https://github.com/cyralinc/terraform-provider-cyral/pull/220);
+
 ## 2.6.1 (May 31, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
