@@ -20,9 +20,9 @@ const (
 
 type URLCreatorFunc = func(d *schema.ResourceData, c *client.Client) string
 
-type NewResourceData func(d *schema.ResourceData) (interface{}, error)
+type NewResourceDataFunc func(d *schema.ResourceData) (interface{}, error)
 
-type NewResponseData func() ResponseData
+type NewResponseDataFunc func() ResponseData
 
 type ResponseData interface {
 	WriteToSchema(d *schema.ResourceData) error
@@ -32,8 +32,8 @@ type ResourceOperationConfig struct {
 	Name            string
 	HttpMethod      string
 	CreateURL       URLCreatorFunc
-	NewResourceData NewResourceData
-	NewResponseData NewResponseData
+	NewResourceData NewResourceDataFunc
+	NewResponseData NewResponseDataFunc
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
@@ -110,6 +110,10 @@ func HandleRequest(
 
 type IDBasedResponse struct {
 	ID string `json:"id"`
+}
+
+func NewIDBasedResponse() ResponseData {
+	return new(IDBasedResponse)
 }
 
 func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData) error {

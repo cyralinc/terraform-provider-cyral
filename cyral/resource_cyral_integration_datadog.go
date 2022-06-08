@@ -14,7 +14,7 @@ type DatadogIntegration struct {
 	APIKey string `json:"apiKey"`
 }
 
-func NewDatadogIntegration(d *schema.ResourceData) (interface{}, error) {
+func NewDatadogIntegrationFromSchema(d *schema.ResourceData) (interface{}, error) {
 	return &DatadogIntegration{
 		ID:     d.Id(),
 		Name:   d.Get("name").(string),
@@ -48,8 +48,8 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
-				NewResourceData: NewDatadogIntegration,
-				NewResponseData: func() ResponseData { return new(IDBasedResponse) },
+				NewResourceData: NewDatadogIntegrationFromSchema,
+				NewResponseData: NewIDBasedResponse,
 			}, ReadDatadogConfig,
 		),
 		ReadContext: ReadResource(ReadDatadogConfig),
@@ -60,7 +60,7 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: NewDatadogIntegration,
+				NewResourceData: NewDatadogIntegrationFromSchema,
 			}, ReadDatadogConfig,
 		),
 		DeleteContext: DeleteResource(
