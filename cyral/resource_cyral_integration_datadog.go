@@ -14,17 +14,16 @@ type DatadogIntegration struct {
 	APIKey string `json:"apiKey"`
 }
 
-func NewDatadogIntegrationFromSchema(d *schema.ResourceData) (interface{}, error) {
-	return &DatadogIntegration{
-		ID:     d.Id(),
-		Name:   d.Get("name").(string),
-		APIKey: d.Get("api_key").(string),
-	}, nil
-}
-
 func (data DatadogIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("api_key", data.APIKey)
+	return nil
+}
+
+func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) error {
+	data.ID = d.Id()
+	data.Name = d.Get("name").(string)
+	data.APIKey = d.Get("api_key").(string)
 	return nil
 }
 
@@ -34,7 +33,7 @@ var ReadDatadogConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return new(DatadogIntegration) },
+	NewResponseData: func() ResponseData { return &DatadogIntegration{} },
 }
 
 func resourceIntegrationDatadog() *schema.Resource {
@@ -48,8 +47,8 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
-				NewResourceData: NewDatadogIntegrationFromSchema,
-				NewResponseData: NewIDBasedResponse,
+				NewResourceData: func() ResourceData { return &DatadogIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadDatadogConfig,
 		),
 		ReadContext: ReadResource(ReadDatadogConfig),
@@ -60,7 +59,7 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: NewDatadogIntegrationFromSchema,
+				NewResourceData: func() ResourceData { return &DatadogIntegration{} },
 			}, ReadDatadogConfig,
 		),
 		DeleteContext: DeleteResource(
