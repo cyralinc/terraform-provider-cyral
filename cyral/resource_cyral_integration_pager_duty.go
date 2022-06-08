@@ -10,7 +10,7 @@ import (
 )
 
 // WriteToSchema writes the pager duty information contained in a PagerDutyIntegration to the TF schema
-func (data PagerDutyIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data PagerDutyIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("id", data.ID)
 	d.Set("name", data.Name)
 
@@ -25,10 +25,12 @@ func (data PagerDutyIntegration) WriteToSchema(d *schema.ResourceData) {
 	}
 
 	d.Set("api_token", token.APIToken)
+
+	return nil
 }
 
 // ReadFromSchema reads the pager duty information from a given schema
-func (data *PagerDutyIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *PagerDutyIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.ID = d.Get("id").(string)
 	data.Name = d.Get("name").(string)
 
@@ -44,6 +46,8 @@ func (data *PagerDutyIntegration) ReadFromSchema(d *schema.ResourceData) {
 	// API information for typing
 	data.TemplateType = "pagerduty"
 	data.Category = "builtin"
+
+	return nil
 }
 
 // ReadPagerDutyIntegrationConfig is the configuration to read from a pager duty resource contained in a Control Plane
@@ -56,7 +60,7 @@ var ReadPagerDutyIntegrationConfig = ResourceOperationConfig{
 			c.ControlPlane, d.Id(),
 		)
 	},
-	ResponseData: &PagerDutyIntegration{},
+	NewResponseData: func() ResponseData { return &PagerDutyIntegration{} },
 }
 
 func resourceIntegrationPagerDuty() *schema.Resource {
@@ -71,8 +75,8 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 						"https://%s/v1/integrations/confExtensions/instances", c.ControlPlane,
 					)
 				},
-				ResourceData: &PagerDutyIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &PagerDutyIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadPagerDutyIntegrationConfig,
 		),
 		ReadContext: ReadResource(ReadPagerDutyIntegrationConfig),
@@ -85,7 +89,7 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 						"https://%s/v1/integrations/confExtensions/instances/%s", c.ControlPlane, d.Id(),
 					)
 				},
-				ResourceData: &PagerDutyIntegration{},
+				NewResourceData: func() ResourceData { return &PagerDutyIntegration{} },
 			}, ReadPagerDutyIntegrationConfig,
 		),
 		DeleteContext: DeleteResource(

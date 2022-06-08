@@ -112,10 +112,6 @@ type IDBasedResponse struct {
 	ID string `json:"id"`
 }
 
-func NewIDBasedResponse() ResponseData {
-	return new(IDBasedResponse)
-}
-
 func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(response.ID)
 	return nil

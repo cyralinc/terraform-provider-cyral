@@ -18,22 +18,24 @@ type SplunkIntegration struct {
 	CyralActivityLogsEnabled bool   `json:"cyralActivityLogsEnabled"`
 }
 
-func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("access_token", data.AccessToken)
 	d.Set("port", data.Port)
 	d.Set("host", data.Host)
 	d.Set("index", data.Index)
 	d.Set("use_tls", data.UseTLS)
+	return nil
 }
 
-func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.AccessToken = d.Get("access_token").(string)
 	data.Port = d.Get("port").(int)
 	data.Host = d.Get("host").(string)
 	data.Index = d.Get("index").(string)
 	data.UseTLS = d.Get("use_tls").(bool)
+	return nil
 }
 
 var ReadSplunkConfig = ResourceOperationConfig{
@@ -42,7 +44,7 @@ var ReadSplunkConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &SplunkIntegration{},
+	NewResponseData: func() ResponseData { return &SplunkIntegration{} },
 }
 
 func resourceIntegrationSplunk() *schema.Resource {
@@ -55,8 +57,8 @@ func resourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
 				},
-				ResourceData: &SplunkIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &SplunkIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadSplunkConfig,
 		),
 		ReadContext: ReadResource(ReadSplunkConfig),
@@ -67,7 +69,7 @@ func resourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SplunkIntegration{},
+				NewResourceData: func() ResourceData { return &SplunkIntegration{} },
 			}, ReadSplunkConfig,
 		),
 		DeleteContext: DeleteResource(

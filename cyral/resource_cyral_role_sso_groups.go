@@ -90,8 +90,8 @@ var createRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	ResourceData: &RoleSSOGroupsCreateRequest{},
-	ResponseData: &RoleSSOGroupsCreateRequest{},
+	NewResourceData: func() ResourceData { return &RoleSSOGroupsCreateRequest{} },
+	NewResponseData: func() ResponseData { return &RoleSSOGroupsCreateRequest{} },
 }
 
 var readRoleSSOGroupsConfig = ResourceOperationConfig{
@@ -101,7 +101,7 @@ var readRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	ResponseData: &RoleSSOGroupsReadResponse{},
+	NewResponseData: func() ResponseData { return &RoleSSOGroupsReadResponse{} },
 }
 
 var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
@@ -111,14 +111,15 @@ var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	ResourceData: &RoleSSOGroupsDeleteRequest{},
+	NewResourceData: func() ResourceData { return &RoleSSOGroupsDeleteRequest{} },
 }
 
-func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) {
+func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(fmt.Sprintf("%s/SSOGroups", d.Get("role_id")))
+	return nil
 }
 
-func (data *RoleSSOGroupsCreateRequest) ReadFromSchema(d *schema.ResourceData) {
+func (data *RoleSSOGroupsCreateRequest) ReadFromSchema(d *schema.ResourceData) error {
 	var SSOGroupsMappings []*SSOGroup
 
 	if ssoGroups, ok := d.GetOk("sso_group"); ok {
@@ -135,13 +136,15 @@ func (data *RoleSSOGroupsCreateRequest) ReadFromSchema(d *schema.ResourceData) {
 	}
 
 	data.SSOGroupsMappings = SSOGroupsMappings
+
+	return nil
 }
 
 func (data RoleSSOGroupsCreateRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(data.SSOGroupsMappings)
 }
 
-func (data RoleSSOGroupsReadResponse) WriteToSchema(d *schema.ResourceData) {
+func (data RoleSSOGroupsReadResponse) WriteToSchema(d *schema.ResourceData) error {
 	var flatSSOGroupsMappings []interface{}
 
 	for _, ssoGroup := range data.SSOGroupsMappings {
@@ -155,13 +158,11 @@ func (data RoleSSOGroupsReadResponse) WriteToSchema(d *schema.ResourceData) {
 	}
 
 	d.Set("sso_group", flatSSOGroupsMappings)
+
+	return nil
 }
 
-func (data *RoleSSOGroupsReadResponse) ReadFromSchema(d *schema.ResourceData) {}
-
-func (data RoleSSOGroupsDeleteRequest) WriteToSchema(d *schema.ResourceData) {}
-
-func (data *RoleSSOGroupsDeleteRequest) ReadFromSchema(d *schema.ResourceData) {
+func (data *RoleSSOGroupsDeleteRequest) ReadFromSchema(d *schema.ResourceData) error {
 	var SSOGroupsMappingsIds []string
 
 	if ssoGroups, ok := d.GetOk("sso_group"); ok {
@@ -175,6 +176,8 @@ func (data *RoleSSOGroupsDeleteRequest) ReadFromSchema(d *schema.ResourceData) {
 	}
 
 	data.SSOGroupsMappingsIds = SSOGroupsMappingsIds
+
+	return nil
 }
 
 func (data RoleSSOGroupsDeleteRequest) MarshalJSON() ([]byte, error) {

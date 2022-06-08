@@ -15,17 +15,19 @@ type ELKIntegration struct {
 	ESURL     string `json:"esUrl"`
 }
 
-func (data ELKIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data ELKIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("kibana_url", data.KibanaURL)
 	d.Set("es_url", data.ESURL)
+	return nil
 }
 
-func (data *ELKIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *ELKIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.ID = d.Id()
 	data.Name = d.Get("name").(string)
 	data.KibanaURL = d.Get("kibana_url").(string)
 	data.ESURL = d.Get("es_url").(string)
+	return nil
 }
 
 var ReadELKConfig = ResourceOperationConfig{
@@ -34,7 +36,7 @@ var ReadELKConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &ELKIntegration{},
+	NewResponseData: func() ResponseData { return &ELKIntegration{} },
 }
 
 func resourceIntegrationELK() *schema.Resource {
@@ -47,8 +49,8 @@ func resourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
 				},
-				ResourceData: &ELKIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &ELKIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadELKConfig,
 		),
 		ReadContext: ReadResource(ReadELKConfig),
@@ -59,7 +61,7 @@ func resourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &ELKIntegration{},
+				NewResourceData: func() ResourceData { return &ELKIntegration{} },
 			}, ReadELKConfig,
 		),
 		DeleteContext: DeleteResource(

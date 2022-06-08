@@ -14,16 +14,18 @@ type LookerIntegration struct {
 	URL          string `json:"url"`
 }
 
-func (data LookerIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data LookerIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("client_secret", data.ClientSecret)
 	d.Set("client_id", data.ClientId)
 	d.Set("url", data.URL)
+	return nil
 }
 
-func (data *LookerIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *LookerIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.ClientSecret = d.Get("client_secret").(string)
 	data.ClientId = d.Get("client_id").(string)
 	data.URL = d.Get("url").(string)
+	return nil
 }
 
 var ReadLookerConfig = ResourceOperationConfig{
@@ -32,7 +34,7 @@ var ReadLookerConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &LookerIntegration{},
+	NewResponseData: func() ResponseData { return &LookerIntegration{} },
 }
 
 func resourceIntegrationLooker() *schema.Resource {
@@ -45,8 +47,8 @@ func resourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 				},
-				ResourceData: &LookerIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &LookerIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadLookerConfig,
 		),
 		ReadContext: ReadResource(ReadLookerConfig),
@@ -57,7 +59,7 @@ func resourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &LookerIntegration{},
+				NewResourceData: func() ResourceData { return &LookerIntegration{} },
 			}, ReadLookerConfig,
 		),
 		DeleteContext: DeleteResource(

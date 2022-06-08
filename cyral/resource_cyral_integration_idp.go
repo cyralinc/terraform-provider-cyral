@@ -268,12 +268,14 @@ func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextF
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
 				},
-				ResourceData: &SAMLIntegrationData{
-					SAMLSetting: &SAMLSetting{
-						IdentityProvider: identityProvider,
-					},
+				NewResourceData: func() ResourceData {
+					return &SAMLIntegrationData{
+						SAMLSetting: &SAMLSetting{
+							IdentityProvider: identityProvider,
+						},
+					}
 				},
-				ResponseData: &AliasBasedResponse{},
+				NewResponseData: func() ResponseData { return &AliasBasedResponse{} },
 			}, readIntegrationIdPConfig,
 		)(ctx, d, m)
 
@@ -285,8 +287,8 @@ func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextF
 					CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 						return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 					},
-					ResourceData: &IdentityProviderData{},
-					ResponseData: &IdentityProviderData{},
+					NewResourceData: func() ResourceData { return &IdentityProviderData{} },
+					NewResponseData: func() ResponseData { return &IdentityProviderData{} },
 				}, readIdentityProviderConfig,
 			)(ctx, d, m)
 
@@ -319,10 +321,12 @@ func resourceIntegrationIdPUpdate(identityProvider string) schema.UpdateContextF
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SAMLIntegrationData{
-					SAMLSetting: &SAMLSetting{
-						IdentityProvider: identityProvider,
-					},
+				NewResourceData: func() ResourceData {
+					return &SAMLIntegrationData{
+						SAMLSetting: &SAMLSetting{
+							IdentityProvider: identityProvider,
+						},
+					}
 				},
 			}, readIntegrationIdPConfig,
 		)(ctx, d, m)
@@ -355,7 +359,7 @@ var readIntegrationIdPConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &SAMLIntegrationData{},
+	NewResponseData: func() ResponseData { return &SAMLIntegrationData{} },
 }
 
 var readIdentityProviderConfig = ResourceOperationConfig{
@@ -364,7 +368,7 @@ var readIdentityProviderConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &IdentityProviderData{},
+	NewResponseData: func() ResponseData { return &IdentityProviderData{} },
 }
 
 var deleteIntegrationIdPConfig = ResourceOperationConfig{
@@ -447,7 +451,7 @@ func idpDefaultValues(identityProvider, fieldName string) interface{} {
 	return defaultValuesMap[fieldName]
 }
 
-func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
+func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) error {
 	samlSetting := data.SAMLSetting
 	samlp := make([]interface{}, 0, 1)
 	if samlSetting.Samlp != nil {
@@ -494,9 +498,11 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) {
 		samlp = append(samlp, samlpMap)
 	}
 	d.Set("samlp", samlp)
+
+	return nil
 }
 
-func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) {
+func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) error {
 	samlp := new(IdentityProviderConfig)
 	for _, samlpMap := range d.Get("samlp").(*schema.Set).List() {
 		samlpMap := samlpMap.(map[string]interface{})
@@ -542,6 +548,8 @@ func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) {
 
 	data.SAMLSetting.LdapGroupAttribute = samlp.Config.LdapGroupAttribute
 	data.SAMLSetting.Samlp = samlp
+
+	return nil
 }
 
 func (resource SAMLIntegrationData) MarshalJSON() ([]byte, error) {
@@ -552,11 +560,10 @@ type AliasBasedResponse struct {
 	Alias string `json:"alias"`
 }
 
-func (response AliasBasedResponse) WriteToSchema(d *schema.ResourceData) {
+func (response AliasBasedResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(response.Alias)
+	return nil
 }
-
-func (response *AliasBasedResponse) ReadFromSchema(d *schema.ResourceData) {}
 
 type KeycloakProvider struct{}
 
@@ -564,6 +571,10 @@ type IdentityProviderData struct {
 	Keycloak KeycloakProvider `json:"keycloakProvider"`
 }
 
-func (data IdentityProviderData) WriteToSchema(d *schema.ResourceData) {}
+func (data IdentityProviderData) WriteToSchema(d *schema.ResourceData) error {
+	return nil
+}
 
-func (data *IdentityProviderData) ReadFromSchema(d *schema.ResourceData) {}
+func (data *IdentityProviderData) ReadFromSchema(d *schema.ResourceData) error {
+	return nil
+}

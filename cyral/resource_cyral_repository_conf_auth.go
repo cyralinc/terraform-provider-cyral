@@ -17,7 +17,7 @@ type RepositoryConfAuthData struct {
 	RepoTLS          string  `json:"repoTLS"`
 }
 
-func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) {
+func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
 	if data.RepoID != nil {
 		d.Set("repository_id", data.RepoID)
 	}
@@ -37,9 +37,11 @@ func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) {
 	}
 
 	d.Set("repo_tls", data.RepoTLS)
+
+	return nil
 }
 
-func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) {
+func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) error {
 	if repoIdData, hasRepoId := d.GetOk("repository_id"); hasRepoId {
 		repoId := repoIdData.(string)
 		data.RepoID = &repoId
@@ -49,6 +51,8 @@ func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) {
 	data.ClientTLS = d.Get("client_tls").(string)
 	data.IdentityProvider = d.Get("identity_provider").(string)
 	data.RepoTLS = d.Get("repo_tls").(string)
+
+	return nil
 }
 
 func (data RepositoryConfAuthData) isClientTLSValid() error {
@@ -67,22 +71,18 @@ func (data RepositoryConfAuthData) isRepoTLSValid() error {
 
 type CreateRepositoryConfAuthResponse struct{}
 
-func (data CreateRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData) {
+func (data CreateRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId("repo-conf")
+	return nil
 }
-
-func (data *CreateRepositoryConfAuthResponse) ReadFromSchema(d *schema.ResourceData) {}
 
 type ReadRepositoryConfAuthResponse struct {
 	AuthInfo RepositoryConfAuthData `json:"authInfo"`
 }
 
-func (data ReadRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData) {
+func (data ReadRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData) error {
 	data.AuthInfo.WriteToSchema(d)
-}
-
-func (data *ReadRepositoryConfAuthResponse) ReadFromSchema(d *schema.ResourceData) {
-	data.AuthInfo.ReadFromSchema(d)
+	return nil
 }
 
 var ReadConfAuthConfig = ResourceOperationConfig{
@@ -91,7 +91,7 @@ var ReadConfAuthConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
 	},
-	ResponseData: &ReadRepositoryConfAuthResponse{},
+	NewResponseData: func() ResponseData { return &ReadRepositoryConfAuthResponse{} },
 }
 
 func resourceRepositoryConfAuth() *schema.Resource {
@@ -104,8 +104,8 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
 				},
-				ResourceData: &RepositoryConfAuthData{},
-				ResponseData: &CreateRepositoryConfAuthResponse{},
+				NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
+				NewResponseData: func() ResponseData { return &CreateRepositoryConfAuthResponse{} },
 			}, ReadConfAuthConfig,
 		),
 		ReadContext: ReadResource(ReadConfAuthConfig),
@@ -116,7 +116,7 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
 				},
-				ResourceData: &RepositoryConfAuthData{},
+				NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
 			}, ReadConfAuthConfig,
 		),
 		DeleteContext: DeleteResource(
