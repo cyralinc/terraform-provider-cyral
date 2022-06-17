@@ -227,12 +227,14 @@ type CreateRepoAccountResponse struct {
 	UUID string `json:"uuid"`
 }
 
-func (resource CreateRepoAccountResponse) WriteToSchema(d *schema.ResourceData) {
+func (resource CreateRepoAccountResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(resource.UUID)
+	return nil
 }
 
-func (resource *CreateRepoAccountResponse) ReadFromSchema(d *schema.ResourceData) {
+func (resource *CreateRepoAccountResponse) ReadFromSchema(d *schema.ResourceData) error {
 	resource.UUID = d.Id()
+	return nil
 }
 
 type RepositoryLocalAccountResource struct {
@@ -245,7 +247,7 @@ type RepositoryLocalAccountResource struct {
 	GcpSecretManager    *GcpSecretManagerResource    `json:"gcpSecretManager,omitempty"`
 }
 
-func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.ResourceData) {
+func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.ResourceData) error {
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema START")
 
 	if repoAccount.AwsIAM != nil {
@@ -265,9 +267,11 @@ func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.Resour
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema END")
+
+	return nil
 }
 
-func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.ResourceData) {
+func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.ResourceData) error {
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema START")
 
 	if _, hasAwsIam := d.GetOk("aws_iam"); hasAwsIam {
@@ -298,6 +302,8 @@ func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.Reso
 	}
 
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema END")
+
+	return nil
 }
 
 func resourceRepositoryLocalAccount() *schema.Resource {
@@ -311,7 +317,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				c.ControlPlane, repository_id, d.Id(),
 			)
 		},
-		ResponseData: &RepositoryLocalAccountResource{},
+		NewResponseData: func() ResponseData { return &RepositoryLocalAccountResource{} },
 	}
 
 	secretManagersTypes := []string{
@@ -541,8 +547,8 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 						c.ControlPlane, repository_id,
 					)
 				},
-				ResourceData: &RepositoryLocalAccountResource{},
-				ResponseData: &CreateRepoAccountResponse{},
+				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
+				NewResponseData: func() ResponseData { return &CreateRepoAccountResponse{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
 		ReadContext: ReadResource(ReadRepositoryLocalAccountConfig),
@@ -557,7 +563,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 						c.ControlPlane, repository_id, d.Id(),
 					)
 				},
-				ResourceData: &RepositoryLocalAccountResource{},
+				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
 		DeleteContext: DeleteResource(

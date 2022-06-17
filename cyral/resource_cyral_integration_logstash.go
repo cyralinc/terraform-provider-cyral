@@ -16,20 +16,22 @@ type LogstashIntegration struct {
 	UseTLS                     bool   `json:"useTLS"`
 }
 
-func (data LogstashIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data LogstashIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("endpoint", data.Endpoint)
 	d.Set("use_mutual_authentication", data.UseMutualAuthentication)
 	d.Set("use_private_certificate_chain", data.UsePrivateCertificateChain)
 	d.Set("use_tls", data.UseTLS)
+	return nil
 }
 
-func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.Endpoint = d.Get("endpoint").(string)
 	data.UseMutualAuthentication = d.Get("use_mutual_authentication").(bool)
 	data.UsePrivateCertificateChain = d.Get("use_private_certificate_chain").(bool)
 	data.UseTLS = d.Get("use_tls").(bool)
+	return nil
 }
 
 var ReadLogstashConfig = ResourceOperationConfig{
@@ -38,7 +40,7 @@ var ReadLogstashConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &LogstashIntegration{},
+	NewResponseData: func() ResponseData { return &LogstashIntegration{} },
 }
 
 func resourceIntegrationLogstash() *schema.Resource {
@@ -51,8 +53,8 @@ func resourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 				},
-				ResourceData: &LogstashIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &LogstashIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadLogstashConfig,
 		),
 		ReadContext: ReadResource(ReadLogstashConfig),
@@ -63,7 +65,7 @@ func resourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &LogstashIntegration{},
+				NewResourceData: func() ResourceData { return &LogstashIntegration{} },
 			}, ReadLogstashConfig,
 		),
 		DeleteContext: DeleteResource(

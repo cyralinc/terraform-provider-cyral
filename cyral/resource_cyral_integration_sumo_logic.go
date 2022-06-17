@@ -13,14 +13,16 @@ type SumoLogicIntegration struct {
 	Address string `json:"address"`
 }
 
-func (data SumoLogicIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data SumoLogicIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("address", data.Address)
+	return nil
 }
 
-func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.Address = d.Get("address").(string)
+	return nil
 }
 
 var ReadSumoLogicConfig = ResourceOperationConfig{
@@ -29,7 +31,7 @@ var ReadSumoLogicConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &SumoLogicIntegration{},
+	NewResponseData: func() ResponseData { return &SumoLogicIntegration{} },
 }
 
 func resourceIntegrationSumoLogic() *schema.Resource {
@@ -42,8 +44,8 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 				},
-				ResourceData: &SumoLogicIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &SumoLogicIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadSumoLogicConfig,
 		),
 		ReadContext: ReadResource(ReadSumoLogicConfig),
@@ -54,7 +56,7 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SumoLogicIntegration{},
+				NewResourceData: func() ResourceData { return &SumoLogicIntegration{} },
 			}, ReadSumoLogicConfig,
 		),
 		DeleteContext: DeleteResource(

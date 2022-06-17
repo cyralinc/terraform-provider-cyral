@@ -13,14 +13,16 @@ type SlackAlertsIntegration struct {
 	URL  string `json:"url"`
 }
 
-func (data SlackAlertsIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data SlackAlertsIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("url", data.URL)
+	return nil
 }
 
-func (data *SlackAlertsIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *SlackAlertsIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.URL = d.Get("url").(string)
+	return nil
 }
 
 var ReadSlackAlertsConfig = ResourceOperationConfig{
@@ -29,7 +31,7 @@ var ReadSlackAlertsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &SlackAlertsIntegration{},
+	NewResponseData: func() ResponseData { return &SlackAlertsIntegration{} },
 }
 
 func resourceIntegrationSlackAlerts() *schema.Resource {
@@ -42,8 +44,8 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 				},
-				ResourceData: &SlackAlertsIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &SlackAlertsIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadSlackAlertsConfig,
 		),
 		ReadContext: ReadResource(ReadSlackAlertsConfig),
@@ -54,7 +56,7 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &SlackAlertsIntegration{},
+				NewResourceData: func() ResourceData { return &SlackAlertsIntegration{} },
 			}, ReadSlackAlertsConfig,
 		),
 		DeleteContext: DeleteResource(

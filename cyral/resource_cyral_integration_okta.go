@@ -46,33 +46,41 @@ type ResourceIntegrationOktaPayload struct {
 	Samlp ResourceIntegrationOkta `json:"samlp"`
 }
 
-func (data ResourceIntegrationOktaPayload) WriteToSchema(d *schema.ResourceData) {
+func (data ResourceIntegrationOktaPayload) WriteToSchema(d *schema.ResourceData) error {
 	data.Samlp.WriteToSchema(d)
+	return nil
 }
 
-func (data *ResourceIntegrationOktaPayload) ReadFromSchema(d *schema.ResourceData) {
+func (data *ResourceIntegrationOktaPayload) ReadFromSchema(d *schema.ResourceData) error {
 	data.Samlp.ReadFromSchema(d)
+	return nil
 }
 
 type CreateResourceIntegrationOktaResponse struct {
 	ID string `json:"status"`
 }
 
-func (data CreateResourceIntegrationOktaResponse) WriteToSchema(d *schema.ResourceData) {
+func (data CreateResourceIntegrationOktaResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId("okta")
+	return nil
 }
 
-func (data *CreateResourceIntegrationOktaResponse) ReadFromSchema(d *schema.ResourceData) {
+func (data *CreateResourceIntegrationOktaResponse) ReadFromSchema(d *schema.ResourceData) error {
 	data.ID = "okta"
+	return nil
 }
 
 type ResourceIntegrationOktaIdentityProviderPayload struct {
 	Keycloak KeycloakProvider `json:"keyCloakProvider"`
 }
 
-func (data ResourceIntegrationOktaIdentityProviderPayload) WriteToSchema(d *schema.ResourceData) {}
+func (data ResourceIntegrationOktaIdentityProviderPayload) WriteToSchema(d *schema.ResourceData) error {
+	return nil
+}
 
-func (data *ResourceIntegrationOktaIdentityProviderPayload) ReadFromSchema(d *schema.ResourceData) {}
+func (data *ResourceIntegrationOktaIdentityProviderPayload) ReadFromSchema(d *schema.ResourceData) error {
+	return nil
+}
 
 var ReadResourceIntegrationOktaConfig = ResourceOperationConfig{
 	Name:       " OktaResourceRead - Integration ",
@@ -80,7 +88,7 @@ var ReadResourceIntegrationOktaConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/okta/%s", c.ControlPlane, d.Get("name").(string))
 	},
-	ResponseData: &ResourceIntegrationOktaPayload{},
+	NewResponseData: func() ResponseData { return &ResourceIntegrationOktaPayload{} },
 }
 
 var ReadResourceIntegrationOktaIdentityProviderConfig = ResourceOperationConfig{
@@ -89,7 +97,7 @@ var ReadResourceIntegrationOktaIdentityProviderConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
 	},
-	ResponseData: &ResourceIntegrationOktaIdentityProviderPayload{},
+	NewResponseData: func() ResponseData { return &ResourceIntegrationOktaIdentityProviderPayload{} },
 }
 
 var cleanUpOktaIntegration = ResourceOperationConfig{
@@ -152,8 +160,8 @@ func CreateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/integrations/okta", c.ControlPlane)
 			},
-			ResourceData: &ResourceIntegrationOktaPayload{},
-			ResponseData: &CreateResourceIntegrationOktaResponse{},
+			NewResourceData: func() ResourceData { return &ResourceIntegrationOktaPayload{} },
+			NewResponseData: func() ResponseData { return &CreateResourceIntegrationOktaResponse{} },
 		}, ReadResourceIntegrationOktaConfig,
 	)(ctx, d, m)
 
@@ -168,8 +176,8 @@ func CreateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
 				},
-				ResourceData: &ResourceIntegrationOktaIdentityProviderPayload{},
-				ResponseData: &CreateResourceIntegrationOktaResponse{},
+				NewResourceData: func() ResourceData { return &ResourceIntegrationOktaIdentityProviderPayload{} },
+				NewResponseData: func() ResponseData { return &CreateResourceIntegrationOktaResponse{} },
 			}, ReadResourceIntegrationOktaIdentityProviderConfig,
 		)(ctx, d, m)
 	}
@@ -198,7 +206,7 @@ func UpdateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/okta", c.ControlPlane)
 		},
-		ResourceData: &ResourceIntegrationOktaPayload{},
+		NewResourceData: func() ResourceData { return &ResourceIntegrationOktaPayload{} },
 	}, ReadResourceIntegrationOktaConfig,
 	)(ctx, d, m)
 
@@ -210,7 +218,7 @@ func UpdateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
 				},
-				ResourceData: &ResourceIntegrationOktaIdentityProviderPayload{},
+				NewResourceData: func() ResourceData { return &ResourceIntegrationOktaIdentityProviderPayload{} },
 			}, ReadResourceIntegrationOktaIdentityProviderConfig,
 		)(ctx, d, m)
 	}

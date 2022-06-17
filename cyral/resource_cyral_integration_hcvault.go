@@ -8,20 +8,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func (data HCVaultIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data HCVaultIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("auth_method", data.AuthMethod)
 	d.Set("id", data.ID)
 	d.Set("auth_type", data.AuthType)
 	d.Set("name", data.Name)
 	d.Set("server", data.Server)
+	return nil
 }
 
-func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.AuthMethod = d.Get("auth_method").(string)
 	data.ID = d.Get("id").(string)
 	data.AuthType = d.Get("auth_type").(string)
 	data.Name = d.Get("name").(string)
 	data.Server = d.Get("server").(string)
+	return nil
 }
 
 var ReadHCVaultIntegrationConfig = ResourceOperationConfig{
@@ -30,7 +32,7 @@ var ReadHCVaultIntegrationConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &HCVaultIntegration{},
+	NewResponseData: func() ResponseData { return &HCVaultIntegration{} },
 }
 
 func resourceIntegrationHCVault() *schema.Resource {
@@ -43,8 +45,8 @@ func resourceIntegrationHCVault() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault", c.ControlPlane)
 				},
-				ResourceData: &HCVaultIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &HCVaultIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadHCVaultIntegrationConfig,
 		),
 		ReadContext: ReadResource(ReadHCVaultIntegrationConfig),
@@ -55,7 +57,7 @@ func resourceIntegrationHCVault() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &HCVaultIntegration{},
+				NewResourceData: func() ResourceData { return &HCVaultIntegration{} },
 			}, ReadHCVaultIntegrationConfig,
 		),
 		DeleteContext: DeleteResource(

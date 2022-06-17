@@ -13,14 +13,16 @@ type MsTeamsIntegration struct {
 	URL  string `json:"url"`
 }
 
-func (data MsTeamsIntegration) WriteToSchema(d *schema.ResourceData) {
+func (data MsTeamsIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("url", data.URL)
+	return nil
 }
 
-func (data *MsTeamsIntegration) ReadFromSchema(d *schema.ResourceData) {
+func (data *MsTeamsIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.URL = d.Get("url").(string)
+	return nil
 }
 
 var ReadMsTeamsConfig = ResourceOperationConfig{
@@ -29,7 +31,7 @@ var ReadMsTeamsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 	},
-	ResponseData: &MsTeamsIntegration{},
+	NewResponseData: func() ResponseData { return &MsTeamsIntegration{} },
 }
 
 func resourceIntegrationMsTeams() *schema.Resource {
@@ -42,8 +44,8 @@ func resourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
-				ResourceData: &MsTeamsIntegration{},
-				ResponseData: &IDBasedResponse{},
+				NewResourceData: func() ResourceData { return &MsTeamsIntegration{} },
+				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
 			}, ReadMsTeamsConfig,
 		),
 		ReadContext: ReadResource(ReadMsTeamsConfig),
@@ -54,7 +56,7 @@ func resourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 				},
-				ResourceData: &MsTeamsIntegration{},
+				NewResourceData: func() ResourceData { return &MsTeamsIntegration{} },
 			}, ReadMsTeamsConfig,
 		),
 		DeleteContext: DeleteResource(

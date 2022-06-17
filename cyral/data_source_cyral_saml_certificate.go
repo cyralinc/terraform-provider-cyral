@@ -18,7 +18,7 @@ func dataSourceSAMLCertificate() *schema.Resource {
 			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/integrations/saml/rsa/cert", c.ControlPlane)
 			},
-			ResponseData: &SAMLCertificateData{},
+			NewResponseData: func() ResponseData { return &SAMLCertificateData{} },
 		}),
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -42,9 +42,8 @@ type SAMLCertificateData struct {
 	Certificate string `json:"certificate,omitempty"`
 }
 
-func (data SAMLCertificateData) WriteToSchema(d *schema.ResourceData) {
+func (data SAMLCertificateData) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(uuid.New().String())
 	d.Set("certificate", data.Certificate)
+	return nil
 }
-
-func (data *SAMLCertificateData) ReadFromSchema(d *schema.ResourceData) {}
