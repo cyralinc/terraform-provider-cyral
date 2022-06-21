@@ -39,7 +39,7 @@ func resourceRepository() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "ID of this resource in Cyral environment",
+				Description: "ID of this resource in Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
@@ -89,16 +89,35 @@ func resourceRepository() *schema.Resource {
 				Required:    true,
 			},
 			"name": {
-				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`)",
+				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`).",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"labels": {
-				Description: "labels enable you to categorize your repository",
+				Description: "Labels enable you to categorize your repository.",
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+			},
+			"replica_set": {
+				Description: "Used to configure a distributed database, such as a MongoDB cluster.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_nodes": {
+							Description: "Maximum number of nodes of the replica set cluster.",
+							Type:        schema.TypeInt,
+							Required:    true,
+						},
+						"replica_set_id": {
+							Description: "Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Token page) that your users will need for connecting to the repository via Cyral.",
+							Type:        schema.TypeString,
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
