@@ -18,13 +18,20 @@ type GetRepoByIDResponse struct {
 }
 
 type RepoData struct {
-	ID                  string   `json:"id"`
-	RepoType            string   `json:"type"`
-	Name                string   `json:"name"`
-	Host                string   `json:"repoHost"`
-	Port                int      `json:"repoPort"`
-	Labels              []string `json:"labels"`
-	MaxAllowedListeners uint32   `json:"maxAllowedListeners,omitempty"`
+	ID                  string                `json:"id"`
+	RepoType            string                `json:"type"`
+	Name                string                `json:"name"`
+	Host                string                `json:"repoHost"`
+	Port                int                   `json:"repoPort"`
+	Labels              []string              `json:"labels"`
+	MaxAllowedListeners uint32                `json:"maxAllowedListeners,omitempty"`
+	Properties          *RepositoryProperties `json:"properties,omitempty"`
+}
+
+type RepositoryProperties struct {
+	// Replica set
+	MaxNodes     string `json:"max-nodes,omitempty"`
+	ReplicaSetID string `json:"mongodb-replicaset-name,omitempty"`
 }
 
 func resourceRepository() *schema.Resource {
@@ -101,21 +108,32 @@ func resourceRepository() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"replica_set": {
-				Description: "Used to configure a distributed database, such as a MongoDB cluster.",
+			// 'advanced' is equivalent to 'properties' in the Cyral
+			// v1/repos API, but with a user-friendly name.
+			"advanced": {
+				Description: "Contains advanced repository configuration.",
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"max_nodes": {
-							Description: "Maximum number of nodes of the replica set cluster.",
-							Type:        schema.TypeInt,
-							Required:    true,
-						},
-						"replica_set_id": {
-							Description: "Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Token page) that your users will need for connecting to the repository via Cyral.",
-							Type:        schema.TypeString,
-							Required:    true,
+						"replica_set": {
+							Description: "Used to configure a distributed database, such as a MongoDB cluster.",
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_nodes": {
+										Description: "Maximum number of nodes of the replica set cluster.",
+										Type:        schema.TypeInt,
+										Required:    true,
+									},
+									"replica_set_id": {
+										Description: "Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Token page) that your users will need for connecting to the repository via Cyral.",
+										Type:        schema.TypeString,
+										Required:    true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -179,6 +197,7 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m inter
 	d.Set("port", response.Repo.Port)
 	d.Set("name", response.Repo.Name)
 	d.Set("labels", response.Repo.Labels)
+	d.Set("properties", response.Repo.Properties)
 
 	log.Printf("[DEBUG] End resourceRepositoryRead")
 
@@ -227,12 +246,20 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 		repositoryDataLabels[i] = (label).(string)
 	}
 
+	properties := new(RepositoryProperties)
+	for _, rsetIface := range d.Get("replica_set").(*schema.Set).List() {
+		rsetMap := rsetIface.(map[string]interface{})
+		properties.MaxNodes = rsetMap["max_nodes"].(string)
+		properties.ReplicaSetID = rsetMap["replica_set_id"].(string)
+	}
+
 	return RepoData{
-		ID:       d.Id(),
-		RepoType: d.Get("type").(string),
-		Host:     d.Get("host").(string),
-		Name:     d.Get("name").(string),
-		Port:     d.Get("port").(int),
-		Labels:   repositoryDataLabels,
+		ID:         d.Id(),
+		RepoType:   d.Get("type").(string),
+		Host:       d.Get("host").(string),
+		Name:       d.Get("name").(string),
+		Port:       d.Get("port").(int),
+		Labels:     repositoryDataLabels,
+		Properties: properties,
 	}, nil
 }
