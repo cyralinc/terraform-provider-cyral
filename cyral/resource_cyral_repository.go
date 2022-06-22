@@ -28,10 +28,14 @@ type RepoData struct {
 	Properties          *RepositoryProperties `json:"properties,omitempty"`
 }
 
+// RepositoryProperties relates to the field "properties" of the v1/repos
+// API. All fields of this struct _must_ be of type string, to comply with the
+// API.
 type RepositoryProperties struct {
 	// Replica set
-	MaxNodes     string `json:"max-nodes,omitempty"`
-	ReplicaSetID string `json:"mongodb-replicaset-name,omitempty"`
+	MaxNodes              string `json:"max-nodes,omitempty"`
+	MongoDBReplicaSetName string `json:"mongodb-replicaset-name,omitempty"`
+	MongoDBServerType     string `json:"mongodb-server-type,omitempty"`
 }
 
 func resourceRepository() *schema.Resource {
@@ -246,20 +250,36 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 		repositoryDataLabels[i] = (label).(string)
 	}
 
-	properties := new(RepositoryProperties)
-	for _, rsetIface := range d.Get("replica_set").(*schema.Set).List() {
-		rsetMap := rsetIface.(map[string]interface{})
-		properties.MaxNodes = rsetMap["max_nodes"].(string)
-		properties.ReplicaSetID = rsetMap["replica_set_id"].(string)
+	var properties *RepositoryProperties
+	var maxAllowedListeners uint32
+	if propertiesIface, ok := d.Get("advanced").(*schema.Set); ok {
+		properties = new(RepositoryProperties)
+		for _, setMap := range propertiesIface.List() {
+			setMap := setMap.(map[string]interface{})
+			if rsetIface, ok := setMap["replica_set"]; ok {
+				var maxNodes int
+				for _, rsetMap := range rsetIface.(*schema.Set).List() {
+					rsetMap := rsetMap.(map[string]interface{})
+					// The API requires that
+					// properties.MaxNodes be a string.
+					maxNodes = rsetMap["max_nodes"].(int)
+					properties.MaxNodes = fmt.Sprintf("%d", maxNodes)
+					properties.MongoDBReplicaSetName = rsetMap["replica_set_id"].(string)
+				}
+				properties.MongoDBServerType = "replicaset"
+				maxAllowedListeners = uint32(maxNodes)
+			}
+		}
 	}
 
 	return RepoData{
-		ID:         d.Id(),
-		RepoType:   d.Get("type").(string),
-		Host:       d.Get("host").(string),
-		Name:       d.Get("name").(string),
-		Port:       d.Get("port").(int),
-		Labels:     repositoryDataLabels,
-		Properties: properties,
+		ID:                  d.Id(),
+		RepoType:            d.Get("type").(string),
+		Host:                d.Get("host").(string),
+		Name:                d.Get("name").(string),
+		Port:                d.Get("port").(int),
+		Labels:              repositoryDataLabels,
+		MaxAllowedListeners: maxAllowedListeners,
+		Properties:          properties,
 	}, nil
 }
