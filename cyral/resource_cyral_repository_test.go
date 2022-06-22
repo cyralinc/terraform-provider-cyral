@@ -23,9 +23,9 @@ var updatedRepoConfig RepoData = RepoData{
 	Labels:   []string{"rds", "us-east-1"},
 }
 
-var initialRepoConfigReplicaSet RepoData = RepoData{
+var replicaSetRepoConfig RepoData = RepoData{
 	Name:     "repo-test-replica-set",
-	Host:     "host-1",
+	Host:     "mongo-cluster.local",
 	Port:     27017,
 	RepoType: "mongodb",
 	Labels:   []string{"rds", "us-east-1"},
@@ -36,22 +36,10 @@ var initialRepoConfigReplicaSet RepoData = RepoData{
 	},
 }
 
-var updatedRepoConfigReplicaSet RepoData = RepoData{
-	Name:     "repo-test-replica-set",
-	Host:     "host-1",
-	Port:     27017,
-	RepoType: "mongodb",
-	Labels:   []string{"rds", "us-east-1"},
-	Properties: &RepositoryProperties{
-		MaxNodes:              "2",
-		MongoDBReplicaSetName: "replica-set-2",
-		MongoDBServerType:     "replicaset",
-	},
-}
-
 func TestAccRepositoryResource(t *testing.T) {
 	testConfig, testFunc := setupRepositoryTest(initialRepoConfig)
 	testUpdateConfig, testUpdateFunc := setupRepositoryTest(updatedRepoConfig)
+	testReplicaSetConfig, testReplicaSetFunc := setupRepositoryTest(replicaSetRepoConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -64,24 +52,9 @@ func TestAccRepositoryResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
-		},
-	})
-}
-
-func TestAccRepositoryResource_MongoDBReplicaSet(t *testing.T) {
-	testConfig, testFunc := setupRepositoryTest(initialRepoConfigReplicaSet)
-	testUpdateConfig, testUpdateFunc := setupRepositoryTest(updatedRepoConfigReplicaSet)
-
-	resource.Test(t, resource.TestCase{
-		ProviderFactories: providerFactories,
-		Steps: []resource.TestStep{
 			{
-				Config: testConfig,
-				Check:  testFunc,
-			},
-			{
-				Config: testUpdateConfig,
-				Check:  testUpdateFunc,
+				Config: testReplicaSetConfig,
+				Check:  testReplicaSetFunc,
 			},
 		},
 	})
@@ -108,7 +81,7 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 			resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
 				"properties.0.replica_set.0.max_nodes", repoData.Properties.MaxNodes),
 			resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
-				"properties.0.replica_set.0.MongoDBReplicaSetName",
+				"properties.0.replica_set.0.replica_set_id",
 				repoData.Properties.MongoDBReplicaSetName),
 		}...)
 	}
@@ -135,7 +108,7 @@ func formatRepoDataIntoConfig(data RepoData) string {
 			propertiesStr += fmt.Sprintf(`
 			replica_set {
 				max_nodes = %s
-				replica_set_id = %s
+				replica_set_id = "%s"
 			}`, properties.MaxNodes, properties.MongoDBReplicaSetName)
 		}
 		propertiesStr += `
