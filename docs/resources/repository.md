@@ -63,7 +63,7 @@ resource "cyral_repository" "repositories" {
 ### Required
 
 - `host` (String) Repository host name (ex: `somerepo.cyral.com`).
-- `name` (String) Repository name that will be used internally in the control plane (ex: `your_repo_name`)
+- `name` (String) Repository name that will be used internally in the control plane (ex: `your_repo_name`).
 - `port` (Number) Repository access port (ex: `3306`).
 - `type` (String) Repository type. List of supported types:
   - `bigquery`
@@ -83,8 +83,26 @@ resource "cyral_repository" "repositories" {
 
 ### Optional
 
-- `labels` (List of String) labels enable you to categorize your repository
+- `advanced` (Block Set) Contains advanced repository configuration. (see [below for nested schema](#nestedblock--advanced))
+- `labels` (List of String) Labels enable you to categorize your repository.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+- `id` (String) ID of this resource in Cyral environment.
+
+<a id="nestedblock--advanced"></a>
+
+### Nested Schema for `advanced`
+
+Optional:
+
+- `replica_set` (Block Set) Used to configure a distributed database, such as a MongoDB cluster. (see [below for nested schema](#nestedblock--advanced--replica_set))
+
+<a id="nestedblock--advanced--replica_set"></a>
+
+### Nested Schema for `advanced.replica_set`
+
+Required:
+
+- `max_nodes` (Number) Maximum number of nodes of the replica set cluster.
+- `replica_set_id` (String) Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Token page) that your users will need for connecting to the repository via Cyral.

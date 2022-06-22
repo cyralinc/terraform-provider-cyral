@@ -3,12 +3,12 @@
 page_title: "cyral_datamap Resource - cyral"
 subcategory: ""
 description: |-
-  Manages Data map https://cyral.com/docs/policy/datamap.
+  Manages Data map https://cyral.com/docs/policy#data-map
 ---
 
 # cyral_datamap (Resource)
 
-Manages [Data map](https://cyral.com/docs/policy/datamap).
+Manages [Data map](https://cyral.com/docs/policy#data-map)
 
 ## Example Usage
 
