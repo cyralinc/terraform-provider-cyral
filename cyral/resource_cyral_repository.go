@@ -112,9 +112,7 @@ func resourceRepository() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			// 'advanced' is equivalent to 'properties' in the Cyral
-			// v1/repos API, but with a user-friendly name.
-			"advanced": {
+			"properties": {
 				Description: "Contains advanced repository configuration.",
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -252,7 +250,7 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 
 	var properties *RepositoryProperties
 	var maxAllowedListeners uint32
-	if propertiesIface, ok := d.Get("advanced").(*schema.Set); ok {
+	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
 		properties = new(RepositoryProperties)
 		for _, setMap := range propertiesIface.List() {
 			setMap := setMap.(map[string]interface{})
