@@ -257,7 +257,7 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 			if rsetIface, ok := propertiesMap["mongodb_replica_set"]; ok {
 				for _, rsetMap := range rsetIface.(*schema.Set).List() {
 					rsetMap := rsetMap.(map[string]interface{})
-					maxAllowedListeners = rsetMap["max_nodes"].(uint32)
+					maxAllowedListeners = uint32(rsetMap["max_nodes"].(int))
 					properties.MongoDBReplicaSetName = rsetMap["replica_set_id"].(string)
 				}
 				properties.MongoDBServerType = "replicaset"
