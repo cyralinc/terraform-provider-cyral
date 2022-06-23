@@ -117,7 +117,7 @@ func resourceRepository() *schema.Resource {
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"replica_set": {
+						"mongodb_replica_set": {
 							Description: "Used to configure a distributed database, such as a MongoDB cluster.",
 							Type:        schema.TypeSet,
 							Optional:    true,
@@ -254,7 +254,7 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 		for _, propertiesMap := range propertiesIface.List() {
 			propertiesMap := propertiesMap.(map[string]interface{})
 			// Replica set properties
-			if rsetIface, ok := propertiesMap["replica_set"]; ok {
+			if rsetIface, ok := propertiesMap["mongodb_replica_set"]; ok {
 				for _, rsetMap := range rsetIface.(*schema.Set).List() {
 					rsetMap := rsetMap.(map[string]interface{})
 					maxAllowedListeners = rsetMap["max_nodes"].(uint32)

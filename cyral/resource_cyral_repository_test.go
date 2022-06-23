@@ -78,11 +78,11 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 	if repoReplicaSetEnabled(repoData) {
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
-				"properties.0.replica_set.0.max_nodes", fmt.Sprintf("%d",
+				"properties.0.mongodb_replica_set.0.max_nodes", fmt.Sprintf("%d",
 					repoData.MaxAllowedListeners)),
 
 			resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
-				"properties.0.replica_set.0.replica_set_id",
+				"properties.0.mongodb_replica_set.0.replica_set_id",
 				repoData.Properties.MongoDBReplicaSetName),
 		}...)
 	}
@@ -107,7 +107,7 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		properties := data.Properties
 		if repoReplicaSetEnabled(data) {
 			propertiesStr += fmt.Sprintf(`
-			replica_set {
+			mongodb_replica_set {
 				max_nodes = %d
 				replica_set_id = "%s"
 			}`, data.MaxAllowedListeners, properties.MongoDBReplicaSetName)
