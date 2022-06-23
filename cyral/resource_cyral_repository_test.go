@@ -93,30 +93,32 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 }
 
 func formatRepoDataIntoConfig(data RepoData) string {
-	base := fmt.Sprintf(`
-	resource "cyral_repository" "test_repo_repository" {
-		type  = "%s"
-		host  = "%s"
-		port  = %d
-		name  = "%s"
-		labels = [%s]`, data.RepoType, data.Host, data.Port, data.Name, formatAttibutes(data.Labels))
-	propertiesStr := ""
+	var propertiesStr string
 	if data.Properties != nil {
-		propertiesStr += `
-		properties {`
 		properties := data.Properties
+
+		var rsetStr string
 		if data.IsReplicaSet() {
-			propertiesStr += fmt.Sprintf(`
+			rsetStr = fmt.Sprintf(`
 			mongodb_replica_set {
 				max_nodes = %d
 				replica_set_id = "%s"
 			}`, data.MaxAllowedListeners, properties.MongoDBReplicaSetName)
 		}
-		propertiesStr += `
-		}
-`
+
+		propertiesStr = fmt.Sprintf(`
+		properties {%s
+		}`, rsetStr)
 	}
-	completeConfig := base + propertiesStr + `
-	}`
-	return completeConfig
+
+	return fmt.Sprintf(`
+	resource "cyral_repository" "test_repo_repository" {
+		type  = "%s"
+		host  = "%s"
+		port  = %d
+		name  = "%s"
+		labels = [%s]
+		%s
+	}`, data.RepoType, data.Host, data.Port, data.Name,
+		formatAttibutes(data.Labels), propertiesStr)
 }
