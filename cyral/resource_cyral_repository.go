@@ -33,7 +33,6 @@ type RepoData struct {
 // API.
 type RepositoryProperties struct {
 	// Replica set
-	MaxNodes              string `json:"max-nodes,omitempty"`
 	MongoDBReplicaSetName string `json:"mongodb-replicaset-name,omitempty"`
 	MongoDBServerType     string `json:"mongodb-server-type,omitempty"`
 }
@@ -252,20 +251,16 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 	var maxAllowedListeners uint32
 	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
 		properties = new(RepositoryProperties)
-		for _, setMap := range propertiesIface.List() {
-			setMap := setMap.(map[string]interface{})
-			if rsetIface, ok := setMap["replica_set"]; ok {
-				var maxNodes int
+		for _, propertiesMap := range propertiesIface.List() {
+			propertiesMap := propertiesMap.(map[string]interface{})
+			// Replica set properties
+			if rsetIface, ok := propertiesMap["replica_set"]; ok {
 				for _, rsetMap := range rsetIface.(*schema.Set).List() {
 					rsetMap := rsetMap.(map[string]interface{})
-					// The API requires that
-					// properties.MaxNodes be a string.
-					maxNodes = rsetMap["max_nodes"].(int)
-					properties.MaxNodes = fmt.Sprintf("%d", maxNodes)
+					maxAllowedListeners = rsetMap["max_nodes"].(uint32)
 					properties.MongoDBReplicaSetName = rsetMap["replica_set_id"].(string)
 				}
 				properties.MongoDBServerType = "replicaset"
-				maxAllowedListeners = uint32(maxNodes)
 			}
 		}
 	}

@@ -83,24 +83,24 @@ resource "cyral_repository" "repositories" {
 
 ### Optional
 
-- `advanced` (Block Set) Contains advanced repository configuration. (see [below for nested schema](#nestedblock--advanced))
 - `labels` (List of String) Labels enable you to categorize your repository.
+- `properties` (Block Set) Contains advanced repository configuration. (see [below for nested schema](#nestedblock--properties))
 
 ### Read-Only
 
 - `id` (String) ID of this resource in Cyral environment.
 
-<a id="nestedblock--advanced"></a>
+<a id="nestedblock--properties"></a>
 
-### Nested Schema for `advanced`
+### Nested Schema for `properties`
 
 Optional:
 
-- `replica_set` (Block Set) Used to configure a distributed database, such as a MongoDB cluster. (see [below for nested schema](#nestedblock--advanced--replica_set))
+- `replica_set` (Block Set) Used to configure a distributed database, such as a MongoDB cluster. (see [below for nested schema](#nestedblock--properties--replica_set))
 
-<a id="nestedblock--advanced--replica_set"></a>
+<a id="nestedblock--properties--replica_set"></a>
 
-### Nested Schema for `advanced.replica_set`
+### Nested Schema for `properties.replica_set`
 
 Required:
 
