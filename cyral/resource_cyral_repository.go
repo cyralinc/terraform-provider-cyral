@@ -153,7 +153,7 @@ func resourceRepository() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mongodb_replica_set": {
-							Description: "Used to configure a distributed database, such as a MongoDB cluster.",
+							Description: "Used to configure a MongoDB cluster.",
 							Type:        schema.TypeSet,
 							Optional:    true,
 							Elem: &schema.Resource{

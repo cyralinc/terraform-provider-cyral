@@ -26,7 +26,7 @@ type RepoAttrs struct {
 
 func resourceDatamap() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [Data map](https://cyral.com/docs/policy#data-map).",
+		Description:   "Manages [Data map](https://cyral.com/docs/policy/datamap).",
 		CreateContext: resourceDatamapCreate,
 		ReadContext:   resourceDatamapRead,
 		UpdateContext: resourceDatamapUpdate,

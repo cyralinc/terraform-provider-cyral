@@ -96,7 +96,7 @@ resource "cyral_repository" "repositories" {
 
 Optional:
 
-- `mongodb_replica_set` (Block Set) Used to configure a distributed database, such as a MongoDB cluster. (see [below for nested schema](#nestedblock--properties--mongodb_replica_set))
+- `mongodb_replica_set` (Block Set) Used to configure a MongoDB cluster. (see [below for nested schema](#nestedblock--properties--mongodb_replica_set))
 
 <a id="nestedblock--properties--mongodb_replica_set"></a>
 
