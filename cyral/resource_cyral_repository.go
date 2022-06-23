@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	mongodbRepoType             = "mongodb"
 	mongodbReplicaSetServerType = "replicaset"
 )
 
@@ -150,23 +151,27 @@ func resourceRepository() *schema.Resource {
 				Description: "Contains advanced repository configuration.",
 				Type:        schema.TypeSet,
 				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mongodb_replica_set": {
 							Description: "Used to configure a MongoDB cluster.",
 							Type:        schema.TypeSet,
 							Optional:    true,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"max_nodes": {
-										Description: "Maximum number of nodes of the replica set cluster.",
-										Type:        schema.TypeInt,
-										Required:    true,
+										Description:  "Maximum number of nodes of the replica set cluster.",
+										Type:         schema.TypeInt,
+										Required:     true,
+										ValidateFunc: validation.IntAtLeast(1),
 									},
 									"replica_set_id": {
-										Description: "Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Token page) that your users will need for connecting to the repository via Cyral.",
-										Type:        schema.TypeString,
-										Required:    true,
+										Description:  "Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Portal page) that your users will need for connecting to the repository via Cyral.",
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringIsNotEmpty,
 									},
 								},
 							},
@@ -271,20 +276,36 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
+	repoData := RepoData{
+		ID:       d.Id(),
+		RepoType: d.Get("type").(string),
+		Host:     d.Get("host").(string),
+		Name:     d.Get("name").(string),
+		Port:     d.Get("port").(int),
+	}
+
 	labels := d.Get("labels").([]interface{})
 	repositoryDataLabels := make([]string, len(labels))
 	for i, label := range labels {
 		repositoryDataLabels[i] = (label).(string)
 	}
+	repoData.Labels = repositoryDataLabels
 
-	var properties *RepositoryProperties
 	var maxAllowedListeners uint32
+	var properties *RepositoryProperties
 	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
 		properties = new(RepositoryProperties)
 		for _, propertiesMap := range propertiesIface.List() {
 			propertiesMap := propertiesMap.(map[string]interface{})
+
 			// Replica set properties
 			if rsetIface, ok := propertiesMap["mongodb_replica_set"]; ok {
+				if repoData.RepoType != mongodbRepoType {
+					return RepoData{}, fmt.Errorf(
+						"replica sets are only supported for repository type '%s'",
+						mongodbRepoType)
+				}
+
 				for _, rsetMap := range rsetIface.(*schema.Set).List() {
 					rsetMap := rsetMap.(map[string]interface{})
 					maxAllowedListeners = uint32(rsetMap["max_nodes"].(int))
@@ -294,15 +315,8 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 			}
 		}
 	}
+	repoData.MaxAllowedListeners = maxAllowedListeners
+	repoData.Properties = properties
 
-	return RepoData{
-		ID:                  d.Id(),
-		RepoType:            d.Get("type").(string),
-		Host:                d.Get("host").(string),
-		Name:                d.Get("name").(string),
-		Port:                d.Get("port").(int),
-		Labels:              repositoryDataLabels,
-		MaxAllowedListeners: maxAllowedListeners,
-		Properties:          properties,
-	}, nil
+	return repoData, nil
 }

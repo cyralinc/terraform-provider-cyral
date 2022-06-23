@@ -84,7 +84,7 @@ resource "cyral_repository" "repositories" {
 ### Optional
 
 - `labels` (List of String) Labels enable you to categorize your repository.
-- `properties` (Block Set) Contains advanced repository configuration. (see [below for nested schema](#nestedblock--properties))
+- `properties` (Block Set, Max: 1) Contains advanced repository configuration. (see [below for nested schema](#nestedblock--properties))
 
 ### Read-Only
 
@@ -96,7 +96,7 @@ resource "cyral_repository" "repositories" {
 
 Optional:
 
-- `mongodb_replica_set` (Block Set) Used to configure a MongoDB cluster. (see [below for nested schema](#nestedblock--properties--mongodb_replica_set))
+- `mongodb_replica_set` (Block Set, Max: 1) Used to configure a MongoDB cluster. (see [below for nested schema](#nestedblock--properties--mongodb_replica_set))
 
 <a id="nestedblock--properties--mongodb_replica_set"></a>
 
@@ -105,4 +105,4 @@ Optional:
 Required:
 
 - `max_nodes` (Number) Maximum number of nodes of the replica set cluster.
-- `replica_set_id` (String) Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Token page) that your users will need for connecting to the repository via Cyral.
+- `replica_set_id` (String) Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Portal page) that your users will need for connecting to the repository via Cyral.
