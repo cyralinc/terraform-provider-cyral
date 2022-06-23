@@ -13,6 +13,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+const (
+	mongodbReplicaSetServerType = "replicaset"
+)
+
 type GetRepoByIDResponse struct {
 	Repo RepoData `json:"repo"`
 }
@@ -26,6 +30,37 @@ type RepoData struct {
 	Labels              []string              `json:"labels"`
 	MaxAllowedListeners uint32                `json:"maxAllowedListeners,omitempty"`
 	Properties          *RepositoryProperties `json:"properties,omitempty"`
+}
+
+func (data *RepoData) IsReplicaSet() bool {
+	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
+}
+
+func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
+	d.Set("type", data.RepoType)
+	d.Set("host", data.Host)
+	d.Set("port", data.Port)
+	d.Set("name", data.Name)
+	d.Set("labels", data.Labels)
+
+	var properties []interface{}
+	if data.Properties != nil {
+		propertiesMap := make(map[string]interface{})
+
+		if data.IsReplicaSet() {
+			var rset []interface{}
+			rsetMap := make(map[string]interface{})
+			rsetMap["max_nodes"] = data.MaxAllowedListeners
+			rsetMap["replica_set_id"] = data.Properties.MongoDBReplicaSetName
+			rset = append(rset, rsetMap)
+
+			propertiesMap["mongodb_replica_set"] = rset
+		}
+
+		properties = append(properties, propertiesMap)
+	}
+
+	d.Set("properties", properties)
 }
 
 // RepositoryProperties relates to the field "properties" of the v1/repos
@@ -193,12 +228,7 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m inter
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	d.Set("type", response.Repo.RepoType)
-	d.Set("host", response.Repo.Host)
-	d.Set("port", response.Repo.Port)
-	d.Set("name", response.Repo.Name)
-	d.Set("labels", response.Repo.Labels)
-	d.Set("properties", response.Repo.Properties)
+	response.Repo.WriteToSchema(d)
 
 	log.Printf("[DEBUG] End resourceRepositoryRead")
 
@@ -260,7 +290,7 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 					maxAllowedListeners = uint32(rsetMap["max_nodes"].(int))
 					properties.MongoDBReplicaSetName = rsetMap["replica_set_id"].(string)
 				}
-				properties.MongoDBServerType = "replicaset"
+				properties.MongoDBServerType = mongodbReplicaSetServerType
 			}
 		}
 	}

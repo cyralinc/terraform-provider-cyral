@@ -31,7 +31,7 @@ var replicaSetRepoConfig RepoData = RepoData{
 	Labels:   []string{"rds", "us-east-1"},
 	Properties: &RepositoryProperties{
 		MongoDBReplicaSetName: "replica-set-1",
-		MongoDBServerType:     "replicaset",
+		MongoDBServerType:     mongodbReplicaSetServerType,
 	},
 }
 
@@ -75,7 +75,7 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 			"labels.#", "2"),
 	}
 
-	if repoReplicaSetEnabled(repoData) {
+	if repoData.IsReplicaSet() {
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
 				"properties.0.mongodb_replica_set.0.max_nodes", fmt.Sprintf("%d",
@@ -105,7 +105,7 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		propertiesStr += `
 		properties {`
 		properties := data.Properties
-		if repoReplicaSetEnabled(data) {
+		if data.IsReplicaSet() {
 			propertiesStr += fmt.Sprintf(`
 			mongodb_replica_set {
 				max_nodes = %d
@@ -119,9 +119,4 @@ func formatRepoDataIntoConfig(data RepoData) string {
 	completeConfig := base + propertiesStr + `
 	}`
 	return completeConfig
-}
-
-func repoReplicaSetEnabled(repoData RepoData) bool {
-	properties := repoData.Properties
-	return properties != nil && properties.MongoDBServerType == "replicaset" && properties.MongoDBReplicaSetName != ""
 }
