@@ -63,7 +63,7 @@ resource "cyral_repository" "repositories" {
 ### Required
 
 - `host` (String) Repository host name (ex: `somerepo.cyral.com`).
-- `name` (String) Repository name that will be used internally in the control plane (ex: `your_repo_name`)
+- `name` (String) Repository name that will be used internally in the control plane (ex: `your_repo_name`).
 - `port` (Number) Repository access port (ex: `3306`).
 - `type` (String) Repository type. List of supported types:
   - `bigquery`
@@ -83,8 +83,26 @@ resource "cyral_repository" "repositories" {
 
 ### Optional
 
-- `labels` (List of String) labels enable you to categorize your repository
+- `labels` (List of String) Labels enable you to categorize your repository.
+- `properties` (Block Set, Max: 1) Contains advanced repository configuration. (see [below for nested schema](#nestedblock--properties))
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+- `id` (String) ID of this resource in Cyral environment.
+
+<a id="nestedblock--properties"></a>
+
+### Nested Schema for `properties`
+
+Optional:
+
+- `mongodb_replica_set` (Block Set, Max: 1) Used to configure a MongoDB cluster. (see [below for nested schema](#nestedblock--properties--mongodb_replica_set))
+
+<a id="nestedblock--properties--mongodb_replica_set"></a>
+
+### Nested Schema for `properties.mongodb_replica_set`
+
+Required:
+
+- `max_nodes` (Number) Maximum number of nodes of the replica set cluster.
+- `replica_set_id` (String) Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Portal page) that your users will need for connecting to the repository via Cyral.
