@@ -17,6 +17,9 @@ type DataMapRequest struct {
 	DataMap `json:"dataMap,omitempty"`
 }
 
+// This is called 'DataMap' and not 'Datamap', because although we consider
+// 'datamap' to be a single word in the resource name 'cyral_repository_datamap'
+// for ease of writing, 'data map' is actually two words in English.
 type DataMap struct {
 	Labels map[string]*DataMapMapping `json:"labels,omitempty"`
 }
@@ -184,7 +187,7 @@ func resourceRepositoryDatamapDelete(ctx context.Context, d *schema.ResourceData
 func getDatamapFromResource(d *schema.ResourceData) DataMap {
 	mappings := d.Get("mapping").(*schema.Set).List()
 
-	datamap := DataMap{
+	dataMap := DataMap{
 		Labels: make(map[string]*DataMapMapping),
 	}
 	for _, mappingIface := range mappings {
@@ -197,9 +200,10 @@ func getDatamapFromResource(d *schema.ResourceData) DataMap {
 				attributes = append(attributes, attributeIface.(string))
 			}
 		}
-		datamap.Labels[label] = &DataMapMapping{
+		dataMap.Labels[label] = &DataMapMapping{
 			Attributes: attributes,
 		}
 	}
-	return datamap
+
+	return dataMap
 }
