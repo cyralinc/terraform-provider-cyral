@@ -3,12 +3,12 @@
 page_title: "cyral_datamap Resource - cyral"
 subcategory: ""
 description: |-
-  Manages Data map https://cyral.com/docs/policy/datamap.
+  Deprecated. Use cyral_repository_datamap instead.
 ---
 
 # cyral_datamap (Resource)
 
-Manages [Data map](https://cyral.com/docs/policy/datamap).
+**Deprecated.** Use `cyral_repository_datamap` instead.
 
 ## Example Usage
 
@@ -62,7 +62,7 @@ resource "cyral_datamap" "some_resource_name" {
 Required:
 
 - `data_location` (Block Set, Min: 1) Block to inform a data location set: repository name and attributes specification. (see [below for nested schema](#nestedblock--mapping--data_location))
-- `label` (String) Label given to the data specified in the corresponding list .
+- `label` (String) Label given to the data specified in the corresponding list.
 
 <a id="nestedblock--mapping--data_location"></a>
 

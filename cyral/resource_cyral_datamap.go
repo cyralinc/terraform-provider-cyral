@@ -8,12 +8,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-type DataMap struct {
+type GlobalDataMap struct {
 	SensitiveData SensitiveData `json:"sensitiveData" yaml:"sensitiveData"`
 }
 
@@ -24,13 +25,14 @@ type RepoAttrs struct {
 	Attributes []string `json:"attributes" yaml:"attributes"`
 }
 
-func resourceDatamap() *schema.Resource {
+func resourceDatamap(deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [Data map](https://cyral.com/docs/policy#data-map).",
-		CreateContext: resourceDatamapCreate,
-		ReadContext:   resourceDatamapRead,
-		UpdateContext: resourceDatamapUpdate,
-		DeleteContext: resourceDatamapDelete,
+		Description:        "Manages [Data map](https://cyral.com/docs/policy/datamap).",
+		DeprecationMessage: deprecationMessage,
+		CreateContext:      resourceDatamapCreate,
+		ReadContext:        resourceDatamapRead,
+		UpdateContext:      resourceDatamapUpdate,
+		DeleteContext:      resourceDatamapDelete,
 		Schema: map[string]*schema.Schema{
 			"last_updated": {
 				Description: "Timestamp of the latest update performed on the datamap.",
@@ -45,7 +47,7 @@ func resourceDatamap() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"label": {
-							Description: "Label given to the data specified in the corresponding list .",
+							Description: "Label given to the data specified in the corresponding list.",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
@@ -128,7 +130,7 @@ func resourceDatamapRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	datamap := DataMap{SensitiveData: response}
+	datamap := GlobalDataMap{SensitiveData: response}
 
 	sd := datamap.SensitiveData.String()
 	log.Printf("[DEBUG] resourceDatamapRead - sensitiveData: %s", sd)
