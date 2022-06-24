@@ -125,6 +125,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_datamap":                     resourceDatamap("Use `cyral_repository_datamap` instead."),
+			"cyral_datalabel":                   resourceDatalabel(),
 			"cyral_identity_map":                resourceRepositoryIdentityMap("Use `cyral_repository_identity_map` instead."),
 			"cyral_integration_datadog":         resourceIntegrationDatadog(),
 			"cyral_integration_elk":             resourceIntegrationELK(),

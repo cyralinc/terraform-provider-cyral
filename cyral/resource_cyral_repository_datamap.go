@@ -49,7 +49,7 @@ type DataMapMapping struct {
 
 func resourceRepositoryDatamap() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages repository [data maps](https://cyral.com/docs/policy/datamap).",
+		Description:   "Manages [Data Map](https://cyral.com/docs/policy/datamap).",
 		CreateContext: resourceRepositoryDatamapCreate,
 		ReadContext:   resourceRepositoryDatamapRead,
 		UpdateContext: resourceRepositoryDatamapUpdate,
