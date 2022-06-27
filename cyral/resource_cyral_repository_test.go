@@ -24,11 +24,12 @@ var updatedRepoConfig RepoData = RepoData{
 }
 
 var replicaSetRepoConfig RepoData = RepoData{
-	Name:     "repo-test-replica-set",
-	Host:     "mongo-cluster.local",
-	Port:     27017,
-	RepoType: "mongodb",
-	Labels:   []string{"rds", "us-east-1"},
+	Name:                "repo-test-replica-set",
+	Host:                "mongo-cluster.local",
+	Port:                27017,
+	RepoType:            "mongodb",
+	Labels:              []string{"rds", "us-east-1"},
+	MaxAllowedListeners: 2,
 	Properties: &RepositoryProperties{
 		MongoDBReplicaSetName: "replica-set-1",
 		MongoDBServerType:     mongodbReplicaSetServerType,
