@@ -13,18 +13,64 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+const (
+	mongodbRepoType             = "mongodb"
+	mongodbReplicaSetServerType = "replicaset"
+)
+
 type GetRepoByIDResponse struct {
 	Repo RepoData `json:"repo"`
 }
 
 type RepoData struct {
-	ID                  string   `json:"id"`
-	RepoType            string   `json:"type"`
-	Name                string   `json:"name"`
-	Host                string   `json:"repoHost"`
-	Port                int      `json:"repoPort"`
-	Labels              []string `json:"labels"`
-	MaxAllowedListeners uint32   `json:"maxAllowedListeners,omitempty"`
+	ID                  string                `json:"id"`
+	RepoType            string                `json:"type"`
+	Name                string                `json:"name"`
+	Host                string                `json:"repoHost"`
+	Port                int                   `json:"repoPort"`
+	Labels              []string              `json:"labels"`
+	MaxAllowedListeners uint32                `json:"maxAllowedListeners,omitempty"`
+	Properties          *RepositoryProperties `json:"properties,omitempty"`
+}
+
+func (data *RepoData) IsReplicaSet() bool {
+	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
+}
+
+func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
+	d.Set("type", data.RepoType)
+	d.Set("host", data.Host)
+	d.Set("port", data.Port)
+	d.Set("name", data.Name)
+	d.Set("labels", data.Labels)
+
+	var properties []interface{}
+	if data.Properties != nil {
+		propertiesMap := make(map[string]interface{})
+
+		if data.IsReplicaSet() {
+			var rset []interface{}
+			rsetMap := make(map[string]interface{})
+			rsetMap["max_nodes"] = data.MaxAllowedListeners
+			rsetMap["replica_set_id"] = data.Properties.MongoDBReplicaSetName
+			rset = append(rset, rsetMap)
+
+			propertiesMap["mongodb_replica_set"] = rset
+		}
+
+		properties = append(properties, propertiesMap)
+	}
+
+	d.Set("properties", properties)
+}
+
+// RepositoryProperties relates to the field "properties" of the v1/repos
+// API. All fields of this struct _must_ be of type string, to comply with the
+// API.
+type RepositoryProperties struct {
+	// Replica set
+	MongoDBReplicaSetName string `json:"mongodb-replicaset-name,omitempty"`
+	MongoDBServerType     string `json:"mongodb-server-type,omitempty"`
 }
 
 func resourceRepository() *schema.Resource {
@@ -39,7 +85,7 @@ func resourceRepository() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "ID of this resource in Cyral environment",
+				Description: "ID of this resource in Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
@@ -89,16 +135,48 @@ func resourceRepository() *schema.Resource {
 				Required:    true,
 			},
 			"name": {
-				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`)",
+				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`).",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"labels": {
-				Description: "labels enable you to categorize your repository",
+				Description: "Labels enable you to categorize your repository.",
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+			},
+			"properties": {
+				Description: "Contains advanced repository configuration.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mongodb_replica_set": {
+							Description: "Used to configure a MongoDB cluster.",
+							Type:        schema.TypeSet,
+							Optional:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_nodes": {
+										Description:  "Maximum number of nodes of the replica set cluster.",
+										Type:         schema.TypeInt,
+										Required:     true,
+										ValidateFunc: validation.IntAtLeast(1),
+									},
+									"replica_set_id": {
+										Description:  "Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Portal page) that your users will need for connecting to the repository via Cyral.",
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringIsNotEmpty,
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -155,11 +233,7 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m inter
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	d.Set("type", response.Repo.RepoType)
-	d.Set("host", response.Repo.Host)
-	d.Set("port", response.Repo.Port)
-	d.Set("name", response.Repo.Name)
-	d.Set("labels", response.Repo.Labels)
+	response.Repo.WriteToSchema(d)
 
 	log.Printf("[DEBUG] End resourceRepositoryRead")
 
@@ -202,18 +276,47 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
-	labels := d.Get("labels").([]interface{})
-	repositoryDataLabels := make([]string, len(labels))
-	for i, label := range labels {
-		repositoryDataLabels[i] = (label).(string)
-	}
-
-	return RepoData{
+	repoData := RepoData{
 		ID:       d.Id(),
 		RepoType: d.Get("type").(string),
 		Host:     d.Get("host").(string),
 		Name:     d.Get("name").(string),
 		Port:     d.Get("port").(int),
-		Labels:   repositoryDataLabels,
-	}, nil
+	}
+
+	labels := d.Get("labels").([]interface{})
+	repositoryDataLabels := make([]string, len(labels))
+	for i, label := range labels {
+		repositoryDataLabels[i] = (label).(string)
+	}
+	repoData.Labels = repositoryDataLabels
+
+	var maxAllowedListeners uint32
+	var properties *RepositoryProperties
+	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
+		properties = new(RepositoryProperties)
+		for _, propertiesMap := range propertiesIface.List() {
+			propertiesMap := propertiesMap.(map[string]interface{})
+
+			// Replica set properties
+			if rsetIface, ok := propertiesMap["mongodb_replica_set"]; ok {
+				if repoData.RepoType != mongodbRepoType {
+					return RepoData{}, fmt.Errorf(
+						"replica sets are only supported for repository type '%s'",
+						mongodbRepoType)
+				}
+
+				for _, rsetMap := range rsetIface.(*schema.Set).List() {
+					rsetMap := rsetMap.(map[string]interface{})
+					maxAllowedListeners = uint32(rsetMap["max_nodes"].(int))
+					properties.MongoDBReplicaSetName = rsetMap["replica_set_id"].(string)
+				}
+				properties.MongoDBServerType = mongodbReplicaSetServerType
+			}
+		}
+	}
+	repoData.MaxAllowedListeners = maxAllowedListeners
+	repoData.Properties = properties
+
+	return repoData, nil
 }
