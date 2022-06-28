@@ -25,9 +25,6 @@ type DataLabel struct {
 }
 
 func (dl *DataLabel) WriteToSchema(d *schema.ResourceData) error {
-	if err := d.Set("id", dl.Name); err != nil {
-		return err
-	}
 	if err := d.Set("description", dl.Description); err != nil {
 		return err
 	}
@@ -51,11 +48,6 @@ func resourceDatalabel() *schema.Resource {
 		UpdateContext: resourceDatalabelUpdate,
 		DeleteContext: resourceDatalabelDelete,
 		Schema: map[string]*schema.Schema{
-			"id": {
-				Description: "Name of the data label.",
-				Type:        schema.TypeString,
-				Computed:    true,
-			},
 			"name": {
 				Description: "Name of the data label.",
 				Type:        schema.TypeString,

@@ -25,4 +25,4 @@ Manages data labels. Data labels are part of the Cyral [Data Map](https://cyral.
 
 ### Read-Only
 
-- `id` (String) Name of the data label.
+- `id` (String) The ID of this resource.
