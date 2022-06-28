@@ -68,7 +68,7 @@ func resourceDatalabel() *schema.Resource {
 				Optional:    true,
 			},
 			"tags": {
-				Description: "Tags that can be used to group data labels.",
+				Description: "Tags that can be used to categorize data labels.",
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem: &schema.Schema{

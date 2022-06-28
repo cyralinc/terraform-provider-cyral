@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// TODO: don't assume the list is not empty --aholmquist 2022-06-27
 func formatAttributes(list []string) string {
 	currentResp := fmt.Sprintf("\"%s\"", list[0])
 	if len(list) > 1 {

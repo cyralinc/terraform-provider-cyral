@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,15 +10,21 @@ import (
 )
 
 const (
-	testPredefinedLabel = "SSN"
+	predefinedLabelCCN = "CCN"
+	predefinedLabelSSN = "SSN"
+	testCustomLabel    = "test-tf-custom-label"
 )
 
 func initialDataMapConfig() *DataMap {
 	return &DataMap{
 		Labels: map[string]*DataMapMapping{
-			testPredefinedLabel: &DataMapMapping{
+			predefinedLabelCCN: &DataMapMapping{
 				Attributes: []string{
 					"schema1.table1.col1",
+				},
+			},
+			predefinedLabelSSN: &DataMapMapping{
+				Attributes: []string{
 					"schema1.table1.col2",
 				},
 			},
@@ -28,64 +35,97 @@ func initialDataMapConfig() *DataMap {
 func updateDataMapConfig() *DataMap {
 	return &DataMap{
 		Labels: map[string]*DataMapMapping{
-			testPredefinedLabel: &DataMapMapping{
+			predefinedLabelSSN: &DataMapMapping{
 				Attributes: []string{
-					"schema1.table1.col3",
+					"schema1.table1.col1",
 				},
 			},
 		},
 	}
 }
 
-func TestAccRepositoryDatamapResource(t *testing.T) {
-	testInitialConfig, testInitialFunc := setupRepositoryDatamapTest(t, initialDataMapConfig())
-	testUpdateConfig, testUpdateFunc := setupRepositoryDatamapTest(t, updateDataMapConfig())
+func dataMapConfigWithDataLabel() (*DataMap, *DataLabel) {
+	return &DataMap{
+			Labels: map[string]*DataMapMapping{
+				testCustomLabel: &DataMapMapping{
+					Attributes: []string{
+						"schema1.table1.col1",
+					},
+				},
+			},
+		}, &DataLabel{
+			Name:        testCustomLabel,
+			Description: "custom-label-description",
+			Tags:        []string{"tag1"},
+		}
+}
 
+func TestAccRepositoryDatamapResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
-			{
-				Config: testInitialConfig,
-				Check:  testInitialFunc,
-			},
-			{
-				Config: testUpdateConfig,
-				Check:  testUpdateFunc,
-			},
+			testRepositoryDatamapInitialConfig(t),
+			testRepositoryDatamapUpdateConfig(t),
+			testRepositoryDatamapWithDatalabel(t),
 		},
 	})
 }
 
-func setupRepositoryDatamapTest(t *testing.T, dataMap *DataMap) (string, resource.TestCheckFunc) {
-	configuration := formatRepositoryDatamapIntoConfig(t, dataMap)
+func testRepositoryDatamapInitialConfig(t *testing.T) resource.TestStep {
+	config := formatDataMapIntoConfig(t, initialDataMapConfig())
+	check := setupRepositoryDatamapTestFunc(t, initialDataMapConfig())
+	return resource.TestStep{Config: config, Check: check}
+}
 
+func testRepositoryDatamapUpdateConfig(t *testing.T) resource.TestStep {
+	config := formatDataMapIntoConfig(t, updateDataMapConfig())
+	check := setupRepositoryDatamapTestFunc(t, updateDataMapConfig())
+	return resource.TestStep{Config: config, Check: check}
+}
+
+func testRepositoryDatamapWithDatalabel(t *testing.T) resource.TestStep {
+	configDM, configDL := dataMapConfigWithDataLabel()
+	tfConfig := (formatDataMapIntoConfig(t, configDM) +
+		formatDataLabelIntoConfig(t, configDL))
+	check := setupRepositoryDatamapTestFunc(t, configDM)
+	return resource.TestStep{Config: tfConfig, Check: check}
+}
+
+func setupRepositoryDatamapTestFunc(t *testing.T, dataMap *DataMap) resource.TestCheckFunc {
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			"cyral_repository_datamap.test_repository_datamap", "repo_id",
-			"cyral_sidecar.test_sidecar", "id"),
+			"cyral_repository.test_repository", "id"),
 	}
 
 	require.NotNil(t, dataMap.Labels)
 	idxMapping := 0
-	for label, mapping := range dataMap.Labels {
-		matchingMap := map[string]string{"label": label}
-		for i, attribute := range mapping.Attributes {
-			matchingMap[fmt.Sprintf("attributes.%d", i)] = attribute
-		}
-		testFunctions = append(testFunctions, resource.TestCheckTypeSetElemNestedAttrs(
-			"cyral_repository_datamap.test_repository_datamap", fmt.Sprintf("mapping.%d", idxMapping),
-			matchingMap))
+	sortedLabels := dataMapSortedLabels(dataMap)
+	for _, label := range sortedLabels {
+		mapping := dataMap.Labels[label]
+
+		testFunctions = append(testFunctions, resource.TestCheckResourceAttr(
+			"cyral_repository_datamap.test_repository_datamap",
+			fmt.Sprintf("mapping.%d.label", idxMapping), label))
+		testFunctions = append(testFunctions, resource.TestCheckResourceAttr(
+			"cyral_repository_datamap.test_repository_datamap",
+			fmt.Sprintf("mapping.%d.attributes.#", idxMapping),
+			fmt.Sprintf("%d", len(mapping.Attributes))))
 		idxMapping++
 	}
 
 	testFunction := resource.ComposeTestCheckFunc(testFunctions...)
 
-	return configuration, testFunction
+	return testFunction
 }
 
-func formatRepositoryDatamapIntoConfig(t *testing.T, dataMap *DataMap) string {
+func formatDataMapIntoConfig(t *testing.T, dataMap *DataMap) string {
+	dependsOnStr := ""
 	mappingsStr := ""
-	for label, mapping := range dataMap.Labels {
+	sortedLabels := dataMapSortedLabels(dataMap)
+	for _, label := range sortedLabels {
+		mapping := dataMap.Labels[label]
+
 		require.NotNil(t, mapping)
 		require.NotNil(t, mapping.Attributes)
 
@@ -94,20 +134,41 @@ func formatRepositoryDatamapIntoConfig(t *testing.T, dataMap *DataMap) string {
 			label = "%s"
 			attributes = [%s]
 		}`, label, formatAttributes(mapping.Attributes))
+
+		if label == testCustomLabel {
+			// If there is a custom label in the configuration, we
+			// want to delete the data map first, otherwise the
+			// label cannot be deleted.
+			dependsOnStr = "depends_on = [cyral_datalabel.test_datalabel]"
+		}
 	}
 	require.NotEmpty(t, mappingsStr)
 
-	return fmt.Sprintf(`
-	resource "cyral_repository" "repo1" {
+	config := fmt.Sprintf(`
+	resource "cyral_repository" "test_repository" {
 		type  = "sqlserver"
 		host  = "localhost"
 		port  = 1433
-		name  = "sqlserver-1"
+		name  = "tf-test-sqlserver-1"
 		labels = ["repo-label1", "repo-label2"]
 	}
 
 	resource "cyral_repository_datamap" "test_repository_datamap" {
-		repo_id = cyral_repository.repo1.id
 		%s
-	}`, mappingsStr)
+		repo_id = cyral_repository.test_repository.id
+		%s
+	}`, dependsOnStr, mappingsStr)
+
+	return config
+}
+
+// dataMapSortedLabels exists to allow construction and checking of terraform
+// configurations with the data map following the same order.
+func dataMapSortedLabels(dataMap *DataMap) []string {
+	var labels []string
+	for label, _ := range dataMap.Labels {
+		labels = append(labels, label)
+	}
+	sort.Strings(labels)
+	return labels
 }

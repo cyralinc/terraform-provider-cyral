@@ -21,7 +21,7 @@ Manages data labels. Data labels are part of the Cyral [Data Map](https://cyral.
 ### Optional
 
 - `description` (String) Description of the data label.
-- `tags` (List of String) Tags that can be used to group data labels.
+- `tags` (List of String) Tags that can be used to categorize data labels.
 
 ### Read-Only
 
