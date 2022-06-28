@@ -4,13 +4,15 @@ import (
 	"fmt"
 )
 
-// TODO: don't assume the list is not empty --aholmquist 2022-06-27
-func formatAttributes(list []string) string {
-	currentResp := fmt.Sprintf("\"%s\"", list[0])
-	if len(list) > 1 {
-		for _, item := range list[1:] {
-			currentResp = fmt.Sprintf("%s, \"%s\"", currentResp, item)
+func formatAttributes(attributes []string) string {
+	if len(attributes) == 0 {
+		return ""
+	}
+	s := fmt.Sprintf(`"%s"`, attributes[0])
+	if len(attributes) > 1 {
+		for _, attribute := range attributes[1:] {
+			s += fmt.Sprintf(`, "%s"`, attribute)
 		}
 	}
-	return currentResp
+	return s
 }

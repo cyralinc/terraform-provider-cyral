@@ -111,6 +111,7 @@ func setupRepositoryDatamapTestFunc(t *testing.T, dataMap *DataMap) resource.Tes
 			"cyral_repository_datamap.test_repository_datamap",
 			fmt.Sprintf("mapping.%d.attributes.#", idxMapping),
 			fmt.Sprintf("%d", len(mapping.Attributes))))
+
 		idxMapping++
 	}
 
@@ -137,8 +138,9 @@ func formatDataMapIntoConfig(t *testing.T, dataMap *DataMap) string {
 
 		if label == testCustomLabel {
 			// If there is a custom label in the configuration, we
-			// want to delete the data map first, otherwise the
-			// label cannot be deleted.
+			// need to delete the data map first, otherwise the
+			// label cannot be deleted. The depends_on Terraform
+			// meta-argument forces the right deletion order.
 			dependsOnStr = "depends_on = [cyral_datalabel.test_datalabel]"
 		}
 	}
@@ -163,7 +165,7 @@ func formatDataMapIntoConfig(t *testing.T, dataMap *DataMap) string {
 }
 
 // dataMapSortedLabels exists to allow construction and checking of terraform
-// configurations with the data map following the same order.
+// configurations with the data map following the same order of the mappings.
 func dataMapSortedLabels(dataMap *DataMap) []string {
 	var labels []string
 	for label, _ := range dataMap.Labels {

@@ -62,7 +62,7 @@ func resourceRepositoryDatamap() *schema.Resource {
 				ForceNew:    true,
 			},
 			"mapping": {
-				Description: "Block that supports mapping attributes in repos to a given label.",
+				Description: "Mapping of a label to a list of data locations (attributes).",
 				Type:        schema.TypeSet,
 				Required:    true,
 				MinItems:    1,
@@ -124,7 +124,7 @@ func resourceRepositoryDatamapRead(ctx context.Context, d *schema.ResourceData, 
 	log.Printf("[DEBUG] Init resourceRepositoryDatamapRead")
 	c := m.(*client.Client)
 
-	repoID := d.Get("repo_id").(string)
+	repoID := d.Id()
 	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
@@ -151,11 +151,11 @@ func resourceRepositoryDatamapUpdate(ctx context.Context, d *schema.ResourceData
 	log.Printf("[DEBUG] Init resourceRepositoryDatamapUpdate")
 	c := m.(*client.Client)
 
+	repoID := d.Id()
+	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
+
 	dataMap := getDatamapFromResource(d)
 	dataMapRequest := DataMapRequest{DataMap: dataMap}
-
-	repoID := d.Get("repo_id").(string)
-	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
 
 	_, err := c.DoRequest(url, http.MethodPut, dataMapRequest)
 	if err != nil {
@@ -171,7 +171,7 @@ func resourceRepositoryDatamapDelete(ctx context.Context, d *schema.ResourceData
 	log.Printf("[DEBUG] Init resourceRepositoryDatamapDelete")
 	c := m.(*client.Client)
 
-	repoID := d.Get("repo_id").(string)
+	repoID := d.Id()
 	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
 
 	_, err := c.DoRequest(url, http.MethodDelete, nil)
