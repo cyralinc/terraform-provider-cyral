@@ -75,5 +75,5 @@ func formatOktaIntegrationDataIntoConfig(data ResourceIntegrationOktaPayload) st
 		email_domains = [%s]
 		signin_url    = "%s"
 		signout_url   = "%s"
-	  }`, data.Samlp.Name, data.Samlp.Certificate, formatAttibutes(data.Samlp.EmailDomains), data.Samlp.SignInUrl, data.Samlp.SignOutUrl)
+	  }`, data.Samlp.Name, data.Samlp.Certificate, formatAttributes(data.Samlp.EmailDomains), data.Samlp.SignInUrl, data.Samlp.SignOutUrl)
 }

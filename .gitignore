@@ -14,5 +14,8 @@ vendor/
 .idea/
 __debug_bin
 
+# Emacs
+*~
+
 # Documentation for depreacated resources
 docs/resources/integration_sso_*.md

@@ -121,5 +121,5 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		labels = [%s]
 		%s
 	}`, data.RepoType, data.Host, data.Port, data.Name,
-		formatAttibutes(data.Labels), propertiesStr)
+		formatAttributes(data.Labels), propertiesStr)
 }

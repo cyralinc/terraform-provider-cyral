@@ -74,15 +74,5 @@ func formatPolicyTestConfigIntoConfig(data PolicyTestConfig) string {
 		enabled = %t
 		name = "%s"
 		tags = [%s]
-	  }`, formatAttibutes(data.Data), data.Description, data.Enabled, data.Name, formatAttibutes(data.Tags))
-}
-
-func formatAttibutes(list []string) string {
-	currentResp := fmt.Sprintf("\"%s\"", list[0])
-	if len(list) > 1 {
-		for _, item := range list[1:] {
-			currentResp = fmt.Sprintf("%s, \"%s\"", currentResp, item)
-		}
-	}
-	return currentResp
+	  }`, formatAttributes(data.Data), data.Description, data.Enabled, data.Name, formatAttributes(data.Tags))
 }
