@@ -16,7 +16,7 @@ terraform {
   required_providers {
     cyral = {
       source = "cyralinc/cyral"
-      version = ">= 2.4.0"
+      version = ">= 2.7.0"
     }
   }
 }
@@ -104,13 +104,13 @@ resource "cyral_repository_binding" "repo_binding" {
 module "cyral_sidecar" {
     # Set the desired sidecar version. This information can be extracted
     # from the template downloaded from the UI.
-    sidecar_version = "v2.27.0"
+    sidecar_version = "v2.33.0"
 
     source  = "cyralinc/sidecar-aws/cyral"
     # Use the module version that is compatible with your sidecar. This
     # information can be extracted from the template downloaded from
     # the UI.
-    version = "2.5.4"
+    version = "2.8.1"
 
     sidecar_id = cyral_sidecar.mysql_sidecar.id
 
