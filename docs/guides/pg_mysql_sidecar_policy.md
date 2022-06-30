@@ -126,4 +126,4 @@ repository](https://cyral.com/docs/connect/repo-connect).
 
 This guide presents a very simple Cyral policy. Cyral policies have many more
 capabilities. Check out all attributes that the policy rule resource supports:
-[`cyral_policy_rule`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_rule).
+[cyral_policy_rule](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_rule).
