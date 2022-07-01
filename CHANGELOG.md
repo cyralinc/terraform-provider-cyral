@@ -9,8 +9,9 @@ Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter
 
 ### Features:
 
-- **Add resources for per-repository data map**: [#230](https://github.com/cyralinc/terraform-provider-cyral/pull/230).
 - **Add data source for cyral_integration_idp**: [#239](https://github.com/cyralinc/terraform-provider-cyral/pull/239).
+- **Add resources for per-repository data map**: [#230](https://github.com/cyralinc/terraform-provider-cyral/pull/230).
+- **Add Terraform guides for basic usages of Cyral features**: [#238](https://github.com/cyralinc/terraform-provider-cyral/pull/238).
 - **Support MongoDB repository replica sets**: [#228](https://github.com/cyralinc/terraform-provider-cyral/pull/228).
 
 ## 2.6.2 (June 6, 2022)
