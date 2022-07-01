@@ -129,22 +129,14 @@ func dataSourceIntegrationIdPRead(
 				if displayNameFilter != "" && displayNameFilter != connection.DisplayName {
 					continue
 				}
-				// Conditions to return data:
-				// 1. displayNameFilter is not empty and correspond to the one in the current connection;
-				// 2. displayNameFilter and idpTypeFilter are empty, meaning everything must be returned.
-				// 3. idpTypeFilter is not empty (already filtered in the endpoint call, thus adding
-				//    everything that is returned if this is the only filter).
-				if (displayNameFilter != "" && displayNameFilter == connection.DisplayName) || // 1
-					(displayNameFilter == "" && idpTypeFilter == "") || // 2
-					(idpTypeFilter != "") { // 3
-					log.Printf("[DEBUG] Add connection to idp_set: %#v", connection)
-					idpList = append(idpList, map[string]interface{}{
-						"display_name":               connection.DisplayName,
-						"alias":                      connection.Alias,
-						"single_sign_on_service_url": connection.SingleSignOnServiceURL,
-						"enabled":                    connection.Enabled,
-					})
-				}
+
+				log.Printf("[DEBUG] Add connection to idp_set: %#v", connection)
+				idpList = append(idpList, map[string]interface{}{
+					"display_name":               connection.DisplayName,
+					"alias":                      connection.Alias,
+					"single_sign_on_service_url": connection.SingleSignOnServiceURL,
+					"enabled":                    connection.Enabled,
+				})
 			}
 		}
 	}
