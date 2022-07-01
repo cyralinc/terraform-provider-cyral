@@ -1,0 +1,53 @@
+---
+page_title: "Setup SSO access to MongoDB cluster using Okta IdP"
+---
+
+In this guide, we deploy a sidecar, a repository associated with a MongoDB
+replica set, and an Okta integration with the Cyral control plane. This setup
+enables you to allow your users to access the database using SSO authentication
+with Okta.
+
+The guide is self-contained, so there are no prerequisites, except that you must
+have the right credentials for Cyral, Okta and AWS providers. In each step
+below, simply copy the code and paste locally, adjusting the argument values to
+your need. We suggest the names of the files, but they are completely
+arbitrary. For example, you may choose to name `versions.tf` `my-versions.tf`.
+
+## Configure required providers
+
+Put in the file `versions.tf` the following code:
+
+{{ tffile "examples/guides/mongodb_cluster_okta_idp_versions.tf" }}
+
+And in `providers.tf`, the following. The comments indicate how to obtain the
+required credentials.
+
+{{ tffile "examples/guides/mongodb_cluster_okta_idp_providers.tf" }}
+
+## Configure Sidecar and MongoDB repository
+
+Put the following Terraform configuration in `sidecar.tf`. Follow the comments
+and replace argument values according to your needs. The `template` mentioned in
+the comments is the sidecar Terraform deployment template you may obtain from
+the Cyral Control Plane.
+
+{{ tffile "examples/guides/mongodb_cluster_okta_idp_sidecar.tf" }}
+
+## Configure Okta
+
+Finally, configure the Okta integration with the Cyral control plane. You may
+put the code in the file `okta.tf`.
+
+{{ tffile "examples/guides/mongodb_cluster_okta_idp_okta.tf" }}
+
+## Testing
+
+To learn how to access a repository through the sidecar, see [Connect to a
+repository](https://cyral.com/docs/connect/repo-connect/#connect-to-a-data-repository-with-sso-credentials).
+
+## Next steps
+
+In this guide, we configured a user Okta identity. You may also choose to create
+group identities such as `analyst`, `mathematician`, `engineer`, etc. For more
+information on Okta SSO integration, visit [SSO with
+Okta](https://cyral.com/docs/sso/okta/sso).
