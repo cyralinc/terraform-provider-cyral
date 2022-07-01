@@ -29,7 +29,7 @@ resource "cyral_datalabel" "custom_label" {
 }
 
 resource "cyral_repository_datamap" "pg_datamap" {
-  repo_id = cyral_repository.pg_repo.id
+  repository_id = cyral_repository.pg_repo.id
   mapping {
     label      = cyral_datalabel.custom_label.name
     attributes = ["customer_schema.table1.col1", "customer_schema.table1.col2"]
@@ -37,7 +37,7 @@ resource "cyral_repository_datamap" "pg_datamap" {
 }
 
 resource "cyral_repository_datamap" "mysql_datamap" {
-  repo_id = cyral_repository.mysql_repo.id
+  repository_id = cyral_repository.mysql_repo.id
   mapping {
     label      = local.phone_label
     attributes = ["customer_schema.phone.number"]

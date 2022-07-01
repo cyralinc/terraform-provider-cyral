@@ -94,7 +94,7 @@ func testRepositoryDatamapWithDatalabel(t *testing.T) resource.TestStep {
 func setupRepositoryDatamapTestFunc(t *testing.T, dataMap *DataMap) resource.TestCheckFunc {
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
-			"cyral_repository_datamap.test_repository_datamap", "repo_id",
+			"cyral_repository_datamap.test_repository_datamap", "repository_id",
 			"cyral_repository.test_repository", "id"),
 	}
 
@@ -157,7 +157,7 @@ func formatDataMapIntoConfig(t *testing.T, dataMap *DataMap) string {
 
 	resource "cyral_repository_datamap" "test_repository_datamap" {
 		%s
-		repo_id = cyral_repository.test_repository.id
+		repository_id = cyral_repository.test_repository.id
 		%s
 	}`, dependsOnStr, mappingsStr)
 

@@ -55,7 +55,7 @@ func resourceRepositoryDatamap() *schema.Resource {
 		UpdateContext: resourceRepositoryDatamapUpdate,
 		DeleteContext: resourceRepositoryDatamapDelete,
 		Schema: map[string]*schema.Schema{
-			"repo_id": {
+			"repository_id": {
 				Description: "ID of the repository for which to configure a data map.",
 				Type:        schema.TypeString,
 				Required:    true,
@@ -102,7 +102,7 @@ func resourceRepositoryDatamapCreate(ctx context.Context, d *schema.ResourceData
 	log.Printf("[DEBUG] Init resourceRepositoryDatamapCreate")
 	c := m.(*client.Client)
 
-	repoID := d.Get("repo_id").(string)
+	repoID := d.Get("repository_id").(string)
 	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
 
 	dataMap := getDatamapFromResource(d)
