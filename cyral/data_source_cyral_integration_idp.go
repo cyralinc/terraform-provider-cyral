@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"sort"
-	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/google/uuid"
@@ -127,8 +126,7 @@ func dataSourceIntegrationIdPRead(
 			log.Printf("[DEBUG] Connection: %#v", connection)
 			if connection != nil {
 				// Skip in case filters are non-empty but
-				if (displayNameFilter != "" && displayNameFilter != connection.DisplayName) ||
-					(idpTypeFilter != "" && !strings.HasPrefix(connection.Alias, idpTypeFilter)) {
+				if displayNameFilter != "" && displayNameFilter != connection.DisplayName {
 					continue
 				}
 				// Conditions to return data:
