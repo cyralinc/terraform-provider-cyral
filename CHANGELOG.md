@@ -1,6 +1,23 @@
+## 2.7.0 (July 1, 2022)
+
+Minimum required Control Plane version: `v2.32.0`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+
+### Bug fixes:
+
+- **Fix memory referencing issue and refactor resources**: [#223](https://github.com/cyralinc/terraform-provider-cyral/pull/223).
+
+### Features:
+
+- **Add data source for cyral_integration_idp**: [#239](https://github.com/cyralinc/terraform-provider-cyral/pull/239).
+- **Add resources for per-repository data map**: [#230](https://github.com/cyralinc/terraform-provider-cyral/pull/230).
+- **Add Terraform guides for basic usages of Cyral features**: [#238](https://github.com/cyralinc/terraform-provider-cyral/pull/238).
+- **Support MongoDB repository replica sets**: [#228](https://github.com/cyralinc/terraform-provider-cyral/pull/228).
+
 ## 2.6.2 (June 6, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Documentation:
 
@@ -9,6 +26,7 @@ Minimum required Control Plane version: `v2.32.0`.
 ## 2.6.1 (May 31, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Documentation:
 
@@ -17,6 +35,7 @@ Minimum required Control Plane version: `v2.32.0`.
 ## 2.6.0 (May 27, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Bug fixes:
 
@@ -49,6 +68,7 @@ Minimum required Control Plane version: `v2.32.0`.
 ## 2.5.2 (April 19, 2022)
 
 Minimum required Control Plane version: `v2.29.0`.
+Resource incompatible with Control Planes between `v2.25` and `v2.28`: `cyral_integration_pager_duty`.
 
 ### Bug fixes:
 
@@ -57,6 +77,7 @@ Minimum required Control Plane version: `v2.29.0`.
 ## 2.5.1 (March 31, 2022)
 
 Minimum required Control Plane version: `v2.29.0`.
+Resource incompatible with Control Planes between `v2.25` and `v2.28`: `cyral_integration_pager_duty`.
 
 ### Bug fixes:
 
@@ -65,6 +86,7 @@ Minimum required Control Plane version: `v2.29.0`.
 ## 2.5.0 (March 31, 2022)
 
 Minimum required Control Plane version: `v2.29.0`.
+Resource incompatible with Control Planes between `v2.25` and `v2.28`: `cyral_integration_pager_duty`.
 
 ### Bug fixes:
 
