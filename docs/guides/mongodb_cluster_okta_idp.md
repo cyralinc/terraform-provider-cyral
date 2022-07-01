@@ -10,12 +10,12 @@ with Okta.
 The guide is self-contained, so there are no prerequisites, except that you must
 have the right credentials for Cyral, Okta and AWS providers. In each step
 below, simply copy the code and paste locally, adjusting the argument values to
-your need. We suggest the names of the files, but they are completely
-arbitrary. For example, you may choose to name `versions.tf` `my-versions.tf`.
+your need. In some cases, we suggest the names of the files, but these names
+don't need to be followed strictly.
 
 ## Configure required providers
 
-Put in the file `versions.tf` the following code:
+Set required provider versions:
 
 ```terraform
 terraform {
@@ -31,8 +31,7 @@ terraform {
 }
 ```
 
-And in `providers.tf`, the following. The comments indicate how to obtain the
-required credentials.
+Configure the providers:
 
 ```terraform
 provider "cyral" {
@@ -246,16 +245,12 @@ output "sidecar_load_balancer_dns" {
 }
 ```
 
-## Configure Okta
+## Configure a local account with the database credentials
 
-Finally, configure the Okta integration with the Cyral control plane. You may
-put the code in the file `okta.tf`.
+Put the following in `local_account.tf`.
 
 ```terraform
 locals {
-  okta_app_name         = "Cyral"
-  okta_integration_name = "my-okta-integration"
-
   database_credentials = {
     # Native database credentials.
     username = ""
@@ -263,19 +258,9 @@ locals {
   }
 }
 
-module "cyral_idp_okta" {
-  source = "cyralinc/idp/okta"
-  version = ">= 3.0.2"
-
-  tenant = "default"
-
-  control_plane = "${local.control_plane}:8000"
-
-  okta_app_name        = local.okta_app_name
-  idp_integration_name = local.okta_integration_name
-}
-
 resource "aws_secretsmanager_secret" "mongodb_creds" {
+  # The sidecar deployed using our AWS sidecar module has access to all secrets
+  # with the prefix '/cyral/' in the region it is deployed.
   name = join("", [
     "/cyral/dbsecrets/",
     cyral_repository.mongodb_repo.id
@@ -292,10 +277,34 @@ resource "cyral_repository_local_account" "mongodb_local_account" {
   aws_secrets_manager {
     # Set the name of the target MongoDB database.
     database_name = ""
-	# Set the name of local account. This can be chosen freely.
+    # Set the name of local account. This can be chosen freely.
     local_account = ""
     secret_arn    = aws_secretsmanager_secret.mongodb_creds.arn
   }
+}
+```
+
+## Configure Okta IdP
+
+Finally, configure the Okta integration with the Cyral control plane. Put the
+code in the file `okta.tf`.
+
+```terraform
+locals {
+  okta_app_name         = "Cyral"
+  okta_integration_name = "my-okta-integration"
+}
+
+module "cyral_idp_okta" {
+  source = "cyralinc/idp/okta"
+  version = ">= 3.0.2"
+
+  tenant = "default"
+
+  control_plane = "${local.control_plane}:8000"
+
+  okta_app_name        = local.okta_app_name
+  idp_integration_name = local.okta_integration_name
 }
 
 resource "cyral_repository_identity_map" "okta" {
@@ -313,7 +322,7 @@ repository](https://cyral.com/docs/connect/repo-connect/#connect-to-a-data-repos
 
 ## Next steps
 
-In this guide, we configured a user Okta identity. You may also choose to create
-group identities such as `analyst`, `mathematician`, `engineer`, etc. For more
-information on Okta SSO integration, visit [SSO with
+In this guide, we configured a _user_ Okta identity. You may also choose to
+create group identities such as `analyst`, `mathematician`, `engineer`, etc. For
+more information on Okta SSO integration, visit [SSO with
 Okta](https://cyral.com/docs/sso/okta/sso).

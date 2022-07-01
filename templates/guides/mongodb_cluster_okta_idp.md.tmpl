@@ -10,17 +10,16 @@ with Okta.
 The guide is self-contained, so there are no prerequisites, except that you must
 have the right credentials for Cyral, Okta and AWS providers. In each step
 below, simply copy the code and paste locally, adjusting the argument values to
-your need. We suggest the names of the files, but they are completely
-arbitrary. For example, you may choose to name `versions.tf` `my-versions.tf`.
+your need. In some cases, we suggest the names of the files, but these names
+don't need to be followed strictly.
 
 ## Configure required providers
 
-Put in the file `versions.tf` the following code:
+Set required provider versions:
 
 {{ tffile "examples/guides/mongodb_cluster_okta_idp_versions.tf" }}
 
-And in `providers.tf`, the following. The comments indicate how to obtain the
-required credentials.
+Configure the providers:
 
 {{ tffile "examples/guides/mongodb_cluster_okta_idp_providers.tf" }}
 
@@ -33,10 +32,16 @@ the Cyral Control Plane.
 
 {{ tffile "examples/guides/mongodb_cluster_okta_idp_sidecar.tf" }}
 
-## Configure Okta
+## Configure a local account with the database credentials
 
-Finally, configure the Okta integration with the Cyral control plane. You may
-put the code in the file `okta.tf`.
+Put the following in `local_account.tf`.
+
+{{ tffile "examples/guides/mongodb_cluster_okta_idp_local_account.tf" }}
+
+## Configure Okta IdP
+
+Finally, configure the Okta integration with the Cyral control plane. Put the
+code in the file `okta.tf`.
 
 {{ tffile "examples/guides/mongodb_cluster_okta_idp_okta.tf" }}
 
@@ -47,7 +52,7 @@ repository](https://cyral.com/docs/connect/repo-connect/#connect-to-a-data-repos
 
 ## Next steps
 
-In this guide, we configured a user Okta identity. You may also choose to create
-group identities such as `analyst`, `mathematician`, `engineer`, etc. For more
-information on Okta SSO integration, visit [SSO with
+In this guide, we configured a _user_ Okta identity. You may also choose to
+create group identities such as `analyst`, `mathematician`, `engineer`, etc. For
+more information on Okta SSO integration, visit [SSO with
 Okta](https://cyral.com/docs/sso/okta/sso).
