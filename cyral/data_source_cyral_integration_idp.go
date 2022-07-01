@@ -80,7 +80,7 @@ func dataSourceIntegrationIdP() *schema.Resource {
 					},
 				},
 				Computed:    true,
-				Description: "Set of existing IdP integrations for the given filter criteria.",
+				Description: "List of existing IdP integrations for the given filter criteria.",
 			},
 		},
 		Importer: &schema.ResourceImporter{
