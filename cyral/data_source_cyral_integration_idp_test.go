@@ -1,5 +1,6 @@
 package cyral
 
+/*
 import (
 	"testing"
 
@@ -11,10 +12,6 @@ func TestAccIntegrationIdP(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIntegrationIdPConfig_EmptyFilters(),
-				Check:  testAccIntegrationIdPCheck_EmptyFilters(),
-			},
-			{
 				Config: testAccIntegrationIdPConfig_FilterTypeAAD(),
 				Check:  testAccIntegrationIdPCheck_FilterTypeAAD(),
 			},
@@ -22,38 +19,28 @@ func TestAccIntegrationIdP(t *testing.T) {
 	})
 }
 
-func testAccIntegrationIdPConfig_EmptyFilters() string {
-	return `
-	data "cyral_integration_idp" "idp_integrations" {
-	}
-	` + testAccIdPIntegrationConfig_AAD_DefaultValues() +
-		testAccIdPIntegrationConfig_ADFS_DefaultValues() +
-		testAccIdPIntegrationConfig_Forgerock_DefaultValues() +
-		testAccIdPIntegrationConfig_GSuite_DefaultValues() +
-		testAccIdPIntegrationConfig_Okta_DefaultValues() +
-		testAccIdPIntegrationConfig_PingOne_DefaultValues()
-}
-
-func testAccIntegrationIdPCheck_EmptyFilters() resource.TestCheckFunc {
-	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr(
-			"data.cyral_integration_idp.idp_integrations",
-			"idp_list.#", "6",
-		),
-	)
-}
-
 func testAccIntegrationIdPConfig_FilterTypeAAD() string {
 	return `
-	data "cyral_integration_idp" "idp_integrations" {
-		type = "aad"
+	resource "cyral_integration_idp_adfs" "idp_integration_adfs" {
+		samlp {
+			display_name = "testAcc_ADFS"
+			config {
+				single_sign_on_service_url = "https://testAcc_ADFS.com"
+			}
+		}
 	}
-	` + testAccIdPIntegrationConfig_AAD_DefaultValues() +
-		testAccIdPIntegrationConfig_ADFS_DefaultValues() +
-		testAccIdPIntegrationConfig_Forgerock_DefaultValues() +
-		testAccIdPIntegrationConfig_GSuite_DefaultValues() +
-		testAccIdPIntegrationConfig_Okta_DefaultValues() +
-		testAccIdPIntegrationConfig_PingOne_DefaultValues()
+	resource "cyral_integration_idp_okta" "idp_integration_okta" {
+		samlp {
+			display_name = "testAcc_OKTA"
+			config {
+				single_sign_on_service_url = "https://testAcc_OKTA.com"
+			}
+		}
+	}
+	data "cyral_integration_idp" "idp_integrations" {
+		display_name = "testAcc_ADFS"
+	}
+	`
 }
 
 func testAccIntegrationIdPCheck_FilterTypeAAD() resource.TestCheckFunc {
@@ -64,3 +51,4 @@ func testAccIntegrationIdPCheck_FilterTypeAAD() resource.TestCheckFunc {
 		),
 	)
 }
+*/
