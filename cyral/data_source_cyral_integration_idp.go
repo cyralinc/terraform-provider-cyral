@@ -44,9 +44,12 @@ func dataSourceIntegrationIdP() *schema.Resource {
 				Optional:    true,
 				Type:        schema.TypeString,
 				ValidateFunc: validation.StringInSlice([]string{
-					"okta",
+					"aad",
 					"adfs",
 					"forgerock",
+					"gsuite",
+					"okta",
+					"ping_one",
 				}, false),
 			},
 			"idp_set": {
