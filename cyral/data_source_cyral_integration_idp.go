@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/google/uuid"
@@ -49,11 +51,11 @@ func dataSourceIntegrationIdP() *schema.Resource {
 					"forgerock",
 					"gsuite",
 					"okta",
-					"ping_one",
+					"pingone",
 				}, false),
 			},
-			"idp_set": {
-				Type: schema.TypeSet,
+			"idp_list": {
+				Type: schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"display_name": {
@@ -96,7 +98,14 @@ func dataSourceIntegrationIdPRead(
 	log.Printf("[DEBUG] Init dataSourceIntegrationIdPRead")
 	c := m.(*client.Client)
 
-	url := fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
+	idpTypeFilter := d.Get("type").(string)
+
+	var url = fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
+	if idpTypeFilter != "" {
+		url = fmt.Sprintf("https://%s/v1/integrations/saml?identityProvider=%s",
+			c.ControlPlane, idpTypeFilter)
+	}
+
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
 		return createError("Unable to execute request to read idp integrations", err.Error())
@@ -108,25 +117,34 @@ func dataSourceIntegrationIdPRead(
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", idpIntegrations)
 
-	var idpSet []interface{}
-	displayName := d.Get("display_name").(string)
-	idpType := d.Get("type").(string)
+	var idpList []interface{}
+	displayNameFilter := d.Get("display_name").(string)
 
-	log.Printf("[DEBUG] display_name: %s", displayName)
-	log.Printf("[DEBUG] type: %s", idpType)
+	log.Printf("[DEBUG] display_name: %s", displayNameFilter)
+	log.Printf("[DEBUG] type: %s", idpTypeFilter)
 	if idpIntegrations.Connections != nil {
 		for _, connection := range idpIntegrations.Connections.Connections {
 			log.Printf("[DEBUG] Connection: %#v", connection)
 			if connection != nil {
+				// Skip in case filters are non-empty but
+				if (displayNameFilter != "" && displayNameFilter != connection.DisplayName) ||
+					(idpTypeFilter != "" && !strings.HasPrefix(connection.Alias, idpTypeFilter)) {
+					continue
+				}
 				// Conditions to return data:
-				// 1. displayName is not empty and correspond to the one in the current connection;
-				// 2. idpType is not empty and correspond to the first characters of the current connection alias;
-				// 3. displayName and idpType are empty.
-				if (displayName != "" && displayName == connection.DisplayName) ||
-					(idpType != "" && idpType == connection.Alias[0:len(idpType)]) ||
-					(displayName == "" && idpType == "") {
+				// 1. displayNameFilter is not empty and correspond to the one in the current connection;
+				// 2. displayNameFilter and idpTypeFilter are empty.
+				// 3. idpTypeFilter is not empty (already filtered in the endpoint call)
+				// Conditions NOT to return data:
+				// 4. displayNameFilter is not empty and does not correspond to the one in the current connection OR
+				//    idpTypeFilter is not empty and does not correspond to the one in the current connection
+				if ((displayNameFilter != "" && displayNameFilter == connection.DisplayName) || // 1
+					(displayNameFilter == "" && idpTypeFilter == "") || // 2
+					(idpTypeFilter != "")) && // 3
+					!((displayNameFilter != "" && displayNameFilter != connection.DisplayName) || // 4
+						(idpTypeFilter != "" && !strings.HasPrefix(connection.Alias, idpTypeFilter))) {
 					log.Printf("[DEBUG] Add connection to idp_set: %#v", connection)
-					idpSet = append(idpSet, map[string]interface{}{
+					idpList = append(idpList, map[string]interface{}{
 						"display_name":               connection.DisplayName,
 						"alias":                      connection.Alias,
 						"single_sign_on_service_url": connection.SingleSignOnServiceURL,
@@ -136,8 +154,12 @@ func dataSourceIntegrationIdPRead(
 			}
 		}
 	}
+	sort.Slice(idpList, func(p, q int) bool {
+		return idpList[p].(map[string]interface{})["display_name"].(string) <
+			idpList[q].(map[string]interface{})["display_name"].(string)
+	})
 	d.SetId(uuid.New().String())
-	d.Set("idp_set", idpSet)
+	d.Set("idp_list", idpList)
 
 	log.Printf("[DEBUG] End dataSourceIntegrationIdPRead")
 

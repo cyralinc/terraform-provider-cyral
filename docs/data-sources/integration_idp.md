@@ -22,11 +22,11 @@ Retrieve and filter IdP integrations.
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `idp_set` (Set of Object) Set of existing IdP integrations for the given filter criteria. (see [below for nested schema](#nestedatt--idp_set))
+- `idp_list` (List of Object) Set of existing IdP integrations for the given filter criteria. (see [below for nested schema](#nestedatt--idp_list))
 
-<a id="nestedatt--idp_set"></a>
+<a id="nestedatt--idp_list"></a>
 
-### Nested Schema for `idp_set`
+### Nested Schema for `idp_list`
 
 Read-Only:
 

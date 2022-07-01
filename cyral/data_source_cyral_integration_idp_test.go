@@ -60,7 +60,7 @@ func testAccIntegrationIdPCheck_FilterTypeAAD() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(
 			"data.cyral_integration_idp.idp_integrations",
-			"idp_set.#", "1",
+			"idp_list.#", "1",
 		),
 	)
 }
