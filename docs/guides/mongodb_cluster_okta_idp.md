@@ -2,7 +2,7 @@
 page_title: "Setup SSO access to MongoDB cluster using Okta IdP"
 ---
 
-In this guide, we deploy a sidecar, a repository associated with a MongoDB
+In this guide we deploy a sidecar, a repository associated with a MongoDB
 replica set, and an Okta integration with the Cyral control plane. This setup
 enables you to allow your users to access the database using SSO authentication
 with Okta.
@@ -10,7 +10,7 @@ with Okta.
 The guide is self-contained, so there are no prerequisites, except that you must
 have the right credentials for Cyral, Okta and AWS providers. In each step
 below, simply copy the code and paste locally, adjusting the argument values to
-your need. In some cases, we suggest the names of the files, but these names
+your needs. In some cases, we suggest the names of the files, but these names
 don't need to be followed strictly.
 
 ## Configure required providers
@@ -63,8 +63,8 @@ provider "aws" {
 
 Put the following Terraform configuration in `sidecar.tf`. Follow the comments
 and replace argument values according to your needs. The `template` mentioned in
-the comments is the sidecar Terraform deployment template you may obtain from
-the Cyral Control Plane.
+the comments is the sidecar Terraform deployment template for AWS you may download from
+the Cyral control plane or see [in the public repository](https://github.com/cyralinc/terraform-cyral-sidecar-aws).
 
 ```terraform
 locals {
@@ -322,7 +322,7 @@ repository](https://cyral.com/docs/connect/repo-connect/#connect-to-a-data-repos
 
 ## Next steps
 
-In this guide, we configured a _user_ Okta identity. You may also choose to
-create group identities such as `analyst`, `mathematician`, `engineer`, etc. For
-more information on Okta SSO integration, visit [SSO with
-Okta](https://cyral.com/docs/sso/okta/sso).
+In this guide, we configured a _user_ identity from Okta. You may also choose to
+use group identities. For more information on Okta SSO integration, visit [SSO with
+Okta](https://cyral.com/docs/sso/okta/sso) or our
+[Terraform IdP integration module for Okta](https://github.com/cyralinc/terraform-okta-idp).

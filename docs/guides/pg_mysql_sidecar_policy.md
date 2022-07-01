@@ -11,7 +11,7 @@ policies](https://cyral.com/docs/policy/overview/).
 
 Follow [this
 guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/setup_cp_and_deploy_sidecar)
-to deploy the repositores and the sidecar.
+to deploy the repositories and the sidecar.
 
 ## Policy
 
@@ -75,7 +75,7 @@ resource "cyral_policy_rule" "customer_data_rule" {
     rows     = 1
     severity = "high"
   }
-  # A query to read more than 100 entries is not normal.
+  # A query to read more than 100 entries is not considered normal.
   reads {
     data     = [local.phone_label, cyral_datalabel.custom_label.name]
     rows     = 100
@@ -83,9 +83,6 @@ resource "cyral_policy_rule" "customer_data_rule" {
   }
 }
 ```
-
-That's it! If the policies reference the right data locations in your databases,
-they will be used to monitor compliance.
 
 ## Next steps
 
