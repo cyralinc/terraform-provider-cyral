@@ -1,0 +1,29 @@
+---
+page_title: "Setup policy control over PostgreSQL and MySQL"
+---
+
+In this guide, we will attach data access policies to PostgreSQL and MySQL data
+repositories. After reading the guide, you will understand how to enforce
+fine-grained control over databases using [Cyral
+policies](https://cyral.com/docs/policy/overview/).
+
+## Prerequisites
+
+Follow [this
+guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/setup_cp_and_deploy_sidecar)
+to deploy the repositores and the sidecar.
+
+## Policy
+
+Set up your policies following the example below:
+
+{{ tffile "examples/guides/pg_mysql_sidecar_policy.tf" }}
+
+That's it! If the policies reference the right data locations in your databases,
+they will be used to monitor compliance.
+
+## Next steps
+
+This guide presents a very simple Cyral policy. Cyral policies have many more
+capabilities. Check out all attributes that the policy rule resource supports:
+[cyral_policy_rule](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_rule).

@@ -17,7 +17,7 @@ Manages [Data Map](https://cyral.com/docs/policy/datamap).
 ### Required
 
 - `mapping` (Block Set, Min: 1) Mapping of a label to a list of data locations (attributes). (see [below for nested schema](#nestedblock--mapping))
-- `repo_id` (String) ID of the repository for which to configure a data map.
+- `repository_id` (String) ID of the repository for which to configure a data map.
 
 ### Read-Only
 
