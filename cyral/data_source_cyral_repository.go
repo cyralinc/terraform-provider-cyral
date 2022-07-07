@@ -15,11 +15,9 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-type GetReposRequest struct {
-	Name string `json:"name,omitempty"`
-	Type string `json:"type,omitempty"`
-}
-
+// GetReposSubResponse is different from GetRepoByIDResponse. For the by-id
+// reponse, we expect the ids to be embedded in the RepoData struct. For
+// GetReposSubResponse, the ids come outside of RepoData.
 type GetReposSubResponse struct {
 	ID   string   `json:"id"`
 	Repo RepoData `json:"repo"`
@@ -43,7 +41,7 @@ func dataSourceRepository() *schema.Resource {
 				Description:  "Filter the results by type of repository. List of supported types:" + repositoryTypesMarkdown,
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice(repositoryTypes(), false),
+				ValidateFunc: validation.StringInSlice(append(repositoryTypes(), ""), false),
 			},
 			"repository_list": {
 				Description: "List of existing repositories satisfying given filter criteria.",
@@ -85,7 +83,7 @@ func dataSourceRepository() *schema.Resource {
 							},
 						},
 						"properties": {
-							Description: "Contains advanced repository configuration.",
+							Description: "Advanced repository configuration.",
 							Type:        schema.TypeSet,
 							Computed:    true,
 							Elem: &schema.Resource{
@@ -132,12 +130,13 @@ func dataSourceRepositoryRead(
 
 	nameFilter := d.Get("name").(string)
 	typeFilter := d.Get("type").(string)
-	getReposRequest := &GetReposRequest{
-		Name: nameFilter,
-		Type: typeFilter,
-	}
-	url := fmt.Sprintf("https://%s/v1/repos", c.ControlPlane)
-	body, err := c.DoRequest(url, http.MethodGet, getReposRequest)
+	urlParams := urlQuery(map[string]string{
+		"name": nameFilter,
+		"type": typeFilter,
+	})
+
+	url := fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
+	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
 		return createError("Unable to execute request to read repositories",
 			err.Error())

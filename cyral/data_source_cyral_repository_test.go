@@ -32,8 +32,6 @@ func repositoryDataSourceTestRepos() []RepoData {
 }
 
 func TestAccRepositoryDataSource(t *testing.T) {
-	testConfigNoFilter, testFuncNoFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "", "")
 	testConfigNameFilter, testFuncNameFilter := testRepositoryDataSource(
 		repositoryDataSourceTestRepos(), "tf-test-sqlserver-1", "")
 	testConfigTypeFilter, testFuncTypeFilter := testRepositoryDataSource(
@@ -44,10 +42,6 @@ func TestAccRepositoryDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
-			{
-				Config: testConfigNoFilter,
-				Check:  testFuncNoFilter,
-			},
 			{
 				Config: testConfigNameFilter,
 				Check:  testFuncNameFilter,
@@ -95,8 +89,6 @@ func testRepositoryDataSourceChecks(repoDatas []RepoData, nameFilter, typeFilter
 		repoData := filteredRepoDatas[0]
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(dataSourceFullName,
-				"repository_list.0.id", repoData.ID),
-			resource.TestCheckResourceAttr(dataSourceFullName,
 				"repository_list.0.name", repoData.Name),
 			resource.TestCheckResourceAttr(dataSourceFullName,
 				"repository_list.0.type", repoData.RepoType),
@@ -138,16 +130,10 @@ func filterRepoDatas(repoDatas []RepoData, nameFilter, typeFilter string) []Repo
 }
 
 func repositoryDataSourceConfig(nameFilter, typeFilter string, dependsOn []string) string {
-	var dependsOnConfig string
-	if len(dependsOn) != 0 {
-		dependsOnConfig = fmt.Sprintf(`
-		depends_on = [%s]`, formatAttributes(dependsOn))
-	}
-
 	return fmt.Sprintf(`
 	data "cyral_repository" "test_repository" {
-		%s
-		name = %s
-		type = %s
-	}`, dependsOnConfig, nameFilter, typeFilter)
+		depends_on = [%s]
+		name = "%s"
+		type = "%s"
+	}`, formatAttributes(dependsOn), nameFilter, typeFilter)
 }
