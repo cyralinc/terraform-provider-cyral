@@ -28,7 +28,7 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 	for _, repo := range resp.Repos {
 		repoID := repo.ID
 		repoData := repo.Repo
-		repoList = append(repoList, map[string]interface{}{
+		argumentVals := map[string]interface{}{
 			"id":         repoID,
 			"name":       repoData.Name,
 			"type":       repoData.RepoType,
@@ -36,7 +36,8 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 			"port":       repoData.Port,
 			"labels":     repoData.Labels,
 			"properties": repoData.PropertiesAsInterface(),
-		})
+		}
+		repoList = append(repoList, argumentVals)
 	}
 
 	if err := d.Set("repository_list", repoList); err != nil {
