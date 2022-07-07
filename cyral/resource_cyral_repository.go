@@ -16,20 +16,6 @@ import (
 const (
 	mongodbRepoType             = "mongodb"
 	mongodbReplicaSetServerType = "replicaset"
-	repositoryTypesMarkdown     = "\n  - `bigquery`" +
-		"\n  - `cassandra`" +
-		"\n  - `denodo`" +
-		"\n  - `dremio`" +
-		"\n  - `galera`" +
-		"\n  - `mariadb`" +
-		"\n  - `mongodb`" +
-		"\n  - `mysql`" +
-		"\n  - `oracle`" +
-		"\n  - `postgresql`" +
-		"\n  - `redshift`" +
-		"\n  - `s3`" +
-		"\n  - `snowflake`" +
-		"\n  - `sqlserver`"
 )
 
 func repositoryTypes() []string {
@@ -45,10 +31,18 @@ func repositoryTypes() []string {
 		"oracle",
 		"postgresql",
 		"redshift",
-		"snowflake",
 		"s3",
+		"snowflake",
 		"sqlserver",
 	}
+}
+
+func repositoryTypesMarkdown() string {
+	var s string
+	for _, repoType := range repositoryTypes() {
+		s += fmt.Sprintf("\n  - `%s`", repoType)
+	}
+	return s
 }
 
 type GetRepoByIDResponse struct {
@@ -127,7 +121,7 @@ func resourceRepository() *schema.Resource {
 				Computed:    true,
 			},
 			"type": {
-				Description:  "Repository type. List of supported types:" + repositoryTypesMarkdown,
+				Description:  "Repository type. List of supported types:" + repositoryTypesMarkdown(),
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice(repositoryTypes(), false),

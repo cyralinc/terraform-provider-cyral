@@ -77,7 +77,7 @@ func dataSourceRepository() *schema.Resource {
 				Optional:    true,
 			},
 			"type": {
-				Description:  "Filter the results by type of repository. List of supported types:" + repositoryTypesMarkdown,
+				Description:  "Filter the results by type of repository. List of supported types:" + repositoryTypesMarkdown(),
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(append(repositoryTypes(), ""), false),
