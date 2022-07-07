@@ -82,9 +82,6 @@ func testRepositoryDataSourceChecks(repoDatas []RepoData, nameFilter, typeFilter
 
 	var checkFuncs []resource.TestCheckFunc
 	filteredRepoDatas := filterRepoDatas(repoDatas, nameFilter, typeFilter)
-	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttr(dataSourceFullName,
-		"repository_list.#", fmt.Sprintf("%d", len(filteredRepoDatas)),
-	))
 	if len(filteredRepoDatas) == 1 {
 		repoData := filteredRepoDatas[0]
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
