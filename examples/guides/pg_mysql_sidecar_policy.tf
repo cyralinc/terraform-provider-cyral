@@ -55,7 +55,7 @@ resource "cyral_policy_rule" "customer_data_rule" {
     rows     = 1
     severity = "high"
   }
-  # A query to read more than 100 entries is not normal.
+  # A query to read more than 100 entries is not considered normal.
   reads {
     data     = [local.phone_label, cyral_datalabel.custom_label.name]
     rows     = 100
