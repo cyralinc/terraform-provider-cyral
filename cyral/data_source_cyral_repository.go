@@ -1,14 +1,10 @@
 package cyral
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -27,13 +23,56 @@ type GetReposResponse struct {
 	Repos []GetReposSubResponse `json:"repos"`
 }
 
+func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
+	var repoList []interface{}
+	for _, repo := range resp.Repos {
+		repoID := repo.ID
+		repoData := repo.Repo
+		repoList = append(repoList, map[string]interface{}{
+			"id":         repoID,
+			"name":       repoData.Name,
+			"type":       repoData.RepoType,
+			"host":       repoData.Host,
+			"port":       repoData.Port,
+			"labels":     repoData.Labels,
+			"properties": repoData.PropertiesAsInterface(),
+		})
+	}
+
+	if err := d.Set("repository_list", repoList); err != nil {
+		return err
+	}
+
+	d.SetId(uuid.New().String())
+
+	return nil
+}
+
+func dataSourceRepositoryReadConfig() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "RepositoryDataSourceRead",
+		HttpMethod: http.MethodGet,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			nameFilter := d.Get("name").(string)
+			typeFilter := d.Get("type").(string)
+			urlParams := urlQuery(map[string]string{
+				"name": nameFilter,
+				"type": typeFilter,
+			})
+
+			return fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
+		},
+		NewResponseData: func() ResponseData { return &GetReposResponse{} },
+	}
+}
+
 func dataSourceRepository() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve and filter repositories.",
-		ReadContext: dataSourceRepositoryRead,
+		ReadContext: ReadResource(dataSourceRepositoryReadConfig()),
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Description: "Filter the results by a _regular expression_ (regex) that matches names of existing repositories.",
+				Description: "Filter the results by a regular expression (regex) that matches names of existing repositories.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
@@ -118,57 +157,4 @@ func dataSourceRepository() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 	}
-}
-
-func dataSourceRepositoryRead(
-	ctx context.Context,
-	d *schema.ResourceData,
-	m interface{},
-) diag.Diagnostics {
-	log.Printf("[DEBUG] Init dataSourceRepositoryRead")
-	c := m.(*client.Client)
-
-	nameFilter := d.Get("name").(string)
-	typeFilter := d.Get("type").(string)
-	urlParams := urlQuery(map[string]string{
-		"name": nameFilter,
-		"type": typeFilter,
-	})
-
-	url := fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return createError("Unable to execute request to read repositories",
-			err.Error())
-	}
-
-	resp := GetReposResponse{}
-	if err := json.Unmarshal(body, &resp); err != nil {
-		return createError("Unable to unmarshal repository list response",
-			err.Error())
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", resp)
-
-	var repoList []interface{}
-	for _, repo := range resp.Repos {
-		repoID := repo.ID
-		repoData := repo.Repo
-		repoList = append(repoList, map[string]interface{}{
-			"id":         repoID,
-			"name":       repoData.Name,
-			"type":       repoData.RepoType,
-			"host":       repoData.Host,
-			"port":       repoData.Port,
-			"labels":     repoData.Labels,
-			"properties": repoData.PropertiesAsInterface(),
-		})
-	}
-
-	d.Set("repository_list", repoList)
-
-	d.SetId(uuid.New().String())
-
-	log.Printf("[DEBUG] End dataSourceRepositoryRead")
-
-	return nil
 }
