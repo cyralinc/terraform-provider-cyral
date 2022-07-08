@@ -18,6 +18,33 @@ const (
 	mongodbReplicaSetServerType = "replicaset"
 )
 
+func repositoryTypes() []string {
+	return []string{
+		"bigquery",
+		"cassandra",
+		"denodo",
+		"dremio",
+		"galera",
+		"mariadb",
+		"mongodb",
+		"mysql",
+		"oracle",
+		"postgresql",
+		"redshift",
+		"s3",
+		"snowflake",
+		"sqlserver",
+	}
+}
+
+func repositoryTypesMarkdown() string {
+	var s string
+	for _, repoType := range repositoryTypes() {
+		s += fmt.Sprintf("\n  - `%s`", repoType)
+	}
+	return s
+}
+
 type GetRepoByIDResponse struct {
 	Repo RepoData `json:"repo"`
 }
@@ -33,10 +60,6 @@ type RepoData struct {
 	Properties          *RepositoryProperties `json:"properties,omitempty"`
 }
 
-func (data *RepoData) IsReplicaSet() bool {
-	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
-}
-
 func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("type", data.RepoType)
 	d.Set("host", data.Host)
@@ -44,11 +67,16 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("labels", data.Labels)
 
+	properties := data.PropertiesAsInterface()
+	d.Set("properties", properties)
+}
+
+func (data *RepoData) PropertiesAsInterface() []interface{} {
 	var properties []interface{}
 	if data.Properties != nil {
-		propertiesMap := make(map[string]interface{})
-
 		if data.IsReplicaSet() {
+			propertiesMap := make(map[string]interface{})
+
 			var rset []interface{}
 			rsetMap := make(map[string]interface{})
 			rsetMap["max_nodes"] = data.MaxAllowedListeners
@@ -56,12 +84,16 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 			rset = append(rset, rsetMap)
 
 			propertiesMap["mongodb_replica_set"] = rset
-		}
 
-		properties = append(properties, propertiesMap)
+			properties = append(properties, propertiesMap)
+		}
 	}
 
-	d.Set("properties", properties)
+	return properties
+}
+
+func (data *RepoData) IsReplicaSet() bool {
+	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
 }
 
 // RepositoryProperties relates to the field "properties" of the v1/repos
@@ -90,39 +122,10 @@ func resourceRepository() *schema.Resource {
 				Computed:    true,
 			},
 			"type": {
-				Description: "Repository type. List of supported types:" +
-					"\n  - `bigquery`" +
-					"\n  - `cassandra`" +
-					"\n  - `denodo`" +
-					"\n  - `dremio`" +
-					"\n  - `galera`" +
-					"\n  - `mariadb`" +
-					"\n  - `mongodb`" +
-					"\n  - `mysql`" +
-					"\n  - `oracle`" +
-					"\n  - `postgresql`" +
-					"\n  - `redshift`" +
-					"\n  - `s3`" +
-					"\n  - `snowflake`" +
-					"\n  - `sqlserver`",
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"bigquery",
-					"cassandra",
-					"denodo",
-					"dremio",
-					"galera",
-					"mariadb",
-					"mongodb",
-					"mysql",
-					"oracle",
-					"postgresql",
-					"redshift",
-					"snowflake",
-					"s3",
-					"sqlserver",
-				}, false),
+				Description:  "Repository type. List of supported types:" + repositoryTypesMarkdown(),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice(repositoryTypes(), false),
 			},
 			"host": {
 				Description: "Repository host name (ex: `somerepo.cyral.com`).",
