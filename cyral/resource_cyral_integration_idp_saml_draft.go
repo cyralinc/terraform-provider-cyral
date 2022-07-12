@@ -12,7 +12,7 @@ import (
 
 type CreateGenericSAMLDraftRequest struct {
 	DisplayName              string `json:"displayName"`
-	DisableIdPInitiatedLogin bool   `json:"disableIdpInitiatedLogin"`
+	DisableIdPInitiatedLogin bool   `json:"disableIdPInitiatedLogin"`
 }
 
 func (req *CreateGenericSAMLDraftRequest) ReadFromSchema(d *schema.ResourceData) error {
@@ -43,7 +43,7 @@ func (resp *GenericSAMLDraftResponse) ReadFromSchema(d *schema.ResourceData) err
 	resp.Draft.ID = d.Id()
 	resp.Draft.DisplayName = d.Get("display_name").(string)
 	resp.Draft.DisableIdPInitiatedLogin = d.Get("disable_idp_initiated_login").(bool)
-	resp.Draft.SPMetadata = SPMetadata{XMLDocument: d.Get("sp_metadata").(string)}
+	resp.Draft.SPMetadata = &SPMetadata{XMLDocument: d.Get("sp_metadata").(string)}
 	return nil
 }
 
@@ -52,8 +52,8 @@ type GenericSAMLDraft struct {
 	DisplayName              string `json:"displayName"`
 	IdPType                  string `json:"idpType"`
 	DisableIdPInitiatedLogin bool   `json:"disableIdpInitiatedLogin"`
-	SPMetadata               `json:"spMetadata"`
-	RequiredUserAttributes   `json:"requiredUserAttributes"`
+	*SPMetadata              `json:"spMetadata,omitempty"`
+	*RequiredUserAttributes  `json:"requiredUserAttributes,omitempty"`
 	Completed                bool `json:"completed"`
 }
 
