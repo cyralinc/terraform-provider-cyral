@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"sort"
 	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func urlQuery(kv map[string]string) string {
@@ -88,4 +92,8 @@ func listSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
 	log.Printf("[DEBUG] End listSidecars")
 
 	return sidecarsInfo, nil
+}
+
+func validationStringLenAtLeast(min int) schema.SchemaValidateFunc {
+	return validation.StringLenBetween(min, math.MaxInt)
 }
