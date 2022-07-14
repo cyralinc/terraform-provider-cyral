@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func initialGenericSAMLConfig() *GenericSAMLDraft {
+func initialGenericSAMLDraftConfig() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
 		DisplayName:              "tf-test-saml-draft-1",
 		DisableIdPInitiatedLogin: false,
@@ -24,7 +24,7 @@ func initialGenericSAMLConfig() *GenericSAMLDraft {
 	}
 }
 
-func updatedGenericSAMLConfig() *GenericSAMLDraft {
+func updatedGenericSAMLDraftConfig() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
 		DisplayName:              "tf-test-saml-draft-2",
 		DisableIdPInitiatedLogin: true,
@@ -38,11 +38,11 @@ func updatedGenericSAMLConfig() *GenericSAMLDraft {
 	}
 }
 
-func TestAccIntegrationIdPGenericSAMLResource(t *testing.T) {
-	initialConfig, initialChecks := setupIntegrationIdPGenericSAMLTest(t,
-		initialGenericSAMLConfig(), "initial_test")
-	updatedConfig, updatedChecks := setupIntegrationIdPGenericSAMLTest(t,
-		updatedGenericSAMLConfig(), "updated_test")
+func TestAccIntegrationIdPSAMLDraftResource(t *testing.T) {
+	initialConfig, initialChecks := setupIntegrationIdPSAMLDraftTest(t,
+		initialGenericSAMLDraftConfig(), "initial_test")
+	updatedConfig, updatedChecks := setupIntegrationIdPSAMLDraftTest(t,
+		updatedGenericSAMLDraftConfig(), "updated_test")
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -59,7 +59,7 @@ func TestAccIntegrationIdPGenericSAMLResource(t *testing.T) {
 	})
 }
 
-func setupIntegrationIdPGenericSAMLTest(t *testing.T, draft *GenericSAMLDraft, resName string) (
+func setupIntegrationIdPSAMLDraftTest(t *testing.T, draft *GenericSAMLDraft, resName string) (
 	string,
 	resource.TestCheckFunc,
 ) {
@@ -68,7 +68,7 @@ func setupIntegrationIdPGenericSAMLTest(t *testing.T, draft *GenericSAMLDraft, r
 	nonEmptyRegex, err := regexp.Compile(".+")
 	require.NoError(t, err)
 
-	resourceFullName := fmt.Sprintf("cyral_integration_idp_generic_saml.%s", resName)
+	resourceFullName := fmt.Sprintf("cyral_integration_idp_saml_draft.%s", resName)
 	checkFunc := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName, "display_name",
 			draft.DisplayName),
@@ -95,7 +95,7 @@ func setupIntegrationIdPGenericSAMLTest(t *testing.T, draft *GenericSAMLDraft, r
 
 func formatGenericSAMLDraftIntoConfig(draft *GenericSAMLDraft, resName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_integration_idp_generic_saml" "%s" {
+	resource "cyral_integration_idp_saml_draft" "%s" {
 		display_name = "%s"
 		disable_idp_initiated_login = %t
 		idp_type = "%s"
