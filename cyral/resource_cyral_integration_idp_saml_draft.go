@@ -88,76 +88,6 @@ func (resp *GenericSAMLDraftResponse) ReadFromSchema(d *schema.ResourceData) err
 	return nil
 }
 
-type GenericSAMLDraft struct {
-	ID                       string `json:"id"`
-	DisplayName              string `json:"displayName"`
-	IdpType                  string `json:"idpType"`
-	DisableIdPInitiatedLogin bool   `json:"disableIdpInitiatedLogin"`
-	*SPMetadata              `json:"spMetadata,omitempty"`
-	*RequiredUserAttributes  `json:"requiredUserAttributes,omitempty"`
-	Completed                bool `json:"completed"`
-}
-
-type SPMetadata struct {
-	XMLDocument string `json:"xmlDocument"`
-}
-
-type RequiredUserAttributes struct {
-	FirstName UserAttribute `json:"firstName,omitempty"`
-	LastName  UserAttribute `json:"lastName,omitempty"`
-	Email     UserAttribute `json:"email,omitempty"`
-	Groups    UserAttribute `json:"groups,omitempty"`
-}
-
-func NewRequiredUserAttributes(firstName, lastName, email, groups string) *RequiredUserAttributes {
-	return &RequiredUserAttributes{
-		FirstName: UserAttribute{
-			Name: firstName,
-		},
-		LastName: UserAttribute{
-			Name: lastName,
-		},
-		Email: UserAttribute{
-			Name: email,
-		},
-		Groups: UserAttribute{
-			Name: groups,
-		},
-	}
-}
-
-func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData) error {
-	var attributes []interface{}
-	attributes = append(attributes, map[string]interface{}{
-		"first_name": uatt.FirstName.Name,
-		"last_name":  uatt.LastName.Name,
-		"email":      uatt.Email.Name,
-		"groups":     uatt.Groups.Name,
-	})
-	return d.Set("attributes", attributes)
-}
-
-func RequiredUserAttributesFromSchema(d *schema.ResourceData) (*RequiredUserAttributes, error) {
-	attributesSet := d.Get("attributes").(*schema.Set).List()
-	if len(attributesSet) > 1 {
-		return nil, fmt.Errorf("Expected 'attributes' to be a set with at "+
-			"most one element, got %d elements", len(attributesSet))
-	} else if len(attributesSet) > 0 {
-		attributesMap := attributesSet[0].(map[string]interface{})
-		return NewRequiredUserAttributes(
-			attributesMap["first_name"].(string),
-			attributesMap["last_name"].(string),
-			attributesMap["email"].(string),
-			attributesMap["groups"].(string),
-		), nil
-	}
-	return nil, nil
-}
-
-type UserAttribute struct {
-	Name string `json:"name"`
-}
-
 func CreateGenericSAMLDraftConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "GenericSAMLDraftResourceCreate",
@@ -193,7 +123,7 @@ func DeleteGenericSAMLDraftConfig() ResourceOperationConfig {
 
 func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages generic SAML integration drafts.",
+		Description: "Manages SAML IdP integration drafts.",
 		CreateContext: CreateResource(
 			CreateGenericSAMLDraftConfig(),
 			ReadGenericSAMLDraftConfig(),
@@ -221,7 +151,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Default:     false,
 			},
 			"idp_type": {
-				Description: "Identity provider type. The value provided can be used as a filter when retrieving SAML drafts. See data source `cyral_integration_idp_saml`.",
+				Description: "Identity provider type. The value provided can be used as a filter when retrieving SAML integrations. See data source `cyral_integration_idp_saml`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
@@ -237,7 +167,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"first_name": {
-							Description:  "The name of the attribute in the incoming SAML assertion containing the users first name (given name).",
+							Description:  "The name of the attribute in the incoming SAML assertion containing the users first name (given name). Defaults to `firstName`.",
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
@@ -245,7 +175,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							ValidateFunc: validationStringLenAtLeast(3),
 						},
 						"last_name": {
-							Description:  "The name of the attribute in the incoming SAML assertion containing the users last name (family name).",
+							Description:  "The name of the attribute in the incoming SAML assertion containing the users last name (family name). Defaults to `lastName`.",
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
@@ -253,7 +183,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							ValidateFunc: validationStringLenAtLeast(3),
 						},
 						"email": {
-							Description:  "The name of the attribute in the incoming SAML assertion containing the users email address.",
+							Description:  "The name of the attribute in the incoming SAML assertion containing the users email address. Defaults to `email`.",
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
@@ -261,7 +191,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							ValidateFunc: validationStringLenAtLeast(3),
 						},
 						"groups": {
-							Description:  "The name of the attribute in the incoming SAML assertion containing the users group membership in the IdP.",
+							Description:  "The name of the attribute in the incoming SAML assertion containing the users group membership in the IdP. Defaults to `memberOf`.",
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
