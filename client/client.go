@@ -1,181 +1,59 @@
 package client
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/http/httputil"
-	u "net/url"
 	"strings"
+
+	"golang.org/x/oauth2"
+	cc "golang.org/x/oauth2/clientcredentials"
 )
-
-// Auth0TokenRequest represents the payload for token requests to Auth0.
-type Auth0TokenRequest struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	Audience     string `json:"audience"`
-	GrantType    string `json:"grant_type"`
-}
-
-// TokenResponse represents the payload with the token response from Auth0.
-type TokenResponse struct {
-	AccessToken string `json:"access_token"`
-	TokenType   string `json:"token_type"`
-}
 
 // Client stores data for all existing resources. Also, this is
 // the struct that is passed along resources CRUD operations.
 type Client struct {
-	Token        string
-	TokenType    string
 	ControlPlane string
+	TokenSource  oauth2.TokenSource
 	client       *http.Client
 }
 
 // NewClient configures and returns a fully initialized Client.
-func NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-	controlPlane string, keycloakProvider bool, skipTLSVerifyEnable bool) (*Client, error) {
+func NewClient(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Client, error) {
 	log.Printf("[DEBUG] Init NewClient")
+
+	if clientID == "" || clientSecret == "" || controlPlane == "" {
+		return nil, fmt.Errorf("clientID, clientSecret and controlPlane must have non-empty values")
+	}
+
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: skipTLSVerifyEnable,
+				InsecureSkipVerify: tlsSkipVerify,
 			},
 		},
 	}
 
-	if !keycloakProvider {
-		token, err := getAuth0Token(auth0Domain, clientID, clientSecret, auth0Audience, client)
-		if err != nil {
-			return nil, err
-		}
-
-		return &Client{
-			ControlPlane: controlPlane,
-			Token:        token.AccessToken,
-			TokenType:    token.TokenType,
-			client:       client,
-		}, nil
+	tokenConfig := cc.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		TokenURL:     fmt.Sprintf("https://%s/v1/users/oidc/token", controlPlane),
+		AuthStyle:    oauth2.AuthStyleInParams,
 	}
-	token, err := getKeycloakToken(controlPlane, clientID, clientSecret, client)
-	if err != nil {
-		return nil, err
-	}
-	log.Printf("[DEBUG] token.TokenType: %s", token.TokenType)
-	log.Printf("[DEBUG] token.AccessToken: %s", token.AccessToken)
+	tokenSource := tokenConfig.TokenSource(context.Background())
 
+	log.Printf("[DEBUG] TokenSource: %v", tokenSource)
 	log.Printf("[DEBUG] End NewClient")
 
 	return &Client{
 		ControlPlane: controlPlane,
-		Token:        token.AccessToken,
-		TokenType:    token.TokenType,
+		TokenSource:  tokenSource,
 		client:       client,
 	}, nil
-}
-
-func getAuth0Token(domain, clientID, clientSecret, audience string, client *http.Client) (TokenResponse, error) {
-	log.Printf("[DEBUG] Init getAuth0Token")
-
-	url := fmt.Sprintf("https://%s/oauth/token", domain)
-	audienceURL := fmt.Sprintf("https://%s", audience)
-	tokenReq := Auth0TokenRequest{
-		Audience:     audienceURL,
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		GrantType:    "client_credentials",
-	}
-
-	log.Printf("[DEBUG] url: %s", url)
-	log.Printf("[DEBUG] payload: %v", tokenReq)
-
-	payloadBytes, err := json.Marshal(tokenReq)
-	if err != nil {
-		return TokenResponse{}, fmt.Errorf("failed to encode readToken payload: %v", err)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(payloadBytes)))
-	if err != nil {
-		return TokenResponse{}, fmt.Errorf("unable to create auth0 request; err: %v", err)
-	}
-
-	req.Header.Add("content-type", "application/json")
-	res, err := client.Do(req)
-	if err != nil {
-		return TokenResponse{}, fmt.Errorf("unable execute auth0 request; err: %v", err)
-	}
-	defer res.Body.Close()
-	log.Printf("[DEBUG] body: %v", res.Body)
-	if res.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("Auth0 requisition fail. Response status code %d. Response body: %v",
-			res.StatusCode, res.Body)
-		return TokenResponse{}, fmt.Errorf(msg)
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return TokenResponse{}, fmt.Errorf("unable to read data from request body; err: %v", err)
-	}
-
-	token := TokenResponse{}
-	if err := json.Unmarshal(body, &token); err != nil {
-		return TokenResponse{}, fmt.Errorf("unable to get access token from json; err: %v", err)
-	}
-
-	log.Printf("[DEBUG] End getAuth0Token")
-
-	return token, nil
-}
-
-func getKeycloakToken(controlPlane, clientID, clientSecret string, client *http.Client) (TokenResponse, error) {
-	log.Printf("[DEBUG] Init getKeycloakToken")
-	url := fmt.Sprintf("https://%s/v1/users/oidc/token", controlPlane)
-
-	log.Printf("[DEBUG] url: %s", url)
-	log.Printf("[DEBUG] clientId: %s ; clientSecret: %s", clientID, clientSecret)
-
-	data := u.Values{}
-	data.Set("clientId", clientID)
-	data.Set("clientSecret", clientSecret)
-	data.Set("grant_type", "client_credentials")
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(data.Encode()))
-	if err != nil {
-		return TokenResponse{}, fmt.Errorf("unable to create keycloak request; err: %v", err)
-	}
-
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
-	res, err := client.Do(req)
-	if err != nil {
-		return TokenResponse{}, fmt.Errorf("unable execute keycloak request; err: %v", err)
-	}
-	defer res.Body.Close()
-	respDump, err := httputil.DumpResponse(res, true)
-	if err != nil {
-		respDump = []byte(fmt.Sprintf("unable to dump HTTP response: %s", err.Error()))
-	}
-	log.Printf("[DEBUG] body:\n%s", respDump)
-	if res.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("keycloak requisition failed. Status code %d. Response body dump:\n%s",
-			res.StatusCode, respDump)
-		return TokenResponse{}, fmt.Errorf(msg)
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return TokenResponse{}, fmt.Errorf("unable to read data from request body; err: %v", err)
-	}
-
-	token := TokenResponse{}
-	if err := json.Unmarshal(body, &token); err != nil {
-		return TokenResponse{}, fmt.Errorf("unable to get access token from json; err: %v", err)
-	}
-
-	log.Printf("[DEBUG] End getKeycloakToken")
-
-	return token, nil
 }
 
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
@@ -201,13 +79,19 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
 	}
+
 	req.Header.Add("content-type", "application/json")
-	// The TokenType returned by getKeycloakToken is "bearer", but if we use it here we
-	// will get error "Failed to get roles: tokenstring should not contain 'bearer '\n".
-	// If we change it to "Bearer" it works normally.
-	// See: https://cyralinc.atlassian.net/browse/ENG-4408
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.Token))
-	//req.Header.Add("Authorization", fmt.Sprintf("%s %s", c.TokenType, c.Token))
+	if c.TokenSource != nil {
+		if token, err := c.TokenSource.Token(); err != nil {
+			return nil, fmt.Errorf("unable to retrieve authorization token. error: %v", err)
+		} else {
+			log.Printf("[DEBUG] Token Type: %s", token.Type())
+			log.Printf("[DEBUG] Access Token: %s", token.AccessToken)
+			log.Printf("[DEBUG] Token Expiry: %s", token.Expiry)
+			req.Header.Add("Authorization", fmt.Sprintf("%s %s", token.Type(), token.AccessToken))
+		}
+	}
+
 	log.Printf("[DEBUG] Executing %s", httpMethod)
 	res, err := c.client.Do(req)
 	if err != nil {

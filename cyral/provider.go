@@ -9,6 +9,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
@@ -32,15 +33,16 @@ func init() {
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
+	auth0DeprecationMessage := "Auth0-based control planes are no longer supported."
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"auth_provider": {
-				Description: "Auth0-based control planes are no longer supported. Use `keycloak` " +
-					"or remove the variable declaration",
-				Type:       schema.TypeString,
-				Optional:   true,
-				Default:    keycloak,
-				Deprecated: "Auth0-based control planes are no longer supported.",
+				Description:  fmt.Sprintf("%s Use `keycloak` or remove the argument declaration.", auth0DeprecationMessage),
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      keycloak,
+				ValidateFunc: validation.StringInSlice([]string{keycloak}, false),
+				Deprecated:   fmt.Sprintf("%s Use `keycloak` or remove the argument declaration.", auth0DeprecationMessage),
 			},
 			"auth0_audience": {
 				Description: "Auth0 audience.",
@@ -49,7 +51,7 @@ func Provider() *schema.Provider {
 				RequiredWith: []string{
 					"auth0_domain",
 				},
-				Deprecated: "Auth0-based control planes are no longer supported.",
+				Deprecated: auth0DeprecationMessage,
 			},
 			"auth0_domain": {
 				Description: "Auth0 domain name.",
@@ -58,7 +60,7 @@ func Provider() *schema.Provider {
 				RequiredWith: []string{
 					"auth0_audience",
 				},
-				Deprecated: "Auth0-based control planes are no longer supported.",
+				Deprecated: auth0DeprecationMessage,
 			},
 			"auth0_client_id": {
 				Description:   "Auth0 client id.",
@@ -67,7 +69,7 @@ func Provider() *schema.Provider {
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_ID", nil),
 				ConflictsWith: []string{"client_id"},
-				Deprecated:    "Auth0-based control planes are no longer supported.",
+				Deprecated:    auth0DeprecationMessage,
 			},
 			"auth0_client_secret": {
 				Description:   "Auth0 client secret.",
@@ -76,7 +78,7 @@ func Provider() *schema.Provider {
 				Sensitive:     true,
 				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
 				ConflictsWith: []string{"client_secret"},
-				Deprecated:    "Auth0-based control planes are no longer supported.",
+				Deprecated:    auth0DeprecationMessage,
 			},
 			"client_id": {
 				Description: "Client id used to authenticate against the control plane. Can be ommited and " +
@@ -171,25 +173,17 @@ func Provider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	log.Printf("[DEBUG] Init providerConfigure")
-	keycloakProvider := d.Get("auth_provider").(string) == keycloak
 
-	log.Printf("[DEBUG] keycloakProvider: %v", keycloakProvider)
-	clientID, clientSecret, diags := getCredentials(d, keycloakProvider)
-
-	if clientID == "" || clientSecret == "" {
+	clientID, clientSecret, diags := getCredentials(d)
+	if diags.HasError() {
 		return nil, diags
 	}
 
-	auth0Domain := d.Get("auth0_domain").(string)
-	auth0Audience := d.Get("auth0_audience").(string)
 	controlPlane := d.Get("control_plane").(string)
 	tlsSkipVerify := d.Get("tls_skip_verify").(bool)
+	log.Printf("[DEBUG] controlPlane: %s ; tlsSkipVerify: %t", controlPlane, tlsSkipVerify)
 
-	log.Printf("[DEBUG] auth0Domain: %s ; auth0Audience: %s ; controlPlane: %s ; tlsSkipVerify: %t",
-		auth0Domain, clientSecret, controlPlane, tlsSkipVerify)
-
-	c, err := client.NewClient(clientID, clientSecret, auth0Domain, auth0Audience,
-		controlPlane, keycloakProvider, tlsSkipVerify)
+	c, err := client.NewClient(clientID, clientSecret, controlPlane, tlsSkipVerify)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -204,7 +198,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	return c, diags
 }
 
-func getCredentials(d *schema.ResourceData, keycloakProvider bool) (string, string, diag.Diagnostics) {
+func getCredentials(d *schema.ResourceData) (string, string, diag.Diagnostics) {
 	var clientID, clientSecret string
 
 	getVar := func(providerVar, envVar string, diags *diag.Diagnostics) string {
@@ -223,13 +217,6 @@ func getCredentials(d *schema.ResourceData, keycloakProvider bool) (string, stri
 	clientID = getVar("client_id", EnvVarClientID, &diags)
 	clientSecret = getVar("client_secret", EnvVarClientSecret, &diags)
 
-	// Backwards compatibility code to allow users to migrate to new variables and see
-	// a deprecation warning. The code below must be removed in next versions.
-	if !keycloakProvider && clientID == "" && clientSecret == "" {
-		diags = nil
-		clientID = getVar("auth0_client_id", "AUTH0_CLIENT_ID", &diags)
-		clientSecret = getVar("auth0_client_secret", "AUTH0_CLIENT_SECRET", &diags)
-	}
 	return clientID, clientSecret, diags
 }
 

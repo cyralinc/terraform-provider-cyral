@@ -2,188 +2,95 @@ package client
 
 import (
 	"crypto/tls"
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/http/httptest"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestInvalidAuth0DomainFormat(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			"^^^exampleInvalidDomain",
-			"ExampleAuth0Audience",
-			"SomeControlPlane",
-			keycloakProvider,
-			true)
+func TestNewClient_WhenTLSSkipVerifyIsEnabled_ThenInsecureSkipVerifyIsTrue(t *testing.T) {
+	clientID := "someClientID"
+	clientSecret := "someClientSecret"
+	controlPlane := "someControlPlane"
+	tlsSkipVerify := true
 
-		if err == nil {
-			t.Error(fmt.Errorf(
-				"unexpected behavior in Client() when Auth0 domain has invalid format; err: %v",
-				err.Error()))
-		}
+	client, err := NewClient(clientID, clientSecret, controlPlane, tlsSkipVerify)
+
+	require.NoError(t, err)
+
+	expectedClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: tlsSkipVerify,
+			},
+		},
 	}
 
-	test(true)
-	test(false)
+	assert.Equal(t, controlPlane, client.ControlPlane)
+	assert.Equal(t, expectedClient, client.client)
 }
 
-func TestInvalidAuth0DomainValue(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			"invalidDomain",
-			"ExampleAuth0Audience",
-			"SomeControlPlane",
-			keycloakProvider,
-			true)
+func TestNewClient_WhenTLSSkipVerifyIsDisabled_ThenInsecureSkipVerifyIsFalse(t *testing.T) {
+	clientID := "someClientID"
+	clientSecret := "someClientSecret"
+	controlPlane := "someControlPlane"
+	tlsSkipVerify := false
 
-		if err == nil {
-			t.Error(fmt.Errorf(
-				"unexpected behavior in Client() when Auth0 domain has invalid value; "+
-					"keycloakProvider: %t; err: %v",
-				keycloakProvider, err.Error()))
-		}
+	client, err := NewClient(clientID, clientSecret, controlPlane, tlsSkipVerify)
+
+	require.NoError(t, err)
+
+	expectedClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: tlsSkipVerify,
+			},
+		},
 	}
 
-	test(true)
-	test(false)
+	assert.Equal(t, controlPlane, client.ControlPlane)
+	assert.Equal(t, expectedClient, client.client)
 }
 
-func TestServerDown(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		}))
+func TestNewClient_WhenClientIDIsEmpty_ThenThrowError(t *testing.T) {
+	clientID := ""
+	clientSecret := "someClientSecret"
+	controlPlane := "someControlPlane"
+	tlsSkipVerify := false
 
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			ts.URL[8:len(ts.URL)],
-			"exampleAud",
-			"SomeControlPlane",
-			keycloakProvider,
-			true)
+	client, err := NewClient(clientID, clientSecret, controlPlane, tlsSkipVerify)
 
-		ts.URL = ts.URL + "/oauth/token"
+	expectedErrorMessage := "clientID, clientSecret and controlPlane must have non-empty values"
 
-		ts.Close()
-
-		if err == nil {
-			t.Error(fmt.Errorf(
-				"unexpected behavior in Client() when server is down. "+
-					"keycloakProvider: %t; err: %v",
-				keycloakProvider, err.Error()))
-		}
-	}
-
-	test(true)
-	test(false)
+	assert.Nil(t, client)
+	assert.EqualError(t, err, expectedErrorMessage)
 }
 
-func TestTimeoutResponse(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		// Disables client's certificate authority validation, in order to
-		// successfully mock https requests
+func TestNewClient_WhenClientSecretIsEmpty_ThenThrowError(t *testing.T) {
+	clientID := "someClientID"
+	clientSecret := ""
+	controlPlane := "someControlPlane"
+	tlsSkipVerify := false
 
-		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		}))
-		defer ts.Close()
+	client, err := NewClient(clientID, clientSecret, controlPlane, tlsSkipVerify)
 
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			ts.URL[8:len(ts.URL)],
-			"exampleAud",
-			"SomeControlPlane",
-			keycloakProvider, true)
+	expectedErrorMessage := "clientID, clientSecret and controlPlane must have non-empty values"
 
-		ts.URL = ts.URL + "/oauth/token"
-
-		if err == nil {
-			t.Error(fmt.Errorf("error in timeoutResponse(); keycloakProvider: %t; err: %v",
-				keycloakProvider, err.Error()))
-		}
-	}
-
-	test(true)
-	test(false)
+	assert.Nil(t, client)
+	assert.EqualError(t, err, expectedErrorMessage)
 }
 
-func TestReqOK(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		// Disables client's certificate authority validation, in order to
-		// successfully mock https requests
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+func TestNewClient_WhenControlPlaneIsEmpty_ThenThrowError(t *testing.T) {
+	clientID := "someClientID"
+	clientSecret := "someClientSecret"
+	controlPlane := ""
+	tlsSkipVerify := false
 
-		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Header().Add("content-type", "application/json")
+	client, err := NewClient(clientID, clientSecret, controlPlane, tlsSkipVerify)
 
-			tokenRes := TokenResponse{
-				AccessToken: "ExampleAcessToken",
-				TokenType:   "ExampleTokenType",
-			}
-			jsonTokenRes, _ := json.Marshal(tokenRes)
-			w.Write(jsonTokenRes)
-		}))
-		defer ts.Close()
+	expectedErrorMessage := "clientID, clientSecret and controlPlane must have non-empty values"
 
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			ts.URL[8:len(ts.URL)],
-			"exampleAud",
-			ts.URL[8:len(ts.URL)],
-			keycloakProvider,
-			true)
-		ts.URL = ts.URL + "/oauth/token"
-
-		if err != nil {
-			t.Error(fmt.Errorf("error in reqOK(); keycloakProvider: %t; err: %v",
-				keycloakProvider, err.Error()))
-		}
-	}
-
-	test(true)
-	test(false)
-}
-
-func TestReqFail(t *testing.T) {
-	test := func(keycloakProvider bool) {
-		// Disables client's certificate authority validation, in order to
-		// successfully mock https requests
-
-		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Any response different than 200 (http.StatusOK) is an error.
-			w.WriteHeader(http.StatusBadRequest)
-		}))
-
-		_, err := NewClient(
-			"ExampleAuth0ClientIDvalue",
-			"ExampleAuth0ClientSecretValue",
-			ts.URL[8:len(ts.URL)],
-			"exampleAud",
-			ts.URL[8:len(ts.URL)],
-			keycloakProvider,
-			true)
-		ts.URL = ts.URL + "/oauth/token"
-
-		if err != nil {
-			if !strings.Contains(strings.ToLower(err.Error()),
-				fmt.Sprintf("status code %d", http.StatusBadRequest),
-			) {
-				t.Error(fmt.Errorf("error in reqFail(); keycloakProvider: %t; err: %v",
-					keycloakProvider, err.Error()))
-			}
-		}
-		defer ts.Close()
-	}
-
-	test(true)
-	test(false)
+	assert.Nil(t, client)
+	assert.EqualError(t, err, expectedErrorMessage)
 }
