@@ -1,9 +1,12 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -73,21 +76,6 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) erro
 	return nil
 }
 
-func (resp *GenericSAMLDraftResponse) ReadFromSchema(d *schema.ResourceData) error {
-	resp.Draft.ID = d.Id()
-	resp.Draft.DisplayName = d.Get("display_name").(string)
-	resp.Draft.IdpType = d.Get("idp_type").(string)
-	resp.Draft.DisableIdPInitiatedLogin = d.Get("disable_idp_initiated_login").(bool)
-	resp.Draft.SPMetadata = &SPMetadata{XMLDocument: d.Get("sp_metadata").(string)}
-	attributes, err := RequiredUserAttributesFromSchema(d)
-	if err != nil {
-		return err
-	}
-	resp.Draft.RequiredUserAttributes = attributes
-
-	return nil
-}
-
 func CreateGenericSAMLDraftConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "GenericSAMLDraftResourceCreate",
@@ -111,14 +99,20 @@ func ReadGenericSAMLDraftConfig() ResourceOperationConfig {
 	}
 }
 
-func DeleteGenericSAMLDraftConfig() ResourceOperationConfig {
-	return ResourceOperationConfig{
-		Name:       "GenericSAMLDraftResourceDelete",
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
-		},
+func resourceIntegrationIdPSAMLDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	log.Printf("[DEBUG] Init resourceIntegrationIdPSAMLDelete")
+	c := m.(*client.Client)
+
+	url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s",
+		c.ControlPlane, d.Id())
+	_, err := c.DoRequest(url, http.MethodDelete, nil)
+	if err != nil {
+		return createError("Unable to delete SAML draft", err.Error())
 	}
+
+	log.Printf("[DEBUG] End resourceIntegrationIdPSAMLDelete")
+
+	return diag.Diagnostics{}
 }
 
 func resourceIntegrationIdPSAMLDraft() *schema.Resource {
@@ -129,13 +123,13 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 			ReadGenericSAMLDraftConfig(),
 		),
 		ReadContext:   ReadResource(ReadGenericSAMLDraftConfig()),
-		DeleteContext: DeleteResource(DeleteGenericSAMLDraftConfig()),
+		DeleteContext: resourceIntegrationIdPSAMLDelete,
 		Schema: map[string]*schema.Schema{
 			// All of the input arguments must force recreation of
 			// the resource, because the API does not support
 			// updates. If you try to use the Create API to do
-			// updates, it will do the create a new SAML draft
-			// altogether, generating a new ID etc.
+			// updates, it will create a new SAML draft altogether,
+			// generating a new ID etc.
 			"display_name": {
 				Description:  "Display name used in the Cyral control plane.",
 				Type:         schema.TypeString,
@@ -155,15 +149,27 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Default:     "saml-provider",
 			},
 			"attributes": {
 				Description: "SAML Attribute names for the identity attributes required by the Cyral SP. Each attribute name MUST be at least 3 characters long.",
 				Type:        schema.TypeSet,
-				Optional:    true,
-				ForceNew:    true,
-				// Fix min items to 1 because it doesn't make
-				// sense to have an empty set.
-				MinItems: 1,
+				// This needs to be required. Otherwise, if the
+				// user omits it, the API will still return the
+				// attributed filled with the default
+				// values. Then, when trying to run `terraform
+				// apply` again, the resource will always be
+				// recreated, since a change will be detected.
+				//
+				// One option would be to have the attributes
+				// laid at the top level, like
+				// `attribute_first_name`, `attribute_last_name`
+				// etc. But that doesn't look good, and then the
+				// resource would not reflect the API fields so
+				// well.
+				Required: true,
+				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"first_name": {

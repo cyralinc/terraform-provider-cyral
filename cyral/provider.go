@@ -151,6 +151,7 @@ func Provider() *schema.Provider {
 			"cyral_integration_idp_gsuite":      resourceIntegrationIdP("gsuite", ""),
 			"cyral_integration_idp_okta":        resourceIntegrationIdP("okta", ""),
 			"cyral_integration_idp_ping_one":    resourceIntegrationIdP("pingone", ""),
+			"cyral_integration_idp_saml":        resourceIntegrationIdPSAML(),
 			"cyral_integration_idp_saml_draft":  resourceIntegrationIdPSAMLDraft(),
 			"cyral_integration_sso_aad":         resourceIntegrationIdP("aad", "Use 'cyral_integration_idp_aad' instead"),
 			"cyral_integration_sso_adfs":        resourceIntegrationIdP("adfs-2016", "Use 'cyral_integration_idp_adfs' instead"),

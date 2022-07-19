@@ -90,6 +90,26 @@ type GenericSAMLIntegration struct {
 	Attributes    *RequiredUserAttributes `json:"attributes"`
 }
 
+func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData) error {
+	d.SetId(integ.ID)
+	if integ.IdpDescriptor != nil {
+		if err := d.Set("idp_metadata_url",
+			integ.IdpDescriptor.SingleSignOnServiceURL,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (integ *GenericSAMLIntegration) ReadFromSchema(d *schema.ResourceData) error {
+	integ.ID = d.Id()
+	integ.IdpDescriptor = &GenericSAMLIdpDescriptor{
+		SingleSignOnServiceURL: d.Get("idp_metadata_url").(string),
+	}
+	return nil
+}
+
 type GenericSAMLIdpDescriptor struct {
 	SingleSignOnServiceURL     string `json:"singleSignOnServiceURL"`
 	SigningCertificate         string `json:"signingCertificate"`
