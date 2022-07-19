@@ -14,6 +14,8 @@ import (
 	cc "golang.org/x/oauth2/clientcredentials"
 )
 
+const redactedString = "**********"
+
 // Client stores data for all existing resources. Also, this is
 // the struct that is passed along resources CRUD operations.
 type Client struct {
@@ -63,6 +65,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	log.Printf("[DEBUG] Resource info: %#v", resourceData)
 	log.Printf("[DEBUG] %s URL: %s", httpMethod, url)
 	var req *http.Request
+	var err error
 	if resourceData != nil {
 		payloadBytes, err := json.Marshal(resourceData)
 		if err != nil {
@@ -74,19 +77,19 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
 	} else {
-		var err error
 		if req, err = http.NewRequest(httpMethod, url, nil); err != nil {
 			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
 	}
 
 	req.Header.Add("content-type", "application/json")
+	token := &oauth2.Token{}
 	if c.TokenSource != nil {
-		if token, err := c.TokenSource.Token(); err != nil {
+		if token, err = c.TokenSource.Token(); err != nil {
 			return nil, fmt.Errorf("unable to retrieve authorization token. error: %v", err)
 		} else {
 			log.Printf("[DEBUG] Token Type: %s", token.Type())
-			log.Printf("[DEBUG] Access Token: %s", token.AccessToken)
+			log.Printf("[DEBUG] Access Token: %s", redactContent(token.AccessToken))
 			log.Printf("[DEBUG] Token Expiry: %s", token.Expiry)
 			req.Header.Add("Authorization", fmt.Sprintf("%s %s", token.Type(), token.AccessToken))
 		}
@@ -108,6 +111,10 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	if err != nil {
 		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
 	}
+
+	// Redact token before logging the request
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.Type(), redactContent(token.AccessToken)))
+
 	log.Printf("[DEBUG] Request: %#v", req)
 	log.Printf("[DEBUG] Response status code: %d", res.StatusCode)
 	log.Printf("[DEBUG] Response body: %s", string(body))
@@ -120,4 +127,11 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	log.Printf("[DEBUG] End DoRequest")
 
 	return body, err
+}
+
+func redactContent(content string) string {
+	if content == "" {
+		return content
+	}
+	return redactedString
 }
