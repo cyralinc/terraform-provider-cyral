@@ -13,6 +13,7 @@ vendor/
 # IDEs
 .idea/
 __debug_bin
+.vscode
 
 # Emacs
 *~

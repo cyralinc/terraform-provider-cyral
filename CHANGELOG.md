@@ -1,3 +1,12 @@
+## 2.7.1 (July 19, 2022)
+
+Minimum required Control Plane version: `v2.32.0`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+
+### Bug fixes:
+
+- **Fix token expiration error for large configuration scripts**: [#247](https://github.com/cyralinc/terraform-provider-cyral/pull/247).
+
 ## 2.7.0 (July 1, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.

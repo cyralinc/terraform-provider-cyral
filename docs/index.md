@@ -92,7 +92,7 @@ bash rotate-keycloak-service-account-secret.sh
 - `auth0_client_id` (String, Sensitive, Deprecated) Auth0 client id.
 - `auth0_client_secret` (String, Sensitive, Deprecated) Auth0 client secret.
 - `auth0_domain` (String, Deprecated) Auth0 domain name.
-- `auth_provider` (String, Deprecated) Auth0-based control planes are no longer supported. Use `keycloak` or remove the variable declaration
+- `auth_provider` (String, Deprecated) Auth0-based control planes are no longer supported. Use `keycloak` or remove the argument declaration.
 - `client_id` (String, Sensitive) Client id used to authenticate against the control plane. Can be ommited and declared using the environment variable `CYRAL_TF_CLIENT_ID`.
 - `client_secret` (String, Sensitive) Client secret used to authenticate against the control plane. Can be ommited and declared using the environment variable `CYRAL_TF_CLIENT_SECRET`.
 - `tls_skip_verify` (Boolean) Specifies if the client will verify the TLS server certificate used by the control plane. If set to `true`, the client will not verify the server certificate, hence, it will allow insecure connections to be established. This should be set only for testing and is not recommended to be used in production environments. Can be set through the `CYRAL_TF_TLS_SKIP_VERIFY` environment variable. Defaults to `false`.

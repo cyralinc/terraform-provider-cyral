@@ -9,5 +9,5 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.18.0
 	github.com/rickb777/date v1.19.1
 	github.com/stretchr/testify v1.8.0
-	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d // indirect
+	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0
 )
