@@ -60,7 +60,7 @@ func NewClient(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) 
 
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
 // filling the response parameter (if not nil) with the response body.
-func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, error) {
+func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, *HttpError) {
 	log.Printf("[DEBUG] Init DoRequest")
 	log.Printf("[DEBUG] Resource info: %#v", resourceData)
 	log.Printf("[DEBUG] %s URL: %s", httpMethod, url)
@@ -69,16 +69,16 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	if resourceData != nil {
 		payloadBytes, err := json.Marshal(resourceData)
 		if err != nil {
-			return nil, fmt.Errorf("failed to encode payload: %v", err)
+			return nil, NewHttpError(fmt.Sprintf("failed to encode payload: %v", err), 0)
 		}
 		payload := string(payloadBytes)
 		log.Printf("[DEBUG] %s payload: %s", httpMethod, payload)
 		if req, err = http.NewRequest(httpMethod, url, strings.NewReader(payload)); err != nil {
-			return nil, fmt.Errorf("unable to create request; err: %v", err)
+			return nil, NewHttpError(fmt.Sprintf("unable to create request; err: %v", err), 0)
 		}
 	} else {
 		if req, err = http.NewRequest(httpMethod, url, nil); err != nil {
-			return nil, fmt.Errorf("unable to create request; err: %v", err)
+			return nil, NewHttpError(fmt.Sprintf("unable to create request; err: %v", err), 0)
 		}
 	}
 
@@ -98,18 +98,22 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	log.Printf("[DEBUG] Executing %s", httpMethod)
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
+		return nil, NewHttpError(fmt.Sprintf("unable to execute request. Check the control plane address; err: %v", err), 0)
 	}
 
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict ||
 		(httpMethod == http.MethodPost && strings.Contains(strings.ToLower(res.Status), "already exists")) {
-		return nil, fmt.Errorf("resource possibly exists in the control plane. Response status: %s", res.Status)
+		return nil, NewHttpError(
+			fmt.Sprintf("resource possibly exists in the control plane. Response status: %s", res.Status),
+			res.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
+		return nil, NewHttpError(
+			fmt.Sprintf("unable to read data from request body; err: %v", err),
+			res.StatusCode)
 	}
 
 	// Redact token before logging the request
@@ -126,7 +130,11 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 
 	log.Printf("[DEBUG] End DoRequest")
 
-	return body, err
+	if err != nil {
+		return body, NewHttpError(err.Error(), res.StatusCode)
+	}
+
+	return body, nil
 }
 
 func redactContent(content string) string {
