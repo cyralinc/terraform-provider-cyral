@@ -93,7 +93,7 @@ type GenericSAMLIntegration struct {
 func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(integ.ID)
 	if integ.IdpDescriptor != nil {
-		if err := d.Set("idp_metadata_url",
+		if err := d.Set("single_sign_on_service_url",
 			integ.IdpDescriptor.SingleSignOnServiceURL,
 		); err != nil {
 			return err

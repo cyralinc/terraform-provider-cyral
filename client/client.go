@@ -60,7 +60,7 @@ func NewClient(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) 
 
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
 // filling the response parameter (if not nil) with the response body.
-func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, *HttpError) {
+func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, error) {
 	log.Printf("[DEBUG] Init DoRequest")
 	log.Printf("[DEBUG] Resource info: %#v", resourceData)
 	log.Printf("[DEBUG] %s URL: %s", httpMethod, url)
@@ -69,16 +69,16 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	if resourceData != nil {
 		payloadBytes, err := json.Marshal(resourceData)
 		if err != nil {
-			return nil, NewHttpError(fmt.Sprintf("failed to encode payload: %v", err), 0)
+			return nil, fmt.Errorf("failed to encode payload: %v", err)
 		}
 		payload := string(payloadBytes)
 		log.Printf("[DEBUG] %s payload: %s", httpMethod, payload)
 		if req, err = http.NewRequest(httpMethod, url, strings.NewReader(payload)); err != nil {
-			return nil, NewHttpError(fmt.Sprintf("unable to create request; err: %v", err), 0)
+			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
 	} else {
 		if req, err = http.NewRequest(httpMethod, url, nil); err != nil {
-			return nil, NewHttpError(fmt.Sprintf("unable to create request; err: %v", err), 0)
+			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
 	}
 
@@ -98,7 +98,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	log.Printf("[DEBUG] Executing %s", httpMethod)
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, NewHttpError(fmt.Sprintf("unable to execute request. Check the control plane address; err: %v", err), 0)
+		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
 	}
 
 	defer res.Body.Close()
@@ -124,15 +124,13 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	if !(res.StatusCode >= 200 && res.StatusCode < 300) {
-		err = fmt.Errorf("error executing %s request; status code: %d; body: %q",
-			httpMethod, res.StatusCode, body)
+		return nil, NewHttpError(
+			fmt.Sprintf("error executing %s request; status code: %d; body: %q",
+				httpMethod, res.StatusCode, body),
+			res.StatusCode)
 	}
 
 	log.Printf("[DEBUG] End DoRequest")
-
-	if err != nil {
-		return body, NewHttpError(err.Error(), res.StatusCode)
-	}
 
 	return body, nil
 }

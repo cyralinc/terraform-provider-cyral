@@ -145,7 +145,16 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 				ExactlyOneOf: idpMetadataTypes,
 				ValidateFunc: validation.StringIsBase64,
 			},
-			// TODO: computed values
+			"id": {
+				Description: "ID of this resource in the Cyral environment.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+			"single_sign_on_service_url": {
+				Description: "The IdP’s Single Sign-on Service (SS0) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,

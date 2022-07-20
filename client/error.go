@@ -1,14 +1,14 @@
 package client
 
 type HttpError struct {
-	err    string
-	Status int
+	err        string
+	StatusCode int
 }
 
-func NewHttpError(err string, status int) *HttpError {
+func NewHttpError(err string, statusCode int) *HttpError {
 	return &HttpError{
-		err:    err,
-		Status: status,
+		err:        err,
+		StatusCode: statusCode,
 	}
 }
 

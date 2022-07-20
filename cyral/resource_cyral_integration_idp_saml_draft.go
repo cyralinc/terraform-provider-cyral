@@ -99,7 +99,7 @@ func ReadGenericSAMLDraftConfig() ResourceOperationConfig {
 	}
 }
 
-func resourceIntegrationIdPSAMLDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceIntegrationIdPSAMLDraftDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceIntegrationIdPSAMLDelete")
 	c := m.(*client.Client)
 
@@ -107,7 +107,13 @@ func resourceIntegrationIdPSAMLDelete(ctx context.Context, d *schema.ResourceDat
 		c.ControlPlane, d.Id())
 	_, err := c.DoRequest(url, http.MethodDelete, nil)
 	if err != nil {
-		return createError("Unable to delete SAML draft", err.Error())
+		httpError, ok := err.(*client.HttpError)
+		if !ok || httpError.StatusCode != http.StatusNotFound {
+			return createError("Unable to delete SAML draft", err.Error())
+		}
+		log.Printf("[DEBUG] SAML draft not found. Skipping deletion.")
+		// If the HTTP status is NotFound, it means we don't need to
+		// worry about deleting anything.
 	}
 
 	log.Printf("[DEBUG] End resourceIntegrationIdPSAMLDelete")
@@ -123,7 +129,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 			ReadGenericSAMLDraftConfig(),
 		),
 		ReadContext:   ReadResource(ReadGenericSAMLDraftConfig()),
-		DeleteContext: resourceIntegrationIdPSAMLDelete,
+		DeleteContext: resourceIntegrationIdPSAMLDraftDelete,
 		Schema: map[string]*schema.Schema{
 			// All of the input arguments must force recreation of
 			// the resource, because the API does not support

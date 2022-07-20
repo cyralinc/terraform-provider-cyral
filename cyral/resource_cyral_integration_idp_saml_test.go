@@ -66,9 +66,6 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 			resourceFullNameDraft, "id",
 		),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"idp_metadata_url", "",
-		),
-		resource.TestCheckResourceAttr(resourceFullName,
 			"idp_metadata_document", metadataDoc,
 		),
 	)
@@ -78,7 +75,7 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 
 func genericSAMLIntegrationConfig(resName, metadataDoc string) string {
 	// Unfortunately, we can only test this resource using a metadata
-	// document. Using an URL would require an active external SAML endpoint
+	// document. Using a URL would require an active external SAML endpoint
 	// during the ACC tests.
 	return fmt.Sprintf(`
 	resource "cyral_integration_idp_saml_draft" "%s" {
