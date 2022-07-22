@@ -22,7 +22,7 @@ Retrieve and filter SAML IdP integrations.
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `idp_list` (List of Object) List of existing SAML IdP integrations for the given filter criteria. (see [below for nested schema](#nestedatt--idp_list))
+- `idp_list` (List of Object) List of existing SAML IdP integrations that match the given filter criteria. (see [below for nested schema](#nestedatt--idp_list))
 
 <a id="nestedatt--idp_list"></a>
 

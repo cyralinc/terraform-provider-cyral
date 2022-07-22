@@ -1,12 +1,12 @@
 package cyral
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -76,6 +76,10 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) erro
 	return nil
 }
 
+type ListGenericSAMLDraftsResponse struct {
+	Drafts []GenericSAMLDraft `json:"drafts"`
+}
+
 func CreateGenericSAMLDraftConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "GenericSAMLDraftResourceCreate",
@@ -96,29 +100,66 @@ func ReadGenericSAMLDraftConfig() ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
 		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &GenericSAMLDraftResponse{} },
+		HandleRequestError: func(d *schema.ResourceData, c *client.Client, err error) error {
+			httpError, ok := err.(*client.HttpError)
+			if !ok || httpError.StatusCode != http.StatusNotFound {
+				return err
+			}
+			log.Printf("[DEBUG] SAML draft not found. Checking if completed draft exists.")
+
+			url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts?includeCompletedDrafts=true",
+				c.ControlPlane)
+			body, err := c.DoRequest(url, http.MethodGet, nil)
+			if err != nil {
+				return fmt.Errorf("unable to read completed drafts: %w", err)
+			}
+
+			resp := ListGenericSAMLDraftsResponse{}
+			if err := json.Unmarshal(body, &resp); err != nil {
+				return fmt.Errorf("when reading completed drafts: "+
+					"unable to unmarshall JSON: %w", err)
+			}
+
+			myID := d.Id()
+			found := false
+			for _, draft := range resp.Drafts {
+				if draft.ID == myID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				log.Printf("[DEBUG] Completed draft with ID %q "+
+					"not found. Resetting the ID to trigger "+
+					"recreation", myID)
+				d.SetId(uuid.New().String())
+			} else {
+				log.Printf("[DEBUG] Found completed draft with ID "+
+					"%q.", myID)
+			}
+			return nil
+		},
 	}
 }
 
-func resourceIntegrationIdPSAMLDraftDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceIntegrationIdPSAMLDelete")
-	c := m.(*client.Client)
-
-	url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s",
-		c.ControlPlane, d.Id())
-	_, err := c.DoRequest(url, http.MethodDelete, nil)
-	if err != nil {
-		httpError, ok := err.(*client.HttpError)
-		if !ok || httpError.StatusCode != http.StatusNotFound {
-			return createError("Unable to delete SAML draft", err.Error())
-		}
-		log.Printf("[DEBUG] SAML draft not found. Skipping deletion.")
-		// If the HTTP status is NotFound, it means we don't need to
-		// worry about deleting anything.
+func DeleteGenericSAMLDraftConfig() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "GenericSAMLDraftResourceDelete",
+		HttpMethod: http.MethodDelete,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
+		},
+		HandleRequestError: func(d *schema.ResourceData, c *client.Client, err error) error {
+			httpError, ok := err.(*client.HttpError)
+			if !ok || httpError.StatusCode != http.StatusNotFound {
+				return err
+			}
+			log.Printf("[DEBUG] SAML draft not found. Skipping deletion.")
+			// If the HTTP status is NotFound, it means we don't need to
+			// worry about deleting anything.
+			return nil
+		},
 	}
-
-	log.Printf("[DEBUG] End resourceIntegrationIdPSAMLDelete")
-
-	return diag.Diagnostics{}
 }
 
 func resourceIntegrationIdPSAMLDraft() *schema.Resource {
@@ -129,7 +170,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 			ReadGenericSAMLDraftConfig(),
 		),
 		ReadContext:   ReadResource(ReadGenericSAMLDraftConfig()),
-		DeleteContext: resourceIntegrationIdPSAMLDraftDelete,
+		DeleteContext: DeleteResource(DeleteGenericSAMLDraftConfig()),
 		Schema: map[string]*schema.Schema{
 			// All of the input arguments must force recreation of
 			// the resource, because the API does not support
@@ -222,6 +263,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Description: "ID of this resource in the Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
+				ForceNew:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

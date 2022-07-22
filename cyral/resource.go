@@ -20,6 +20,8 @@ const (
 
 type URLCreatorFunc = func(d *schema.ResourceData, c *client.Client) string
 
+type HandleRequestErrorFunc = func(d *schema.ResourceData, c *client.Client, err error) error
+
 type ResourceData interface {
 	ReadFromSchema(d *schema.ResourceData) error
 }
@@ -29,11 +31,12 @@ type ResponseData interface {
 }
 
 type ResourceOperationConfig struct {
-	Name            string
-	HttpMethod      string
-	CreateURL       URLCreatorFunc
-	NewResourceData func() ResourceData
-	NewResponseData func(d *schema.ResourceData) ResponseData
+	Name               string
+	HttpMethod         string
+	CreateURL          URLCreatorFunc
+	HandleRequestError HandleRequestErrorFunc
+	NewResourceData    func() ResourceData
+	NewResponseData    func(d *schema.ResourceData) ResponseData
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
@@ -76,6 +79,9 @@ func HandleRequest(
 		url := config.CreateURL(d, c)
 
 		body, err := c.DoRequest(url, config.HttpMethod, resourceData)
+		if config.HandleRequestError != nil {
+			err = config.HandleRequestError(d, c, err)
+		}
 		if err != nil {
 			return createError(
 				fmt.Sprintf("Unable to %s resource", operationType),

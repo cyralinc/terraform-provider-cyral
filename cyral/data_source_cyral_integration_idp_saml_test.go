@@ -198,8 +198,8 @@ func integrationIdPSAMLDataSourceConfig(resName string, dependsOn []string,
 ) string {
 	return fmt.Sprintf(`
 	data "cyral_integration_idp_saml" "%s" {
-		depends_on = [%s]
+		depends_on = %s
 		display_name = "%s"
 		idp_type = "%s"
-	}`, resName, formatAttributes(dependsOn), displayName, idpType)
+	}`, resName, listToStr(dependsOn), displayName, idpType)
 }

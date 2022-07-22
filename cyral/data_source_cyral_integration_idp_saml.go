@@ -76,7 +76,7 @@ func dataSourceIntegrationIdPSAMLReadConfig() ResourceOperationConfig {
 			})
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso%s", c.ControlPlane, query)
 		},
-		NewResponseData: func() ResponseData { return &ListGenericSAMLIdpsResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ListGenericSAMLIdpsResponse{} },
 	}
 }
 
@@ -98,7 +98,7 @@ func dataSourceIntegrationIdPSAML() *schema.Resource {
 			"idp_list": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "List of existing SAML IdP integrations for the given filter criteria.",
+				Description: "List of existing SAML IdP integrations that match the given filter criteria.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {

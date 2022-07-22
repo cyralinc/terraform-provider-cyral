@@ -74,7 +74,7 @@ func CreateGenericSAMLConfig() ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso", c.ControlPlane)
 		},
 		NewResourceData: func() ResourceData { return &CreateGenericSAMLRequest{} },
-		NewResponseData: func() ResponseData { return &CreateGenericSAMLResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateGenericSAMLResponse{} },
 	}
 }
 
@@ -85,7 +85,7 @@ func ReadGenericSAMLConfig() ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
 		},
-		NewResponseData: func() ResponseData { return &ReadGenericSAMLResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadGenericSAMLResponse{} },
 	}
 }
 
@@ -148,6 +148,7 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 			"id": {
 				Description: "ID of this resource in the Cyral environment.",
 				Type:        schema.TypeString,
+				ForceNew:    true,
 				Computed:    true,
 			},
 			"single_sign_on_service_url": {
