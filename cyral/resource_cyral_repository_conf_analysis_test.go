@@ -107,21 +107,23 @@ func testAccRepoConfAnalysisConfig_DefaultValues(repositoryName string) string {
 func testAccRepoConfAnalysisCheck_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"redact", "all"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"alert_on_violation", "true"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"disable_pre_configured_alerts", "false"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"block_on_violation", "false"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"disable_filter_analysis", "false"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"rewrite_on_violation", "false"),
-		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"comment_annotation_groups.#", "0"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
+			"disable_filter_analysis", "false"),
+		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
+			"disable_pre_configured_alerts", "false"),
+		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
+			"enable_data_masking", "false"),
+		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"log_groups.#", "0"),
+		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
+			"redact", "all"),
+		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
+			"rewrite_on_violation", "false"),
 	)
 }
 
@@ -142,6 +144,7 @@ func testAccRepoConfAnalysisConfig_Updated(repositoryName string) string {
 		block_on_violation = true
 		disable_filter_analysis = false
 		rewrite_on_violation = true
+		enable_data_masking = true
 		comment_annotation_groups = [
 			"identity"
 		]
@@ -167,6 +170,8 @@ func testAccRepoConfAnalysisCheck_Updated() resource.TestCheckFunc {
 			"block_on_violation", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"disable_filter_analysis", "false"),
+		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
+			"enable_data_masking", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"rewrite_on_violation", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",

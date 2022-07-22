@@ -17,14 +17,15 @@ type RepositoryConfAnalysisData struct {
 }
 
 type UserFacingConfig struct {
-	Redact                     string   `json:"redact"`
 	AlertOnViolation           bool     `json:"alertOnViolation"`
-	DisablePreConfiguredAlerts bool     `json:"disablePreConfiguredAlerts"`
 	BlockOnViolation           bool     `json:"blockOnViolation"`
-	DisableFilterAnalysis      bool     `json:"disableFilterAnalysis"`
-	RewriteOnViolation         bool     `json:"rewriteOnViolation"`
 	CommentAnnotationGroups    []string `json:"commentAnnotationGroups,omitempty"`
+	DisableFilterAnalysis      bool     `json:"disableFilterAnalysis"`
+	DisablePreConfiguredAlerts bool     `json:"disablePreConfiguredAlerts"`
+	EnableDataMasking          bool     `json:"enableDataMasking"`
 	LogGroups                  []string `json:"logGroups,omitempty"`
+	Redact                     string   `json:"redact"`
+	RewriteOnViolation         bool     `json:"rewriteOnViolation"`
 }
 
 func resourceRepositoryConfAnalysis() *schema.Resource {
@@ -63,17 +64,25 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				Default:     true,
 			},
 			"disable_pre_configured_alerts": {
-				Description: "If set to `false` it will keep preconfigured alerts enabled.",
+				Description: "If set to `true` it will *disable* preconfigured alerts.",
 				Type:        schema.TypeBool,
 				Optional:    true,
+			},
+			"enable_data_masking": {
+				Description: "If set to `true` it will allow policies to force the masking " +
+					" of specified data fields in the results of queries. " +
+					"[Learn more](https://cyral.com/docs/using-cyral/masking/).",
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"block_on_violation": {
-				Description: "If set to `true` it will enable query blocking in case of a policy violation.",
-				Type:        schema.TypeBool,
-				Optional:    true,
+				Description: "If set to `true` it will enable query blocking in case of a " +
+					"policy violation.",
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"disable_filter_analysis": {
-				Description: "If set to `false` it will keep filter analysis enabled.",
+				Description: "If set to `true` it will *disable* filter analysis.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
@@ -83,9 +92,13 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				Optional:    true,
 			},
 			"comment_annotation_groups": {
-				Description: "Valid values are: `identity`, `client`, `repo`, `sidecar`. The default behavior is to set only the `identity` when this option is enabled, but you can also opt to add the contents of `client`, `repo`, `sidecar` logging blocks as query comments. See also [Logging additional data as comments on a query](https://support.cyral.com/support/solutions/articles/44002218978)",
-				Type:        schema.TypeSet,
-				Optional:    true,
+				Description: "Valid values are: `identity`, `client`, `repo`, `sidecar`. The " +
+					"default behavior is to set only the `identity` when this option is " +
+					"enabled, but you can also opt to add the contents of `client`, `repo`, " +
+					" `sidecar` logging blocks as query comments. " +
+					" [Learn more](https://support.cyral.com/support/solutions/articles/44002218978).",
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: client.ValidateRepositoryConfAnalysisCommentAnnotationGroups(),
@@ -234,14 +247,15 @@ func getConfAnalysisDataFromResource(d *schema.ResourceData) (RepositoryConfAnal
 
 	return RepositoryConfAnalysisData{
 		Config: UserFacingConfig{
-			Redact:                     d.Get("redact").(string),
 			AlertOnViolation:           d.Get("alert_on_violation").(bool),
-			DisablePreConfiguredAlerts: d.Get("disable_pre_configured_alerts").(bool),
 			BlockOnViolation:           d.Get("block_on_violation").(bool),
 			DisableFilterAnalysis:      d.Get("disable_filter_analysis").(bool),
-			RewriteOnViolation:         d.Get("rewrite_on_violation").(bool),
+			DisablePreConfiguredAlerts: d.Get("disable_pre_configured_alerts").(bool),
+			EnableDataMasking:          d.Get("enable_data_masking").(bool),
 			CommentAnnotationGroups:    annotationGroups,
 			LogGroups:                  logGroups,
+			Redact:                     d.Get("redact").(string),
+			RewriteOnViolation:         d.Get("rewrite_on_violation").(bool),
 		},
 	}, nil
 }
@@ -259,12 +273,13 @@ func setConfAnalysisDataToResource(d *schema.ResourceData, resourceData Reposito
 	}
 	annotationGroupsSet := schema.NewSet(schema.HashString, annotationGroups)
 
-	d.Set("redact", resourceData.Config.Redact)
 	d.Set("alert_on_violation", resourceData.Config.AlertOnViolation)
-	d.Set("disable_pre_configured_alerts", resourceData.Config.DisablePreConfiguredAlerts)
 	d.Set("block_on_violation", resourceData.Config.BlockOnViolation)
-	d.Set("disable_filter_analysis", resourceData.Config.DisableFilterAnalysis)
-	d.Set("rewrite_on_violation", resourceData.Config.RewriteOnViolation)
 	d.Set("comment_annotation_groups", annotationGroupsSet)
+	d.Set("disable_filter_analysis", resourceData.Config.DisableFilterAnalysis)
+	d.Set("disable_pre_configured_alerts", resourceData.Config.DisablePreConfiguredAlerts)
+	d.Set("enable_data_masking", resourceData.Config.EnableDataMasking)
 	d.Set("log_groups", logGroupsSet)
+	d.Set("redact", resourceData.Config.Redact)
+	d.Set("rewrite_on_violation", resourceData.Config.RewriteOnViolation)
 }
