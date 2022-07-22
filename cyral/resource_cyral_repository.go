@@ -25,6 +25,7 @@ func repositoryTypes() []string {
 		"denodo",
 		"dremio",
 		"dynamodb",
+		"dynamodbstreams",
 		"galera",
 		"mariadb",
 		"mongodb",

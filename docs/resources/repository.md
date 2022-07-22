@@ -71,6 +71,7 @@ resource "cyral_repository" "repositories" {
   - `denodo`
   - `dremio`
   - `dynamodb`
+  - `dynamodbstreams`
   - `galera`
   - `mariadb`
   - `mongodb`

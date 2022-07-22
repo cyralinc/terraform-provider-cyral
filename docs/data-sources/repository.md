@@ -23,6 +23,7 @@ Retrieve and filter repositories.
   - `denodo`
   - `dremio`
   - `dynamodb`
+  - `dynamodbstreams`
   - `galera`
   - `mariadb`
   - `mongodb`
