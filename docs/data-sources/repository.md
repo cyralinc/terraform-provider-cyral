@@ -22,6 +22,8 @@ Retrieve and filter repositories.
   - `cassandra`
   - `denodo`
   - `dremio`
+  - `dynamodb`
+  - `dynamodbstreams`
   - `galera`
   - `mariadb`
   - `mongodb`
