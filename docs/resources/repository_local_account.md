@@ -62,6 +62,16 @@ resource "cyral_repository_local_account" "some_resource_name" {
     }
 }
 
+### Kubernetes Secret
+resource "cyral_repository_local_account" "some_resource_name" {
+    repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
+    kubernetes_secret {
+        local_account = ""
+        secret_name   = ""
+        secret_key    = ""
+    }
+}
+
 ### GCP Secret Manager
 resource "cyral_repository_local_account" "some_resource_name" {
     repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
