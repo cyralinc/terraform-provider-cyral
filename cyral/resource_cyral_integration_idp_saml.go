@@ -130,6 +130,7 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 				Description:  "A valid id for a SAML Draft. Must be at least 5 character long. See attribute `id` in resource `cyral_integration_idp_saml_draft`.",
 				Type:         schema.TypeString,
 				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validationStringLenAtLeast(5),
 			},
 			"idp_metadata_url": {
