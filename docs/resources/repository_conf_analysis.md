@@ -22,6 +22,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_enabled" {
   block_on_violation = true
   disable_filter_analysis = false
   rewrite_on_violation = true
+  enable_data_masking = true
   comment_annotation_groups = [ "identity" ]
   log_groups = [ "everything" ]
 }
@@ -35,6 +36,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
   block_on_violation = false
   disable_filter_analysis = true
   rewrite_on_violation = false
+  enable_data_masking = false
   comment_annotation_groups = []
   log_groups = []
 }
@@ -52,9 +54,10 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
 
 - `alert_on_violation` (Boolean) If set to `true` it will enable alert on policy violations.
 - `block_on_violation` (Boolean) If set to `true` it will enable query blocking in case of a policy violation.
-- `comment_annotation_groups` (Set of String) Valid values are: `identity`, `client`, `repo`, `sidecar`. The default behavior is to set only the `identity` when this option is enabled, but you can also opt to add the contents of `client`, `repo`, `sidecar` logging blocks as query comments. See also [Logging additional data as comments on a query](https://support.cyral.com/support/solutions/articles/44002218978)
-- `disable_filter_analysis` (Boolean) If set to `false` it will keep filter analysis enabled.
-- `disable_pre_configured_alerts` (Boolean) If set to `false` it will keep preconfigured alerts enabled.
+- `comment_annotation_groups` (Set of String) Valid values are: `identity`, `client`, `repo`, `sidecar`. The default behavior is to set only the `identity` when this option is enabled, but you can also opt to add the contents of `client`, `repo`, `sidecar` logging blocks as query comments. [Learn more](https://support.cyral.com/support/solutions/articles/44002218978).
+- `disable_filter_analysis` (Boolean) If set to `true` it will _disable_ filter analysis.
+- `disable_pre_configured_alerts` (Boolean) If set to `true` it will _disable_ preconfigured alerts.
+- `enable_data_masking` (Boolean) If set to `true` it will allow policies to force the masking of specified data fields in the results of queries. [Learn more](https://cyral.com/docs/using-cyral/masking/).
 - `log_groups` (Set of String) Responsible for configuring the Log Settings. Valid values are documented below. The `log_groups` list support the following values:
   - `everything` - Enables all the Log Settings.
   - `dql` - Enables the `DQLs` setting for `all requests`.

@@ -16,7 +16,7 @@ locals {
         # resources in the target AWS account. For this reason, we use 'cyral-zzzzzz' where
         # zzzzzz are the last 6 digits of the sidecar id created in the control plane. This
         # explanation is purely informational and we advise you to keep this variable as is.
-        sidecar_name_prefix = "cyral-${substr(lower(cyral_sidecar.mysql_sidecar.id), -6, -1)}"
+        sidecar_name_prefix = "cyral-${substr(lower(cyral_sidecar.main_sidecar.id), -6, -1)}"
 
         # If you would like to use other log integration, download a new template from the UI
         # and copy the log integration configuration or follow this module documentation.
@@ -66,7 +66,7 @@ provider "cyral" {
 }
 
 resource "cyral_sidecar" "main_sidecar" {
-  name              = "main_sidecar"
+  name              = "MainSidecar"
   deployment_method = "terraform"
 }
 
