@@ -22,7 +22,7 @@ func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 				DisableForceAuthentication: false,
 				SingleLogoutServiceURL:     "slo-url-1",
 			},
-			SPMetadata: &SPMetadata{
+			SPMetadata: &GenericSAMLSPMetadata{
 				XMLDocument: "xml-document-1",
 			},
 			Attributes: NewRequiredUserAttributes(
@@ -43,7 +43,7 @@ func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 				DisableForceAuthentication: true,
 				SingleLogoutServiceURL:     "slo-url-2",
 			},
-			SPMetadata: &SPMetadata{
+			SPMetadata: &GenericSAMLSPMetadata{
 				XMLDocument: "xml-document-2",
 			},
 			Attributes: NewRequiredUserAttributes(

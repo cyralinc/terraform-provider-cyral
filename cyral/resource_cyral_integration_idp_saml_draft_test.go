@@ -15,7 +15,7 @@ func initialGenericSAMLDraftConfig() *GenericSAMLDraft {
 		DisplayName:              "tf-test-saml-draft-1",
 		DisableIdPInitiatedLogin: false,
 		IdpType:                  "some-idp-type-1",
-		RequiredUserAttributes: NewRequiredUserAttributes(
+		Attributes: NewRequiredUserAttributes(
 			"first-name-1",
 			"last-name-1",
 			"email-1",
@@ -29,7 +29,7 @@ func updatedGenericSAMLDraftConfig() *GenericSAMLDraft {
 		DisplayName:              "tf-test-saml-draft-2",
 		DisableIdPInitiatedLogin: true,
 		IdpType:                  "some-idp-type-2",
-		RequiredUserAttributes: NewRequiredUserAttributes(
+		Attributes: NewRequiredUserAttributes(
 			"first-name-2",
 			"last-name-2",
 			"email-2",
@@ -77,13 +77,13 @@ func setupIntegrationIdPSAMLDraftTest(t *testing.T, draft *GenericSAMLDraft, res
 		resource.TestCheckResourceAttr(resourceFullName, "idp_type",
 			draft.IdpType),
 		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.first_name",
-			draft.RequiredUserAttributes.FirstName.Name),
+			draft.Attributes.FirstName.Name),
 		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.last_name",
-			draft.RequiredUserAttributes.LastName.Name),
+			draft.Attributes.LastName.Name),
 		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.email",
-			draft.RequiredUserAttributes.Email.Name),
+			draft.Attributes.Email.Name),
 		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.groups",
-			draft.RequiredUserAttributes.Groups.Name),
+			draft.Attributes.Groups.Name),
 		resource.TestMatchResourceAttr(resourceFullName, "id",
 			nonEmptyRegex),
 		resource.TestMatchResourceAttr(resourceFullName, "sp_metadata",
@@ -106,9 +106,9 @@ func formatGenericSAMLDraftIntoConfig(draft *GenericSAMLDraft, resName string) s
 			groups = "%s"
 		}
 	}`, resName, draft.DisplayName, draft.DisableIdPInitiatedLogin, draft.IdpType,
-		draft.RequiredUserAttributes.FirstName.Name,
-		draft.RequiredUserAttributes.LastName.Name,
-		draft.RequiredUserAttributes.Email.Name,
-		draft.RequiredUserAttributes.Groups.Name,
+		draft.Attributes.FirstName.Name,
+		draft.Attributes.LastName.Name,
+		draft.Attributes.Email.Name,
+		draft.Attributes.Groups.Name,
 	)
 }

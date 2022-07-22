@@ -29,10 +29,10 @@ import (
 //
 
 type CreateGenericSAMLDraftRequest struct {
-	DisplayName              string `json:"displayName"`
-	DisableIdPInitiatedLogin bool   `json:"disableIdPInitiatedLogin"`
-	IdpType                  string `json:"idpType,omitempty"`
-	*RequiredUserAttributes  `json:"attributes,omitempty"`
+	DisplayName              string                  `json:"displayName"`
+	DisableIdPInitiatedLogin bool                    `json:"disableIdPInitiatedLogin"`
+	IdpType                  string                  `json:"idpType,omitempty"`
+	Attributes               *RequiredUserAttributes `json:"attributes,omitempty"`
 }
 
 func (req *CreateGenericSAMLDraftRequest) ReadFromSchema(d *schema.ResourceData) error {
@@ -44,7 +44,7 @@ func (req *CreateGenericSAMLDraftRequest) ReadFromSchema(d *schema.ResourceData)
 	if err != nil {
 		return err
 	}
-	req.RequiredUserAttributes = attributes
+	req.Attributes = attributes
 
 	return nil
 }
@@ -67,8 +67,8 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) erro
 	if err := d.Set("idp_type", resp.Draft.IdpType); err != nil {
 		return err
 	}
-	if resp.Draft.RequiredUserAttributes != nil {
-		if err := resp.Draft.RequiredUserAttributes.WriteToSchema(d); err != nil {
+	if resp.Draft.Attributes != nil && len(d.Get("attributes").(*schema.Set).List()) > 0 {
+		if err := resp.Draft.Attributes.WriteToSchema(d); err != nil {
 			return err
 		}
 	}
@@ -134,7 +134,7 @@ func ReadGenericSAMLDraftConfig() ResourceOperationConfig {
 			}
 			if !found {
 				log.Printf("[DEBUG] Completed draft with ID %q "+
-					"not found. Triggering recreation", myID)
+					"not found. Triggering recreation.", myID)
 				currentToggle := d.Get("toggle_recreation").(bool)
 				newToggle := !currentToggle
 				if err := d.Set("toggle_recreation", newToggle); err != nil {
@@ -208,22 +208,9 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 			"attributes": {
 				Description: "SAML Attribute names for the identity attributes required by the Cyral SP. Each attribute name MUST be at least 3 characters long.",
 				Type:        schema.TypeSet,
-				// This needs to be required. Otherwise, if the
-				// user omits it, the API will still return the
-				// attributed filled with the default
-				// values. Then, when trying to run `terraform
-				// apply` again, the resource will always be
-				// recreated, since a change will be detected.
-				//
-				// One option would be to have the attributes
-				// laid at the top level, like
-				// `attribute_first_name`, `attribute_last_name`
-				// etc. But that doesn't look good, and then the
-				// resource would not reflect the API fields so
-				// well.
-				Required: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Optional:    true,
+				ForceNew:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"first_name": {

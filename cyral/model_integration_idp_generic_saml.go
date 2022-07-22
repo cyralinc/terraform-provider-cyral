@@ -6,10 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// TODOs:
-//
-// - Change SPMetadata fields to a more specific name
-
 const (
 	defaultUserAttributeFirstName = "firstName"
 	defaultUserAttributeLastName  = "lastName"
@@ -18,16 +14,16 @@ const (
 )
 
 type GenericSAMLDraft struct {
-	ID                       string `json:"id"`
-	DisplayName              string `json:"displayName"`
-	IdpType                  string `json:"idpType"`
-	DisableIdPInitiatedLogin bool   `json:"disableIdpInitiatedLogin"`
-	*SPMetadata              `json:"spMetadata,omitempty"`
-	*RequiredUserAttributes  `json:"requiredUserAttributes,omitempty"`
-	Completed                bool `json:"completed"`
+	ID                       string                  `json:"id"`
+	DisplayName              string                  `json:"displayName"`
+	IdpType                  string                  `json:"idpType"`
+	DisableIdPInitiatedLogin bool                    `json:"disableIdpInitiatedLogin"`
+	SPMetadata               *GenericSAMLSPMetadata  `json:"spMetadata,omitempty"`
+	Attributes               *RequiredUserAttributes `json:"requiredUserAttributes,omitempty"`
+	Completed                bool                    `json:"completed"`
 }
 
-type SPMetadata struct {
+type GenericSAMLSPMetadata struct {
 	XMLDocument string `json:"xmlDocument"`
 }
 
@@ -93,8 +89,8 @@ type GenericSAMLIntegration struct {
 	IdpType       string                    `json:"idpType"`
 	Disabled      bool                      `json:"disabled"`
 	IdpDescriptor *GenericSAMLIdpDescriptor `json:"idpDescriptor,omitempty"`
-	*SPMetadata   `json:"spMetadata,omitempty"`
-	Attributes    *RequiredUserAttributes `json:"attributes"`
+	SPMetadata    *GenericSAMLSPMetadata    `json:"spMetadata,omitempty"`
+	Attributes    *RequiredUserAttributes   `json:"attributes"`
 }
 
 func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData) error {

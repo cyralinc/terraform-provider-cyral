@@ -88,7 +88,6 @@ func integrationIdPSAMLDraftResourceConfig(resName, displayName, idpType string)
 	resource "cyral_integration_idp_saml_draft" "%s" {
 		display_name = "%s"
 		idp_type = "%s"
-		attributes {}
 	}`, resName, displayName, idpType)
 }
 
