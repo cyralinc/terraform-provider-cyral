@@ -253,6 +253,11 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
+			"id": {
+				Description: "ID of this resource in the Cyral environment.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			// toggle_recreation is used to recreate the SAML draft
 			// in case a SAML integration that points to it is
 			// deleted, but the SAML draft remains dangling in the
@@ -267,11 +272,6 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 				ForceNew:    true,
-			},
-			"id": {
-				Description: "ID of this resource in the Cyral environment.",
-				Type:        schema.TypeString,
-				Computed:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

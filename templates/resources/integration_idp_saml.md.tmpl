@@ -1,0 +1,18 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+~> **NOTE** This resource manages the completion of a SAML IdP integration
+draft. SAML drafts are managed by `cyral_integration_idp_saml_draft`. In the
+Cyral API, if an integration is deleted, the associated SAML draft is also
+deleted. Therefore, do not destroy this resource without destroying the
+associated SAML draft in the same `terraform apply` or `terraform destroy`
+operation. Otherwise, the Terraform state will become inconsistent with the
+state of the Cyral API. If you reached this inconsistent state, running
+`terraform apply` again usually solves the problem.
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_integration_idp_saml/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
