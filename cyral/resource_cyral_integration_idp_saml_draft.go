@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -107,8 +106,13 @@ func ReadGenericSAMLDraftConfig() ResourceOperationConfig {
 			}
 			log.Printf("[DEBUG] SAML draft not found. Checking if completed draft exists.")
 
-			url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts?includeCompletedDrafts=true",
-				c.ControlPlane)
+			query := urlQuery(map[string]string{
+				"includeCompletedDrafts": "true",
+				"displayName":            d.Get("display_name").(string),
+				"idpType":                d.Get("idp_type").(string),
+			})
+			url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts%s",
+				c.ControlPlane, query)
 			body, err := c.DoRequest(url, http.MethodGet, nil)
 			if err != nil {
 				return fmt.Errorf("unable to read completed drafts: %w", err)
@@ -130,9 +134,12 @@ func ReadGenericSAMLDraftConfig() ResourceOperationConfig {
 			}
 			if !found {
 				log.Printf("[DEBUG] Completed draft with ID %q "+
-					"not found. Resetting the ID to trigger "+
-					"recreation", myID)
-				d.SetId(uuid.New().String())
+					"not found. Triggering recreation", myID)
+				currentToggle := d.Get("toggle_recreation").(bool)
+				newToggle := !currentToggle
+				if err := d.Set("toggle_recreation", newToggle); err != nil {
+					return fmt.Errorf("error forcing recreation of SAML draft: %w", err)
+				}
 			} else {
 				log.Printf("[DEBUG] Found completed draft with ID "+
 					"%q.", myID)
@@ -259,11 +266,25 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
+			// toggle_recreation is used to recreate the SAML draft
+			// in case a SAML integration that points to it is
+			// deleted, but the SAML draft remains dangling in the
+			// Terraform configuration. In this case, the object
+			// wouldn't exist in the API, only in the Terraform
+			// configuration. To help the user get out of this
+			// situation, we force its recreation when he attempts
+			// `terraform apply` again.
+			"toggle_recreation": {
+				Description: "Internal use only. Used to recreate the resource in case it reaches an inconsistent state.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				ForceNew:    true,
+			},
 			"id": {
 				Description: "ID of this resource in the Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				ForceNew:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

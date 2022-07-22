@@ -89,7 +89,7 @@ func HandleRequest(
 			)
 		}
 
-		if config.NewResponseData != nil {
+		if body != nil && config.NewResponseData != nil {
 			if responseData := config.NewResponseData(d); responseData != nil {
 				if err := json.Unmarshal(body, responseData); err != nil {
 					return createError("Unable to unmarshall JSON", err.Error())
