@@ -21,7 +21,7 @@ Manages SAML IdP integration drafts.
 
 ### Optional
 
-- `disable_idp_initiated_login` (Boolean) Whether or not IdP-Initiated login should be disabled for this generic SAML integration draft. Defaults to false.
+- `disable_idp_initiated_login` (Boolean) Whether or not IdP-Initiated login should be disabled for this generic SAML integration draft. Defaults to `false`.
 - `idp_type` (String) Identity provider type. The value provided can be used as a filter when retrieving SAML integrations. See data source `cyral_integration_idp_saml`.
 
 ### Read-Only

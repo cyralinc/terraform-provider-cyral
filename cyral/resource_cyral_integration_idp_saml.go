@@ -151,7 +151,7 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 				Computed:    true,
 			},
 			"single_sign_on_service_url": {
-				Description: "The IdP’s Single Sign-on Service (SS0) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.",
+				Description: "The IdP’s Single Sign-on Service (SSO) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},

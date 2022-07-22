@@ -22,38 +22,38 @@ type ListGenericSAMLIdpsResponse struct {
 func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData) error {
 	var idpList []interface{}
 	for _, idp := range resp.IdentityProviders {
-		var idpDescriptor map[string]interface{}
-		var spMetadata map[string]interface{}
-		var attributes map[string]interface{}
+		var idpDescriptor []interface{}
+		var spMetadata []interface{}
+		var attributes []interface{}
 		if idp.IdpDescriptor != nil {
-			idpDescriptor = map[string]interface{}{
+			idpDescriptor = append(idpDescriptor, map[string]interface{}{
 				"single_sign_on_service_url":   idp.IdpDescriptor.SingleSignOnServiceURL,
 				"signing_certificate":          idp.IdpDescriptor.SigningCertificate,
 				"disable_force_authentication": idp.IdpDescriptor.DisableForceAuthentication,
 				"single_logout_service_url":    idp.IdpDescriptor.SingleLogoutServiceURL,
-			}
+			})
 		}
 		if idp.SPMetadata != nil {
-			spMetadata = map[string]interface{}{
+			spMetadata = append(spMetadata, map[string]interface{}{
 				"xml_document": idp.SPMetadata.XMLDocument,
-			}
+			})
 		}
 		if idp.Attributes != nil {
-			attributes = map[string]interface{}{
+			attributes = append(attributes, map[string]interface{}{
 				"first_name": idp.Attributes.FirstName.Name,
 				"last_name":  idp.Attributes.LastName.Name,
 				"email":      idp.Attributes.Email.Name,
 				"groups":     idp.Attributes.Groups.Name,
-			}
+			})
 		}
 		idpList = append(idpList, map[string]interface{}{
 			"id":             idp.ID,
 			"display_name":   idp.DisplayName,
 			"idp_type":       idp.IdpType,
 			"disabled":       idp.Disabled,
-			"idp_descriptor": []interface{}{idpDescriptor},
-			"sp_metadata":    []interface{}{spMetadata},
-			"attributes":     []interface{}{attributes},
+			"idp_descriptor": idpDescriptor,
+			"sp_metadata":    spMetadata,
+			"attributes":     attributes,
 		})
 	}
 	if err := d.Set("idp_list", idpList); err != nil {

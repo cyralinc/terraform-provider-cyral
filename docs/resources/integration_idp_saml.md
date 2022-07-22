@@ -26,4 +26,4 @@ Manages SAML IdP integrations.
 ### Read-Only
 
 - `id` (String) ID of this resource in the Cyral environment.
-- `single_sign_on_service_url` (String) The IdP’s Single Sign-on Service (SS0) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.
+- `single_sign_on_service_url` (String) The IdP’s Single Sign-on Service (SSO) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.

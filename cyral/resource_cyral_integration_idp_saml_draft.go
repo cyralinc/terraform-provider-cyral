@@ -144,7 +144,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				ForceNew:     true,
 			},
 			"disable_idp_initiated_login": {
-				Description: "Whether or not IdP-Initiated login should be disabled for this generic SAML integration draft. Defaults to false.",
+				Description: "Whether or not IdP-Initiated login should be disabled for this generic SAML integration draft. Defaults to `false`.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
