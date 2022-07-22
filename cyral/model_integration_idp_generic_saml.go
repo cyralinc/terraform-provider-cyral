@@ -10,6 +10,13 @@ import (
 //
 // - Change SPMetadata fields to a more specific name
 
+const (
+	defaultUserAttributeFirstName = "firstName"
+	defaultUserAttributeLastName  = "lastName"
+	defaultUserAttributeEmail     = "email"
+	defaultUserAttributeGroups    = "memberOf"
+)
+
 type GenericSAMLDraft struct {
 	ID                       string `json:"id"`
 	DisplayName              string `json:"displayName"`

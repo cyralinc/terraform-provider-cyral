@@ -183,7 +183,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      "firstName",
+							Default:      defaultUserAttributeFirstName,
 							ValidateFunc: validationStringLenAtLeast(3),
 						},
 						"last_name": {
@@ -191,7 +191,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      "lastName",
+							Default:      defaultUserAttributeLastName,
 							ValidateFunc: validationStringLenAtLeast(3),
 						},
 						"email": {
@@ -199,7 +199,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      "email",
+							Default:      defaultUserAttributeEmail,
 							ValidateFunc: validationStringLenAtLeast(3),
 						},
 						"groups": {
@@ -207,7 +207,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      "memberOf",
+							Default:      defaultUserAttributeGroups,
 							ValidateFunc: validationStringLenAtLeast(3),
 						},
 					},

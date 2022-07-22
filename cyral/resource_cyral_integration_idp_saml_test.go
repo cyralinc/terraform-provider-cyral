@@ -55,7 +55,10 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 	string,
 	resource.TestCheckFunc,
 ) {
-	config := genericSAMLIntegrationConfig(resName, metadataDoc)
+	var config string
+	config += integrationIdPSAMLDraftResourceConfig(resName,
+		"some-display-name", "some-idp-type")
+	config += integrationIdPSAMLResourceConfig(resName, resName, metadataDoc)
 
 	resourceFullName := fmt.Sprintf("cyral_integration_idp_saml.%s", resName)
 	resourceFullNameDraft := fmt.Sprintf("cyral_integration_idp_saml_draft.%s",
@@ -65,6 +68,9 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 			resourceFullName, "saml_draft_id",
 			resourceFullNameDraft, "id",
 		),
+		// Unfortunately, we can only test this resource using a
+		// metadata document. Using a URL would require an active
+		// external SAML endpoint during the ACC tests.
 		resource.TestCheckResourceAttr(resourceFullName,
 			"idp_metadata_document", metadataDoc,
 		),
@@ -73,18 +79,23 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 	return config, checkFunc
 }
 
-func genericSAMLIntegrationConfig(resName, metadataDoc string) string {
-	// Unfortunately, we can only test this resource using a metadata
-	// document. Using a URL would require an active external SAML endpoint
-	// during the ACC tests.
+// integrationIdPSAMLDraftResourceConfig is a simplified version of
+// formatGenericSAMLDraftIntoConfig. It only accepts custom display and idp
+// type, and is used mostly to test the actual SAML integration (which needs a
+// SAML draft to be created).
+func integrationIdPSAMLDraftResourceConfig(resName, displayName, idpType string) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_idp_saml_draft" "%s" {
-		display_name = "test_saml_draft_%s"
+		display_name = "%s"
+		idp_type = "%s"
 		attributes {}
-	}
+	}`, resName, displayName, idpType)
+}
 
+func integrationIdPSAMLResourceConfig(resName, draftResName, metadataDoc string) string {
+	return fmt.Sprintf(`
 	resource "cyral_integration_idp_saml" "%s" {
 		saml_draft_id = cyral_integration_idp_saml_draft.%s.id
 		idp_metadata_document = "%s"
-	}`, resName, resName, resName, resName, metadataDoc)
+	}`, resName, draftResName, metadataDoc)
 }

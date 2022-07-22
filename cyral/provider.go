@@ -121,6 +121,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"cyral_datalabel":            dataSourceDatalabel(),
 			"cyral_integration_idp":      dataSourceIntegrationIdP(),
+			"cyral_integration_idp_saml": dataSourceIntegrationIdPSAML(),
 			"cyral_repository":           dataSourceRepository(),
 			"cyral_role":                 dataSourceRole(),
 			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
