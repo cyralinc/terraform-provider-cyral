@@ -101,11 +101,13 @@ func resourceSidecar() *schema.Resource {
 				Optional:    true,
 			},
 			"bypass_mode": {
-				Description: "This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `never`, `failover`, `always`. Defaults to `failover`. If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail. If `failover` is specified, the sidecar will run on [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `always` is specified, the sidecar will run on [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode).",
+				Description: "This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `never`, `failover`, `always`. Defaults to `never`. If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail. If `failover` is specified, the sidecar will run on [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `always` is specified, the sidecar will run on [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode).",
 				Type:        schema.TypeString,
 				Optional:    true,
-				// "failover" is the default value the UI uses.
-				Default: "failover",
+				// "failover" is the default value the UI
+				// assumes. "never" is the default value the API
+				// assumes.
+				Default: "never",
 				ValidateFunc: validation.StringInSlice([]string{
 					"never",
 					"failover",

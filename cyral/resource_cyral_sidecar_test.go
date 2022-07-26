@@ -50,6 +50,17 @@ var tfSidecarConfig *SidecarData = &SidecarData{
 	CertificateBundleSecrets: getTestCBS(),
 }
 
+var failoverSidecarConfig *SidecarData = &SidecarData{
+	Name:            "tf-provider-TestAccSidecarResource-failoverSidecar",
+	SidecarProperty: NewSidecarProperty("terraform"),
+	ServicesConfig: SidecarServicesConfig{
+		"dispatcher": map[string]string{
+			"bypass": "always",
+		},
+	},
+	UserEndpoint: "some.user.endpoint",
+}
+
 var passthroughSidecarConfig *SidecarData = &SidecarData{
 	Name:            "tf-provider-TestAccSidecarResource-passthroughSidecar",
 	SidecarProperty: NewSidecarProperty("terraform"),
@@ -67,6 +78,7 @@ func TestAccSidecarResource(t *testing.T) {
 	testUpdateConfigHelm, testUpdateFuncHelm := setupSidecarTest(helmSidecarConfig)
 	testUpdateConfigTF, testUpdateFuncTF := setupSidecarTest(tfSidecarConfig)
 	testUpdateConfigPassthrough, testUpdateFuncPassthrough := setupSidecarTest(passthroughSidecarConfig)
+	testUpdateConfigFailover, testUpdateFuncFailover := setupSidecarTest(failoverSidecarConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -90,6 +102,10 @@ func TestAccSidecarResource(t *testing.T) {
 			{
 				Config: testUpdateConfigPassthrough,
 				Check:  testUpdateFuncPassthrough,
+			},
+			{
+				Config: testUpdateConfigFailover,
+				Check:  testUpdateFuncFailover,
 			},
 		},
 	})
