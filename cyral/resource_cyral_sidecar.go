@@ -22,14 +22,34 @@ type SidecarData struct {
 	ID                       string                   `json:"id"`
 	Name                     string                   `json:"name"`
 	Labels                   []string                 `json:"labels"`
-	SidecarProperty          SidecarProperty          `json:"properties"`
+	SidecarProperty          *SidecarProperty         `json:"properties"`
+	ServicesConfig           SidecarServicesConfig    `json:"services"`
 	UserEndpoint             string                   `json:"userEndpoint"`
 	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
+}
+
+func (sd *SidecarData) BypassMode() string {
+	if sd.ServicesConfig != nil {
+		if dispConfig, ok := sd.ServicesConfig["dispatcher"]; ok {
+			if bypass_mode, ok := dispConfig["bypass"]; ok {
+				return bypass_mode
+			}
+		}
+	}
+	return ""
 }
 
 type SidecarProperty struct {
 	DeploymentMethod string `json:"deploymentMethod"`
 }
+
+func NewSidecarProperty(deploymentMethod string) *SidecarProperty {
+	return &SidecarProperty{
+		DeploymentMethod: deploymentMethod,
+	}
+}
+
+type SidecarServicesConfig map[string]map[string]string
 
 type CertificateBundleSecrets map[string]*CertificateBundleSecret
 
@@ -79,6 +99,18 @@ func resourceSidecar() *schema.Resource {
 				Description: "User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.",
 				Type:        schema.TypeString,
 				Optional:    true,
+			},
+			"bypass_mode": {
+				Description: "This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `never`, `failover`, `always`. Defaults to `failover`. If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail. If `failover` is specified, the sidecar will run on [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `always` is specified, the sidecar will run on [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode).",
+				Type:        schema.TypeString,
+				Optional:    true,
+				// "failover" is the default value the UI uses.
+				Default: "failover",
+				ValidateFunc: validation.StringInSlice([]string{
+					"never",
+					"failover",
+					"always",
+				}, false),
 			},
 			"certificate_bundle_secrets": {
 				Description: "Certificate Bundle Secret is a configuration that holds data about the" +
@@ -195,6 +227,9 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
+	if bypassMode := response.BypassMode(); bypassMode != "" {
+		d.Set("bypass_mode", bypassMode)
+	}
 	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(response.CertificateBundleSecrets))
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
@@ -242,8 +277,12 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 
 	deploymentMethod := d.Get("deployment_method").(string)
 
-	sp := SidecarProperty{
-		DeploymentMethod: deploymentMethod,
+	sp := NewSidecarProperty(deploymentMethod)
+
+	svcconf := SidecarServicesConfig{
+		"dispatcher": map[string]string{
+			"bypass": d.Get("bypass_mode").(string),
+		},
 	}
 
 	labels := d.Get("labels").([]interface{})
@@ -262,6 +301,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 		Name:                     d.Get("name").(string),
 		Labels:                   sidecarDataLabels,
 		SidecarProperty:          sp,
+		ServicesConfig:           svcconf,
 		UserEndpoint:             d.Get("user_endpoint").(string),
 		CertificateBundleSecrets: cbs,
 	}, nil
