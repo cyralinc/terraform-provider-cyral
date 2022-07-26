@@ -53,7 +53,6 @@ var tfSidecarConfig *SidecarData = &SidecarData{
 var passthroughSidecarConfig *SidecarData = &SidecarData{
 	Name:            "tf-provider-TestAccSidecarResource-passthroughSidecar",
 	SidecarProperty: NewSidecarProperty("terraform"),
-	Labels:          []string{"test5"},
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
 			"bypass": "always",

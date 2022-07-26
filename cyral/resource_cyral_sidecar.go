@@ -286,7 +286,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	}
 
 	labels := d.Get("labels").([]interface{})
-	var sidecarDataLabels []string
+	sidecarDataLabels := []string{}
 	for _, labelInterface := range labels {
 		if label, ok := labelInterface.(string); ok {
 			sidecarDataLabels = append(sidecarDataLabels, label)
