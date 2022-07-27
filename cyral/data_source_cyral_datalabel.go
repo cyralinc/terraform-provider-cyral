@@ -11,33 +11,28 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-const (
-	defaultDataLabelType = "UNKNOWN"
-)
-
-func dataLabelTypes() []string {
-	return []string{
-		"UNKNOWN",
-		"PREDEFINED",
-		"CUSTOM",
-	}
-}
+// TODO
+//
+// type GetDataLabelResponse DataLabel
 
 type GetDataLabelsResponse struct {
 	Labels []DataLabel `json:"labels"`
 }
 
+// TODO
+//
+// func WriteDataLabelsToDataSourceSchema(label []*DataLabel, d *schema.ResourceData) error {
+
+// }
+
 func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
 	var labels []interface{}
 	for _, label := range resp.Labels {
-		var tags []interface{}
-		for _, tag := range label.Tags {
-			tags = append(tags, tag)
-		}
 		labels = append(labels, map[string]interface{}{
+			"name":        label.Name,
 			"description": label.Description,
 			"type":        label.Type,
-			"tags":        tags,
+			"tags":        label.TagsAsInterface(),
 		})
 		labels = append(labels, label)
 	}
@@ -66,9 +61,22 @@ func dataSourceDatalabelReadConfig() ResourceOperationConfig {
 				"type": typeFilter,
 			})
 
-			return fmt.Sprintf("https://%s/v1/repos%s%s", c.ControlPlane, pathParams, queryParams)
+			return fmt.Sprintf("https://%s/v1/datalabels%s%s", c.ControlPlane, pathParams, queryParams)
 		},
-		NewResponseData: func() ResponseData { return &GetReposResponse{} },
+		NewResponseData: func() ResponseData {
+			return &GetDataLabelsResponse{}
+		},
+		// TODO: change resource model to accomodate different responses
+		// depending on resource arguments, as below
+		//
+		// NewResponseData: func() ResponseData {
+		// 	nameFilter := d.Get("name").(string)
+		// 	if nameFilter == "" {
+		// 		return &GetDataLabelsResponse{}
+		// 	} else {
+		// 		return &GetDataLabelResponse{}
+		// 	}
+		// },
 	}
 }
 
@@ -87,29 +95,33 @@ func dataSourceDatalabel() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultDataLabelType,
-				ValidateFunc: validation.StringInSlice(dataLabelTypes(), false),
+				ValidateFunc: validation.StringInSlice(append(dataLabelTypes(), ""), false),
 			},
 			"datalabel_list": {
 				Description: "List of existing data labels satisfying given filter criteria.",
-				Computed:    true,
 				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Description: "Name of the data label.",
 							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
+							Computed:    true,
+						},
+						"type": {
+							Description: "Type of the data label.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"description": {
 							Description: "Description of the data label.",
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 						},
 						"tags": {
 							Description: "Tags used to categorize data labels.",
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

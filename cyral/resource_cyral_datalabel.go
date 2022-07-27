@@ -13,26 +13,12 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-const (
-	dataLabelTypeCustom = "CUSTOM"
-)
-
-type DataLabel struct {
-	Name        string
-	Type        string   `json:"type"`
-	Description string   `json:"description,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
-}
-
 func (dl *DataLabel) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("description", dl.Description); err != nil {
 		return err
 	}
 
-	var tagIfaces []interface{}
-	for _, tag := range dl.Tags {
-		tagIfaces = append(tagIfaces, tag)
-	}
+	tagIfaces := dl.TagsAsInterface()
 	if err := d.Set("tags", tagIfaces); err != nil {
 		return err
 	}

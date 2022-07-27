@@ -117,6 +117,7 @@ func Provider() *schema.Provider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"cyral_datalabel":            dataSourceDatalabel(),
 			"cyral_integration_idp":      dataSourceIntegrationIdP(),
 			"cyral_repository":           dataSourceRepository(),
 			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
