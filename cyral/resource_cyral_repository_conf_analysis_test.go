@@ -33,6 +33,11 @@ func TestAccRepositoryConfAnalysisResource(t *testing.T) {
 				Config: testAccRepoConfAnalysisConfig_Updated(repoName),
 				Check:  testAccRepoConfAnalysisCheck_Updated(),
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_repository_conf_analysis.test_conf_analysis",
+			},
 		},
 	})
 }
