@@ -67,6 +67,7 @@ func TestAccRepositoryDatamapResource(t *testing.T) {
 			testRepositoryDatamapInitialConfig(t),
 			testRepositoryDatamapUpdateConfig(t),
 			testRepositoryDatamapWithDatalabel(t),
+			testRepositoryDatamapImport(),
 		},
 	})
 }
@@ -89,6 +90,14 @@ func testRepositoryDatamapWithDatalabel(t *testing.T) resource.TestStep {
 		formatDataLabelIntoConfig(t, configDL))
 	check := setupRepositoryDatamapTestFunc(t, configDM)
 	return resource.TestStep{Config: tfConfig, Check: check}
+}
+
+func testRepositoryDatamapImport() resource.TestStep {
+	return resource.TestStep{
+		ImportState:       true,
+		ImportStateVerify: true,
+		ResourceName:      "cyral_repository_datamap.test_repository_datamap",
+	}
 }
 
 func setupRepositoryDatamapTestFunc(t *testing.T, dataMap *DataMap) resource.TestCheckFunc {
