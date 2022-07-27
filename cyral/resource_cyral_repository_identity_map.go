@@ -138,7 +138,7 @@ type RepositoryIdentityMapAPIResponse struct {
 }
 
 func (data RepositoryIdentityMapAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(fmt.Sprintf("%s-%s", d.Get("repository_id").(string),
+	d.SetId(marshalComposedID(d.Get("repository_id").(string),
 		d.Get("repository_local_account_id").(string)))
 	if data.AccessDuration != nil {
 		d.Set("access_duration", []interface{}{
@@ -312,7 +312,7 @@ func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
