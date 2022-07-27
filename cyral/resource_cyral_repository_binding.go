@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -76,7 +77,16 @@ func resourceRepositoryBinding() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				sidecarID, repositoryID := unmarshalRepositoryBindingID(d.Id())
+				d.Set("sidecar_id", sidecarID)
+				d.Set("repository_id", repositoryID)
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }
@@ -94,7 +104,9 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
 	}
 
-	d.SetId(fmt.Sprintf("%s-%s", resourceData.SidecarID, resourceData.RepositoryID))
+	d.SetId(marshalRepositoryBindingID(
+		resourceData.SidecarID,
+		resourceData.RepositoryID))
 
 	return resourceRepositoryBindingRead(ctx, d, m)
 }
@@ -185,6 +197,17 @@ func getRepoBindingDataFromResource(d *schema.ResourceData) RepoBindingData {
 			Port: d.Get("listener_port").(int),
 		},
 	}
+}
+
+func marshalRepositoryBindingID(sidecarID, repositoryID string) string {
+	return fmt.Sprintf("%s-%s", sidecarID, repositoryID)
+}
+
+func unmarshalRepositoryBindingID(repositoryBindingID string) (string, string) {
+	ids := strings.Split(repositoryBindingID, "-")
+	sidecarID := ids[0]
+	repositoryID := ids[1]
+	return sidecarID, repositoryID
 }
 
 func updateRepositoryBinding(c *client.Client, resourceData RepoBindingData) error {
