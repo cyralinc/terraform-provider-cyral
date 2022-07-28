@@ -78,6 +78,15 @@ func TestAccRoleResource(t *testing.T) {
 				Config: testAccRoleConfig_OnlyTruePermissions(),
 				Check:  testAccRoleCheck_OnlyTruePermissions(),
 			},
+			{
+				Config: testAccRoleConfig_OnlyTruePermissions(),
+				Check:  testAccRoleCheck_OnlyTruePermissions(),
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_role.test_role",
+			},
 		},
 	})
 }
