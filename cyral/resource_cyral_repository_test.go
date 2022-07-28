@@ -41,6 +41,9 @@ func TestAccRepositoryResource(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupRepositoryTest(updatedRepoConfig)
 	testReplicaSetConfig, testReplicaSetFunc := setupRepositoryTest(replicaSetRepoConfig)
 
+	// Should use name of the last resource created.
+	importTestResourceName := repositoryConfigResourceFullName(replicaSetRepoConfig.Name)
+
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -55,6 +58,11 @@ func TestAccRepositoryResource(t *testing.T) {
 			{
 				Config: testReplicaSetConfig,
 				Check:  testReplicaSetFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      importTestResourceName,
 			},
 		},
 	})
