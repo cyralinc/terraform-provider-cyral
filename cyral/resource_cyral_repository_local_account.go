@@ -601,7 +601,10 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 			"gcp_secret_manager":   gcpSecretManagerSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			// TODO: this resource requires two IDs to read:
+			// repository ID and local account ID. d.Id() only
+			// provides the local account ID.
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
