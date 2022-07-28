@@ -9,6 +9,10 @@ import (
 )
 
 func TestAccRoleSSOGroupsResource(t *testing.T) {
+	// This resource needs to exist when the last step executes, which is an
+	// Import test.
+	importTestResourceName := "cyral_role_sso_groups.test_role_sso_groups"
+
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -35,6 +39,11 @@ func TestAccRoleSSOGroupsResource(t *testing.T) {
 			{
 				Config: testAccRoleSSOGroupsConfig_MultipleSSOGroups(),
 				Check:  testAccRoleSSOGroupsCheck_MultipleSSOGroups(),
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      importTestResourceName,
 			},
 		},
 	})
