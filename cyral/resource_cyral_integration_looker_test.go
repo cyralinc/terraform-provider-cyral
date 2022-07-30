@@ -34,6 +34,11 @@ func TestAccLookerIntegrationResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_looker.looker_integration",
+			},
 		},
 	})
 }
