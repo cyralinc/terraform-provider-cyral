@@ -55,6 +55,12 @@ func TestAccIntegrationIdPSAMLDraftResource(t *testing.T) {
 				Config: updatedConfig,
 				Check:  updatedChecks,
 			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"attributes.", "toggle_recreation"},
+				ResourceName:            "cyral_integration_idp_saml_draft.main_test",
+			},
 		},
 	})
 }
