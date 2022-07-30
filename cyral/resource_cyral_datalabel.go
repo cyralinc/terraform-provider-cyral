@@ -69,7 +69,14 @@ func resourceDatalabel() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				d.Set("name", d.Id())
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }
