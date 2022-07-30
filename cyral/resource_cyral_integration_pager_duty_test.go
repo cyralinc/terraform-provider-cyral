@@ -32,6 +32,11 @@ func TestAccPagerDutyIntegrationResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_pager_duty.pager_duty_integration",
+			},
 		},
 	})
 }
