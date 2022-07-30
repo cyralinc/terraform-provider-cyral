@@ -18,6 +18,12 @@ func TestAccDatamapResource(t *testing.T) {
 				Config: testAccDatamapConfig_UpdatedConfig(),
 				Check:  testAccDatamapCheck_UpdatedConfig(),
 			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
+				ResourceName:            "cyral_datamap.datamap_1",
+			},
 		},
 	})
 }
