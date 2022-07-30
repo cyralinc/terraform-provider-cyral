@@ -33,9 +33,6 @@ func dataSourceSidecarID() *schema.Resource {
 				Required:    true,
 			},
 		},
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 	}
 }
 
