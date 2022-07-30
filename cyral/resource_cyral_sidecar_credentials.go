@@ -53,9 +53,15 @@ func resourceSidecarCredentials() *schema.Resource {
 				Sensitive:   true,
 			},
 		},
-
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				d.Set("client_id", d.Id())
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }

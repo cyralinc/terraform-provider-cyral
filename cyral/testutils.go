@@ -16,3 +16,7 @@ func formatAttributes(attributes []string) string {
 	}
 	return s
 }
+
+func importErrorf(id, fmtstr string, args ...interface{}) error {
+	return fmt.Errorf("for resource ID %q:"+fmtstr, []interface{}{id, args}...)
+}

@@ -4,7 +4,23 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+func testSidecarCredentialsImportStateCheck(states []*terraform.InstanceState) error {
+	for _, state := range states {
+		id := state.ID
+		attributes := state.Attributes
+		if client_id, ok := attributes["client_id"]; !ok {
+			return importErrorf(id, "client ID not found in state attributes")
+		} else {
+			if id != client_id {
+				return importErrorf(id, "expected client ID to be equal to ID")
+			}
+		}
+	}
+	return nil
+}
 
 func TestAccSidecarCredentialsResource(t *testing.T) {
 	testConfig, testFunc := setupSidecarCredentialsTest()
@@ -15,6 +31,11 @@ func TestAccSidecarCredentialsResource(t *testing.T) {
 			{
 				Config: testConfig,
 				Check:  testFunc,
+			},
+			{
+				ImportState:      true,
+				ImportStateCheck: testSidecarCredentialsImportStateCheck,
+				ResourceName:     "cyral_sidecar_credentials.test_sidecar_credentials",
 			},
 		},
 	})
