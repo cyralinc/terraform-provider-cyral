@@ -33,6 +33,11 @@ func TestAccSidecarCredentialsResource(t *testing.T) {
 				Check:  testFunc,
 			},
 			{
+				// The check for sidecar credentials needs to be
+				// manual, because ImportStateVerify will expect
+				// that client_secret is set, but the GET API
+				// does not return the sidecar account's client
+				// secret for security reasons.
 				ImportState:      true,
 				ImportStateCheck: testSidecarCredentialsImportStateCheck,
 				ResourceName:     "cyral_sidecar_credentials.test_sidecar_credentials",
