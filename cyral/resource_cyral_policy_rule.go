@@ -208,7 +208,8 @@ func resourcePolicyRule() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			// TODO: how to obtain policy ID from import?
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

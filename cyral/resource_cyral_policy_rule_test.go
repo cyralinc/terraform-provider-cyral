@@ -63,6 +63,8 @@ func TestAccPolicyRuleResource(t *testing.T) {
 				Config: testUpdate2Config,
 				Check:  testUpdate2Func,
 			},
+			// TODO: when import functionality for cyral_policy_rule
+			// is implemented, add Import test.
 		},
 	})
 }
