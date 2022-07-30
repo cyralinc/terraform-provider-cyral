@@ -40,9 +40,9 @@ func updatedGenericSAMLDraftConfig() *GenericSAMLDraft {
 
 func TestAccIntegrationIdPSAMLDraftResource(t *testing.T) {
 	initialConfig, initialChecks := setupIntegrationIdPSAMLDraftTest(t,
-		initialGenericSAMLDraftConfig(), "initial_test")
+		initialGenericSAMLDraftConfig(), "main_test")
 	updatedConfig, updatedChecks := setupIntegrationIdPSAMLDraftTest(t,
-		updatedGenericSAMLDraftConfig(), "updated_test")
+		updatedGenericSAMLDraftConfig(), "main_test")
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,

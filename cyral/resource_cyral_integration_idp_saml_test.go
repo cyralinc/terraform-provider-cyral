@@ -32,9 +32,9 @@ func samlMetadataDocumentSample(fakeCertificate string) string {
 
 func TestAccIntegrationIdPSAMLResource(t *testing.T) {
 	initialConfig, initialChecks := setupIntegrationIdPSAMLTest(
-		"initial_test", samlMetadataDocumentSample("fakeCertificateInitial"))
+		"main_test", samlMetadataDocumentSample("fakeCertificateInitial"))
 	updatedConfig, updatedChecks := setupIntegrationIdPSAMLTest(
-		"updated_test", samlMetadataDocumentSample("fakeCertificateUpdated"))
+		"main_test", samlMetadataDocumentSample("fakeCertificateUpdated"))
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
