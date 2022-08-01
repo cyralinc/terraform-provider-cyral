@@ -63,6 +63,7 @@ func TestAccPolicyRuleResource(t *testing.T) {
 				Config: testUpdate2Config,
 				Check:  testUpdate2Func,
 			},
+			// TODO: add import test -aholmquist 2022-08-01
 		},
 	})
 }

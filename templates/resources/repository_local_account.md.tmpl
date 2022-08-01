@@ -1,0 +1,11 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+-> **NOTE** Import ID syntax is `{repositoryID}/{localAccountID}`.
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_repository_local_account/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}

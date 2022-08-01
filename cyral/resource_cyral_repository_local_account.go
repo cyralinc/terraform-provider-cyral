@@ -229,6 +229,8 @@ type CreateRepoAccountResponse struct {
 }
 
 func (resource CreateRepoAccountResponse) WriteToSchema(d *schema.ResourceData) error {
+	// TODO (next MAJOR): set ID to be of the format
+	// {repositoryID}/{localAccountID}, to facilitate importing. -aholmquist 2022-08-01
 	d.SetId(resource.UUID)
 	return nil
 }
