@@ -86,7 +86,7 @@ func resourceRoleSSOGroups() *schema.Resource {
 				m interface{},
 			) ([]*schema.ResourceData, error) {
 				// This splitting is done to properly capture
-				// the ID format `{repositoryID}/SSOGroups`.
+				// the ID format `{roleID}/SSOGroups`.
 				splitID := strings.Split(d.Id(), "/")
 				d.Set("role_id", splitID[0])
 				return []*schema.ResourceData{d}, nil
