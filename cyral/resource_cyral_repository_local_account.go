@@ -317,7 +317,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				c.ControlPlane, repository_id, d.Id(),
 			)
 		},
-		NewResponseData: func() ResponseData { return &RepositoryLocalAccountResource{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RepositoryLocalAccountResource{} },
 	}
 
 	secretManagersTypes := []string{
@@ -547,8 +547,8 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 						c.ControlPlane, repository_id,
 					)
 				},
-				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
-				NewResponseData: func() ResponseData { return &CreateRepoAccountResponse{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryLocalAccountResource{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepoAccountResponse{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
 		ReadContext: ReadResource(ReadRepositoryLocalAccountConfig),
@@ -563,7 +563,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 						c.ControlPlane, repository_id, d.Id(),
 					)
 				},
-				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryLocalAccountResource{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
 		DeleteContext: DeleteResource(

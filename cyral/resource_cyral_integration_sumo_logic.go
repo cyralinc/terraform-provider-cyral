@@ -31,7 +31,7 @@ var ReadSumoLogicConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return &SumoLogicIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &SumoLogicIntegration{} },
 }
 
 func resourceIntegrationSumoLogic() *schema.Resource {
@@ -44,8 +44,8 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 				},
-				NewResourceData: func() ResourceData { return &SumoLogicIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SumoLogicIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadSumoLogicConfig,
 		),
 		ReadContext: ReadResource(ReadSumoLogicConfig),
@@ -56,7 +56,7 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() ResourceData { return &SumoLogicIntegration{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SumoLogicIntegration{} },
 			}, ReadSumoLogicConfig,
 		),
 		DeleteContext: DeleteResource(

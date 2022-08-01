@@ -11,38 +11,41 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-// TODO
-//
-// type GetDataLabelResponse DataLabel
+type GetDataLabelResponse DataLabel
 
-type GetDataLabelsResponse struct {
-	Labels []DataLabel `json:"labels"`
+func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData) error {
+	if err := WriteDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(resp)}, d); err != nil {
+		return err
+	}
+	d.SetId(uuid.New().String())
+	return nil
 }
 
-// TODO
-//
-// func WriteDataLabelsToDataSourceSchema(label []*DataLabel, d *schema.ResourceData) error {
-
-// }
+type GetDataLabelsResponse struct {
+	Labels []*DataLabel `json:"labels"`
+}
 
 func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
-	var labels []interface{}
-	for _, label := range resp.Labels {
-		labels = append(labels, map[string]interface{}{
+	if err := WriteDataLabelsToDataSourceSchema(resp.Labels, d); err != nil {
+		return err
+	}
+	d.SetId(uuid.New().String())
+	return nil
+}
+
+func WriteDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceData) error {
+	var labelsList []interface{}
+	for _, label := range labels {
+		labelsList = append(labelsList, map[string]interface{}{
 			"name":        label.Name,
 			"description": label.Description,
 			"type":        label.Type,
 			"tags":        label.TagsAsInterface(),
 		})
-		labels = append(labels, label)
 	}
-
-	if err := d.Set("datalabel_list", labels); err != nil {
+	if err := d.Set("datalabel_list", labelsList); err != nil {
 		return err
 	}
-
-	d.SetId(uuid.New().String())
-
 	return nil
 }
 
@@ -63,20 +66,14 @@ func dataSourceDatalabelReadConfig() ResourceOperationConfig {
 
 			return fmt.Sprintf("https://%s/v1/datalabels%s%s", c.ControlPlane, pathParams, queryParams)
 		},
-		NewResponseData: func() ResponseData {
-			return &GetDataLabelsResponse{}
+		NewResponseData: func(d *schema.ResourceData) ResponseData {
+			nameFilter := d.Get("name").(string)
+			if nameFilter == "" {
+				return &GetDataLabelsResponse{}
+			} else {
+				return &GetDataLabelResponse{}
+			}
 		},
-		// TODO: change resource model to accomodate different responses
-		// depending on resource arguments, as below
-		//
-		// NewResponseData: func() ResponseData {
-		// 	nameFilter := d.Get("name").(string)
-		// 	if nameFilter == "" {
-		// 		return &GetDataLabelsResponse{}
-		// 	} else {
-		// 		return &GetDataLabelResponse{}
-		// 	}
-		// },
 	}
 }
 

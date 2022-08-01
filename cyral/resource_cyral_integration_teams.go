@@ -31,7 +31,7 @@ var ReadMsTeamsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return &MsTeamsIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &MsTeamsIntegration{} },
 }
 
 func resourceIntegrationMsTeams() *schema.Resource {
@@ -44,8 +44,8 @@ func resourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
-				NewResourceData: func() ResourceData { return &MsTeamsIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &MsTeamsIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadMsTeamsConfig,
 		),
 		ReadContext: ReadResource(ReadMsTeamsConfig),
@@ -56,7 +56,7 @@ func resourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() ResourceData { return &MsTeamsIntegration{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &MsTeamsIntegration{} },
 			}, ReadMsTeamsConfig,
 		),
 		DeleteContext: DeleteResource(

@@ -60,7 +60,7 @@ var ReadPagerDutyIntegrationConfig = ResourceOperationConfig{
 			c.ControlPlane, d.Id(),
 		)
 	},
-	NewResponseData: func() ResponseData { return &PagerDutyIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &PagerDutyIntegration{} },
 }
 
 func resourceIntegrationPagerDuty() *schema.Resource {
@@ -75,8 +75,8 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 						"https://%s/v1/integrations/confExtensions/instances", c.ControlPlane,
 					)
 				},
-				NewResourceData: func() ResourceData { return &PagerDutyIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &PagerDutyIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadPagerDutyIntegrationConfig,
 		),
 		ReadContext: ReadResource(ReadPagerDutyIntegrationConfig),
@@ -89,7 +89,7 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 						"https://%s/v1/integrations/confExtensions/instances/%s", c.ControlPlane, d.Id(),
 					)
 				},
-				NewResourceData: func() ResourceData { return &PagerDutyIntegration{} },
+				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &PagerDutyIntegration{} },
 			}, ReadPagerDutyIntegrationConfig,
 		),
 		DeleteContext: DeleteResource(
