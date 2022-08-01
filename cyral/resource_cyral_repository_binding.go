@@ -81,7 +81,10 @@ func resourceRepositoryBinding() *schema.Resource {
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				sidecarID, repositoryID := unmarshalComposedID(d.Id())
+				sidecarID, repositoryID, err := unmarshalComposedID(d.Id(), "-")
+				if err != nil {
+					return nil, err
+				}
 				d.Set("sidecar_id", sidecarID)
 				d.Set("repository_id", repositoryID)
 				return []*schema.ResourceData{d}, nil

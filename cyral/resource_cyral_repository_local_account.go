@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -601,9 +602,19 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 			"gcp_secret_manager":   gcpSecretManagerSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			// TODO: In next MAJOR release, make the ID of this
-			// resource a composed id {repositoryID}-{localAccountID}
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				repositoryID, localAccountID, err := unmarshalComposedID(d.Id(), "/")
+				if err != nil {
+					return nil, err
+				}
+				d.SetId(localAccountID)
+				d.Set("repository_id", repositoryID)
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }

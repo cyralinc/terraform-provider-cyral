@@ -208,8 +208,6 @@ func resourcePolicyRule() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			// TODO: In next MAJOR release, make the ID of this
-			// resource a composed id {policyID}-{policyRuleID}
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
