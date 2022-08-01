@@ -35,6 +35,10 @@ See also:
 - [S3 remote backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
 - [Partial Configuration](https://www.terraform.io/docs/language/settings/backends/configuration.html#partial-configuration)
 
+-> **NOTE** Importing this resource into the Terraform state is not recommended,
+since the `client_secret` computed attribute will not be set. `client_secret`
+is only set when the resource is _created_.
+
 ## Example Usage
 
 ```terraform
