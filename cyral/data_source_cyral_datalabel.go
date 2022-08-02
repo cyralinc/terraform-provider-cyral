@@ -14,7 +14,7 @@ import (
 type GetDataLabelResponse DataLabel
 
 func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData) error {
-	if err := WriteDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(resp)}, d); err != nil {
+	if err := writeDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(resp)}, d); err != nil {
 		return err
 	}
 	d.SetId(uuid.New().String())
@@ -26,14 +26,14 @@ type GetDataLabelsResponse struct {
 }
 
 func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
-	if err := WriteDataLabelsToDataSourceSchema(resp.Labels, d); err != nil {
+	if err := writeDataLabelsToDataSourceSchema(resp.Labels, d); err != nil {
 		return err
 	}
 	d.SetId(uuid.New().String())
 	return nil
 }
 
-func WriteDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceData) error {
+func writeDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceData) error {
 	var labelsList []interface{}
 	for _, label := range labels {
 		labelsList = append(labelsList, map[string]interface{}{
