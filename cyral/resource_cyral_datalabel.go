@@ -13,12 +13,12 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-func (dl *DataLabel) WriteToSchema(d *schema.ResourceData) error {
-	if err := d.Set("description", dl.Description); err != nil {
+func WriteDataLabelToResourceSchema(label DataLabel, d *schema.ResourceData) error {
+	if err := d.Set("description", label.Description); err != nil {
 		return err
 	}
 
-	tagIfaces := dl.TagsAsInterface()
+	tagIfaces := label.TagsAsInterface()
 	if err := d.Set("tags", tagIfaces); err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func resourceDatalabelRead(ctx context.Context, d *schema.ResourceData, m interf
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", dataLabel)
 
-	if err := dataLabel.WriteToSchema(d); err != nil {
+	if err := WriteDataLabelToResourceSchema(dataLabel, d); err != nil {
 		return createError("Unable to read data label", err.Error())
 	}
 
