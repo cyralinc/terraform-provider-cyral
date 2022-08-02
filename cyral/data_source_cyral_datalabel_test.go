@@ -87,8 +87,6 @@ func testDatalabelDataSourceConfig(
 	}
 	config += datalabelDataSourceConfig(dsourceName, nameFilter, typeFilter, dependsOn)
 
-	fmt.Printf("[DEBUG] Config:%s", config)
-
 	return config
 }
 
@@ -108,31 +106,30 @@ func testDatalabelDataSourceChecks(
 		)
 	}
 
-	return resource.TestMatchResourceAttr(dataSourceFullName,
-		"datalabel_list.#",
-		notZeroRegex,
-	)
-	// var checkFuncs []resource.TestCheckFunc
-	// filteredDataLabels := filterDataLabels(dataLabels, nameFilter, typeFilter)
-	// for i, label := range filteredDataLabels {
-	// 	checkFuncs = append(checkFuncs,
-	// 		// resource.TestCheckResourceAttr(dataSourceFullName,
-	// 		// 	"datalabel_list.0.name",
-	// 		// 	label.Name,
-	// 		// ),
-	// 		// resource.TestCheckResourceAttr(dataSourceFullName,
-	// 		// 	fmt.Sprintf("datalabel_list.%d.description", i),
-	// 		// 	label.Description,
-	// 		// ),
-	// 		resource.TestCheckResourceAttr(dataSourceFullName,
-	// 			fmt.Sprintf("datalabel_list.%d.tags.#", i),
-	// 			fmt.Sprintf("%d", len(label.Tags)),
-	// 		),
-	// 	)
-	// }
+	var checkFuncs []resource.TestCheckFunc
+	filteredDataLabels := filterDataLabels(dataLabels, nameFilter, typeFilter)
+	for i, label := range filteredDataLabels {
+		checkFuncs = append(checkFuncs,
+			resource.TestCheckResourceAttr(dataSourceFullName,
+				fmt.Sprintf("datalabel_list.%d.name", i),
+				label.Name,
+			),
+			resource.TestCheckResourceAttr(dataSourceFullName,
+				fmt.Sprintf("datalabel_list.%d.description", i),
+				label.Description,
+			),
+			resource.TestCheckResourceAttr(dataSourceFullName,
+				fmt.Sprintf("datalabel_list.%d.tags.#", i),
+				fmt.Sprintf("%d", len(label.Tags)),
+			),
+			resource.TestCheckResourceAttr(dataSourceFullName,
+				fmt.Sprintf("datalabel_list.%d.implicit", i),
+				"false",
+			),
+		)
+	}
 
-	// return resource.ComposeTestCheckFunc(checkFuncs...)
-
+	return resource.ComposeTestCheckFunc(checkFuncs...)
 }
 
 func filterDataLabels(dataLabels []*DataLabel, nameFilter, typeFilter string) []*DataLabel {

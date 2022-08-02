@@ -37,10 +37,12 @@ func WriteDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceDa
 	var labelsList []interface{}
 	for _, label := range labels {
 		labelsList = append(labelsList, map[string]interface{}{
-			"name":        label.Name,
-			"description": label.Description,
-			"type":        label.Type,
-			"tags":        label.TagsAsInterface(),
+			"name":                label.Name,
+			"description":         label.Description,
+			"type":                label.Type,
+			"tags":                label.TagsAsInterface(),
+			"classification_rule": label.ClassificationRuleAsInterface(),
+			"implicit":            label.Implicit,
 		})
 	}
 	if err := d.Set("datalabel_list", labelsList); err != nil {
@@ -88,7 +90,7 @@ func dataSourceDatalabel() *schema.Resource {
 				Optional:    true,
 			},
 			"type": {
-				Description:  fmt.Sprintf("Filter the results by type of data label. Defaults to `%s`, which will return all label types. List of supported types:", defaultDataLabelType) + supportedTypesMarkdown(dataLabelTypes()),
+				Description:  fmt.Sprintf("Filter the results by type of data label. Defaults to `%s`, which will return all label types. The labels you create will always have type `CUSTOM`. Labels that come pre-configured in the control plane have type `PREDEFINED`. List of supported types:", defaultDataLabelType) + supportedTypesMarkdown(dataLabelTypes()),
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultDataLabelType,
@@ -122,6 +124,35 @@ func dataSourceDatalabel() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						"classification_rule": {
+							Description: "Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. Currently, only `PREDEFINED` labels have classification rules.",
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"rule_type": {
+										Description: "Type of the classification rule.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"rule_code": {
+										Description: "Actual code of the classification rule. For example, this attribute may contain REGO code for `REGO`-type classification rules.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"rule_status": {
+										Description: "Status of the classification rule.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+								},
+							},
+						},
+						"implicit": {
+							Description: "If true, the label only exists implicitly in the legacy data map API (i.e. `v1/datamaps`). Implicit labels always have `CUSTOM` type.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 					},
 				},
