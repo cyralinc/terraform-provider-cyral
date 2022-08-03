@@ -97,7 +97,7 @@ func resourceRepositoryDatamap() *schema.Resource {
 								"please see the [Policy Guide](https://cyral.com/docs/reference/policy/).",
 							Type:     schema.TypeList,
 							Required: true,
-							// ForceNew: true,
+							ForceNew: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
