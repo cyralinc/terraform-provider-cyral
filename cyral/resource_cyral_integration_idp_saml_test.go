@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	testSSOURL = "https://sso-url-example.com/sso/saml"
+)
+
 func samlMetadataDocumentSample(fakeCertificate string) string {
 	// Do not add sensitive information here!
 	//
@@ -25,9 +29,9 @@ func samlMetadataDocumentSample(fakeCertificate string) string {
 </ds:X509Data>
 </ds:KeyInfo>
 </md:KeyDescriptor>
-<md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://sso-url-example.com/sso/saml"/>
+<md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="%s"/>
 </md:IDPSSODescriptor>
-</md:EntityDescriptor>`, fakeCertificate)))
+</md:EntityDescriptor>`, fakeCertificate, testSSOURL)))
 }
 
 func TestAccIntegrationIdPSAMLResource(t *testing.T) {
@@ -79,6 +83,9 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 		// external SAML endpoint during the ACC tests.
 		resource.TestCheckResourceAttr(resourceFullName,
 			"idp_metadata_document", metadataDoc,
+		),
+		resource.TestCheckResourceAttr(resourceFullName,
+			"single_sign_on_service_url", testSSOURL,
 		),
 	)
 

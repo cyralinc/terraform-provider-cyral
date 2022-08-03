@@ -108,7 +108,7 @@ func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData) error
 func (integ *GenericSAMLIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	integ.ID = d.Id()
 	integ.IdpDescriptor = &GenericSAMLIdpDescriptor{
-		SingleSignOnServiceURL: d.Get("idp_metadata_url").(string),
+		SingleSignOnServiceURL: d.Get("single_sign_on_service_url").(string),
 	}
 	return nil
 }
