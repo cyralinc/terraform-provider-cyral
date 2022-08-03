@@ -40,10 +40,6 @@ func (resp *CreateGenericSAMLResponse) WriteToSchema(d *schema.ResourceData) err
 	return resp.Integration.WriteToSchema(d)
 }
 
-func (resp *CreateGenericSAMLResponse) ReadFromSchema(d *schema.ResourceData) error {
-	return resp.Integration.ReadFromSchema(d)
-}
-
 type ReadGenericSAMLResponse struct {
 	IdentityProvider GenericSAMLIntegration `json:"identityProvider"`
 }
