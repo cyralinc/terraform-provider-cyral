@@ -101,15 +101,6 @@ func resourceRepositoryDatamap() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							// StateFunc: func(val interface{}) string {
-							// 	valList := val.([]interface{})
-							// 	var valListStr []string
-							// 	for _, val := range valList {
-							// 		valListStr = append(valListStr, val.(string))
-							// 	}
-							// 	sort.Strings(valListStr)
-							// 	return fmt.Sprintf("[%s]", formatAttributes(valListStr))
-							// },
 						},
 					},
 				},
