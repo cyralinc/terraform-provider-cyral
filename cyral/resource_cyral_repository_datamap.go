@@ -43,6 +43,19 @@ func (dm *DataMap) WriteToSchema(d *schema.ResourceData) error {
 	return d.Set("mapping", mappings)
 }
 
+func (dm *DataMap) equal(other DataMap) bool {
+	for label, thisMapping := range dm.Labels {
+		if otherMapping, ok := other.Labels[label]; ok {
+			if !elementsMatch(thisMapping.Attributes, otherMapping.Attributes) {
+				return false
+			}
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
 type DataMapMapping struct {
 	Attributes []string `json:"attributes,omitempty"`
 }
@@ -84,9 +97,19 @@ func resourceRepositoryDatamap() *schema.Resource {
 								"please see the [Policy Guide](https://cyral.com/docs/reference/policy/).",
 							Type:     schema.TypeList,
 							Required: true,
+							// ForceNew: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							// StateFunc: func(val interface{}) string {
+							// 	valList := val.([]interface{})
+							// 	var valListStr []string
+							// 	for _, val := range valList {
+							// 		valListStr = append(valListStr, val.(string))
+							// 	}
+							// 	sort.Strings(valListStr)
+							// 	return fmt.Sprintf("[%s]", formatAttributes(valListStr))
+							// },
 						},
 					},
 				},
@@ -114,6 +137,10 @@ func resourceRepositoryDatamapCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(repoID)
+	// Write data map here to avoid issues with the order of the attributes
+	if err := dataMap.WriteToSchema(d); err != nil {
+		return createError("Unable to create repository datamap", err.Error())
+	}
 
 	log.Printf("[DEBUG] End resourceRepositoryDatamapCreate")
 
@@ -138,8 +165,11 @@ func resourceRepositoryDatamapRead(ctx context.Context, d *schema.ResourceData, 
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", dataMap)
 
-	if err := dataMap.WriteToSchema(d); err != nil {
-		return createError("Unable to read repository datamap", err.Error())
+	currentDataMap := getDatamapFromResource(d)
+	if !currentDataMap.equal(dataMap) {
+		if err := dataMap.WriteToSchema(d); err != nil {
+			return createError("Unable to read repository datamap", err.Error())
+		}
 	}
 
 	log.Printf("[DEBUG] End resourceRepositoryDatamapRead")

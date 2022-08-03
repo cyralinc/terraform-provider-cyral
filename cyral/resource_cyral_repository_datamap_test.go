@@ -25,6 +25,11 @@ func initialDataMapConfig() *DataMap {
 			},
 			predefinedLabelSSN: &DataMapMapping{
 				Attributes: []string{
+					// Important to have inverse order here,
+					// to test that the resource diff is
+					// consitent.
+					"schema1.table1.col4",
+					"schema1.table1.col3",
 					"schema1.table1.col2",
 				},
 			},
@@ -32,12 +37,30 @@ func initialDataMapConfig() *DataMap {
 	}
 }
 
-func updateDataMapConfig() *DataMap {
+func updatedDataMapConfigRemoveAttribute() *DataMap {
+	return &DataMap{
+		Labels: map[string]*DataMapMapping{
+			predefinedLabelCCN: &DataMapMapping{
+				Attributes: []string{
+					"schema1.table1.col1",
+				},
+			},
+			predefinedLabelSSN: &DataMapMapping{
+				Attributes: []string{
+					"schema1.table1.col3",
+					"schema1.table1.col2",
+				},
+			},
+		},
+	}
+}
+
+func updatedDataMapConfigRemoveLabel() *DataMap {
 	return &DataMap{
 		Labels: map[string]*DataMapMapping{
 			predefinedLabelSSN: &DataMapMapping{
 				Attributes: []string{
-					"schema1.table1.col1",
+					"schema1.table1.col2",
 				},
 			},
 		},
@@ -65,8 +88,9 @@ func TestAccRepositoryDatamapResource(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			testRepositoryDatamapInitialConfig(t),
-			testRepositoryDatamapUpdateConfig(t),
-			testRepositoryDatamapWithDatalabel(t),
+			testRepositoryDatamapUpdatedConfigRemoveAttribute(t),
+			testRepositoryDatamapUpdatedConfigRemoveLabel(t),
+			testRepositoryDatamapWithDataLabel(t),
 		},
 	})
 }
@@ -77,13 +101,19 @@ func testRepositoryDatamapInitialConfig(t *testing.T) resource.TestStep {
 	return resource.TestStep{Config: config, Check: check}
 }
 
-func testRepositoryDatamapUpdateConfig(t *testing.T) resource.TestStep {
-	config := formatDataMapIntoConfig(t, updateDataMapConfig())
-	check := setupRepositoryDatamapTestFunc(t, updateDataMapConfig())
+func testRepositoryDatamapUpdatedConfigRemoveAttribute(t *testing.T) resource.TestStep {
+	config := formatDataMapIntoConfig(t, updatedDataMapConfigRemoveAttribute())
+	check := setupRepositoryDatamapTestFunc(t, updatedDataMapConfigRemoveAttribute())
 	return resource.TestStep{Config: config, Check: check}
 }
 
-func testRepositoryDatamapWithDatalabel(t *testing.T) resource.TestStep {
+func testRepositoryDatamapUpdatedConfigRemoveLabel(t *testing.T) resource.TestStep {
+	config := formatDataMapIntoConfig(t, updatedDataMapConfigRemoveLabel())
+	check := setupRepositoryDatamapTestFunc(t, updatedDataMapConfigRemoveLabel())
+	return resource.TestStep{Config: config, Check: check}
+}
+
+func testRepositoryDatamapWithDataLabel(t *testing.T) resource.TestStep {
 	configDM, configDL := dataMapConfigWithDataLabel()
 	tfConfig := (formatDataMapIntoConfig(t, configDM) +
 		formatDataLabelIntoConfig(t, configDL))
@@ -160,6 +190,8 @@ func formatDataMapIntoConfig(t *testing.T, dataMap *DataMap) string {
 		repository_id = cyral_repository.test_repository.id
 		%s
 	}`, dependsOnStr, mappingsStr)
+
+	fmt.Printf("[DEBUG] Config: %s\n", config)
 
 	return config
 }
