@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func initialGenericSAMLDraftConfig() *GenericSAMLDraft {
+func genericSAMLDraftConfigInitial() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
 		DisplayName:              "tf-test-saml-draft-1",
 		DisableIdPInitiatedLogin: false,
@@ -24,7 +24,7 @@ func initialGenericSAMLDraftConfig() *GenericSAMLDraft {
 	}
 }
 
-func updatedGenericSAMLDraftConfig() *GenericSAMLDraft {
+func genericSAMLDraftConfigUpdated() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
 		DisplayName:              "tf-test-saml-draft-2",
 		DisableIdPInitiatedLogin: true,
@@ -38,11 +38,21 @@ func updatedGenericSAMLDraftConfig() *GenericSAMLDraft {
 	}
 }
 
+func genericSAMLDraftConfigNoAttributes() *GenericSAMLDraft {
+	return &GenericSAMLDraft{
+		DisplayName:              "tf-test-saml-draft-2",
+		DisableIdPInitiatedLogin: true,
+		IdpType:                  "some-idp-type-2",
+	}
+}
+
 func TestAccIntegrationIdPSAMLDraftResource(t *testing.T) {
 	initialConfig, initialChecks := setupIntegrationIdPSAMLDraftTest(t,
-		initialGenericSAMLDraftConfig(), "main_test")
+		genericSAMLDraftConfigInitial(), "main_test")
 	updatedConfig, updatedChecks := setupIntegrationIdPSAMLDraftTest(t,
-		updatedGenericSAMLDraftConfig(), "main_test")
+		genericSAMLDraftConfigUpdated(), "main_test")
+	noAttributesConfig, noAttributesChecks := setupIntegrationIdPSAMLDraftTest(t,
+		genericSAMLDraftConfigNoAttributes(), "no_attributes")
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -56,10 +66,14 @@ func TestAccIntegrationIdPSAMLDraftResource(t *testing.T) {
 				Check:  updatedChecks,
 			},
 			{
+				Config: noAttributesConfig,
+				Check:  noAttributesChecks,
+			},
+			{
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"attributes.", "toggle_recreation"},
-				ResourceName:            "cyral_integration_idp_saml_draft.main_test",
+				ResourceName:            "cyral_integration_idp_saml_draft.no_attributes",
 			},
 		},
 	})
@@ -75,46 +89,57 @@ func setupIntegrationIdPSAMLDraftTest(t *testing.T, draft *GenericSAMLDraft, res
 	require.NoError(t, err)
 
 	resourceFullName := fmt.Sprintf("cyral_integration_idp_saml_draft.%s", resName)
-	checkFunc := resource.ComposeTestCheckFunc(
+	checkFuncs := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr(resourceFullName, "display_name",
 			draft.DisplayName),
 		resource.TestCheckResourceAttr(resourceFullName, "disable_idp_initiated_login",
 			strconv.FormatBool(draft.DisableIdPInitiatedLogin)),
 		resource.TestCheckResourceAttr(resourceFullName, "idp_type",
 			draft.IdpType),
-		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.first_name",
-			draft.Attributes.FirstName.Name),
-		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.last_name",
-			draft.Attributes.LastName.Name),
-		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.email",
-			draft.Attributes.Email.Name),
-		resource.TestCheckResourceAttr(resourceFullName, "attributes.0.groups",
-			draft.Attributes.Groups.Name),
 		resource.TestMatchResourceAttr(resourceFullName, "id",
 			nonEmptyRegex),
 		resource.TestMatchResourceAttr(resourceFullName, "sp_metadata",
 			nonEmptyRegex),
-	)
+	}
 
-	return config, checkFunc
+	if draft.Attributes != nil {
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceFullName, "attributes.0.first_name",
+				draft.Attributes.FirstName.Name),
+			resource.TestCheckResourceAttr(resourceFullName, "attributes.0.last_name",
+				draft.Attributes.LastName.Name),
+			resource.TestCheckResourceAttr(resourceFullName, "attributes.0.email",
+				draft.Attributes.Email.Name),
+			resource.TestCheckResourceAttr(resourceFullName, "attributes.0.groups",
+				draft.Attributes.Groups.Name),
+		}...)
+	}
+
+	return config, resource.ComposeTestCheckFunc(checkFuncs...)
 }
 
 func formatGenericSAMLDraftIntoConfig(draft *GenericSAMLDraft, resName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_idp_saml_draft" "%s" {
-		display_name = "%s"
-		disable_idp_initiated_login = %t
-		idp_type = "%s"
+	var attributesStr string
+	if draft.Attributes != nil {
+		attributesStr += fmt.Sprintf(`
 		attributes {
 			first_name = "%s"
 			last_name = "%s"
 			email = "%s"
 			groups = "%s"
-		}
-	}`, resName, draft.DisplayName, draft.DisableIdPInitiatedLogin, draft.IdpType,
-		draft.Attributes.FirstName.Name,
-		draft.Attributes.LastName.Name,
-		draft.Attributes.Email.Name,
-		draft.Attributes.Groups.Name,
-	)
+		}`,
+			draft.Attributes.FirstName.Name,
+			draft.Attributes.LastName.Name,
+			draft.Attributes.Email.Name,
+			draft.Attributes.Groups.Name,
+		)
+	}
+	return fmt.Sprintf(`
+	resource "cyral_integration_idp_saml_draft" "%s" {
+		display_name = "%s"
+		disable_idp_initiated_login = %t
+		idp_type = "%s"
+		%s
+	}`, resName, draft.DisplayName, draft.DisableIdPInitiatedLogin,
+		draft.IdpType, attributesStr)
 }
