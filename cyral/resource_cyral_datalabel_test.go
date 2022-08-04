@@ -25,9 +25,9 @@ func updatedDataLabelConfig() *DataLabel {
 
 func TestAccDatalabelResource(t *testing.T) {
 	testInitialConfig, testInitialFunc := setupDatalabelTest(t,
-		"datalabel_initial", initialDataLabelConfig())
+		"main_test", initialDataLabelConfig())
 	testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
-		"datalabel_updated", updatedDataLabelConfig())
+		"main_test", updatedDataLabelConfig())
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,

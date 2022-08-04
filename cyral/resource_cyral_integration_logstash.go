@@ -53,7 +53,7 @@ func resourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &LogstashIntegration{} },
+				NewResourceData: func() ResourceData { return &LogstashIntegration{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadLogstashConfig,
 		),
@@ -65,7 +65,7 @@ func resourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &LogstashIntegration{} },
+				NewResourceData: func() ResourceData { return &LogstashIntegration{} },
 			}, ReadLogstashConfig,
 		),
 		DeleteContext: DeleteResource(

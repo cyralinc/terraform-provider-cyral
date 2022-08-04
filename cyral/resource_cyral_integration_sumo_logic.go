@@ -44,7 +44,7 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SumoLogicIntegration{} },
+				NewResourceData: func() ResourceData { return &SumoLogicIntegration{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadSumoLogicConfig,
 		),
@@ -56,7 +56,7 @@ func resourceIntegrationSumoLogic() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SumoLogicIntegration{} },
+				NewResourceData: func() ResourceData { return &SumoLogicIntegration{} },
 			}, ReadSumoLogicConfig,
 		),
 		DeleteContext: DeleteResource(

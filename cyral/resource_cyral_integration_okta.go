@@ -160,7 +160,7 @@ func CreateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/integrations/okta", c.ControlPlane)
 			},
-			NewResourceData: func(_ *schema.ResourceData) ResourceData { return &ResourceIntegrationOktaPayload{} },
+			NewResourceData: func() ResourceData { return &ResourceIntegrationOktaPayload{} },
 			NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateResourceIntegrationOktaResponse{} },
 		}, ReadResourceIntegrationOktaConfig,
 	)(ctx, d, m)
@@ -176,7 +176,7 @@ func CreateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &ResourceIntegrationOktaIdentityProviderPayload{} },
+				NewResourceData: func() ResourceData { return &ResourceIntegrationOktaIdentityProviderPayload{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateResourceIntegrationOktaResponse{} },
 			}, ReadResourceIntegrationOktaIdentityProviderConfig,
 		)(ctx, d, m)
@@ -206,7 +206,7 @@ func UpdateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/okta", c.ControlPlane)
 		},
-		NewResourceData: func(_ *schema.ResourceData) ResourceData { return &ResourceIntegrationOktaPayload{} },
+		NewResourceData: func() ResourceData { return &ResourceIntegrationOktaPayload{} },
 	}, ReadResourceIntegrationOktaConfig,
 	)(ctx, d, m)
 
@@ -218,7 +218,7 @@ func UpdateOktaIntegration(ctx context.Context, d *schema.ResourceData, m interf
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Get("name").(string))
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &ResourceIntegrationOktaIdentityProviderPayload{} },
+				NewResourceData: func() ResourceData { return &ResourceIntegrationOktaIdentityProviderPayload{} },
 			}, ReadResourceIntegrationOktaIdentityProviderConfig,
 		)(ctx, d, m)
 	}

@@ -90,7 +90,7 @@ var createRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RoleSSOGroupsCreateRequest{} },
+	NewResourceData: func() ResourceData { return &RoleSSOGroupsCreateRequest{} },
 	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RoleSSOGroupsCreateRequest{} },
 }
 
@@ -111,7 +111,7 @@ var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RoleSSOGroupsDeleteRequest{} },
+	NewResourceData: func() ResourceData { return &RoleSSOGroupsDeleteRequest{} },
 }
 
 func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) error {

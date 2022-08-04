@@ -44,7 +44,7 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SlackAlertsIntegration{} },
+				NewResourceData: func() ResourceData { return &SlackAlertsIntegration{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadSlackAlertsConfig,
 		),
@@ -56,7 +56,7 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SlackAlertsIntegration{} },
+				NewResourceData: func() ResourceData { return &SlackAlertsIntegration{} },
 			}, ReadSlackAlertsConfig,
 		),
 		DeleteContext: DeleteResource(

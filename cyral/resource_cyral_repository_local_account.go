@@ -547,7 +547,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 						c.ControlPlane, repository_id,
 					)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryLocalAccountResource{} },
+				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepoAccountResponse{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
@@ -563,7 +563,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 						c.ControlPlane, repository_id, d.Id(),
 					)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryLocalAccountResource{} },
+				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
 		DeleteContext: DeleteResource(

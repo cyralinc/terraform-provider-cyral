@@ -32,7 +32,7 @@ type ResourceOperationConfig struct {
 	Name            string
 	HttpMethod      string
 	CreateURL       URLCreatorFunc
-	NewResourceData func(d *schema.ResourceData) ResourceData
+	NewResourceData func() ResourceData
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
@@ -63,7 +63,7 @@ func HandleRequest(
 
 		var resourceData ResourceData
 		if config.NewResourceData != nil {
-			if resourceData = config.NewResourceData(d); resourceData != nil {
+			if resourceData = config.NewResourceData(); resourceData != nil {
 				if err := resourceData.ReadFromSchema(d); err != nil {
 					return createError(
 						fmt.Sprintf("Unable to %s resource", operationType),

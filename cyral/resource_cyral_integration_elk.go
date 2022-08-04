@@ -49,7 +49,7 @@ func resourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &ELKIntegration{} },
+				NewResourceData: func() ResourceData { return &ELKIntegration{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadELKConfig,
 		),
@@ -61,7 +61,7 @@ func resourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &ELKIntegration{} },
+				NewResourceData: func() ResourceData { return &ELKIntegration{} },
 			}, ReadELKConfig,
 		),
 		DeleteContext: DeleteResource(

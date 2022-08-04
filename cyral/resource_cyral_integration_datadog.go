@@ -47,7 +47,7 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &DatadogIntegration{} },
+				NewResourceData: func() ResourceData { return &DatadogIntegration{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadDatadogConfig,
 		),
@@ -59,7 +59,7 @@ func resourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &DatadogIntegration{} },
+				NewResourceData: func() ResourceData { return &DatadogIntegration{} },
 			}, ReadDatadogConfig,
 		),
 		DeleteContext: DeleteResource(

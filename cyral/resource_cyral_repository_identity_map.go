@@ -217,7 +217,7 @@ func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 						d.Get("identity_name").(string),
 						d.Get("repository_local_account_id").(string))
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryIdentityMapResource{} },
+				NewResourceData: func() ResourceData { return &RepositoryIdentityMapResource{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RepositoryIdentityMapAPIResponse{} },
 			}, ReadRepositoryIdentityMapConfig,
 		),
@@ -234,7 +234,7 @@ func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 						d.Get("identity_name").(string),
 						d.Get("repository_local_account_id").(string))
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryIdentityMapResource{} },
+				NewResourceData: func() ResourceData { return &RepositoryIdentityMapResource{} },
 			}, ReadRepositoryIdentityMapConfig,
 		),
 		DeleteContext: DeleteResource(

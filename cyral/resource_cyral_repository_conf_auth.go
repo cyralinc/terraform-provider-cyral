@@ -104,7 +104,7 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryConfAuthData{} },
+				NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepositoryConfAuthResponse{} },
 			}, ReadConfAuthConfig,
 		),
@@ -116,7 +116,7 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &RepositoryConfAuthData{} },
+				NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
 			}, ReadConfAuthConfig,
 		),
 		DeleteContext: DeleteResource(

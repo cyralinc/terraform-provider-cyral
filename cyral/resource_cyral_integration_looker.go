@@ -47,7 +47,7 @@ func resourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &LookerIntegration{} },
+				NewResourceData: func() ResourceData { return &LookerIntegration{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadLookerConfig,
 		),
@@ -59,7 +59,7 @@ func resourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &LookerIntegration{} },
+				NewResourceData: func() ResourceData { return &LookerIntegration{} },
 			}, ReadLookerConfig,
 		),
 		DeleteContext: DeleteResource(

@@ -57,7 +57,7 @@ func resourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SplunkIntegration{} },
+				NewResourceData: func() ResourceData { return &SplunkIntegration{} },
 				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadSplunkConfig,
 		),
@@ -69,7 +69,7 @@ func resourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func(_ *schema.ResourceData) ResourceData { return &SplunkIntegration{} },
+				NewResourceData: func() ResourceData { return &SplunkIntegration{} },
 			}, ReadSplunkConfig,
 		),
 		DeleteContext: DeleteResource(
