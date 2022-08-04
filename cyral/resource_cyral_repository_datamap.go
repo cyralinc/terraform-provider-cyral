@@ -97,6 +97,10 @@ func resourceRepositoryDatamap() *schema.Resource {
 								"please see the [Policy Guide](https://cyral.com/docs/reference/policy/).",
 							Type:     schema.TypeList,
 							Required: true,
+							// TODO: this ForceNew propagates to the parent attribute `mapping`. Therefore, any
+							// new mapping will force recreation. In the future, it would be good to use the
+							// `v1/repos/{repoID}/datamap/labels/{label}/attributes/{attribute}` endpoint to
+							// avoid unnecessary resource recreation. -aholmquist 2022-08-04
 							ForceNew: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
