@@ -211,8 +211,6 @@ func formatDataMapIntoConfig(t *testing.T, resName string, dataMap *DataMap) str
 		%s
 	}`, resName, dependsOnStr, mappingsStr)
 
-	fmt.Printf("[DEBUG] Config: %s\n", config)
-
 	return config
 }
 
