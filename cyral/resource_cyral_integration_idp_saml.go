@@ -10,11 +10,15 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
+func GenericSAMLIdPInfoArguments() []string {
+	return []string{"idp_metadata_url", "idp_metadata_xml"}
+}
+
 type CreateGenericSAMLRequest struct {
 	SAMLDraftId string                  `json:"samlDraftId"`
 	IdpMetadata *GenericSAMLIdpMetadata `json:"idpMetadata,omitempty"`
 
-	// Currently unused fields
+	// Currently unused fields. TODO: implement this -aholmquist 2022-08-03
 	IdpDescriptor *GenericSAMLIdpDescriptor `json:"idpDescriptor,omitempty"`
 }
 
@@ -24,10 +28,13 @@ func (req *CreateGenericSAMLRequest) ReadFromSchema(d *schema.ResourceData) erro
 		req.IdpMetadata = &GenericSAMLIdpMetadata{
 			URL: url,
 		}
-	} else if xml := d.Get("idp_metadata_document").(string); xml != "" {
+	} else if xml := d.Get("idp_metadata_xml").(string); xml != "" {
 		req.IdpMetadata = &GenericSAMLIdpMetadata{
 			XML: xml,
 		}
+	} else {
+		panic(fmt.Sprintf("Expected one of the arguments to be set: %v.",
+			GenericSAMLIdPInfoArguments()))
 	}
 	return nil
 }
@@ -46,20 +53,6 @@ type ReadGenericSAMLResponse struct {
 
 func (resp *ReadGenericSAMLResponse) WriteToSchema(d *schema.ResourceData) error {
 	return resp.IdentityProvider.WriteToSchema(d)
-}
-
-func (resp *ReadGenericSAMLResponse) ReadFromSchema(d *schema.ResourceData) error {
-	return resp.IdentityProvider.ReadFromSchema(d)
-}
-
-type UpdateGenericSAMLRequest struct {
-	ID               string                 `json:"id"`
-	IdentityProvider GenericSAMLIntegration `json:"identityProvider"`
-}
-
-func (resp *UpdateGenericSAMLRequest) ReadFromSchema(d *schema.ResourceData) error {
-	resp.ID = d.Id()
-	return resp.IdentityProvider.ReadFromSchema(d)
 }
 
 func CreateGenericSAMLConfig() ResourceOperationConfig {
@@ -85,17 +78,6 @@ func ReadGenericSAMLConfig() ResourceOperationConfig {
 	}
 }
 
-func UpdateGenericSAMLConfig() ResourceOperationConfig {
-	return ResourceOperationConfig{
-		Name:       "GenericSAMLResourceUpdate",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
-		},
-		NewResourceData: func() ResourceData { return &UpdateGenericSAMLRequest{} },
-	}
-}
-
 func DeleteGenericSAMLConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "GenericSAMLResourceDelete",
@@ -107,21 +89,17 @@ func DeleteGenericSAMLConfig() ResourceOperationConfig {
 }
 
 func resourceIntegrationIdPSAML() *schema.Resource {
-	idpMetadataTypes := []string{"idp_metadata_url", "idp_metadata_document"}
-
 	return &schema.Resource{
 		Description: "Manages SAML IdP integrations.",
 		CreateContext: CreateResource(
 			CreateGenericSAMLConfig(),
 			ReadGenericSAMLConfig(),
 		),
-		ReadContext: ReadResource(ReadGenericSAMLConfig()),
-		UpdateContext: UpdateResource(
-			UpdateGenericSAMLConfig(),
-			ReadGenericSAMLConfig(),
-		),
+		ReadContext:   ReadResource(ReadGenericSAMLConfig()),
 		DeleteContext: DeleteResource(DeleteGenericSAMLConfig()),
 		Schema: map[string]*schema.Schema{
+			// Input arguments
+			//
 			"saml_draft_id": {
 				Description:  "A valid id for a SAML Draft. Must be at least 5 character long. See attribute `id` in resource `cyral_integration_idp_saml_draft`.",
 				Type:         schema.TypeString,
@@ -129,19 +107,33 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validationStringLenAtLeast(5),
 			},
+			// Do not allow in-place updates of idp_metadata_url or
+			// idp_metadata_xml. This would require us to parse the
+			// URL or XML locally to obtain the SSO URL,
+			// certificate, etc. Thus it would be a huge pain in the
+			// back to keep in sync with the API backend.
+			//
+			// TODO: in a future implementation we should allow
+			// in-place updates so as to avoid problems when
+			// updating these parameters. -aholmquist 2022-08-04
 			"idp_metadata_url": {
-				Description:  "A SAML XML IdP Metadata document containing all configuration values required by the Cyral SP. Conflicts with `idp_metadata_document`.",
+				Description:  "The web address of an IdP SAML Metadata XML document. Conflicts with `idp_metadata_xml`.",
 				Type:         schema.TypeString,
 				Optional:     true,
-				ExactlyOneOf: idpMetadataTypes,
+				ForceNew:     true,
+				ExactlyOneOf: GenericSAMLIdPInfoArguments(),
 			},
-			"idp_metadata_document": {
+			"idp_metadata_xml": {
 				Description:  "Full SAML metadata XML document. Must be base64 encoded. Conflicts with `idp_metadata_url`.",
 				Type:         schema.TypeString,
 				Optional:     true,
-				ExactlyOneOf: idpMetadataTypes,
+				ForceNew:     true,
+				ExactlyOneOf: GenericSAMLIdPInfoArguments(),
 				ValidateFunc: validation.StringIsBase64,
 			},
+
+			// Computed arguments
+			//
 			"id": {
 				Description: "ID of this resource in the Cyral environment.",
 				Type:        schema.TypeString,
@@ -154,6 +146,7 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 				Computed:    true,
 			},
 		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},

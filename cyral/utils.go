@@ -97,3 +97,7 @@ func listSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
 func validationStringLenAtLeast(min int) schema.SchemaValidateFunc {
 	return validation.StringLenBetween(min, math.MaxInt)
 }
+
+func typeSetNonEmpty(d *schema.ResourceData, attname string) bool {
+	return len(d.Get(attname).(*schema.Set).List()) > 0
+}

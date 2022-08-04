@@ -67,7 +67,7 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) erro
 	if err := d.Set("idp_type", resp.Draft.IdpType); err != nil {
 		return err
 	}
-	if resp.Draft.Attributes != nil && len(d.Get("attributes").(*schema.Set).List()) > 0 {
+	if resp.Draft.Attributes != nil && typeSetNonEmpty(d, "attributes") {
 		if err := resp.Draft.Attributes.WriteToSchema(d); err != nil {
 			return err
 		}
@@ -98,54 +98,8 @@ func ReadGenericSAMLDraftConfig() ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &GenericSAMLDraftResponse{} },
-		HandleRequestError: func(d *schema.ResourceData, c *client.Client, err error) error {
-			httpError, ok := err.(*client.HttpError)
-			if !ok || httpError.StatusCode != http.StatusNotFound {
-				return err
-			}
-			log.Printf("[DEBUG] SAML draft not found. Checking if completed draft exists.")
-
-			query := urlQuery(map[string]string{
-				"includeCompletedDrafts": "true",
-				"displayName":            d.Get("display_name").(string),
-				"idpType":                d.Get("idp_type").(string),
-			})
-			url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts%s",
-				c.ControlPlane, query)
-			body, err := c.DoRequest(url, http.MethodGet, nil)
-			if err != nil {
-				return fmt.Errorf("unable to read completed drafts: %w", err)
-			}
-
-			resp := ListGenericSAMLDraftsResponse{}
-			if err := json.Unmarshal(body, &resp); err != nil {
-				return fmt.Errorf("when reading completed drafts: "+
-					"unable to unmarshall JSON: %w", err)
-			}
-
-			myID := d.Id()
-			found := false
-			for _, draft := range resp.Drafts {
-				if draft.ID == myID {
-					found = true
-					break
-				}
-			}
-			if !found {
-				log.Printf("[DEBUG] Completed draft with ID %q "+
-					"not found. Triggering recreation.", myID)
-				currentToggle := d.Get("toggle_recreation").(bool)
-				newToggle := !currentToggle
-				if err := d.Set("toggle_recreation", newToggle); err != nil {
-					return fmt.Errorf("error forcing recreation of SAML draft: %w", err)
-				}
-			} else {
-				log.Printf("[DEBUG] Found completed draft with ID "+
-					"%q.", myID)
-			}
-			return nil
-		},
+		RequestErrorHandler: &readGenericSAMLDraftErrorHandler{},
+		NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &GenericSAMLDraftResponse{} },
 	}
 }
 
@@ -156,16 +110,7 @@ func DeleteGenericSAMLDraftConfig() ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
-		HandleRequestError: func(d *schema.ResourceData, c *client.Client, err error) error {
-			httpError, ok := err.(*client.HttpError)
-			if !ok || httpError.StatusCode != http.StatusNotFound {
-				return err
-			}
-			log.Printf("[DEBUG] SAML draft not found. Skipping deletion.")
-			// If the HTTP status is NotFound, it means we don't need to
-			// worry about deleting anything.
-			return nil
-		},
+		RequestErrorHandler: &DeleteIgnoreHttpNotFound{resName: "SAML draft"},
 	}
 }
 
@@ -278,4 +223,58 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
+}
+
+type readGenericSAMLDraftErrorHandler struct {
+}
+
+func (h *readGenericSAMLDraftErrorHandler) HandleError(
+	d *schema.ResourceData,
+	c *client.Client,
+	err error,
+) error {
+	httpError, ok := err.(*client.HttpError)
+	if !ok || httpError.StatusCode != http.StatusNotFound {
+		return err
+	}
+	log.Printf("[DEBUG] SAML draft not found. Checking if completed draft exists.")
+
+	query := urlQuery(map[string]string{
+		"includeCompletedDrafts": "true",
+		"displayName":            d.Get("display_name").(string),
+		"idpType":                d.Get("idp_type").(string),
+	})
+	url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts%s",
+		c.ControlPlane, query)
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return fmt.Errorf("unable to read completed drafts: %w", err)
+	}
+
+	resp := ListGenericSAMLDraftsResponse{}
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return fmt.Errorf("when reading completed drafts: "+
+			"unable to unmarshall JSON: %w", err)
+	}
+
+	myID := d.Id()
+	found := false
+	for _, draft := range resp.Drafts {
+		if draft.ID == myID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		log.Printf("[DEBUG] Completed draft with ID %q "+
+			"not found. Triggering recreation.", myID)
+		currentToggle := d.Get("toggle_recreation").(bool)
+		newToggle := !currentToggle
+		if err := d.Set("toggle_recreation", newToggle); err != nil {
+			return fmt.Errorf("error forcing recreation of SAML draft: %w", err)
+		}
+	} else {
+		log.Printf("[DEBUG] Found completed draft with ID %q.", myID)
+	}
+	return nil
 }

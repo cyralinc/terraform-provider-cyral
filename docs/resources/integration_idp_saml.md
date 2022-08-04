@@ -45,8 +45,8 @@ resource "cyral_integration_idp_saml" "example_integration" {
 
 ### Optional
 
-- `idp_metadata_document` (String) Full SAML metadata XML document. Must be base64 encoded. Conflicts with `idp_metadata_url`.
-- `idp_metadata_url` (String) A SAML XML IdP Metadata document containing all configuration values required by the Cyral SP. Conflicts with `idp_metadata_document`.
+- `idp_metadata_url` (String) The web address of an IdP SAML Metadata XML document. Conflicts with `idp_metadata_xml`.
+- `idp_metadata_xml` (String) Full SAML metadata XML document. Must be base64 encoded. Conflicts with `idp_metadata_url`.
 
 ### Read-Only
 

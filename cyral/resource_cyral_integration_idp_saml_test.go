@@ -3,6 +3,7 @@ package cyral
 import (
 	"encoding/base64"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -36,9 +37,13 @@ func samlMetadataDocumentSample(fakeCertificate string) string {
 
 func TestAccIntegrationIdPSAMLResource(t *testing.T) {
 	initialConfig, initialChecks := setupIntegrationIdPSAMLTest(
-		"main_test", samlMetadataDocumentSample("fakeCertificateInitial"))
-	updatedConfig, updatedChecks := setupIntegrationIdPSAMLTest(
-		"main_test", samlMetadataDocumentSample("fakeCertificateUpdated"))
+		"upgrade_test", samlMetadataDocumentSample("fakeCertificateInitial"))
+	updatedConfig, _ := setupIntegrationIdPSAMLTest(
+		"upgrade_test", samlMetadataDocumentSample("fakeCertificateUpdated"))
+	updatedAgainConfig, updatedAgainChecks := setupIntegrationIdPSAMLTest(
+		"upgrade_test", samlMetadataDocumentSample("fakeCertificateUpdated"))
+	newConfig, newChecks := setupIntegrationIdPSAMLTest(
+		"new_test", samlMetadataDocumentSample("fakeCertificateNew"))
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -49,13 +54,27 @@ func TestAccIntegrationIdPSAMLResource(t *testing.T) {
 			},
 			{
 				Config: updatedConfig,
-				Check:  updatedChecks,
+				// This is a known case where the resource
+				// fails: when creating a new SAML integration
+				// pointing to an old, completed, SAML draft.
+				ExpectError: regexp.MustCompile("Error running apply: exit status 1"),
+			},
+			{
+				Config: updatedAgainConfig,
+				// If user runs apply again, it should work.
+				Check: updatedAgainChecks,
+			},
+			{
+				Config: newConfig,
+				// When a new SAML draft and a new integration
+				// are created, there should be no no problem.
+				Check: newChecks,
 			},
 			{
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"idp_metadata_document", "saml_draft_id"},
-				ResourceName:            "cyral_integration_idp_saml.main_test",
+				ImportStateVerifyIgnore: []string{"idp_metadata_xml", "saml_draft_id"},
+				ResourceName:            "cyral_integration_idp_saml.new_test",
 			},
 		},
 	})
@@ -82,7 +101,7 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 		// metadata document. Using a URL would require an active
 		// external SAML endpoint during the ACC tests.
 		resource.TestCheckResourceAttr(resourceFullName,
-			"idp_metadata_document", metadataDoc,
+			"idp_metadata_xml", metadataDoc,
 		),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"single_sign_on_service_url", testSSOURL,
@@ -108,6 +127,6 @@ func integrationIdPSAMLResourceConfig(resName, draftResName, metadataDoc string)
 	return fmt.Sprintf(`
 	resource "cyral_integration_idp_saml" "%s" {
 		saml_draft_id = cyral_integration_idp_saml_draft.%s.id
-		idp_metadata_document = "%s"
+		idp_metadata_xml = "%s"
 	}`, resName, draftResName, metadataDoc)
 }

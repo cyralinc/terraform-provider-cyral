@@ -114,10 +114,10 @@ func (integ *GenericSAMLIntegration) ReadFromSchema(d *schema.ResourceData) erro
 }
 
 type GenericSAMLIdpDescriptor struct {
-	SingleSignOnServiceURL     string `json:"singleSignOnServiceURL"`
-	SigningCertificate         string `json:"signingCertificate"`
-	DisableForceAuthentication bool   `json:"disableForceAuthentication"`
-	SingleLogoutServiceURL     string `json:"singleLogoutServiceURL"`
+	SingleSignOnServiceURL     string `json:"singleSignOnServiceURL,omitempty"`
+	SigningCertificate         string `json:"signingCertificate,omitempty"`
+	DisableForceAuthentication bool   `json:"disableForceAuthentication,omitempty"`
+	SingleLogoutServiceURL     string `json:"singleLogoutServiceURL,omitempty"`
 }
 
 type GenericSAMLIdpMetadata struct {
