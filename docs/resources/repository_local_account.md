@@ -2,7 +2,7 @@
 
 Manages [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-users#give-your-sidecar-access-to-the-local-account).
 
--> **NOTE** Import ID syntax is `{repositoryID}/{localAccountID}`.
+-> **NOTE** Import ID syntax is `{repository_id}/{local_account_id}`, where `{local_account_id}` is the ID of the local account in the Cyral Control Plane.
 
 ## Example Usage
 

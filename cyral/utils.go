@@ -20,7 +20,7 @@ func marshalComposedID(ids []string, sep string) string {
 func unmarshalComposedID(id, sep string, numFields int) ([]string, error) {
 	ids := strings.Split(id, sep)
 	if len(ids) < numFields {
-		return nil, fmt.Errorf("unexpected ID syntax. Correct ID " +
+		return nil, fmt.Errorf("unexpected ID syntax. Correct import ID " +
 			fmt.Sprintf("syntax uses separator %q and contains %d "+
 				"fields", sep, numFields))
 	}

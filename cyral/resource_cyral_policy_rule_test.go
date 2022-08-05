@@ -48,6 +48,8 @@ func TestAccPolicyRuleResource(t *testing.T) {
 	testUpdate1Config, testUpdate1Func := setupPolicyRuleTest(updated1PolicyRuleConfig)
 	testUpdate2Config, testUpdate2Func := setupPolicyRuleTest(updated2PolicyRuleConfig)
 
+	importStateResName := "cyral_policy_rule.policy_rule_test"
+
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -63,7 +65,16 @@ func TestAccPolicyRuleResource(t *testing.T) {
 				Config: testUpdate2Config,
 				Check:  testUpdate2Func,
 			},
-			// TODO: add import test -aholmquist 2022-08-01
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: importStateComposedIDFunc(
+					importStateResName,
+					[]string{"policy_id", "id"},
+					"/",
+				),
+				ResourceName: importStateResName,
+			},
 		},
 	})
 }

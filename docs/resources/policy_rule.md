@@ -11,7 +11,7 @@ Manages [policy rules](https://cyral.com/docs/reference/policy/#rules). See also
 
 For more information, see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).
 
--> **NOTE** Import ID syntax is `{policyID}/{policyRuleID}`.
+-> **NOTE** Import ID syntax is `{policy_id}/{policy_rule_id}`, where `{policy_rule_id}` is the ID of the policy rule in the Cyral Control Plane.
 
 ## Example Usage
 
