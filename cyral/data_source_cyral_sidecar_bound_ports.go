@@ -62,9 +62,6 @@ func dataSourceSidecarBoundPorts() *schema.Resource {
 				},
 			},
 		},
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 	}
 }
 

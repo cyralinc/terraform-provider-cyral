@@ -16,6 +16,12 @@ func TestAccSidecarCredentialsResource(t *testing.T) {
 				Config: testConfig,
 				Check:  testFunc,
 			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"client_secret"},
+				ResourceName:            "cyral_sidecar_credentials.test_sidecar_credentials",
+			},
 		},
 	})
 }

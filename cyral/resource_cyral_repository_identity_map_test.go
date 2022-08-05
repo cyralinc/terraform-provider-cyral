@@ -42,6 +42,8 @@ func TestAccRepositoryIdentityMapResource(t *testing.T) {
 	testWithoutAccessDurationConfig, testWithoutAccessDurationFunc :=
 		setupRepositoryIdentityMapTest(identityMapConfigWithoutAccessDuration)
 
+	importStateResName := "cyral_repository_identity_map.tf_test_cyral_sidecar_template"
+
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -56,6 +58,21 @@ func TestAccRepositoryIdentityMapResource(t *testing.T) {
 			{
 				Config: testWithoutAccessDurationConfig,
 				Check:  testWithoutAccessDurationFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: importStateComposedIDFunc(
+					importStateResName,
+					[]string{
+						"repository_id",
+						"identity_type",
+						"identity_name",
+						"repository_local_account_id",
+					},
+					"/",
+				),
+				ResourceName: importStateResName,
 			},
 		},
 	})

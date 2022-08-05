@@ -64,6 +64,11 @@ func TestAccLogstashIntegrationResource(t *testing.T) {
 				Config: testUpdate3Config,
 				Check:  testUpdate3Func,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_logstash.logstash_integration",
+			},
 		},
 	})
 }

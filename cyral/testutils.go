@@ -2,6 +2,8 @@ package cyral
 
 import (
 	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func formatAttributes(attributes []string) string {
@@ -15,4 +17,22 @@ func formatAttributes(attributes []string) string {
 		}
 	}
 	return s
+}
+
+func importStateComposedIDFunc(
+	resName string,
+	idAtts []string,
+	sep string,
+) func(*terraform.State) (string, error) {
+	return func(s *terraform.State) (string, error) {
+		res, ok := s.RootModule().Resources[resName]
+		if !ok {
+			return "", fmt.Errorf("Resource not found: %s", resName)
+		}
+		var idParts []string
+		for _, idAtt := range idAtts {
+			idParts = append(idParts, res.Primary.Attributes[idAtt])
+		}
+		return marshalComposedID(idParts, sep), nil
+	}
 }

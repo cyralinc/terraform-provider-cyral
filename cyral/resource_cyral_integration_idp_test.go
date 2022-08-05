@@ -62,6 +62,12 @@ func TestAccIdPIntegrationResource(t *testing.T) {
 				Config: testAccIdPIntegrationConfig_NotEmptyAlias(),
 				Check:  testAccIdPIntegrationCheck_NotEmptyAlias(),
 			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"draft_alias"},
+				ResourceName:            "cyral_integration_idp_okta.test_idp_integration",
+			},
 		},
 	})
 }

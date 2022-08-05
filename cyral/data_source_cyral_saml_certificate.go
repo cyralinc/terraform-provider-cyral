@@ -32,9 +32,6 @@ func dataSourceSAMLCertificate() *schema.Resource {
 				Description: "The X.509 certificate used for signing SAML requests.",
 			},
 		},
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 	}
 }
 

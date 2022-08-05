@@ -32,6 +32,11 @@ func TestAccSlackAlertsIntegrationResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_slack_alerts.test_slack_alerts",
+			},
 		},
 	})
 }

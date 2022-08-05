@@ -32,6 +32,11 @@ func TestAccSumoLogicIntegrationResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_sumo_logic.sumo_logic_integration",
+			},
 		},
 	})
 }

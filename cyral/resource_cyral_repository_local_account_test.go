@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	testRepoLocalAccImportName = "cyral_repository_local_account.tf_test_repository_account"
+)
+
 var initialRepoAccountConfigAwsIAM = RepositoryLocalAccountResource{
 	AwsIAM: &AwsIAMResource{
 		DatabaseName: "tf-test-db-name",
@@ -122,6 +126,18 @@ var updatedRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
 	},
 }
 
+func testRespositoryLocalAccountImportState(resName string) resource.TestStep {
+	return resource.TestStep{
+		ImportState:       true,
+		ImportStateVerify: true,
+		ImportStateIdFunc: importStateComposedIDFunc(
+			resName,
+			[]string{"repository_id", "id"},
+			"/"),
+		ResourceName: resName,
+	}
+}
+
 func TestAccRepositoryLocalAccountResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -208,6 +224,7 @@ func TestAccRepositoryLocalAccountResource_GcpSecretManager(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			testRespositoryLocalAccountImportState(testRepoLocalAccImportName),
 		},
 	})
 }
@@ -229,6 +246,7 @@ func TestAccRepositoryLocalAccountResource_KubernetesSecret(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			testRespositoryLocalAccountImportState(testRepoLocalAccImportName),
 		},
 	})
 }
@@ -250,6 +268,7 @@ func TestAccRepositoryLocalAccountResource_EnvironmentVariable(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			testRespositoryLocalAccountImportState(testRepoLocalAccImportName),
 			{ // Deprecated: Should be removed in the next MAJOR release
 				Config:      testAccRepositoryLocalAccountConfig_UseEnvVarTogetherWithDeprecated(),
 				ExpectError: regexp.MustCompile("Error: Invalid combination of arguments"),
@@ -355,6 +374,7 @@ func TestAccRepositoryLocalAccountResource_HashicorpVault(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			testRespositoryLocalAccountImportState(testRepoLocalAccImportName),
 		},
 	})
 }
@@ -376,6 +396,7 @@ func TestAccRepositoryLocalAccountResource_CyralStorage(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			testRespositoryLocalAccountImportState(testRepoLocalAccImportName),
 		},
 	})
 }
@@ -397,6 +418,7 @@ func TestAccRepositoryLocalAccountResource_AwsSecretsManager(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			testRespositoryLocalAccountImportState(testRepoLocalAccImportName),
 		},
 	})
 }
@@ -418,6 +440,7 @@ func TestAccRepositoryLocalAccountResource_AwsIAM(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedCheck,
 			},
+			testRespositoryLocalAccountImportState(testRepoLocalAccImportName),
 		},
 	})
 }

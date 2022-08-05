@@ -111,7 +111,14 @@ func resourceRepositoryDatamap() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				d.Set("repository_id", d.Id())
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }

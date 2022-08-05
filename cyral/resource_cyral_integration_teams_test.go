@@ -32,6 +32,11 @@ func TestAccMsTeamsIntegrationResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_microsoft_teams.test_microsoft_teams",
+			},
 		},
 	})
 }

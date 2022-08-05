@@ -40,6 +40,11 @@ func TestAccDatalabelResource(t *testing.T) {
 				Config: testUpdatedConfig,
 				Check:  testUpdatedFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_datalabel.test_datalabel",
+			},
 		},
 	})
 }
