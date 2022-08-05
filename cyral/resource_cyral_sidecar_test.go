@@ -107,6 +107,11 @@ func TestAccSidecarResource(t *testing.T) {
 				Config: testUpdateConfigFailover,
 				Check:  testUpdateFuncFailover,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_sidecar.test_sidecar",
+			},
 		},
 	})
 }
