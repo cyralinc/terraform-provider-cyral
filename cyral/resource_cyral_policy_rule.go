@@ -213,12 +213,14 @@ func resourcePolicyRule() *schema.Resource {
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				policyID, policyRuleID, err := unmarshalComposedID(d.Id(), "/")
+				ids, err := unmarshalComposedID(d.Id(), "/", 2)
 				if err != nil {
 					return nil, err
 				}
-				d.SetId(policyRuleID)
+				policyID := ids[0]
+				policyRuleID := ids[1]
 				d.Set("policy_id", policyID)
+				d.SetId(policyRuleID)
 				return []*schema.ResourceData{d}, nil
 			},
 		},

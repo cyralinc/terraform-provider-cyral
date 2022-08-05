@@ -13,15 +13,16 @@ func urlQuery(kv map[string]string) string {
 	return queryStr
 }
 
-func marshalComposedID(id1, id2 string) string {
-	return fmt.Sprintf("%s-%s", id1, id2)
+func marshalComposedID(ids []string, sep string) string {
+	return strings.Join(ids, sep)
 }
 
-func unmarshalComposedID(id, sep string) (string, string, error) {
+func unmarshalComposedID(id, sep string, numFields int) ([]string, error) {
 	ids := strings.Split(id, sep)
-	if len(ids) < 2 {
-		return "", "", fmt.Errorf("unexpected ID syntax. Correct ID " +
-			"syntax is {id1}-{id1}")
+	if len(ids) < numFields {
+		return nil, fmt.Errorf("unexpected ID syntax. Correct ID " +
+			fmt.Sprintf("syntax uses separator %q and contains %d "+
+				"fields", sep, numFields))
 	}
-	return ids[0], ids[1], nil
+	return ids, nil
 }

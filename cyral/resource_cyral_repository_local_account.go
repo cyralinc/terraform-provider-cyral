@@ -609,12 +609,14 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				repositoryID, localAccountID, err := unmarshalComposedID(d.Id(), "/")
+				ids, err := unmarshalComposedID(d.Id(), "/", 2)
 				if err != nil {
 					return nil, err
 				}
-				d.SetId(localAccountID)
+				repositoryID := ids[0]
+				localAccountID := ids[1]
 				d.Set("repository_id", repositoryID)
+				d.SetId(localAccountID)
 				return []*schema.ResourceData{d}, nil
 			},
 		},

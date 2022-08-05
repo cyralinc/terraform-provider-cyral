@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -138,8 +139,10 @@ type RepositoryIdentityMapAPIResponse struct {
 }
 
 func (data RepositoryIdentityMapAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(marshalComposedID(d.Get("repository_id").(string),
-		d.Get("repository_local_account_id").(string)))
+	d.SetId(marshalComposedID([]string{
+		d.Get("repository_id").(string),
+		d.Get("repository_local_account_id").(string)},
+		"-"))
 	if data.AccessDuration != nil {
 		d.Set("access_duration", []interface{}{
 			map[string]interface{}{
@@ -312,7 +315,21 @@ func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				ids, err := unmarshalComposedID(d.Id(), "/", 4)
+				if err != nil {
+					return nil, err
+				}
+				d.Set("repository_id", ids[0])
+				d.Set("identity_type", ids[1])
+				d.Set("identity_name", ids[2])
+				d.Set("repository_local_account_id", ids[3])
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }
