@@ -43,6 +43,19 @@ func (dm *DataMap) WriteToSchema(d *schema.ResourceData) error {
 	return d.Set("mapping", mappings)
 }
 
+func (dm *DataMap) equal(other DataMap) bool {
+	for label, thisMapping := range dm.Labels {
+		if otherMapping, ok := other.Labels[label]; ok {
+			if !elementsMatch(thisMapping.Attributes, otherMapping.Attributes) {
+				return false
+			}
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
 type DataMapMapping struct {
 	Attributes []string `json:"attributes,omitempty"`
 }
@@ -84,6 +97,11 @@ func resourceRepositoryDatamap() *schema.Resource {
 								"please see the [Policy Guide](https://cyral.com/docs/reference/policy/).",
 							Type:     schema.TypeList,
 							Required: true,
+							// TODO: this ForceNew propagates to the parent attribute `mapping`. Therefore, any
+							// new mapping will force recreation. In the future, it would be good to use the
+							// `v1/repos/{repoID}/datamap/labels/{label}/attributes/{attribute}` endpoint to
+							// avoid unnecessary resource recreation. -aholmquist 2022-08-04
+							ForceNew: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -114,6 +132,13 @@ func resourceRepositoryDatamapCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(repoID)
+	// Write data map here to avoid issues with the order of the attributes.
+	//
+	// TODO: If in the future the order of the list of attributes the API
+	// returns becomes deterministic, this can be removed. -aholmquist 2022-08-04
+	if err := dataMap.WriteToSchema(d); err != nil {
+		return createError("Unable to create repository datamap", err.Error())
+	}
 
 	log.Printf("[DEBUG] End resourceRepositoryDatamapCreate")
 
@@ -138,8 +163,13 @@ func resourceRepositoryDatamapRead(ctx context.Context, d *schema.ResourceData, 
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", dataMap)
 
-	if err := dataMap.WriteToSchema(d); err != nil {
-		return createError("Unable to read repository datamap", err.Error())
+	// TODO: If in the future the order of the list of attributes the API
+	// returns becomes deterministic, this check can be removed. -aholmquist 2022-08-04
+	currentDataMap := getDatamapFromResource(d)
+	if !currentDataMap.equal(dataMap) {
+		if err := dataMap.WriteToSchema(d); err != nil {
+			return createError("Unable to read repository datamap", err.Error())
+		}
 	}
 
 	log.Printf("[DEBUG] End resourceRepositoryDatamapRead")
