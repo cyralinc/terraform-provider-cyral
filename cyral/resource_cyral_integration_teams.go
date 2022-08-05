@@ -31,7 +31,7 @@ var ReadMsTeamsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return &MsTeamsIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &MsTeamsIntegration{} },
 }
 
 func resourceIntegrationMsTeams() *schema.Resource {
@@ -45,7 +45,7 @@ func resourceIntegrationMsTeams() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
 				NewResourceData: func() ResourceData { return &MsTeamsIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadMsTeamsConfig,
 		),
 		ReadContext: ReadResource(ReadMsTeamsConfig),

@@ -33,7 +33,7 @@ type ResourceOperationConfig struct {
 	HttpMethod      string
 	CreateURL       URLCreatorFunc
 	NewResourceData func() ResourceData
-	NewResponseData func() ResponseData
+	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
@@ -84,7 +84,7 @@ func HandleRequest(
 		}
 
 		if config.NewResponseData != nil {
-			if responseData := config.NewResponseData(); responseData != nil {
+			if responseData := config.NewResponseData(d); responseData != nil {
 				if err := json.Unmarshal(body, responseData); err != nil {
 					return createError("Unable to unmarshall JSON", err.Error())
 				}
