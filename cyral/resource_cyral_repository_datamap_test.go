@@ -145,7 +145,7 @@ func setupRepositoryDatamapTestFunc(t *testing.T, resName string, dataMap *DataM
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			resFullName, "repository_id",
-			"cyral_repository.test_repository", "id"),
+			fmt.Sprintf("cyral_repository.%s", resName), "id"),
 	}
 
 	require.NotNil(t, dataMap.Labels)
@@ -197,19 +197,19 @@ func formatDataMapIntoConfig(t *testing.T, resName string, dataMap *DataMap) str
 	require.NotEmpty(t, mappingsStr)
 
 	config := fmt.Sprintf(`
-	resource "cyral_repository" "test_repository" {
+	resource "cyral_repository" "%s" {
 		type  = "sqlserver"
 		host  = "localhost"
 		port  = 1433
-		name  = "tf-test-sqlserver-1"
+		name  = "tf-test-%s"
 		labels = ["repo-label1", "repo-label2"]
 	}
 
 	resource "cyral_repository_datamap" "%s" {
+		repository_id = cyral_repository.%s.id
 		%s
-		repository_id = cyral_repository.test_repository.id
 		%s
-	}`, resName, dependsOnStr, mappingsStr)
+	}`, resName, resName, resName, resName, mappingsStr, dependsOnStr)
 
 	return config
 }

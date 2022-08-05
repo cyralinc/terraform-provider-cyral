@@ -132,7 +132,10 @@ func resourceRepositoryDatamapCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	d.SetId(repoID)
-	// Write data map here to avoid issues with the order of the attributes
+	// Write data map here to avoid issues with the order of the attributes.
+	//
+	// TODO: If in the future the order of the list of attributes the API
+	// returns becomes deterministic, this can be removed. -aholmquist 2022-08-04
 	if err := dataMap.WriteToSchema(d); err != nil {
 		return createError("Unable to create repository datamap", err.Error())
 	}
@@ -160,6 +163,8 @@ func resourceRepositoryDatamapRead(ctx context.Context, d *schema.ResourceData, 
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", dataMap)
 
+	// TODO: If in the future the order of the list of attributes the API
+	// returns becomes deterministic, this check can be removed. -aholmquist 2022-08-04
 	currentDataMap := getDatamapFromResource(d)
 	if !currentDataMap.equal(dataMap) {
 		if err := dataMap.WriteToSchema(d); err != nil {
