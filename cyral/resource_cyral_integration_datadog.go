@@ -33,7 +33,7 @@ var ReadDatadogConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return &DatadogIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &DatadogIntegration{} },
 }
 
 func resourceIntegrationDatadog() *schema.Resource {
@@ -48,7 +48,7 @@ func resourceIntegrationDatadog() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
 				NewResourceData: func() ResourceData { return &DatadogIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadDatadogConfig,
 		),
 		ReadContext: ReadResource(ReadDatadogConfig),

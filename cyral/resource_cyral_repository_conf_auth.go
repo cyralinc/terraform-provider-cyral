@@ -91,7 +91,7 @@ var ReadConfAuthConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
 	},
-	NewResponseData: func() ResponseData { return &ReadRepositoryConfAuthResponse{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadRepositoryConfAuthResponse{} },
 }
 
 func resourceRepositoryConfAuth() *schema.Resource {
@@ -105,7 +105,7 @@ func resourceRepositoryConfAuth() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
 				},
 				NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
-				NewResponseData: func() ResponseData { return &CreateRepositoryConfAuthResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepositoryConfAuthResponse{} },
 			}, ReadConfAuthConfig,
 		),
 		ReadContext: ReadResource(ReadConfAuthConfig),

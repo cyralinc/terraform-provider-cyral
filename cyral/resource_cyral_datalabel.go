@@ -13,26 +13,12 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-const (
-	dataLabelTypeCustom = "CUSTOM"
-)
-
-type DataLabel struct {
-	Name        string
-	Type        string   `json:"type"`
-	Description string   `json:"description,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
-}
-
-func (dl *DataLabel) WriteToSchema(d *schema.ResourceData) error {
-	if err := d.Set("description", dl.Description); err != nil {
+func writeDataLabelToResourceSchema(label DataLabel, d *schema.ResourceData) error {
+	if err := d.Set("description", label.Description); err != nil {
 		return err
 	}
 
-	var tagIfaces []interface{}
-	for _, tag := range dl.Tags {
-		tagIfaces = append(tagIfaces, tag)
-	}
+	tagIfaces := label.TagsAsInterface()
 	if err := d.Set("tags", tagIfaces); err != nil {
 		return err
 	}
@@ -113,7 +99,7 @@ func resourceDatalabelRead(ctx context.Context, d *schema.ResourceData, m interf
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", dataLabel)
 
-	if err := dataLabel.WriteToSchema(d); err != nil {
+	if err := writeDataLabelToResourceSchema(dataLabel, d); err != nil {
 		return createError("Unable to read data label", err.Error())
 	}
 

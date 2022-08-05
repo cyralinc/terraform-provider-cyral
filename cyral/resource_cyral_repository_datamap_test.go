@@ -134,7 +134,7 @@ func testRepositoryDatamapWithDataLabel(t *testing.T) resource.TestStep {
 	resName := "test_with_datalabel"
 	configDM, configDL := dataMapConfigWithDataLabel()
 	tfConfig := (formatDataMapIntoConfig(t, resName, configDM) +
-		formatDataLabelIntoConfig(t, configDL))
+		formatDataLabelIntoConfig(configDL.Name, configDL))
 	check := setupRepositoryDatamapTestFunc(t, resName, configDM)
 	return resource.TestStep{Config: tfConfig, Check: check}
 }
@@ -191,7 +191,7 @@ func formatDataMapIntoConfig(t *testing.T, resName string, dataMap *DataMap) str
 			// need to delete the data map first, otherwise the
 			// label cannot be deleted. The depends_on Terraform
 			// meta-argument forces the right deletion order.
-			dependsOnStr = "depends_on = [cyral_datalabel.test_datalabel]"
+			dependsOnStr = fmt.Sprintf("depends_on = [%s]", datalabelConfigResourceFullName(label))
 		}
 	}
 	require.NotEmpty(t, mappingsStr)

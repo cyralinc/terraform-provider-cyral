@@ -28,3 +28,11 @@ func elementsMatch(this, other []string) bool {
 	}
 	return true
 }
+
+func supportedTypesMarkdown(types []string) string {
+	var s string
+	for _, typ := range types {
+		s += fmt.Sprintf("\n  - `%s`", typ)
+	}
+	return s
+}
