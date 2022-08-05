@@ -60,7 +60,7 @@ var ReadPagerDutyIntegrationConfig = ResourceOperationConfig{
 			c.ControlPlane, d.Id(),
 		)
 	},
-	NewResponseData: func() ResponseData { return &PagerDutyIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &PagerDutyIntegration{} },
 }
 
 func resourceIntegrationPagerDuty() *schema.Resource {
@@ -76,7 +76,7 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 					)
 				},
 				NewResourceData: func() ResourceData { return &PagerDutyIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadPagerDutyIntegrationConfig,
 		),
 		ReadContext: ReadResource(ReadPagerDutyIntegrationConfig),

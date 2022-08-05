@@ -39,14 +39,6 @@ func repositoryTypes() []string {
 	}
 }
 
-func repositoryTypesMarkdown() string {
-	var s string
-	for _, repoType := range repositoryTypes() {
-		s += fmt.Sprintf("\n  - `%s`", repoType)
-	}
-	return s
-}
-
 type GetRepoByIDResponse struct {
 	Repo RepoData `json:"repo"`
 }
@@ -124,7 +116,7 @@ func resourceRepository() *schema.Resource {
 				Computed:    true,
 			},
 			"type": {
-				Description:  "Repository type. List of supported types:" + repositoryTypesMarkdown(),
+				Description:  "Repository type. List of supported types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice(repositoryTypes(), false),

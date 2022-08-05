@@ -320,7 +320,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				c.ControlPlane, repository_id, d.Id(),
 			)
 		},
-		NewResponseData: func() ResponseData { return &RepositoryLocalAccountResource{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RepositoryLocalAccountResource{} },
 	}
 
 	secretManagersTypes := []string{
@@ -551,7 +551,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 					)
 				},
 				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
-				NewResponseData: func() ResponseData { return &CreateRepoAccountResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepoAccountResponse{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
 		ReadContext: ReadResource(ReadRepositoryLocalAccountConfig),

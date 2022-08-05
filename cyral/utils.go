@@ -13,6 +13,14 @@ func urlQuery(kv map[string]string) string {
 	return queryStr
 }
 
+func supportedTypesMarkdown(types []string) string {
+	var s string
+	for _, typ := range types {
+		s += fmt.Sprintf("\n  - `%s`", typ)
+	}
+	return s
+}
+
 func marshalComposedID(ids []string, sep string) string {
 	return strings.Join(ids, sep)
 }

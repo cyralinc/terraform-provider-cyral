@@ -15,7 +15,7 @@ func initialDataLabelConfig() *DataLabel {
 	}
 }
 
-func updateDataLabelConfig() *DataLabel {
+func updatedDataLabelConfig() *DataLabel {
 	return &DataLabel{
 		Name:        "test-tf-label2",
 		Description: "label2-description",
@@ -25,9 +25,9 @@ func updateDataLabelConfig() *DataLabel {
 
 func TestAccDatalabelResource(t *testing.T) {
 	testInitialConfig, testInitialFunc := setupDatalabelTest(t,
-		initialDataLabelConfig())
-	testUpdateConfig, testUpdateFunc := setupDatalabelTest(t,
-		updateDataLabelConfig())
+		"main_test", initialDataLabelConfig())
+	testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
+		"main_test", updatedDataLabelConfig())
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -37,8 +37,8 @@ func TestAccDatalabelResource(t *testing.T) {
 				Check:  testInitialFunc,
 			},
 			{
-				Config: testUpdateConfig,
-				Check:  testUpdateFunc,
+				Config: testUpdatedConfig,
+				Check:  testUpdatedFunc,
 			},
 			{
 				ImportState:       true,
@@ -49,27 +49,33 @@ func TestAccDatalabelResource(t *testing.T) {
 	})
 }
 
-func setupDatalabelTest(t *testing.T, dataLabel *DataLabel) (string, resource.TestCheckFunc) {
-	configuration := formatDataLabelIntoConfig(t, dataLabel)
+func setupDatalabelTest(t *testing.T, resName string, dataLabel *DataLabel) (string, resource.TestCheckFunc) {
+	configuration := formatDataLabelIntoConfig(resName, dataLabel)
+
+	resourceFullName := datalabelConfigResourceFullName(resName)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_datalabel.test_datalabel",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"name", dataLabel.Name),
-		resource.TestCheckResourceAttr("cyral_datalabel.test_datalabel",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"description", dataLabel.Description),
-		resource.TestCheckResourceAttr("cyral_datalabel.test_datalabel",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"tags.#", "2"),
 	)
 
 	return configuration, testFunction
 }
 
-func formatDataLabelIntoConfig(t *testing.T, dataLabel *DataLabel) string {
+func datalabelConfigResourceFullName(resName string) string {
+	return fmt.Sprintf("cyral_datalabel.%s", resName)
+}
+
+func formatDataLabelIntoConfig(resName string, dataLabel *DataLabel) string {
 	return fmt.Sprintf(`
-	resource "cyral_datalabel" "test_datalabel" {
+	resource "cyral_datalabel" "%s" {
 		name  = "%s"
 		description = "%s"
 		tags = [%s]
-	}`, dataLabel.Name, dataLabel.Description,
+	}`, resName, dataLabel.Name, dataLabel.Description,
 		formatAttributes(dataLabel.Tags))
 }
