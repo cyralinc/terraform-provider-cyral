@@ -86,6 +86,8 @@ func dataMapConfigWithDataLabel() (*DataMap, *DataLabel) {
 }
 
 func TestAccRepositoryDatamapResource(t *testing.T) {
+	importStateResName := "cyral_repository_datamap.test_with_datalabel"
+
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -94,6 +96,7 @@ func TestAccRepositoryDatamapResource(t *testing.T) {
 			testRepositoryDatamapInitialConfigRemoveAttribute(t),
 			testRepositoryDatamapUpdatedConfigRemoveAttribute(t),
 			testRepositoryDatamapWithDataLabel(t),
+			testRepositoryDatamapImport(importStateResName),
 		},
 	})
 }
@@ -139,11 +142,13 @@ func testRepositoryDatamapWithDataLabel(t *testing.T) resource.TestStep {
 	return resource.TestStep{Config: tfConfig, Check: check}
 }
 
-func testRepositoryDatamapImport() resource.TestStep {
+func testRepositoryDatamapImport(importStateResName string) resource.TestStep {
 	return resource.TestStep{
 		ImportState:       true,
 		ImportStateVerify: true,
-		ResourceName:      "cyral_repository_datamap.test_repository_datamap",
+		// TODO: Properly verify mappings -aholmquist 2022-08-05
+		ImportStateVerifyIgnore: []string{"mapping."},
+		ResourceName:            importStateResName,
 	}
 }
 
