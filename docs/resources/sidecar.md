@@ -28,7 +28,7 @@ resource "cyral_sidecar" "some_resource_name" {
 
 ### Required
 
-- `deployment_method` (String) Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`).
+- `deployment_method` (String) Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE` and `singleContainer`).
 - `name` (String) Sidecar name that will be used internally in Control Plane (ex: `your_sidecar_name`).
 
 ### Optional

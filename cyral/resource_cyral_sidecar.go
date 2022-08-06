@@ -79,12 +79,12 @@ func resourceSidecar() *schema.Resource {
 				Required:    true,
 			},
 			"deployment_method": {
-				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`).",
+				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE` and `singleContainer`).",
 				Type:        schema.TypeString,
 				Required:    true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"docker", "cloudFormation", "terraform", "helm", "helm3",
-					"automated", "custom", "terraformGKE",
+					"automated", "custom", "terraformGKE", "singleContainer",
 				}, false),
 			},
 			"labels": {
