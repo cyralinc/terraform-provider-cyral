@@ -100,8 +100,7 @@ func dataSourceRole() *schema.Resource {
 							Computed:    true,
 						},
 						"mappings": {
-							// TODO
-							Description: "Mapping of SSO groups to ",
+							Description: "Mapping of SSO groups to identity provider (IdP) integrations.",
 							Type:        schema.TypeList,
 							Computed:    true,
 							Elem: &schema.Resource{
@@ -114,14 +113,12 @@ func dataSourceRole() *schema.Resource {
 									"group_name": {
 										Description: "The name of the SSO group to be mapped.",
 										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"idp_id": {
 										Description: "The ID of the identity provider integration to be mapped.",
 										Type:        schema.TypeString,
-										Required:    true,
-										ForceNew:    true,
+										Computed:    true,
 									},
 									"idp_name": {
 										Description: "The name of the identity provider integration of an SSO group mapping.",
