@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -228,6 +229,8 @@ type CreateRepoAccountResponse struct {
 }
 
 func (resource CreateRepoAccountResponse) WriteToSchema(d *schema.ResourceData) error {
+	// TODO (next MAJOR): set ID to be of the format
+	// {repositoryID}/{localAccountID}, to facilitate importing. -aholmquist 2022-08-01
 	d.SetId(resource.UUID)
 	return nil
 }
@@ -317,7 +320,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				c.ControlPlane, repository_id, d.Id(),
 			)
 		},
-		NewResponseData: func() ResponseData { return &RepositoryLocalAccountResource{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RepositoryLocalAccountResource{} },
 	}
 
 	secretManagersTypes := []string{
@@ -548,7 +551,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 					)
 				},
 				NewResourceData: func() ResourceData { return &RepositoryLocalAccountResource{} },
-				NewResponseData: func() ResponseData { return &CreateRepoAccountResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepoAccountResponse{} },
 			}, ReadRepositoryLocalAccountConfig,
 		),
 		ReadContext: ReadResource(ReadRepositoryLocalAccountConfig),
@@ -601,7 +604,21 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 			"gcp_secret_manager":   gcpSecretManagerSchema,
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				ids, err := unmarshalComposedID(d.Id(), "/", 2)
+				if err != nil {
+					return nil, err
+				}
+				repositoryID := ids[0]
+				localAccountID := ids[1]
+				d.Set("repository_id", repositoryID)
+				d.SetId(localAccountID)
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }

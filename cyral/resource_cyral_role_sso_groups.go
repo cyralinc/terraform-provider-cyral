@@ -1,9 +1,11 @@
 package cyral
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -78,7 +80,17 @@ func resourceRoleSSOGroups() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				// This splitting is done to properly capture
+				// the ID format `{roleID}/SSOGroups`.
+				splitID := strings.Split(d.Id(), "/")
+				d.Set("role_id", splitID[0])
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }
@@ -91,7 +103,7 @@ var createRoleSSOGroupsConfig = ResourceOperationConfig{
 			d.Get("role_id").(string))
 	},
 	NewResourceData: func() ResourceData { return &RoleSSOGroupsCreateRequest{} },
-	NewResponseData: func() ResponseData { return &RoleSSOGroupsCreateRequest{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RoleSSOGroupsCreateRequest{} },
 }
 
 var readRoleSSOGroupsConfig = ResourceOperationConfig{
@@ -101,7 +113,7 @@ var readRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResponseData: func() ResponseData { return &RoleSSOGroupsReadResponse{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RoleSSOGroupsReadResponse{} },
 }
 
 var deleteRoleSSOGroupsConfig = ResourceOperationConfig{

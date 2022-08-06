@@ -53,9 +53,8 @@ func resourceSidecarCredentials() *schema.Resource {
 				Sensitive:   true,
 			},
 		},
-
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

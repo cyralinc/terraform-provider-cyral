@@ -70,9 +70,6 @@ func dataSourceSidecarCftTemplate() *schema.Resource {
 				Description: "Output variable with the template.",
 			},
 		},
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 	}
 }
 

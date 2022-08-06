@@ -76,7 +76,19 @@ func resourceRepositoryBinding() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				ids, err := unmarshalComposedID(d.Id(), "-", 2)
+				if err != nil {
+					return nil, err
+				}
+				d.Set("sidecar_id", ids[0])
+				d.Set("repository_id", ids[1])
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }
@@ -94,7 +106,11 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
 	}
 
-	d.SetId(fmt.Sprintf("%s-%s", resourceData.SidecarID, resourceData.RepositoryID))
+	// TODO (next MAJOR): use "/" separator instead of "-" -aholmquist 2022-08-01
+	d.SetId(marshalComposedID([]string{
+		resourceData.SidecarID,
+		resourceData.RepositoryID},
+		"-"))
 
 	return resourceRepositoryBindingRead(ctx, d, m)
 }

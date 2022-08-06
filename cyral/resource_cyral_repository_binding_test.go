@@ -43,6 +43,11 @@ func TestAccRepositoryBindingResource(t *testing.T) {
 				Config: testAccRepositoryBindingConfig_AccessGatewayEnabled(),
 				Check:  testAccRepositoryBindingCheck_AccessGatewayEnabled(),
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_repository_binding.repo_binding",
+			},
 		},
 	})
 }

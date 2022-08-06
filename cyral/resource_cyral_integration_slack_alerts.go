@@ -31,7 +31,7 @@ var ReadSlackAlertsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return &SlackAlertsIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &SlackAlertsIntegration{} },
 }
 
 func resourceIntegrationSlackAlerts() *schema.Resource {
@@ -45,7 +45,7 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 				},
 				NewResourceData: func() ResourceData { return &SlackAlertsIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadSlackAlertsConfig,
 		),
 		ReadContext: ReadResource(ReadSlackAlertsConfig),
@@ -88,7 +88,7 @@ func resourceIntegrationSlackAlerts() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

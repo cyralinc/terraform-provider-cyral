@@ -18,7 +18,7 @@ func dataSourceSAMLCertificate() *schema.Resource {
 			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/integrations/saml/rsa/cert", c.ControlPlane)
 			},
-			NewResponseData: func() ResponseData { return &SAMLCertificateData{} },
+			NewResponseData: func(_ *schema.ResourceData) ResponseData { return &SAMLCertificateData{} },
 		}),
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -31,9 +31,6 @@ func dataSourceSAMLCertificate() *schema.Resource {
 				Computed:    true,
 				Description: "The X.509 certificate used for signing SAML requests.",
 			},
-		},
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
 		},
 	}
 }

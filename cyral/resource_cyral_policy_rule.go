@@ -208,7 +208,21 @@ func resourcePolicyRule() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				ids, err := unmarshalComposedID(d.Id(), "/", 2)
+				if err != nil {
+					return nil, err
+				}
+				policyID := ids[0]
+				policyRuleID := ids[1]
+				d.Set("policy_id", policyID)
+				d.SetId(policyRuleID)
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }
@@ -234,6 +248,8 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
+	// TODO (next MAJOR): set ID to be of the format
+	// {policyID}/{policyRuleID}, to facilitate importing. -aholmquist 2022-08-01
 	d.SetId(response.ID)
 
 	log.Printf("[DEBUG] End resourcePolicyRuleCreate")

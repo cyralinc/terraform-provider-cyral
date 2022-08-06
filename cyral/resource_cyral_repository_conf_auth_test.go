@@ -25,7 +25,7 @@ var update2RepositoryConfAuthConfig RepositoryConfAuthData = RepositoryConfAuthD
 	RepoTLS:         "disable",
 }
 
-func TestAccRepositoryConfAuthDataResource(t *testing.T) {
+func TestAccRepositoryConfAuthResource(t *testing.T) {
 	testConfig, testFunc := setupRepositoryConfAuthTest(initialRepositoryConfAuthConfig)
 	testUpdate1Config, testUpdate1Func := setupRepositoryConfAuthTest(update1RepositoryConfAuthConfig)
 	testUpdate2Config, testUpdate2Func := setupRepositoryConfAuthTest(update2RepositoryConfAuthConfig)
@@ -45,6 +45,7 @@ func TestAccRepositoryConfAuthDataResource(t *testing.T) {
 				Config: testUpdate2Config,
 				Check:  testUpdate2Func,
 			},
+			// TODO: add import test -aholmquist 2022-08-05
 		},
 	})
 }

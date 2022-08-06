@@ -34,6 +34,11 @@ func TestAccELKIntegrationResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_elk.elk_integration",
+			},
 		},
 	})
 }

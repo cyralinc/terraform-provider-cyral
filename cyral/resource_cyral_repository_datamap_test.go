@@ -15,7 +15,7 @@ const (
 	testCustomLabel    = "test-tf-custom-label"
 )
 
-func initialDataMapConfig() *DataMap {
+func initialDataMapConfigRemoveMapping() *DataMap {
 	return &DataMap{
 		Labels: map[string]*DataMapMapping{
 			predefinedLabelCCN: &DataMapMapping{
@@ -32,12 +32,37 @@ func initialDataMapConfig() *DataMap {
 	}
 }
 
-func updateDataMapConfig() *DataMap {
+func updatedDataMapConfigRemoveMapping() *DataMap {
 	return &DataMap{
 		Labels: map[string]*DataMapMapping{
 			predefinedLabelSSN: &DataMapMapping{
 				Attributes: []string{
-					"schema1.table1.col1",
+					"schema1.table1.col2",
+				},
+			},
+		},
+	}
+}
+
+func initialDataMapConfigRemoveAttribute() *DataMap {
+	return &DataMap{
+		Labels: map[string]*DataMapMapping{
+			predefinedLabelSSN: &DataMapMapping{
+				Attributes: []string{
+					"a.b.c",
+					"b.c.d",
+				},
+			},
+		},
+	}
+}
+
+func updatedDataMapConfigRemoveAttribute() *DataMap {
+	return &DataMap{
+		Labels: map[string]*DataMapMapping{
+			predefinedLabelSSN: &DataMapMapping{
+				Attributes: []string{
+					"a.b.c",
 				},
 			},
 		},
@@ -61,41 +86,79 @@ func dataMapConfigWithDataLabel() (*DataMap, *DataLabel) {
 }
 
 func TestAccRepositoryDatamapResource(t *testing.T) {
+	importStateResName := "cyral_repository_datamap.test_with_datalabel"
+
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
-			testRepositoryDatamapInitialConfig(t),
-			testRepositoryDatamapUpdateConfig(t),
-			testRepositoryDatamapWithDatalabel(t),
+			testRepositoryDatamapInitialConfigRemoveMapping(t),
+			testRepositoryDatamapUpdatedConfigRemoveMapping(t),
+			testRepositoryDatamapInitialConfigRemoveAttribute(t),
+			testRepositoryDatamapUpdatedConfigRemoveAttribute(t),
+			testRepositoryDatamapWithDataLabel(t),
+			testRepositoryDatamapImport(importStateResName),
 		},
 	})
 }
 
-func testRepositoryDatamapInitialConfig(t *testing.T) resource.TestStep {
-	config := formatDataMapIntoConfig(t, initialDataMapConfig())
-	check := setupRepositoryDatamapTestFunc(t, initialDataMapConfig())
-	return resource.TestStep{Config: config, Check: check}
+func testRepositoryDatamapInitialConfigRemoveMapping(t *testing.T) resource.TestStep {
+	resName := "test_remove_label"
+	config := initialDataMapConfigRemoveMapping()
+	terrConfig := formatDataMapIntoConfig(t, resName, config)
+	check := setupRepositoryDatamapTestFunc(t, resName, config)
+	return resource.TestStep{Config: terrConfig, Check: check}
 }
 
-func testRepositoryDatamapUpdateConfig(t *testing.T) resource.TestStep {
-	config := formatDataMapIntoConfig(t, updateDataMapConfig())
-	check := setupRepositoryDatamapTestFunc(t, updateDataMapConfig())
-	return resource.TestStep{Config: config, Check: check}
+func testRepositoryDatamapUpdatedConfigRemoveMapping(t *testing.T) resource.TestStep {
+	resName := "test_remove_label"
+	config := updatedDataMapConfigRemoveMapping()
+	terrConfig := formatDataMapIntoConfig(t, resName, config)
+	check := setupRepositoryDatamapTestFunc(t, resName, config)
+	return resource.TestStep{Config: terrConfig, Check: check}
 }
 
-func testRepositoryDatamapWithDatalabel(t *testing.T) resource.TestStep {
+func testRepositoryDatamapInitialConfigRemoveAttribute(t *testing.T) resource.TestStep {
+	resName := "test_remove_attribute"
+	config := initialDataMapConfigRemoveAttribute()
+	terrConfig := formatDataMapIntoConfig(t, resName, config)
+	check := setupRepositoryDatamapTestFunc(t, resName, config)
+	return resource.TestStep{Config: terrConfig, Check: check}
+}
+
+func testRepositoryDatamapUpdatedConfigRemoveAttribute(t *testing.T) resource.TestStep {
+	resName := "test_remove_attribute"
+	config := updatedDataMapConfigRemoveAttribute()
+	terrConfig := formatDataMapIntoConfig(t, resName, config)
+	check := setupRepositoryDatamapTestFunc(t, resName, config)
+	return resource.TestStep{Config: terrConfig, Check: check}
+}
+
+func testRepositoryDatamapWithDataLabel(t *testing.T) resource.TestStep {
+	resName := "test_with_datalabel"
 	configDM, configDL := dataMapConfigWithDataLabel()
-	tfConfig := (formatDataMapIntoConfig(t, configDM) +
-		formatDataLabelIntoConfig(t, configDL))
-	check := setupRepositoryDatamapTestFunc(t, configDM)
+	tfConfig := (formatDataMapIntoConfig(t, resName, configDM) +
+		formatDataLabelIntoConfig(configDL.Name, configDL))
+	check := setupRepositoryDatamapTestFunc(t, resName, configDM)
 	return resource.TestStep{Config: tfConfig, Check: check}
 }
 
-func setupRepositoryDatamapTestFunc(t *testing.T, dataMap *DataMap) resource.TestCheckFunc {
+func testRepositoryDatamapImport(importStateResName string) resource.TestStep {
+	return resource.TestStep{
+		ImportState:       true,
+		ImportStateVerify: true,
+		// TODO: Properly verify mappings -aholmquist 2022-08-05
+		ImportStateVerifyIgnore: []string{"mapping."},
+		ResourceName:            importStateResName,
+	}
+}
+
+func setupRepositoryDatamapTestFunc(t *testing.T, resName string, dataMap *DataMap) resource.TestCheckFunc {
+	resFullName := fmt.Sprintf("cyral_repository_datamap.%s", resName)
+
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
-			"cyral_repository_datamap.test_repository_datamap", "repository_id",
-			"cyral_repository.test_repository", "id"),
+			resFullName, "repository_id",
+			fmt.Sprintf("cyral_repository.%s", resName), "id"),
 	}
 
 	require.NotNil(t, dataMap.Labels)
@@ -105,10 +168,10 @@ func setupRepositoryDatamapTestFunc(t *testing.T, dataMap *DataMap) resource.Tes
 		mapping := dataMap.Labels[label]
 
 		testFunctions = append(testFunctions, resource.TestCheckResourceAttr(
-			"cyral_repository_datamap.test_repository_datamap",
+			resFullName,
 			fmt.Sprintf("mapping.%d.label", idxMapping), label))
 		testFunctions = append(testFunctions, resource.TestCheckResourceAttr(
-			"cyral_repository_datamap.test_repository_datamap",
+			resFullName,
 			fmt.Sprintf("mapping.%d.attributes.#", idxMapping),
 			fmt.Sprintf("%d", len(mapping.Attributes))))
 
@@ -120,7 +183,7 @@ func setupRepositoryDatamapTestFunc(t *testing.T, dataMap *DataMap) resource.Tes
 	return testFunction
 }
 
-func formatDataMapIntoConfig(t *testing.T, dataMap *DataMap) string {
+func formatDataMapIntoConfig(t *testing.T, resName string, dataMap *DataMap) string {
 	dependsOnStr := ""
 	mappingsStr := ""
 	sortedLabels := dataMapSortedLabels(dataMap)
@@ -141,25 +204,25 @@ func formatDataMapIntoConfig(t *testing.T, dataMap *DataMap) string {
 			// need to delete the data map first, otherwise the
 			// label cannot be deleted. The depends_on Terraform
 			// meta-argument forces the right deletion order.
-			dependsOnStr = "depends_on = [cyral_datalabel.test_datalabel]"
+			dependsOnStr = fmt.Sprintf("depends_on = [%s]", datalabelConfigResourceFullName(label))
 		}
 	}
 	require.NotEmpty(t, mappingsStr)
 
 	config := fmt.Sprintf(`
-	resource "cyral_repository" "test_repository" {
+	resource "cyral_repository" "%s" {
 		type  = "sqlserver"
 		host  = "localhost"
 		port  = 1433
-		name  = "tf-test-sqlserver-1"
+		name  = "tf-test-%s"
 		labels = ["repo-label1", "repo-label2"]
 	}
 
-	resource "cyral_repository_datamap" "test_repository_datamap" {
+	resource "cyral_repository_datamap" "%s" {
+		repository_id = cyral_repository.%s.id
 		%s
-		repository_id = cyral_repository.test_repository.id
 		%s
-	}`, dependsOnStr, mappingsStr)
+	}`, resName, resName, resName, resName, mappingsStr, dependsOnStr)
 
 	return config
 }

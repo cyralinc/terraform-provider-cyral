@@ -63,7 +63,7 @@ func dataSourceRepositoryReadConfig() ResourceOperationConfig {
 
 			return fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
 		},
-		NewResponseData: func() ResponseData { return &GetReposResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &GetReposResponse{} },
 	}
 }
 
@@ -78,7 +78,7 @@ func dataSourceRepository() *schema.Resource {
 				Optional:    true,
 			},
 			"type": {
-				Description:  "Filter the results by type of repository. List of supported types:" + repositoryTypesMarkdown(),
+				Description:  "Filter the results by type of repository. List of supported types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(append(repositoryTypes(), ""), false),
@@ -153,9 +153,6 @@ func dataSourceRepository() *schema.Resource {
 					},
 				},
 			},
-		},
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
 		},
 	}
 }

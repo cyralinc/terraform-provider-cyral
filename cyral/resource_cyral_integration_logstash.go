@@ -40,7 +40,7 @@ var ReadLogstashConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return &LogstashIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &LogstashIntegration{} },
 }
 
 func resourceIntegrationLogstash() *schema.Resource {
@@ -54,7 +54,7 @@ func resourceIntegrationLogstash() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 				},
 				NewResourceData: func() ResourceData { return &LogstashIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadLogstashConfig,
 		),
 		ReadContext: ReadResource(ReadLogstashConfig),
@@ -112,7 +112,7 @@ func resourceIntegrationLogstash() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

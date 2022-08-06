@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -134,7 +135,17 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				// This splitting is done to properly capture
+				// the ID format `{repositoryID}/ConfAnalysis`.
+				splitID := strings.Split(d.Id(), "/")
+				d.Set("repository_id", splitID[0])
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }

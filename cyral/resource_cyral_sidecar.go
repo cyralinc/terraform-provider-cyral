@@ -22,14 +22,34 @@ type SidecarData struct {
 	ID                       string                   `json:"id"`
 	Name                     string                   `json:"name"`
 	Labels                   []string                 `json:"labels"`
-	SidecarProperty          SidecarProperty          `json:"properties"`
+	SidecarProperty          *SidecarProperty         `json:"properties"`
+	ServicesConfig           SidecarServicesConfig    `json:"services"`
 	UserEndpoint             string                   `json:"userEndpoint"`
 	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
+}
+
+func (sd *SidecarData) BypassMode() string {
+	if sd.ServicesConfig != nil {
+		if dispConfig, ok := sd.ServicesConfig["dispatcher"]; ok {
+			if bypass_mode, ok := dispConfig["bypass"]; ok {
+				return bypass_mode
+			}
+		}
+	}
+	return ""
 }
 
 type SidecarProperty struct {
 	DeploymentMethod string `json:"deploymentMethod"`
 }
+
+func NewSidecarProperty(deploymentMethod string) *SidecarProperty {
+	return &SidecarProperty{
+		DeploymentMethod: deploymentMethod,
+	}
+}
+
+type SidecarServicesConfig map[string]map[string]string
 
 type CertificateBundleSecrets map[string]*CertificateBundleSecret
 
@@ -80,6 +100,17 @@ func resourceSidecar() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
+			"bypass_mode": {
+				Description: "This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `always`, `failover` or `never`. Defaults to `failover`. If `always` is specified, the sidecar will run in [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode). If `failover` is specified, the sidecar will run in [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "failover",
+				ValidateFunc: validation.StringInSlice([]string{
+					"always",
+					"failover",
+					"never",
+				}, false),
+			},
 			"certificate_bundle_secrets": {
 				Description: "Certificate Bundle Secret is a configuration that holds data about the" +
 					" location of a particular TLS certificate bundle in a secrets manager.",
@@ -124,7 +155,7 @@ func resourceSidecar() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
@@ -195,6 +226,9 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
+	if bypassMode := response.BypassMode(); bypassMode != "" {
+		d.Set("bypass_mode", bypassMode)
+	}
 	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(response.CertificateBundleSecrets))
 
 	log.Printf("[DEBUG] End resourceSidecarRead")
@@ -242,12 +276,16 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 
 	deploymentMethod := d.Get("deployment_method").(string)
 
-	sp := SidecarProperty{
-		DeploymentMethod: deploymentMethod,
+	sp := NewSidecarProperty(deploymentMethod)
+
+	svcconf := SidecarServicesConfig{
+		"dispatcher": map[string]string{
+			"bypass": d.Get("bypass_mode").(string),
+		},
 	}
 
 	labels := d.Get("labels").([]interface{})
-	var sidecarDataLabels []string
+	sidecarDataLabels := []string{}
 	for _, labelInterface := range labels {
 		if label, ok := labelInterface.(string); ok {
 			sidecarDataLabels = append(sidecarDataLabels, label)
@@ -262,6 +300,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 		Name:                     d.Get("name").(string),
 		Labels:                   sidecarDataLabels,
 		SidecarProperty:          sp,
+		ServicesConfig:           svcconf,
 		UserEndpoint:             d.Get("user_endpoint").(string),
 		CertificateBundleSecrets: cbs,
 	}, nil

@@ -34,7 +34,7 @@ var ReadLookerConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func() ResponseData { return &LookerIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &LookerIntegration{} },
 }
 
 func resourceIntegrationLooker() *schema.Resource {
@@ -48,7 +48,7 @@ func resourceIntegrationLooker() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 				},
 				NewResourceData: func() ResourceData { return &LookerIntegration{} },
-				NewResponseData: func() ResponseData { return &IDBasedResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 			}, ReadLookerConfig,
 		),
 		ReadContext: ReadResource(ReadLookerConfig),
@@ -97,7 +97,7 @@ func resourceIntegrationLooker() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }

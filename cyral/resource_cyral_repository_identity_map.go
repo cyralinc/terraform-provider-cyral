@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -138,8 +139,10 @@ type RepositoryIdentityMapAPIResponse struct {
 }
 
 func (data RepositoryIdentityMapAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(fmt.Sprintf("%s-%s", d.Get("repository_id").(string),
-		d.Get("repository_local_account_id").(string)))
+	d.SetId(marshalComposedID([]string{
+		d.Get("repository_id").(string),
+		d.Get("repository_local_account_id").(string)},
+		"-"))
 	if data.AccessDuration != nil {
 		d.Set("access_duration", []interface{}{
 			map[string]interface{}{
@@ -198,7 +201,7 @@ var ReadRepositoryIdentityMapConfig = ResourceOperationConfig{
 			d.Get("identity_name").(string),
 			d.Get("repository_local_account_id").(string))
 	},
-	NewResponseData: func() ResponseData { return &RepositoryIdentityMapAPIResponse{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RepositoryIdentityMapAPIResponse{} },
 }
 
 func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
@@ -218,7 +221,7 @@ func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 						d.Get("repository_local_account_id").(string))
 				},
 				NewResourceData: func() ResourceData { return &RepositoryIdentityMapResource{} },
-				NewResponseData: func() ResponseData { return &RepositoryIdentityMapAPIResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RepositoryIdentityMapAPIResponse{} },
 			}, ReadRepositoryIdentityMapConfig,
 		),
 		ReadContext: ReadResource(ReadRepositoryIdentityMapConfig),
@@ -312,7 +315,21 @@ func resourceRepositoryIdentityMap(deprecationMessage string) *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				ids, err := unmarshalComposedID(d.Id(), "/", 4)
+				if err != nil {
+					return nil, err
+				}
+				d.Set("repository_id", ids[0])
+				d.Set("identity_type", ids[1])
+				d.Set("identity_name", ids[2])
+				d.Set("repository_local_account_id", ids[3])
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }

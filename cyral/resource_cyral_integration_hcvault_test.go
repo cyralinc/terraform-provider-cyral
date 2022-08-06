@@ -38,6 +38,11 @@ func TestAccHCVaultIntegrationResource(t *testing.T) {
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
 			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_integration_hc_vault.hc_vault_integration",
+			},
 		},
 	})
 }
