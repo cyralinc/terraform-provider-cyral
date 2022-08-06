@@ -1,3 +1,21 @@
+## 2.8.0 (August 5, 2022)
+
+Minimum required Control Plane version: `v2.34.0`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+
+### Bug fixes:
+
+- **Fix resource import functions**: [#260](https://github.com/cyralinc/terraform-provider-cyral/pull/260).
+- **Fix data map attribute deletion**: [#263](https://github.com/cyralinc/terraform-provider-cyral/pull/263).
+
+### Features:
+
+- **Add parameter to enable data masking**: [#252](https://github.com/cyralinc/terraform-provider-cyral/pull/252).
+- **Add support for dynamodb**: [#253](https://github.com/cyralinc/terraform-provider-cyral/pull/253).
+- **Support advanced sidecar options**: [#255](https://github.com/cyralinc/terraform-provider-cyral/pull/255).
+- **Add data source to retrieve data labels**: [#261](https://github.com/cyralinc/terraform-provider-cyral/pull/261).
+- **Add single container type to sidecar resource**: [#265](https://github.com/cyralinc/terraform-provider-cyral/pull/265).
+
 ## 2.7.1 (July 19, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
