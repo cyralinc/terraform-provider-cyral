@@ -93,7 +93,7 @@ func dataSourceRole() *schema.Resource {
 		ReadContext: ReadResource(dataSourceRoleReadConfig()),
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Description: "Filter the results by a regular expression (regex) that matches names of existing user roles.",
+				Description: "Filter the results by a regular expression (regex) that matches names of existing roles.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
@@ -119,7 +119,7 @@ func dataSourceRole() *schema.Resource {
 							Computed:    true,
 						},
 						"roles": {
-							Description: "IDs of the permission roles this role is allowed to assume.",
+							Description: "IDs of the specific permission roles this role is allowed to assume (e.g. `View Datamaps`, `View Audit Logs`, etc).",
 							Type:        schema.TypeList,
 							Computed:    true,
 							Elem: &schema.Schema{
@@ -146,7 +146,7 @@ func dataSourceRole() *schema.Resource {
 										Computed:    true,
 									},
 									"group_name": {
-										Description: "The name of the SSO group mapping.",
+										Description: "The name of a group configured in the identity provider, e.g. 'Engineer', 'Admin', 'Everyone', etc.",
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
