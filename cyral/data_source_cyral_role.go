@@ -3,6 +3,7 @@ package cyral
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,31 +16,49 @@ type GetUserGroupsResponse struct {
 }
 
 func (resp *GetUserGroupsResponse) WriteToSchema(d *schema.ResourceData) error {
+	nameFilter := d.Get("name").(string)
+	var nameFilterRegexp *regexp.Regexp
+	if nameFilter != "" {
+		var err error
+		if nameFilterRegexp, err = regexp.Compile(nameFilter); err != nil {
+			return fmt.Errorf("provided name filter is invalid "+
+				"regexp: %w", err)
+		}
+	}
+
 	roleList := []interface{}{}
 	for _, group := range resp.Groups {
-		if group != nil {
-			argumentVals := map[string]interface{}{
-				"id":          group.ID,
-				"name":        group.Name,
-				"description": group.Description,
-				"roles":       group.Roles,
-				"members":     group.Members,
-			}
-			ssoGroups := []interface{}{}
-			for _, mapping := range group.Mappings {
-				if mapping == nil {
-					continue
-				}
-				ssoGroups = append(ssoGroups, map[string]interface{}{
-					"id":         mapping.Id,
-					"group_name": mapping.GroupName,
-					"idp_id":     mapping.IdentityProviderId,
-					"idp_name":   mapping.IdentityProviderName,
-				})
-			}
-			argumentVals["sso_groups"] = ssoGroups
-			roleList = append(roleList, argumentVals)
+		if group == nil {
+			continue
 		}
+
+		if nameFilterRegexp != nil {
+			if !nameFilterRegexp.MatchString(group.Name) {
+				continue
+			}
+		}
+
+		argumentVals := map[string]interface{}{
+			"id":          group.ID,
+			"name":        group.Name,
+			"description": group.Description,
+			"roles":       group.Roles,
+			"members":     group.Members,
+		}
+		ssoGroups := []interface{}{}
+		for _, mapping := range group.Mappings {
+			if mapping == nil {
+				continue
+			}
+			ssoGroups = append(ssoGroups, map[string]interface{}{
+				"id":         mapping.Id,
+				"group_name": mapping.GroupName,
+				"idp_id":     mapping.IdentityProviderId,
+				"idp_name":   mapping.IdentityProviderName,
+			})
+		}
+		argumentVals["sso_groups"] = ssoGroups
+		roleList = append(roleList, argumentVals)
 	}
 	if err := d.Set("role_list", roleList); err != nil {
 		return err
@@ -70,7 +89,7 @@ func dataSourceRoleReadConfig() ResourceOperationConfig {
 
 func dataSourceRole() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieve and filter SSO groups.",
+		Description: "Retrieve and filter [roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/) that exist in the Cyral Control Plane.",
 		ReadContext: ReadResource(dataSourceRoleReadConfig()),
 		Schema: map[string]*schema.Schema{
 			"name": {
