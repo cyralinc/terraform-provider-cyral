@@ -120,6 +120,7 @@ func Provider() *schema.Provider {
 			"cyral_datalabel":            dataSourceDatalabel(),
 			"cyral_integration_idp":      dataSourceIntegrationIdP(),
 			"cyral_repository":           dataSourceRepository(),
+			"cyral_role":                 dataSourceRole(),
 			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
 			"cyral_saml_configuration":   dataSourceSAMLConfiguration(),
 			"cyral_sidecar_bound_ports":  dataSourceSidecarBoundPorts(),
