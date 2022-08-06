@@ -28,7 +28,7 @@ func roleDataSourceTestUserGroupsAndRoleNames() ([]*UserGroup, []string) {
 }
 */
 
-func TestAccDatalabelDataSource(t *testing.T) {
+func TestAccRoleDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{

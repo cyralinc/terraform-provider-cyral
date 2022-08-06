@@ -25,19 +25,19 @@ func (resp *GetUserGroupsResponse) WriteToSchema(d *schema.ResourceData) error {
 				"roles":       group.Roles,
 				"members":     group.Members,
 			}
-			mappings := []interface{}{}
+			ssoGroups := []interface{}{}
 			for _, mapping := range group.Mappings {
 				if mapping == nil {
 					continue
 				}
-				mappings = append(mappings, map[string]interface{}{
+				ssoGroups = append(ssoGroups, map[string]interface{}{
 					"id":         mapping.Id,
 					"group_name": mapping.GroupName,
 					"idp_id":     mapping.IdentityProviderId,
 					"idp_name":   mapping.IdentityProviderName,
 				})
 			}
-			argumentVals["mappings"] = mappings
+			argumentVals["sso_groups"] = ssoGroups
 			roleList = append(roleList, argumentVals)
 		}
 	}
@@ -99,8 +99,24 @@ func dataSourceRole() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
-						"mappings": {
-							Description: "Mapping of SSO groups to identity provider (IdP) integrations.",
+						"roles": {
+							Description: "IDs of the permission roles this role is allowed to assume.",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"members": {
+							Description: "IDs of the users that belong to this role.",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"sso_groups": {
+							Description: `SSO groups mapped to this role. An SSO group mapping means that this role was automatically granted to a user because there's a rule such as "If a user is an 'Engineer' (SSO group) in a specific Identity Provider, make them a 'Super Admin' (role) in Cyral".`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Elem: &schema.Resource{
@@ -111,29 +127,21 @@ func dataSourceRole() *schema.Resource {
 										Computed:    true,
 									},
 									"group_name": {
-										Description: "The name of the SSO group to be mapped.",
+										Description: "The name of the SSO group mapping.",
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
 									"idp_id": {
-										Description: "The ID of the identity provider integration to be mapped.",
+										Description: "ID of the identity provider integration.",
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
 									"idp_name": {
-										Description: "The name of the identity provider integration of an SSO group mapping.",
+										Description: "Display name of the identity provider integration.",
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
 								},
-							},
-						},
-						"roles": {
-							Description: "Roles this SSO user group is associated with.",
-							Type:        schema.TypeList,
-							Computed:    true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
 							},
 						},
 					},
