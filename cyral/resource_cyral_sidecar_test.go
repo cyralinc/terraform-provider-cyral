@@ -50,6 +50,14 @@ var tfSidecarConfig *SidecarData = &SidecarData{
 	CertificateBundleSecrets: getTestCBS(),
 }
 
+var singleContainerSidecarConfig *SidecarData = &SidecarData{
+	Name:                     "tf-provider-TestAccSidecarResource-singleContainer",
+	Labels:                   []string{"test5"},
+	SidecarProperty:          NewSidecarProperty("singleContainer"),
+	UserEndpoint:             "some.singleContainer.user.endpoint",
+	CertificateBundleSecrets: getTestCBS(),
+}
+
 var failoverSidecarConfig *SidecarData = &SidecarData{
 	Name:            "tf-provider-TestAccSidecarResource-failoverSidecar",
 	SidecarProperty: NewSidecarProperty("terraform"),
@@ -77,6 +85,9 @@ func TestAccSidecarResource(t *testing.T) {
 	testUpdateConfigDocker, testUpdateFuncDocker := setupSidecarTest(dockerSidecarConfig)
 	testUpdateConfigHelm, testUpdateFuncHelm := setupSidecarTest(helmSidecarConfig)
 	testUpdateConfigTF, testUpdateFuncTF := setupSidecarTest(tfSidecarConfig)
+	testUpdateConfigSingleContainer, testUpdateFuncSingleContainer := setupSidecarTest(
+		singleContainerSidecarConfig,
+	)
 	testUpdateConfigPassthrough, testUpdateFuncPassthrough := setupSidecarTest(passthroughSidecarConfig)
 	testUpdateConfigFailover, testUpdateFuncFailover := setupSidecarTest(failoverSidecarConfig)
 
@@ -98,6 +109,10 @@ func TestAccSidecarResource(t *testing.T) {
 			{
 				Config: testUpdateConfigTF,
 				Check:  testUpdateFuncTF,
+			},
+			{
+				Config: testUpdateConfigSingleContainer,
+				Check:  testUpdateFuncSingleContainer,
 			},
 			{
 				Config: testUpdateConfigPassthrough,
