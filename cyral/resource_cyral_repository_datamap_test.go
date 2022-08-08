@@ -88,7 +88,7 @@ func dataMapConfigWithDataLabel() (*DataMap, *DataLabel) {
 func TestAccRepositoryDatamapResource(t *testing.T) {
 	importStateResName := "cyral_repository_datamap.test_with_datalabel"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			testRepositoryDatamapInitialConfigRemoveMapping(t),

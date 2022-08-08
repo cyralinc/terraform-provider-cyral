@@ -2,9 +2,22 @@ package cyral
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+// TODO: actually use these
+var accTestPrefixIsSet = false
+var accTestPrefix string
+
+func getAccTestPrefix() {
+	if !accTestPrefixIsSet {
+		accTestPrefix = "tf-provider-" + strconv.Itoa(rand.Int()) + "-"
+		accTestPrefixIsSet = true
+	}
+}
 
 func formatAttributes(attributes []string) string {
 	if len(attributes) == 0 {

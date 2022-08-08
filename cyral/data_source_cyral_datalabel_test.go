@@ -3,9 +3,11 @@ package cyral
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func datalabelDataSourceTestDataLabels() []*DataLabel {
@@ -37,7 +39,7 @@ func TestAccDatalabelDataSource(t *testing.T) {
 	testConfigTypeFilterCustom, testFuncTypeFilterCustom := testDatalabelDataSource(t,
 		"type_filter_custom", dataLabels, "", dataLabelTypeCustom)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -80,8 +82,8 @@ func testDatalabelDataSourceConfig(
 ) string {
 	var config string
 	var dependsOn []string
-	for _, dataLabel := range dataLabels {
-		resName := dataLabel.Name
+	for i, dataLabel := range dataLabels {
+		resName := fmt.Sprintf("test_datalabel_%d", i)
 		config += formatDataLabelIntoConfig(resName, dataLabel)
 		dependsOn = append(dependsOn, datalabelConfigResourceFullName(resName))
 	}
@@ -99,11 +101,40 @@ func testDatalabelDataSourceChecks(
 	dataSourceFullName := fmt.Sprintf("data.cyral_datalabel.%s", dsourceName)
 
 	notZeroRegex := regexp.MustCompile("^[0-9]*[^0]$")
-	if typeFilter == dataLabelTypePredefined {
-		return resource.TestMatchResourceAttr(dataSourceFullName,
-			"datalabel_list.#",
-			notZeroRegex,
-		)
+	if nameFilter == "" {
+		// In this case, we might encounter labels that we did not
+		// create in the control plane, which can lead to
+		// non-deterministic tests. Therefore, we restrict ourselves to
+		// the most basic tests.
+		checkFuncs := []resource.TestCheckFunc{
+			resource.TestMatchResourceAttr(dataSourceFullName,
+				"datalabel_list.#",
+				notZeroRegex,
+			),
+			func(s *terraform.State) error {
+				ds, ok := s.RootModule().Resources[dataSourceFullName]
+				if !ok {
+					return fmt.Errorf("Not found: %s", dataSourceFullName)
+				}
+				numDataLabels, err := strconv.Atoi(ds.Primary.Attributes["datalabel_list.#"])
+				if err != nil {
+					return err
+				}
+				for i := 0; i < numDataLabels; i++ {
+					nameLocation := fmt.Sprintf("datalabel_list.%d.type", i)
+					actualType := ds.Primary.Attributes[nameLocation]
+					if actualType != typeFilter {
+						return fmt.Errorf("Expected all labels to have "+
+							"type equal to type filter %q, but got: "+
+							"%s", typeFilter, actualType)
+					}
+				}
+				return nil
+			},
+		}
+
+		return resource.ComposeTestCheckFunc(checkFuncs...)
+
 	}
 
 	var checkFuncs []resource.TestCheckFunc

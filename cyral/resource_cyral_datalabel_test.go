@@ -29,7 +29,7 @@ func TestAccDatalabelResource(t *testing.T) {
 	testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
 		"main_test", updatedDataLabelConfig())
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -43,7 +43,7 @@ func TestAccDatalabelResource(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      "cyral_datalabel.test_datalabel",
+				ResourceName:      "cyral_datalabel.main_test",
 			},
 		},
 	})
