@@ -58,19 +58,19 @@ var singleContainerSidecarConfig *SidecarData = &SidecarData{
 	CertificateBundleSecrets: getTestCBS(),
 }
 
-var failoverSidecarConfig *SidecarData = &SidecarData{
-	Name:            "tf-provider-TestAccSidecarResource-failoverSidecar",
+var bypassNeverSidecarConfig *SidecarData = &SidecarData{
+	Name:            "tf-provider-TestAccSidecarResource-bypassNeverSidecar",
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
-			"bypass": "always",
+			"bypass": "never",
 		},
 	},
 	UserEndpoint: "some.user.endpoint",
 }
 
-var passthroughSidecarConfig *SidecarData = &SidecarData{
-	Name:            "tf-provider-TestAccSidecarResource-passthroughSidecar",
+var bypassAlwaysSidecarConfig *SidecarData = &SidecarData{
+	Name:            "tf-provider-TestAccSidecarResource-bypassAlwaysSidecar",
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -88,8 +88,8 @@ func TestAccSidecarResource(t *testing.T) {
 	testUpdateConfigSingleContainer, testUpdateFuncSingleContainer := setupSidecarTest(
 		singleContainerSidecarConfig,
 	)
-	testUpdateConfigPassthrough, testUpdateFuncPassthrough := setupSidecarTest(passthroughSidecarConfig)
-	testUpdateConfigFailover, testUpdateFuncFailover := setupSidecarTest(failoverSidecarConfig)
+	testUpdateConfigBypassAlways, testUpdateFuncBypassAlways := setupSidecarTest(bypassAlwaysSidecarConfig)
+	testUpdateConfigBypassNever, testUpdateFuncBypassNever := setupSidecarTest(bypassNeverSidecarConfig)
 
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -115,12 +115,12 @@ func TestAccSidecarResource(t *testing.T) {
 				Check:  testUpdateFuncSingleContainer,
 			},
 			{
-				Config: testUpdateConfigPassthrough,
-				Check:  testUpdateFuncPassthrough,
+				Config: testUpdateConfigBypassAlways,
+				Check:  testUpdateFuncBypassAlways,
 			},
 			{
-				Config: testUpdateConfigFailover,
-				Check:  testUpdateFuncFailover,
+				Config: testUpdateConfigBypassNever,
+				Check:  testUpdateFuncBypassNever,
 			},
 			{
 				ImportState:       true,
