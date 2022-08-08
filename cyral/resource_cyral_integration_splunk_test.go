@@ -29,7 +29,7 @@ func TestAccSplunkIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSplunkTest(initialSplunkConfig)
 	testUpdateConfig, testUpdateFunc := setupSplunkTest(updatedSplunkConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

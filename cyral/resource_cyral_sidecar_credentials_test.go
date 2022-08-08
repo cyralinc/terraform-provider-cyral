@@ -9,7 +9,7 @@ import (
 func TestAccSidecarCredentialsResource(t *testing.T) {
 	testConfig, testFunc := setupSidecarCredentialsTest()
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	initialRoleName = "tf-test-role"
-	updatedRoleName = "updated-tf-test-role"
+	initialRoleName = "tf-provider-role-role"
+	updatedRoleName = "tf-provider-role-role-updated"
 )
 
 var onlyFalsePermissions = map[string]string{
@@ -47,7 +47,7 @@ var onlyTruePermissions = map[string]string{
 }
 
 func TestAccRoleResource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

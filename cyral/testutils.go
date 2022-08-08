@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+const (
+	basicRepositoryID = "cyral_repository.test_repository.id"
+)
+
 // TODO: actually use these
 var accTestPrefixIsSet = false
 var accTestPrefix string
@@ -48,4 +52,32 @@ func importStateComposedIDFunc(
 		}
 		return marshalComposedID(idParts, sep), nil
 	}
+}
+
+// TODO: add comments -aholmquist 2022-08-08
+func formatBasicRepositoryIntoConfig(name, typ, host string, port int) string {
+	return fmt.Sprintf(`
+	resource "cyral_repository" "test_repository" {
+		name = "%s"
+		type = "%s"
+		host = "%s"
+		port = %d
+	}`, name, typ, host, port)
+}
+
+// TODO: currently unused, remove if not used until PR is ready
+func formatBasicSidecarIntoConfig(name, deploymentMethod string) string {
+	return fmt.Sprintf(`
+	resource "cyral_sidecar" "test_sidecar" {
+		name = "%s"
+		deployment_method = "%s"
+	}`, name, deploymentMethod)
+}
+
+func formatBasicPolicyIntoConfig(name string, data []string) string {
+	return fmt.Sprintf(`
+	resource "cyral_policy" "test_policy" {
+		name = "%s"
+		data = [%s]
+	}`, name, formatAttributes(data))
 }

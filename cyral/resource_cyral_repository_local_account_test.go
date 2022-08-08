@@ -139,7 +139,7 @@ func testRespositoryLocalAccountImportState(resName string) resource.TestStep {
 }
 
 func TestAccRepositoryLocalAccountResource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -213,7 +213,7 @@ func TestAccRepositoryLocalAccountResource_GcpSecretManager(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigGcpSecretManager)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -235,7 +235,7 @@ func TestAccRepositoryLocalAccountResource_KubernetesSecret(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigKubernetesSecret)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -257,7 +257,7 @@ func TestAccRepositoryLocalAccountResource_EnvironmentVariable(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigEnvironmentVariable)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -363,7 +363,7 @@ func TestAccRepositoryLocalAccountResource_HashicorpVault(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigHashicorpVault)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -385,7 +385,7 @@ func TestAccRepositoryLocalAccountResource_CyralStorage(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigCyralStorage)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -407,7 +407,7 @@ func TestAccRepositoryLocalAccountResource_AwsSecretsManager(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigAwsSecretsManager)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -429,7 +429,7 @@ func TestAccRepositoryLocalAccountResource_AwsIAM(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigAwsIAM)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -455,26 +455,12 @@ func setupRepositoryLocalAccountTest(
 }
 
 func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource) string {
-	const RepositoryAccountTemplate = `
-	resource "cyral_repository" "tf_test_repository" {
-		type = "mysql"
-		host = "http://mysql.local/"
-		port = 3306
-		name = "%s"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.tf_test_repository.id
-		%s
-	}
-	`
-
-	name := ""
-	config := ""
+	repositoryName := ""
+	localAccountConfig := ""
 
 	if data.AwsIAM != nil {
-		name = "tf-test-mysql-aws-iam"
-		config = fmt.Sprintf(`aws_iam {
+		repositoryName = "tf-test-mysql-aws-iam"
+		localAccountConfig = fmt.Sprintf(`aws_iam {
 			database_name = "%s"
 			local_account = "%s"
 			role_arn      = "%s"
@@ -484,8 +470,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.AwsIAM.RoleArn,
 		)
 	} else if data.AwsSecretsManager != nil {
-		name = "tf-test-mysql-aws-secrets-manager"
-		config = fmt.Sprintf(`aws_secrets_manager {
+		repositoryName = "tf-test-mysql-aws-secrets-manager"
+		localAccountConfig = fmt.Sprintf(`aws_secrets_manager {
 			database_name = "%s"
 			local_account = "%s"
 			secret_arn    = "%s"
@@ -495,8 +481,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.AwsSecretsManager.SecretArn,
 		)
 	} else if data.CyralStorage != nil {
-		name = "tf-test-mysql-cyral-storage"
-		config = fmt.Sprintf(`cyral_storage {
+		repositoryName = "tf-test-mysql-cyral-storage"
+		localAccountConfig = fmt.Sprintf(`cyral_storage {
 			database_name = "%s"
 			local_account = "%s"
 			password      = "%s"
@@ -506,8 +492,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.CyralStorage.Password,
 		)
 	} else if data.HashicorpVault != nil {
-		name = "tf-test-mysql-hashicorp-vault"
-		config = fmt.Sprintf(`hashicorp_vault {
+		repositoryName = "tf-test-mysql-hashicorp-vault"
+		localAccountConfig = fmt.Sprintf(`hashicorp_vault {
 			database_name = "%s"
 			local_account = "%s"
 			path          = "%s"
@@ -517,8 +503,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.HashicorpVault.Path,
 		)
 	} else if data.EnvironmentVariable != nil {
-		name = "tf-test-mysql-environment-variable"
-		config = fmt.Sprintf(`environment_variable {
+		repositoryName = "tf-test-mysql-environment-variable"
+		localAccountConfig = fmt.Sprintf(`environment_variable {
 			database_name = "%s"
 			local_account = "%s"
 			variable_name = "%s"
@@ -528,8 +514,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.EnvironmentVariable.VariableName,
 		)
 	} else if data.KubernetesSecret != nil {
-		name = "tf-test-mysql-kubernetes-secret"
-		config = fmt.Sprintf(`kubernetes_secret {
+		repositoryName = "tf-test-mysql-kubernetes-secret"
+		localAccountConfig = fmt.Sprintf(`kubernetes_secret {
 			database_name = "%s"
 			local_account = "%s"
 			secret_name = "%s"
@@ -541,8 +527,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.KubernetesSecret.SecretKey,
 		)
 	} else if data.GcpSecretManager != nil {
-		name = "tf-test-mysql-gcp-secret-manager"
-		config = fmt.Sprintf(`gcp_secret_manager {
+		repositoryName = "tf-test-mysql-gcp-secret-manager"
+		localAccountConfig = fmt.Sprintf(`gcp_secret_manager {
 			database_name = "%s"
 			local_account = "%s"
 			secret_name = "%s"
@@ -553,7 +539,20 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 		)
 	}
 
-	return fmt.Sprintf(RepositoryAccountTemplate, name, config)
+	var config string
+	config += formatBasicRepositoryIntoConfig(
+		repositoryName,
+		"mysql",
+		"http://mysql.local/",
+		3306,
+	)
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "tf_test_repository_account" {
+		repository_id = cyral_repository.test_repository.id
+		%s
+	}`, localAccountConfig)
+
+	return config
 }
 
 func getTestCheckForRepositoryLocalAccountResource(

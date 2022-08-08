@@ -44,7 +44,7 @@ func TestAccRepositoryIdentityMapResource(t *testing.T) {
 
 	importStateResName := "cyral_repository_identity_map.tf_test_cyral_sidecar_template"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

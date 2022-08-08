@@ -21,7 +21,7 @@ func TestAccSumoLogicIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSumoLogicTest(initialSumoLogicConfig)
 	testUpdateConfig, testUpdateFunc := setupSumoLogicTest(updatedSumoLogicConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

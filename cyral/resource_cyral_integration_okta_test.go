@@ -31,7 +31,7 @@ func TestAccOktaIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupOktaTest(initialOktaConfig)
 	testUpdateConfig, testUpdateFunc := setupOktaTest(updatedOktaConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

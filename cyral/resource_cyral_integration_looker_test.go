@@ -23,7 +23,7 @@ func TestAccLookerIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupLookerTest(initialLookerConfig)
 	testUpdateConfig, testUpdateFunc := setupLookerTest(updatedLookerConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

@@ -23,7 +23,7 @@ func TestAccELKIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupELKTest(initialELKConfig)
 	testUpdateConfig, testUpdateFunc := setupELKTest(updatedELKConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

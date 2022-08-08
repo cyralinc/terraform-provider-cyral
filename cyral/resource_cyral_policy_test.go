@@ -35,7 +35,7 @@ func TestAccPolicyResource(t *testing.T) {
 	testConfig, testFunc := setupPolicyTest(initialPolicyConfig)
 	testUpdateConfig, testUpdateFunc := setupPolicyTest(updatedPolicyConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

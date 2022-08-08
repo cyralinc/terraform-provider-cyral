@@ -8,12 +8,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	roleSSOGroupsTestRoleName = "tf-provider-role-sso-groups-role"
+)
+
 func TestAccRoleSSOGroupsResource(t *testing.T) {
 	// This resource needs to exist when the last step executes, which is an
 	// Import test.
 	importTestResourceName := "cyral_role_sso_groups.test_role_sso_groups"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -77,7 +81,7 @@ func testAccRoleSSOGroupsConfig_EmptySSOGroup() string {
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
 		role_id=cyral_role.test_role.id
 	}
-	`, initialRoleName)
+	`, roleSSOGroupsTestRoleName)
 }
 
 func testAccRoleSSOGroupsConfig_EmptyGroupName() string {
@@ -100,7 +104,7 @@ func testAccRoleSSOGroupsConfig_EmptyGroupName() string {
 			idp_id=cyral_integration_idp_okta.test_idp_integration.id
 		}
 	}
-	`, testSingleSignOnURL, initialRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
 }
 
 func testAccRoleSSOGroupsConfig_EmptyIdPID() string {
@@ -123,7 +127,7 @@ func testAccRoleSSOGroupsConfig_EmptyIdPID() string {
 			group_name="Everyone"
 		}
 	}
-	`, testSingleSignOnURL, initialRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
 }
 
 func testAccRoleSSOGroupsConfig_SingleSSOGroup() string {
@@ -147,7 +151,7 @@ func testAccRoleSSOGroupsConfig_SingleSSOGroup() string {
 			idp_id=cyral_integration_idp_okta.test_idp_integration.id
 		}
 	}
-	`, testSingleSignOnURL, initialRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
 }
 
 func testAccRoleSSOGroupsCheck_SingleSSOGroup() resource.TestCheckFunc {
@@ -195,7 +199,7 @@ func testAccRoleSSOGroupsConfig_MultipleSSOGroups() string {
 			idp_id=cyral_integration_idp_okta.test_idp_integration.id
 		}
 	}
-	`, testSingleSignOnURL, initialRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
 }
 
 func testAccRoleSSOGroupsCheck_MultipleSSOGroups() resource.TestCheckFunc {

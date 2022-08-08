@@ -21,7 +21,7 @@ func TestAccDatadogIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupDatadogTest(initialDatadogConfig)
 	testUpdateConfig, testUpdateFunc := setupDatadogTest(updatedDatadogConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

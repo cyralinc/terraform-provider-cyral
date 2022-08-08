@@ -50,7 +50,7 @@ func TestAccPolicyRuleResource(t *testing.T) {
 
 	importStateResName := "cyral_policy_rule.policy_rule_test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -91,49 +91,25 @@ func setupPolicyRuleTest(integrationData PolicyRuleConfig) (string, resource.Tes
 	return configuration, testFunction
 }
 
+// TODO: finish decomposing this function -aholmquist 2022-08-08
 func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
-	return fmt.Sprintf(`
+	testLabelName := "TEST_CCN"
 
-		resource "cyral_repository" "tf_test_repository" {
-			type = "mysql"
-			host = "http://mysql.local/"
-			port = 3306
-			name = "tf-test-mysql"
-	  }
+	var config string
+	config += formatBasicRepositoryIntoConfig(
+		"tf-provider-policy-rule-repository",
+		"mysql",
+		"http://mysql.local/",
+		3306,
+	)
+	config += formatBasicPolicyIntoConfig(
+		"tf-provider-policy-rule-policy",
+		[]string{testLabelName},
+	)
 
-	  resource "cyral_sidecar" "tf_test_sidecar" {
-			name = "tf-test-sidecar"
-			deployment_method = "cloudFormation"
-	  }
-
-	  resource "cyral_repository_binding" "repo_binding" {
-			enabled       = true
-			repository_id = cyral_repository.tf_test_repository.id
-			listener_port = 3307
-			sidecar_id    = cyral_sidecar.tf_test_sidecar.id
-	  }
-
-	  resource "cyral_datamap" "test_datamap" {
-			mapping {
-				label = "TEST_CCN"
-				data_location {
-				repo       = cyral_repository.tf_test_repository.name
-				attributes = ["database.table.column"]
-				}
-			}
-	  }
-
-
-	resource "cyral_policy" "policy_rule_test_policy" {
-		data = ["TEST_CCN"]
-		description = "description"
-		enabled = true
-		name = "policy_rule_test_policy"
-		tags = ["PCI"]
-	}
-
+	config += fmt.Sprintf(`
 	resource "cyral_policy_rule" "policy_rule_test" {
-		policy_id = cyral_policy.policy_rule_test_policy.id
+		policy_id = cyral_policy.test_policy.id
 		hosts = ["192.0.2.22", "203.0.113.16/28"]
 		identities {
 			groups = ["analyst"]
@@ -156,5 +132,8 @@ func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
 			severity = "%s"
 			rate_limit = %d
 		}
-	}`, data.DeletedSeverity, data.DeletedRateLimit, data.ReadSeverity, data.ReadRateLimit, data.UpdatedSeverity, data.UpdatedRateLimit)
+	}`, data.DeletedSeverity, data.DeletedRateLimit, data.ReadSeverity,
+		data.ReadRateLimit, data.UpdatedSeverity, data.UpdatedRateLimit)
+
+	return config
 }

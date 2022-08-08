@@ -27,7 +27,7 @@ func TestAccHCVaultIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupHCVaultIntegrationTest(initialHCVaultIntegrationConfig)
 	testUpdateConfig, testUpdateFunc := setupHCVaultIntegrationTest(updatedHCVaultIntegrationConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

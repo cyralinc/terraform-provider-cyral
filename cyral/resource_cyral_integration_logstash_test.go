@@ -45,7 +45,7 @@ func TestAccLogstashIntegrationResource(t *testing.T) {
 	testUpdate2Config, testUpdate2Func := setupLogstashTest(updated2LogstashConfig)
 	testUpdate3Config, testUpdate3Func := setupLogstashTest(updated3LogstashConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

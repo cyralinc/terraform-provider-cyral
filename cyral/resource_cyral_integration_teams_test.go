@@ -21,7 +21,7 @@ func TestAccMsTeamsIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupTeamsTest(initialTeamsConfig)
 	testUpdateConfig, testUpdateFunc := setupTeamsTest(initialTeamsConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

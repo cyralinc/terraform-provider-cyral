@@ -10,7 +10,7 @@ import (
 
 func TestAccRepositoryConfAnalysisResource(t *testing.T) {
 	repoName := "tf-test-repository"
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

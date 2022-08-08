@@ -44,7 +44,7 @@ func TestAccRepositoryResource(t *testing.T) {
 	// Should use name of the last resource created.
 	importTestResourceName := repositoryConfigResourceFullName(replicaSetRepoConfig.Name)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

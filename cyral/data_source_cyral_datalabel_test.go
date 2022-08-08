@@ -100,12 +100,12 @@ func testDatalabelDataSourceChecks(
 ) resource.TestCheckFunc {
 	dataSourceFullName := fmt.Sprintf("data.cyral_datalabel.%s", dsourceName)
 
-	notZeroRegex := regexp.MustCompile("^[0-9]*[^0]$")
 	if nameFilter == "" {
 		// In this case, we might encounter labels that we did not
 		// create in the control plane, which can lead to
-		// non-deterministic tests. Therefore, we restrict ourselves to
-		// the most basic tests.
+		// non-deterministic tests. We just check that the actual type
+		// of the label matches the expected type.
+		notZeroRegex := regexp.MustCompile("^[0-9]*[^0]$")
 		checkFuncs := []resource.TestCheckFunc{
 			resource.TestMatchResourceAttr(dataSourceFullName,
 				"datalabel_list.#",
