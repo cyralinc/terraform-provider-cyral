@@ -10,7 +10,7 @@ import (
 func TestAccSidecarCftTemplateDataSource(t *testing.T) {
 	cftConfig, cftFunc := setupSidecarCftTemplateTest()
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	basicRepositoryID = "cyral_repository.test_repository.id"
+	basicRepositoryResName = "test_repository"
+	basicRepositoryID      = "cyral_repository.test_repository.id"
 )
 
 // TODO: actually use these
@@ -65,7 +66,6 @@ func formatBasicRepositoryIntoConfig(name, typ, host string, port int) string {
 	}`, name, typ, host, port)
 }
 
-// TODO: currently unused, remove if not used until PR is ready
 func formatBasicSidecarIntoConfig(name, deploymentMethod string) string {
 	return fmt.Sprintf(`
 	resource "cyral_sidecar" "test_sidecar" {

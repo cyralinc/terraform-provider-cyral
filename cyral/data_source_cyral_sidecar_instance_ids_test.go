@@ -11,7 +11,7 @@ import (
 func TestAccSidecarInstanceIDsDataSource(t *testing.T) {
 	nonExistentSidecarID := "some-non-existent-sidecar-id"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

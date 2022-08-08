@@ -29,7 +29,7 @@ func roleDataSourceTestUserGroupsAndRoleNames() ([]*UserGroup, []string) {
 */
 
 func TestAccRoleDataSource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

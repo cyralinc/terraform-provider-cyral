@@ -39,7 +39,7 @@ func TestAccRepositoryDataSource(t *testing.T) {
 	testConfigNameTypeFilter, testFuncNameTypeFilter := testRepositoryDataSource(
 		repositoryDataSourceTestRepos(), "tf-test-mongodb-1", "mongodb")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
