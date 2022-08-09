@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	roleSSOGroupsTestRoleName = "tf-provider-role-sso-groups-role"
+	roleSSOGroupsTestRoleName = "tfprov-test-role-sso-groups-role"
 )
 
 func TestAccRoleSSOGroupsResource(t *testing.T) {

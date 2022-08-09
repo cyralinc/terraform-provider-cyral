@@ -541,6 +541,7 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 
 	var config string
 	config += formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
 		repositoryName,
 		"mysql",
 		"http://mysql.local/",

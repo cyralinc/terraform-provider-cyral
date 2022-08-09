@@ -77,5 +77,5 @@ func formatDataLabelIntoConfig(resName string, dataLabel *DataLabel) string {
 		description = "%s"
 		tags = [%s]
 	}`, resName, dataLabel.Name, dataLabel.Description,
-		formatAttributes(dataLabel.Tags))
+		listToStr(dataLabel.Tags))
 }

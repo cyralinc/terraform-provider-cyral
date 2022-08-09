@@ -8,29 +8,38 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+func repositoryConfAnalysisSampleRepositoryConfig() string {
+	return formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
+		"tfprov-test-repository-conf-analysis-repository",
+		"postgresql",
+		"some-hostname",
+		3067,
+	)
+}
+
 func TestAccRepositoryConfAnalysisResource(t *testing.T) {
-	repoName := "tf-test-repository"
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccRepoConfAnalysisConfig_ErrorRedact(repoName),
+				Config:      testAccRepoConfAnalysisConfig_ErrorRedact(),
 				ExpectError: regexp.MustCompile(`Error running pre-apply refresh: exit status 1`),
 			},
 			{
-				Config:      testAccRepoConfAnalysisConfig_ErrorAnnotationGroups(repoName),
+				Config:      testAccRepoConfAnalysisConfig_ErrorAnnotationGroups(),
 				ExpectError: regexp.MustCompile(`Error running pre-apply refresh: exit status 1`),
 			},
 			{
-				Config:      testAccRepoConfAnalysisConfig_ErrorLogGroups(repoName),
+				Config:      testAccRepoConfAnalysisConfig_ErrorLogGroups(),
 				ExpectError: regexp.MustCompile(`Error running pre-apply refresh: exit status 1`),
 			},
 			{
-				Config: testAccRepoConfAnalysisConfig_DefaultValues(repoName),
+				Config: testAccRepoConfAnalysisConfig_DefaultValues(),
 				Check:  testAccRepoConfAnalysisCheck_DefaultValues(),
 			},
 			{
-				Config: testAccRepoConfAnalysisConfig_Updated(repoName),
+				Config: testAccRepoConfAnalysisConfig_Updated(),
 				Check:  testAccRepoConfAnalysisCheck_Updated(),
 			},
 			{
@@ -42,71 +51,51 @@ func TestAccRepositoryConfAnalysisResource(t *testing.T) {
 	})
 }
 
-func testAccRepoConfAnalysisConfig_ErrorRedact(repositoryName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_repository" "test_repo" {
-		type = "postgresql"
-		host = "some-hostname"
-		port = "3067"
-		name = "%s"
-	}
-
+func testAccRepoConfAnalysisConfig_ErrorRedact() string {
+	var config string
+	config += repositoryConfAnalysisSampleRepositoryConfig()
+	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
-		repository_id = cyral_repository.test_repo.id
+		repository_id = %s
 		redact = "some-invalid-value"
-	}
-	`, repositoryName)
+	}`, basicRepositoryID)
+	return config
 }
 
-func testAccRepoConfAnalysisConfig_ErrorAnnotationGroups(repositoryName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_repository" "test_repo" {
-		type = "postgresql"
-		host = "some-hostname"
-		port = "3067"
-		name = "%s"
-	}
-
+func testAccRepoConfAnalysisConfig_ErrorAnnotationGroups() string {
+	var config string
+	config += repositoryConfAnalysisSampleRepositoryConfig()
+	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
-		repository_id = cyral_repository.test_repo.id
+		repository_id = %s
 		comment_annotation_groups = [
 			"some-invalid-value"
 		]
-	}
-	`, repositoryName)
+	}`, basicRepositoryID)
+	return config
 }
 
-func testAccRepoConfAnalysisConfig_ErrorLogGroups(repositoryName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_repository" "test_repo" {
-		type = "postgresql"
-		host = "some-hostname"
-		port = "3067"
-		name = "%s"
-	}
-
+func testAccRepoConfAnalysisConfig_ErrorLogGroups() string {
+	var config string
+	config += repositoryConfAnalysisSampleRepositoryConfig()
+	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
-		repository_id = cyral_repository.test_repo.id
+		repository_id = %s
 		log_groups = [
 			"some-invalid-value"
 		]
-	}
-	`, repositoryName)
+	}`, basicRepositoryID)
+	return config
 }
 
-func testAccRepoConfAnalysisConfig_DefaultValues(repositoryName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_repository" "test_repo" {
-		type = "postgresql"
-		host = "some-hostname"
-		port = "3067"
-		name = "%s"
-	}
-
+func testAccRepoConfAnalysisConfig_DefaultValues() string {
+	var config string
+	config += repositoryConfAnalysisSampleRepositoryConfig()
+	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
-		repository_id = cyral_repository.test_repo.id
-	}
-	`, repositoryName)
+		repository_id = %s
+	}`, basicRepositoryID)
+	return config
 }
 
 func testAccRepoConfAnalysisCheck_DefaultValues() resource.TestCheckFunc {
@@ -132,17 +121,12 @@ func testAccRepoConfAnalysisCheck_DefaultValues() resource.TestCheckFunc {
 	)
 }
 
-func testAccRepoConfAnalysisConfig_Updated(repositoryName string) string {
-	return fmt.Sprintf(`
-	resource "cyral_repository" "test_repo" {
-		type = "postgresql"
-		host = "some-hostname"
-		port = "3067"
-		name = "%s"
-	}
-
+func testAccRepoConfAnalysisConfig_Updated() string {
+	var config string
+	config += repositoryConfAnalysisSampleRepositoryConfig()
+	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
-		repository_id = cyral_repository.test_repo.id
+		repository_id = %s
 		redact = "all"
 		alert_on_violation = true
 		disable_pre_configured_alerts = false
@@ -159,8 +143,8 @@ func testAccRepoConfAnalysisConfig_Updated(repositoryName string) string {
 			"sensitive & dml",
 			"sensitive & ddl"
 		]
-	}
-	`, repositoryName)
+	}`, basicRepositoryID)
+	return config
 }
 
 func testAccRepoConfAnalysisCheck_Updated() resource.TestCheckFunc {

@@ -10,14 +10,14 @@ import (
 func repositoryDataSourceTestRepos() []RepoData {
 	return []RepoData{
 		{
-			Name:     "tf-test-sqlserver-1",
+			Name:     "tfprov-test-repository-dsource-sqlserver-1",
 			Host:     "localhost",
 			Port:     1433,
 			RepoType: "sqlserver",
 			Labels:   []string{"rds", "us-east-2"},
 		},
 		{
-			Name:                "tf-test-mongodb-1",
+			Name:                "tfprov-test-repository-dsource-mongodb-1",
 			Host:                "localhost",
 			Port:                27017,
 			RepoType:            "mongodb",
@@ -33,11 +33,11 @@ func repositoryDataSourceTestRepos() []RepoData {
 
 func TestAccRepositoryDataSource(t *testing.T) {
 	testConfigNameFilter, testFuncNameFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "tf-test-sqlserver-1", "")
+		repositoryDataSourceTestRepos(), "^tfprov-test-repository-dsource-sqlserver-1$", "")
 	testConfigTypeFilter, testFuncTypeFilter := testRepositoryDataSource(
 		repositoryDataSourceTestRepos(), "", "mongodb")
 	testConfigNameTypeFilter, testFuncNameTypeFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "tf-test-mongodb-1", "mongodb")
+		repositoryDataSourceTestRepos(), "^tfprov-test-repository-dsource-mongodb-1$", "mongodb")
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -79,6 +79,20 @@ func testRepositoryDataSourceConfig(repoDatas []RepoData, nameFilter, typeFilter
 
 func testRepositoryDataSourceChecks(repoDatas []RepoData, nameFilter, typeFilter string) resource.TestCheckFunc {
 	dataSourceFullName := "data.cyral_repository.test_repository"
+
+	if nameFilter == "" {
+		return resource.ComposeTestCheckFunc(
+			resource.TestMatchResourceAttr(dataSourceFullName,
+				"repository_list.#",
+				notZeroRegex(),
+			),
+			dsourceCheckTypeFilter(
+				dataSourceFullName,
+				"repository_list.%d.type",
+				typeFilter,
+			),
+		)
+	}
 
 	var checkFuncs []resource.TestCheckFunc
 	filteredRepoDatas := filterRepoDatas(repoDatas, nameFilter, typeFilter)
@@ -132,5 +146,5 @@ func repositoryDataSourceConfig(nameFilter, typeFilter string, dependsOn []strin
 		depends_on = [%s]
 		name = "%s"
 		type = "%s"
-	}`, formatAttributes(dependsOn), nameFilter, typeFilter)
+	}`, listToStr(dependsOn), nameFilter, typeFilter)
 }

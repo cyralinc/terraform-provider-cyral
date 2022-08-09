@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -22,7 +23,28 @@ func TestAccSidecarCftTemplateDataSource(t *testing.T) {
 }
 
 func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
-	configuration := formatSidecarCftTemplateDataIntoConfig()
+	var configuration string
+	configuration += formatBasicSidecarIntoConfig(
+		basicSidecarResName,
+		"tfprov-test-data-sidecar-cft-template-sidecar",
+		"cloudFormation",
+	)
+	configuration += formatELKIntegrationDataIntoConfig(ELKIntegration{
+		Name:      "tfprov-test-data-sidecar-cft-template-elk",
+		KibanaURL: "kibana.local",
+		ESURL:     "es.local",
+	})
+	configuration += formatDatadogIntegrationDataIntoConfig(DatadogIntegration{
+		Name:   "tfprov-test-data-sidecar-cft-template-datadog",
+		APIKey: "datadog-api-key",
+	})
+	configuration += formatSidecarCftTemplateDataIntoConfig(
+		basicSidecarID,
+		"cyral_integration_elk.elk_integration.id",
+		"cyral_integration_datadog.datadog_integration.id",
+		true,
+		"ec2-key-name",
+	)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestMatchOutput("output_template", regexp.MustCompile(`\w+`)),
@@ -31,35 +53,23 @@ func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
 	return configuration, testFunction
 }
 
-func formatSidecarCftTemplateDataIntoConfig() string {
-	return `
-	resource "cyral_sidecar" "test_sidecar" {
-		name = "tf-provider-TestAccSidecarCftTemplateDataSource"
-		deployment_method = "cloudFormation"
-		labels = ["test"]
-	}
-
-	resource "cyral_integration_elk" "elk" {
-		name = "my-elk-integration"
-		kibana_url = "kibana.local"
-		es_url = "es.local"
-	}
-
-	resource "cyral_integration_datadog" "datadog" {
-		name = "my-datadog-integration"
-		api_key = "datadog-api-key"
-	}
-
+func formatSidecarCftTemplateDataIntoConfig(
+	sidecarID, logIntegrationID, metricsIntegrationID string,
+	publiclyAccessible bool,
+	keyName string,
+) string {
+	return fmt.Sprintf(`
 	data "cyral_sidecar_cft_template" "test_template" {
-		sidecar_id = cyral_sidecar.test_sidecar.id
-		log_integration_id = cyral_integration_elk.elk.id
-  		metrics_integration_id = cyral_integration_datadog.datadog.id
+		sidecar_id             = %s
+		log_integration_id     = %s
+		metrics_integration_id = %s
 		aws_configuration {
-			publicly_accessible = true
-			key_name = "ec2-key-name"
+			publicly_accessible = %t
+			key_name            = "%s"
 		}
 	}
 	output "output_template" {
 	    value = data.cyral_sidecar_cft_template.test_template.template
-	}`
+	}`, sidecarID, logIntegrationID, metricsIntegrationID, publiclyAccessible,
+		keyName)
 }

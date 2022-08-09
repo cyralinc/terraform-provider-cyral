@@ -1,12 +1,21 @@
 package cyral
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/assert"
 )
+
+func dsourceSidecarBoundPortsSampleSidecarConfig() string {
+	return formatBasicSidecarIntoConfig(
+		basicSidecarResName,
+		"tfprov-test-data-sidecar-bound-ports-sidecar",
+		"cloudFormation",
+	)
+}
 
 func TestAccSidecarBoundPortsDataSource(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
@@ -36,16 +45,13 @@ func testAccSidecarBoundPortsConfig_EmptySidecarID() string {
 }
 
 func testAccSidecarBoundPortsConfig_NoBindings() string {
-	return `
-	resource "cyral_sidecar" "sidecar_1" {
-		name = "tf-provider-sidecar-1-bound-ports-sidecar"
-		deployment_method = "cloudFormation"
-	}
-
+	var config string
+	config += dsourceSidecarBoundPortsSampleSidecarConfig()
+	config += fmt.Sprintf(`
 	data "cyral_sidecar_bound_ports" "sidecar_bound_ports_1" {
-		sidecar_id = cyral_sidecar.sidecar_1.id
-	}
-	`
+		sidecar_id = %s
+	}`, basicSidecarID)
+	return config
 }
 
 func testAccSidecarBoundPortsCheck_NoBindings() resource.TestCheckFunc {
@@ -58,40 +64,35 @@ func testAccSidecarBoundPortsCheck_NoBindings() resource.TestCheckFunc {
 }
 
 func testAccSidecarBoundPortsConfig_MultipleBindings() string {
-	return `
-	resource "cyral_sidecar" "sidecar_1" {
-		name = "tf-provider-sidecar-1-bound-ports-sidecar"
-		deployment_method = "cloudFormation"
-	}
-
-	resource "cyral_repository" "repo_1" {
-		name = "tf-provider-repo-1-bound-ports-sidecar"
-		type = "mysql"
-		host = "mysql.com"
-		port = 3306
-	}
-
-	resource "cyral_repository_binding" "repo_binding_1" {
-		repository_id = cyral_repository.repo_1.id
-		sidecar_id = cyral_sidecar.sidecar_1.id
-		listener_port = 3306
-		enabled = true
-	}
-
-	resource "cyral_repository" "repo_2" {
-		name = "tf-provider-repo-2-bound-ports-sidecar"
-		type = "mongodb"
-		host = "mongodb.com"
-		port = 27017
-	}
-
-	resource "cyral_repository_binding" "repo_binding_2" {
-		repository_id = cyral_repository.repo_2.id
-		sidecar_id = cyral_sidecar.sidecar_1.id
-		listener_port = 27017
-		enabled = true
-	}
-
+	var config string
+	config += dsourceSidecarBoundPortsSampleSidecarConfig()
+	config += formatBasicRepositoryIntoConfig(
+		"repo_1",
+		"tfprov-test-data-sidecar-bound-ports-repo1",
+		"mysql",
+		"mysql.com",
+		3306,
+	)
+	config += formatBasicRepositoryBindingIntoConfig(
+		"repo_binding_1",
+		basicSidecarID,
+		"cyral_repository.repo_1.id",
+		3306,
+	)
+	config += formatBasicRepositoryIntoConfig(
+		"repo_2",
+		"tfprov-test-data-sidecar-bound-ports-repo2",
+		"mongodb",
+		"mongodb.com",
+		27017,
+	)
+	config += formatBasicRepositoryBindingIntoConfig(
+		"repo_binding_2",
+		basicSidecarID,
+		"cyral_repository.repo_2.id",
+		27017,
+	)
+	config += fmt.Sprintf(`
 	data "cyral_sidecar_bound_ports" "sidecar_bound_ports_1" {
 		// depends_on is needed here so that we can retrieve the sidecar bound ports
 		// only after the bindings are created. Otherwise, the data source would
@@ -101,9 +102,10 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 			cyral_repository_binding.repo_binding_1,
 			cyral_repository_binding.repo_binding_2
 		]
-		sidecar_id = cyral_sidecar.sidecar_1.id
-	}
-	`
+		sidecar_id = %s
+	}`, basicSidecarID)
+
+	return config
 }
 
 func testAccSidecarBoundPortsCheck_MultipleBindings() resource.TestCheckFunc {

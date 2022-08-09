@@ -30,6 +30,21 @@ func elementsMatch(this, other []string) bool {
 	return true
 }
 
+// TODO: improve this function so that it already includes the square
+// brackets. -aholmquist 2022-08-09
+func listToStr(attributes []string) string {
+	if len(attributes) == 0 {
+		return ""
+	}
+	s := fmt.Sprintf(`"%s"`, attributes[0])
+	if len(attributes) > 1 {
+		for _, attribute := range attributes[1:] {
+			s += fmt.Sprintf(`, "%s"`, attribute)
+		}
+	}
+	return s
+}
+
 func supportedTypesMarkdown(types []string) string {
 	var s string
 	for _, typ := range types {

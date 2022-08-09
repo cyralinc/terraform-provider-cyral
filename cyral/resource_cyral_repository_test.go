@@ -134,5 +134,5 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		labels = [%s]
 		%s
 	}`, repositoryConfigResourceName(data.Name), data.RepoType, data.Host,
-		data.Port, data.Name, formatAttributes(data.Labels), propertiesStr)
+		data.Port, data.Name, listToStr(data.Labels), propertiesStr)
 }

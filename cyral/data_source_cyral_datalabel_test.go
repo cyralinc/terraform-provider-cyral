@@ -2,12 +2,9 @@ package cyral
 
 import (
 	"fmt"
-	"regexp"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func datalabelDataSourceTestDataLabels() []*DataLabel {
@@ -101,40 +98,17 @@ func testDatalabelDataSourceChecks(
 	dataSourceFullName := fmt.Sprintf("data.cyral_datalabel.%s", dsourceName)
 
 	if nameFilter == "" {
-		// In this case, we might encounter labels that we did not
-		// create in the control plane, which can lead to
-		// non-deterministic tests. We just check that the actual type
-		// of the label matches the expected type.
-		notZeroRegex := regexp.MustCompile("^[0-9]*[^0]$")
-		checkFuncs := []resource.TestCheckFunc{
+		return resource.ComposeTestCheckFunc(
 			resource.TestMatchResourceAttr(dataSourceFullName,
 				"datalabel_list.#",
-				notZeroRegex,
+				notZeroRegex(),
 			),
-			func(s *terraform.State) error {
-				ds, ok := s.RootModule().Resources[dataSourceFullName]
-				if !ok {
-					return fmt.Errorf("Not found: %s", dataSourceFullName)
-				}
-				numDataLabels, err := strconv.Atoi(ds.Primary.Attributes["datalabel_list.#"])
-				if err != nil {
-					return err
-				}
-				for i := 0; i < numDataLabels; i++ {
-					nameLocation := fmt.Sprintf("datalabel_list.%d.type", i)
-					actualType := ds.Primary.Attributes[nameLocation]
-					if actualType != typeFilter {
-						return fmt.Errorf("Expected all labels to have "+
-							"type equal to type filter %q, but got: "+
-							"%s", typeFilter, actualType)
-					}
-				}
-				return nil
-			},
-		}
-
-		return resource.ComposeTestCheckFunc(checkFuncs...)
-
+			dsourceCheckTypeFilter(
+				dataSourceFullName,
+				"datalabel_list.%d.type",
+				typeFilter,
+			),
+		)
 	}
 
 	var checkFuncs []resource.TestCheckFunc
@@ -180,5 +154,5 @@ func datalabelDataSourceConfig(dsourceName, nameFilter, typeFilter string, depen
 		name = "%s"
 		type = "%s"
 		depends_on = [%s]
-	}`, dsourceName, nameFilter, typeFilter, formatAttributes(dependsOn))
+	}`, dsourceName, nameFilter, typeFilter, listToStr(dependsOn))
 }

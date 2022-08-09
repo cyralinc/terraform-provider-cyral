@@ -18,7 +18,8 @@ const (
 
 func repositoryDatamapSampleRepositoryConfig(resName string) string {
 	return formatBasicRepositoryIntoConfig(
-		fmt.Sprintf("tf-provider-repository-datamap-%s", resName),
+		basicRepositoryResName,
+		fmt.Sprintf("tfprov-test-repository-datamap-%s", resName),
 		"sqlserver",
 		"localhost",
 		1433,
@@ -222,7 +223,7 @@ func formatDataMapIntoConfig(
 		mapping {
 			label = "%s"
 			attributes = [%s]
-		}`, label, formatAttributes(mapping.Attributes))
+		}`, label, listToStr(mapping.Attributes))
 
 		if label == testRepositoryDatamapCustomLabel {
 			// If there is a custom label in the configuration, we

@@ -79,5 +79,5 @@ func formatPolicyTestConfigIntoConfig(data PolicyTestConfig) string {
 		enabled = %t
 		name = "%s"
 		tags = [%s]
-	  }`, formatAttributes(data.Data), data.Description, data.Enabled, data.Name, formatAttributes(data.Tags))
+	  }`, listToStr(data.Data), data.Description, data.Enabled, data.Name, listToStr(data.Tags))
 }

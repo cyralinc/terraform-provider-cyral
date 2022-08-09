@@ -9,7 +9,7 @@ import (
 
 var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tf-test-identity-map",
+	IdentityName: "tfprov-test-identity-map",
 	AccessDuration: &AccessDuration{
 		Days:    7,
 		Hours:   10,
@@ -20,7 +20,7 @@ var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tf-test-identity-map",
+	IdentityName: "tfprov-test-identity-map",
 	AccessDuration: &AccessDuration{
 		Days:    0,
 		Hours:   0,
@@ -31,7 +31,7 @@ var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var identityMapConfigWithoutAccessDuration RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tf-test-identity-map",
+	IdentityName: "tfprov-test-identity-map",
 }
 
 func TestAccRepositoryIdentityMapResource(t *testing.T) {
@@ -79,7 +79,22 @@ func TestAccRepositoryIdentityMapResource(t *testing.T) {
 }
 
 func setupRepositoryIdentityMapTest(integrationData RepositoryIdentityMapResource) (string, resource.TestCheckFunc) {
-	configuration := formatRepositoryIdentityMapDataIntoConfig(integrationData)
+	var configuration string
+	configuration += formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
+		"tfprov-test-repository-identity-map-repository",
+		"mongodb",
+		"mongo.local",
+		3333,
+	)
+	configuration += formatBasicRepositoryLocalAccountIntoConfig_Cyral(
+		basicRepositoryID,
+		"tfprov-test-repository-identity-map-locaccount",
+		"some-password",
+	)
+	configuration += formatRepositoryIdentityMapDataIntoConfig(
+		integrationData, basicRepositoryID, basicRepositoryLocalAccountID)
+
 	var testFunction resource.TestCheckFunc
 	if integrationData.AccessDuration != nil {
 		testFunction = resource.ComposeTestCheckFunc(
@@ -111,47 +126,35 @@ func setupRepositoryIdentityMapTest(integrationData RepositoryIdentityMapResourc
 	return configuration, testFunction
 }
 
-func formatRepositoryIdentityMapDataIntoConfig(data RepositoryIdentityMapResource) string {
-	config := `
-	resource "cyral_repository" "test_repo_repository" {
-		type = "mongodb"
-		host = "mongo.local"
-		port = 3333
-		name = "tf-repo-test"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.test_repo_repository.id
-		environment_variable {
-			database_name = "tf_test_db_name"
-			local_account = "tf_test_repo_account"
-			variable_name = "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME"
-		}
-	}
-
-	`
+func formatRepositoryIdentityMapDataIntoConfig(
+	data RepositoryIdentityMapResource,
+	repositoryID, repositoryLocalAccID string,
+) string {
+	var config string
 	if data.AccessDuration != nil {
-		config = fmt.Sprintf(`%s
-	  resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
-			repository_id               = cyral_repository.test_repo_repository.id
-			repository_local_account_id = cyral_repository_local_account.tf_test_repository_account.id
-			identity_type               = "%s"
-			identity_name               = "%s"
-			access_duration {
-				days    = %d
-				hours   = %d
-				minutes = %d
-				seconds = %d
-			}
-	  }`, config, data.IdentityType, data.IdentityName, data.AccessDuration.Days, data.AccessDuration.Hours, data.AccessDuration.Minutes, data.AccessDuration.Seconds)
+		config = fmt.Sprintf(`
+	resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
+		repository_id               = %s
+		repository_local_account_id = %s
+		identity_type               = "%s"
+		identity_name               = "%s"
+		access_duration {
+			days    = %d
+			hours   = %d
+			minutes = %d
+			seconds = %d
+		}
+	}`, repositoryID, repositoryLocalAccID, data.IdentityType, data.IdentityName,
+			data.AccessDuration.Days, data.AccessDuration.Hours,
+			data.AccessDuration.Minutes, data.AccessDuration.Seconds)
 	} else {
-		config = fmt.Sprintf(`%s
-	  resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
-			repository_id               = cyral_repository.test_repo_repository.id
-			repository_local_account_id = cyral_repository_local_account.tf_test_repository_account.id
-			identity_type               = "%s"
-			identity_name               = "%s"
-	  }`, config, data.IdentityType, data.IdentityName)
+		config = fmt.Sprintf(`
+	resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
+		repository_id               = %s
+		repository_local_account_id = %s
+		identity_type               = "%s"
+		identity_name               = "%s"
+	}`, repositoryID, repositoryLocalAccID, data.IdentityType, data.IdentityName)
 	}
 	return config
 }

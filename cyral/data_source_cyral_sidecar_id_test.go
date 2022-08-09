@@ -8,10 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const (
-	dsourceSidecarIDSidecarName = "tf-provider-data-sidecar-id-sidecar"
-)
-
 func TestAccSidecarIDDataSource(t *testing.T) {
 	nonExistentSidecarName := "some-non-existent-sidecar-name"
 
@@ -53,20 +49,21 @@ func testAccSidecarIDConfig_NoSidecarFoundForGivenName(nonExistentSidecarName st
 func testAccSidecarIDConfig_ExistentSidecar() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
-		dsourceSidecarIDSidecarName,
+		basicSidecarResName,
+		"tfprov-test-data-sidecar-id-sidecar",
 		"cloudFormation",
 	)
-	return config + `
+	config += fmt.Sprintf(`
 	data "cyral_sidecar_id" "sidecar_id" {
-		sidecar_name = cyral_sidecar.test_sidecar.name
-	}
-	`
+		sidecar_name = cyral_sidecar.%s.name
+	}`, basicSidecarResName)
+	return config
 }
 
 func testAccSidecarIDCheck_ExistentSidecar() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair(
-			"cyral_sidecar.test_sidecar", "id",
+			fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id",
 			"data.cyral_sidecar_id.sidecar_id", "id",
 		),
 	)

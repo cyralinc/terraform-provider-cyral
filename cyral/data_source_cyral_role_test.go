@@ -53,5 +53,5 @@ func roleDataSourceConfig(dsourceName, nameFilter string, dependsOn []string) st
 	data "cyral_role" "%s" {
 		name = "%s"
 		depends_on = [%s]
-	}`, dsourceName, nameFilter, formatAttributes(dependsOn))
+	}`, dsourceName, nameFilter, listToStr(dependsOn))
 }

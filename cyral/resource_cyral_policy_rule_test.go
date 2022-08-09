@@ -97,6 +97,7 @@ func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
 
 	var config string
 	config += formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
 		"tf-provider-policy-rule-repository",
 		"mysql",
 		"http://mysql.local/",

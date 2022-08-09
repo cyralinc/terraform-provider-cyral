@@ -179,7 +179,7 @@ func formatSidecarDataIntoConfig(sidecarData *SidecarData) string {
 		%s
       	}`, sidecarData.Name,
 		sidecarData.SidecarProperty.DeploymentMethod,
-		formatAttributes(sidecarData.Labels),
+		listToStr(sidecarData.Labels),
 		sidecarData.UserEndpoint,
 		certBundleConfig,
 		servicesConfig)
