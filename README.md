@@ -80,6 +80,12 @@ export TF_ACC=true
 
 2. Run `make`
 
+#### Sweeper
+
+(Feature still under implementation) To sweep leaked resources in the control
+plane, run `make sweep`. The environment variables to access the control plane must be set as instructed
+above.
+
 ### Commit instructions
 
 This project uses [pre-commit](https://pre-commit.com/) to automatically lint changes during the commit process.

@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationTeamsResourceName = "integrations-teams"
+)
+
 var initialTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: accTestName("integration-teams", "msteams-alerts"),
+	Name: accTestName(integrationTeamsResourceName, "msteams-alerts"),
 	URL:  "https://msteams.local",
 }
 
 var updatedTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: accTestName("integration-teams", "msteams-alerts"),
+	Name: accTestName(integrationTeamsResourceName, "msteams-alerts"),
 	URL:  "https://msteams-updated.local",
 }
 

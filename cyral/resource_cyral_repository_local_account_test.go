@@ -10,92 +10,94 @@ import (
 
 const (
 	testRepoLocalAccImportName = "cyral_repository_local_account.test_repository_account"
+
+	repositoryLocalAccountResourceName = "repository-local-account"
 )
 
 var initialRepoAccountConfigAwsIAM = RepositoryLocalAccountResource{
 	AwsIAM: &AwsIAMResource{
-		DatabaseName: accTestName("repository-local-account", "db-name"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		RoleArn:      "tf-test-role-arn",
 	},
 }
 
 var updatedRepoAccountConfigAwsIAM = RepositoryLocalAccountResource{
 	AwsIAM: &AwsIAMResource{
-		DatabaseName: accTestName("repository-local-account", "db-name-updated"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account-updated"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		RoleArn:      "tf-test-role-arn-updated",
 	},
 }
 
 var initialRepoAccountConfigAwsSecretsManager = RepositoryLocalAccountResource{
 	AwsSecretsManager: &AwsSecretsManagerResource{
-		DatabaseName: accTestName("repository-local-account", "db-name"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		SecretArn:    "tf-test-secret-arn",
 	},
 }
 
 var updatedRepoAccountConfigAwsSecretsManager = RepositoryLocalAccountResource{
 	AwsSecretsManager: &AwsSecretsManagerResource{
-		DatabaseName: accTestName("repository-local-account", "db-name-updated"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account-updated"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		SecretArn:    "tf-test-secret-arn-updated",
 	},
 }
 
 var initialRepoAccountConfigCyralStorage = RepositoryLocalAccountResource{
 	CyralStorage: &CyralStorageResource{
-		DatabaseName: accTestName("repository-local-account", "db-name"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		Password:     "tf-test-pasword",
 	},
 }
 
 var updatedRepoAccountConfigCyralStorage = RepositoryLocalAccountResource{
 	CyralStorage: &CyralStorageResource{
-		DatabaseName: accTestName("repository-local-account", "db-name-updated"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account-updated"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		Password:     "tf-test-pasword-updated",
 	},
 }
 
 var initialRepoAccountConfigHashicorpVault = RepositoryLocalAccountResource{
 	HashicorpVault: &HashicorpVaultResource{
-		DatabaseName: accTestName("repository-local-account", "db-name"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		Path:         "tf-test-path",
 	},
 }
 
 var updatedRepoAccountConfigHashicorpVault = RepositoryLocalAccountResource{
 	HashicorpVault: &HashicorpVaultResource{
-		DatabaseName: accTestName("repository-local-account", "db-name-updated"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account-updated"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		Path:         "tf-test-path-updated",
 	},
 }
 
 var initialRepoAccountConfigEnvironmentVariable = RepositoryLocalAccountResource{
 	EnvironmentVariable: &EnvironmentVariableResource{
-		DatabaseName: accTestName("repository-local-account", "db-name"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		VariableName: "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME",
 	},
 }
 
 var updatedRepoAccountConfigEnvironmentVariable = RepositoryLocalAccountResource{
 	EnvironmentVariable: &EnvironmentVariableResource{
-		DatabaseName: accTestName("repository-local-account", "db-name-updated"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account-updated"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		VariableName: "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME_UPDATED",
 	},
 }
 
 var initialRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 	KubernetesSecret: &KubernetesSecretResource{
-		DatabaseName: accTestName("repository-local-account", "db-name"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		SecretName:   "tf-test-db-secrets",
 		SecretKey:    "tf-test-secret-key",
 	},
@@ -103,8 +105,8 @@ var initialRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 
 var updatedRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 	KubernetesSecret: &KubernetesSecretResource{
-		DatabaseName: accTestName("repository-local-account", "db-name-updated"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account-updated"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		SecretName:   "db-secrets-updated",
 		SecretKey:    "tf-test-secret-key-updated",
 	},
@@ -112,16 +114,16 @@ var updatedRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 
 var initialRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
 	GcpSecretManager: &GcpSecretManagerResource{
-		DatabaseName: accTestName("repository-local-account", "db-name"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		SecretName:   "projects/1234567890/secrets/my-secret/versions/1",
 	},
 }
 
 var updatedRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
 	GcpSecretManager: &GcpSecretManagerResource{
-		DatabaseName: accTestName("repository-local-account", "db-name-updated"),
-		RepoAccount:  accTestName("repository-local-account", "repo-account-updated"),
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		SecretName:   "projects/1234567890/secrets/my-secret-updated/versions/2",
 	},
 }
@@ -129,7 +131,7 @@ var updatedRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
 func repositoryLocalAccountSampleRepositoryConfig() string {
 	return formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
-		accTestName("repository-local-account", "repository"),
+		accTestName(repositoryLocalAccountResourceName, "repository"),
 		"postgresql",
 		"http://postgres.local/",
 		5432,
@@ -449,7 +451,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 	localAccountConfig := ""
 
 	if data.AwsIAM != nil {
-		repositoryName = accTestName("repository-local-account", "mysql-aws-iam")
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-aws-iam")
 		localAccountConfig = fmt.Sprintf(`aws_iam {
 			database_name = "%s"
 			local_account = "%s"
@@ -460,7 +463,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.AwsIAM.RoleArn,
 		)
 	} else if data.AwsSecretsManager != nil {
-		repositoryName = accTestName("repository-local-account", "mysql-aws-secrets-manager")
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-aws-secrets-manager")
 		localAccountConfig = fmt.Sprintf(`aws_secrets_manager {
 			database_name = "%s"
 			local_account = "%s"
@@ -471,7 +475,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.AwsSecretsManager.SecretArn,
 		)
 	} else if data.CyralStorage != nil {
-		repositoryName = accTestName("repository-local-account", "mysql-cyral-storage")
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-cyral-storage")
 		localAccountConfig = fmt.Sprintf(`cyral_storage {
 			database_name = "%s"
 			local_account = "%s"
@@ -482,7 +487,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.CyralStorage.Password,
 		)
 	} else if data.HashicorpVault != nil {
-		repositoryName = accTestName("repository-local-account", "mysql-hashicorp-vault")
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-hashicorp-vault")
 		localAccountConfig = fmt.Sprintf(`hashicorp_vault {
 			database_name = "%s"
 			local_account = "%s"
@@ -493,7 +499,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.HashicorpVault.Path,
 		)
 	} else if data.EnvironmentVariable != nil {
-		repositoryName = accTestName("repository-local-account", "mysql-environment-variable")
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-environment-variable")
 		localAccountConfig = fmt.Sprintf(`environment_variable {
 			database_name = "%s"
 			local_account = "%s"
@@ -504,7 +511,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.EnvironmentVariable.VariableName,
 		)
 	} else if data.KubernetesSecret != nil {
-		repositoryName = accTestName("repository-local-account", "mysql-kubernetes-secret")
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-kubernetes-secret")
 		localAccountConfig = fmt.Sprintf(`kubernetes_secret {
 			database_name = "%s"
 			local_account = "%s"
@@ -517,7 +525,8 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.KubernetesSecret.SecretKey,
 		)
 	} else if data.GcpSecretManager != nil {
-		repositoryName = accTestName("repository-local-account", "mysql-gcp-secret-manager")
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-gcp-secret-manager")
 		localAccountConfig = fmt.Sprintf(`gcp_secret_manager {
 			database_name = "%s"
 			local_account = "%s"

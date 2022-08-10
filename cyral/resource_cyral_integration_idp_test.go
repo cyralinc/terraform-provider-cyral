@@ -10,10 +10,12 @@ import (
 
 const (
 	testSingleSignOnURL = "https://some-test-sso-url.com"
+
+	integrationIdPResourceName = "integration-idp"
 )
 
 func TestAccIdPIntegrationResource(t *testing.T) {
-	idpDisplayName := accTestName("integration-idp", "okta")
+	idpDisplayName := accTestName(integrationIdPResourceName, "okta")
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{

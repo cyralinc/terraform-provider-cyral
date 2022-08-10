@@ -6,6 +6,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	datamapResourceName = "datamap"
+)
+
 func datamapResourceTestRepoConfig_MySQL() string {
 	return formatBasicRepositoryIntoConfig(
 		"repo_1",
@@ -17,7 +21,7 @@ func datamapResourceTestRepoConfig_MySQL() string {
 }
 
 func datamapResourceTestRepoName_MySQL() string {
-	return accTestName("datamap", "mysql")
+	return accTestName(datamapResourceName, "mysql")
 }
 
 func datamapResourceTestRepoConfig_MariaDB() string {
@@ -31,7 +35,7 @@ func datamapResourceTestRepoConfig_MariaDB() string {
 }
 
 func datamapResourceTestRepoName_MariaDB() string {
-	return accTestName("datamap", "mariadb")
+	return accTestName(datamapResourceName, "mariadb")
 }
 
 func TestAccDatamapResource(t *testing.T) {

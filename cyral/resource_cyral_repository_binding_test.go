@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryBindingResourceName = "repository-binding"
+)
+
 var initialConfig RepoBindingData = RepoBindingData{
 	Listener: Listener{
 		Port: 1234,
@@ -52,12 +56,12 @@ func testAccRepositoryBindingConfig_DefaultValues() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
 		"sidecar_1",
-		accTestName("repository-binding", "sidecar-1"),
+		accTestName(repositoryBindingResourceName, "sidecar-1"),
 		"cloudFormation",
 	)
 	config += formatBasicRepositoryIntoConfig(
 		"repository_1",
-		accTestName("repository-binding", "repository-1"),
+		accTestName(repositoryBindingResourceName, "repository-1"),
 		"mongodb",
 		"mongodb.cyral.com",
 		27017,
@@ -92,12 +96,12 @@ func testAccRepositoryBindingConfig_UpdatedIDs() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
 		"sidecar_2",
-		accTestName("repository-binding", "sidecar-2"),
+		accTestName(repositoryBindingResourceName, "sidecar-2"),
 		"cloudFormation",
 	)
 	config += formatBasicRepositoryIntoConfig(
 		"repository_2",
-		accTestName("repository-binding", "repository-2"),
+		accTestName(repositoryBindingResourceName, "repository-2"),
 		"mongodb",
 		"mongodb.cyral.com",
 		27017,
@@ -136,12 +140,12 @@ func testAccRepositoryBindingConfig_AccessGatewayEnabled() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
 		"sidecar_2",
-		accTestName("repository-binding", "sidecar-2"),
+		accTestName(repositoryBindingResourceName, "sidecar-2"),
 		"cloudFormation",
 	)
 	config += formatBasicRepositoryIntoConfig(
 		"repository_2",
-		accTestName("repository-binding", "repository-2"),
+		accTestName(repositoryBindingResourceName, "repository-2"),
 		"mongodb",
 		"mongodb.cyral.com",
 		27017,

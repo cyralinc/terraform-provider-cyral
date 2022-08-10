@@ -7,8 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryResourceName = "repository"
+)
+
 var initialRepoConfig RepoData = RepoData{
-	Name:     accTestName("repository", "repo"),
+	Name:     accTestName(repositoryResourceName, "repo"),
 	Host:     "mongo.local",
 	Port:     3333,
 	RepoType: "mongodb",
@@ -16,7 +20,7 @@ var initialRepoConfig RepoData = RepoData{
 }
 
 var updatedRepoConfig RepoData = RepoData{
-	Name:     accTestName("repository", "repo-updated"),
+	Name:     accTestName(repositoryResourceName, "repo-updated"),
 	Host:     "mongo-updated.local",
 	Port:     3334,
 	RepoType: "mongodb",
@@ -24,7 +28,7 @@ var updatedRepoConfig RepoData = RepoData{
 }
 
 var replicaSetRepoConfig RepoData = RepoData{
-	Name:                accTestName("repository", "repo-replica-set"),
+	Name:                accTestName(repositoryResourceName, "repo-replica-set"),
 	Host:                "mongo-cluster.local",
 	Port:                27017,
 	RepoType:            "mongodb",

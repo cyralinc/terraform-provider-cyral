@@ -7,9 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryIdentityMapResourceName = "repository-identity-map"
+)
+
 var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: accTestName("repository-identity-map", "identity"),
+	IdentityName: accTestName(repositoryIdentityMapResourceName, "identity"),
 	AccessDuration: &AccessDuration{
 		Days:    7,
 		Hours:   10,
@@ -20,7 +24,7 @@ var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: accTestName("repository-identity-map", "identity"),
+	IdentityName: accTestName(repositoryIdentityMapResourceName, "identity"),
 	AccessDuration: &AccessDuration{
 		Days:    0,
 		Hours:   0,
@@ -31,7 +35,7 @@ var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var identityMapConfigWithoutAccessDuration RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: accTestName("repository-identity-map", "identity"),
+	IdentityName: accTestName(repositoryIdentityMapResourceName, "identity"),
 }
 
 func TestAccRepositoryIdentityMapResource(t *testing.T) {

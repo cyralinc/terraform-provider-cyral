@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	policyResourceName = "policy"
+)
+
 type PolicyTestConfig struct {
 	Data        []string
 	Description string
@@ -19,7 +23,7 @@ var initialPolicyConfig PolicyTestConfig = PolicyTestConfig{
 	Data:        []string{"data"},
 	Description: "description",
 	Enabled:     false,
-	Name:        accTestName("policy", "test"),
+	Name:        accTestName(policyResourceName, "test"),
 	Tags:        []string{"tag"},
 }
 
@@ -27,7 +31,7 @@ var updatedPolicyConfig PolicyTestConfig = PolicyTestConfig{
 	Data:        []string{"data-updated"},
 	Description: "desctiption-updated",
 	Enabled:     true,
-	Name:        accTestName("policy", "test"),
+	Name:        accTestName(policyResourceName, "test"),
 	Tags:        []string{"tag-updated"},
 }
 

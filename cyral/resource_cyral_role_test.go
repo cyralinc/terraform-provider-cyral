@@ -8,12 +8,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	roleResourceName = "role"
+)
+
 func initialRoleName() string {
-	return accTestName("role", "role")
+	return accTestName(roleResourceName, "role")
 }
 
 func updatedRoleName() string {
-	return accTestName("role", "role-updated")
+	return accTestName(roleResourceName, "role-updated")
 }
 
 var onlyFalsePermissions = map[string]string{

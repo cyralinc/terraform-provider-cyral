@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationSumoLogicResourceName = "integration-sumo-logic"
+)
+
 var initialSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    accTestName("integration-sumo-logic", "sumo-logic"),
+	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic"),
 	Address: "sumologic.local/initial",
 }
 
 var updatedSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    accTestName("integration-sumo-logic", "sumo-logic-updated"),
+	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic-updated"),
 	Address: "sumologic.local/updated",
 }
 

@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	sidecarCftTemplateDataSourceName = "data-sidecar-cft-template"
+)
+
 func TestAccSidecarCftTemplateDataSource(t *testing.T) {
 	cftConfig, cftFunc := setupSidecarCftTemplateTest()
 
@@ -26,16 +30,16 @@ func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
 	var configuration string
 	configuration += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		accTestName("data-sidecar-cft-template", "sidecar"),
+		accTestName(sidecarCftTemplateDataSourceName, "sidecar"),
 		"cloudFormation",
 	)
 	configuration += formatELKIntegrationDataIntoConfig(ELKIntegration{
-		Name:      accTestName("data-sidecar-cft-template", "elk"),
+		Name:      accTestName(sidecarCftTemplateDataSourceName, "elk"),
 		KibanaURL: "kibana.local",
 		ESURL:     "es.local",
 	})
 	configuration += formatDatadogIntegrationDataIntoConfig(DatadogIntegration{
-		Name:   accTestName("data-sidecar-cft-template", "datadog"),
+		Name:   accTestName(sidecarCftTemplateDataSourceName, "datadog"),
 		APIKey: "datadog-api-key",
 	})
 	configuration += formatSidecarCftTemplateDataIntoConfig(

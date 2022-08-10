@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
@@ -221,6 +223,41 @@ func getCredentials(d *schema.ResourceData) (string, string, diag.Diagnostics) {
 	clientSecret = getVar("client_secret", EnvVarClientSecret, &diags)
 
 	return clientID, clientSecret, diags
+}
+
+func getProviderConfigFromEnv() (
+	clientID string,
+	clientSecret string,
+	controlPlane string,
+	tlsSkipVerify bool,
+	err error,
+) {
+	clientID = os.Getenv(EnvVarClientID)
+	clientSecret = os.Getenv(EnvVarClientSecret)
+	controlPlane = os.Getenv(EnvVarCPURL)
+	tlsSkipVerifyStr := os.Getenv(EnvVarTLSSkipVerify)
+	if tlsSkipVerifyStr != "" {
+		tlsSkipVerify, err = strconv.ParseBool(tlsSkipVerifyStr)
+		if err != nil {
+			return "", "", "", false, fmt.Errorf("invalid value for "+
+				"env var %q: %w", EnvVarTLSSkipVerify, err)
+		}
+	}
+	return clientID, clientSecret, controlPlane, tlsSkipVerify, nil
+}
+
+func newClientFromEnv() (*client.Client, error) {
+	clientID, clientSecret, controlPlane, tlsSkipVerify, err :=
+		getProviderConfigFromEnv()
+	if err != nil {
+		return nil, fmt.Errorf("unable to create Cyral client: %w", err)
+	}
+	c, err := client.NewClient(clientID, clientSecret, controlPlane,
+		tlsSkipVerify)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create Cyral client: %w", err)
+	}
+	return c, nil
 }
 
 func createError(summary, detail string) diag.Diagnostics {

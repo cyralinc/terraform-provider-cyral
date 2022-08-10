@@ -12,12 +12,14 @@ import (
 const (
 	predefinedLabelCCN = "CCN"
 	predefinedLabelSSN = "SSN"
+
+	repositoryDatamapResourceName = "repository-datamap"
 )
 
 func repositoryDatamapSampleRepositoryConfig(resName string) string {
 	return formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
-		accTestName("repository-datamap", resName),
+		accTestName(repositoryDatamapResourceName, resName),
 		"sqlserver",
 		"localhost",
 		1433,
@@ -25,7 +27,7 @@ func repositoryDatamapSampleRepositoryConfig(resName string) string {
 }
 
 func testRepositoryDatamapCustomLabel() string {
-	return accTestName("repository-datamap", "custom-label")
+	return accTestName(repositoryDatamapResourceName, "custom-label")
 }
 
 func initialDataMapConfigRemoveMapping() *DataMap {

@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationSlackAlertsResourceName = "integration-slack-alerts"
+)
+
 var initialSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: accTestName("integration-slack-alerts", "slack-alerts"),
+	Name: accTestName(integrationSlackAlertsResourceName, "slack-alerts"),
 	URL:  "https://slack.local",
 }
 
 var updatedSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: accTestName("integration-slack-alerts", "slack-alerts-updated"),
+	Name: accTestName(integrationSlackAlertsResourceName, "slack-alerts-updated"),
 	URL:  "https://slack-updated.local",
 }
 

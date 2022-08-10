@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	sidecarCredentialsResourceName = "sidecar-credentials"
+)
+
 func TestAccSidecarCredentialsResource(t *testing.T) {
 	testConfig, testFunc := setupSidecarCredentialsTest()
 
@@ -52,7 +56,7 @@ func createSidecarCredentialsConfig() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		accTestName("sidecar-credentials", "sidecar"),
+		accTestName(sidecarCredentialsResourceName, "sidecar"),
 		"docker",
 	)
 	config += fmt.Sprintf(`

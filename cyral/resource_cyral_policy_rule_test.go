@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	policyRuleResourceName = "policy-rule"
+)
+
 type PolicyRuleConfig struct {
 	DeletedSeverity  string
 	UpdatedSeverity  string
@@ -83,7 +87,7 @@ func setupPolicyRuleTest(policyRule PolicyRuleConfig) (string, resource.TestChec
 	testLabelName := "TEST_CCN"
 	var config string
 	config += formatBasicPolicyIntoConfig(
-		accTestName("policy-rule", "policy"),
+		accTestName(policyRuleResourceName, "policy"),
 		[]string{testLabelName},
 	)
 	config += formatPolicyRuleConfigIntoConfig(

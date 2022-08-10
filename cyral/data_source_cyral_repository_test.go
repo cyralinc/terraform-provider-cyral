@@ -7,17 +7,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryDataSourceName = "data-repository"
+)
+
 func repositoryDataSourceTestRepos() []RepoData {
 	return []RepoData{
 		{
-			Name:     accTestName("data-repository", "sqlserver-1"),
+			Name:     accTestName(repositoryDataSourceName, "sqlserver-1"),
 			Host:     "localhost",
 			Port:     1433,
 			RepoType: "sqlserver",
 			Labels:   []string{"rds", "us-east-2"},
 		},
 		{
-			Name:                accTestName("repository", "mongodb-1"),
+			Name:                accTestName(repositoryDataSourceName, "mongodb-1"),
 			Host:                "localhost",
 			Port:                27017,
 			RepoType:            "mongodb",

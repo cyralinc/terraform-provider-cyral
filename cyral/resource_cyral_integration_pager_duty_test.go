@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationPagerDutyResourceName = "integration-pager-duty"
+)
+
 var initialPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       accTestName("integration-pager-duty", "pager-duty"),
+	Name:       accTestName(integrationPagerDutyResourceName, "pager-duty"),
 	Parameters: "unitTest-parameters",
 }
 
 var updatedPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       accTestName("integration-pager-duty", "pager-duty-updated"),
+	Name:       accTestName(integrationPagerDutyResourceName, "pager-duty-updated"),
 	Parameters: "unitTest-parameters-updated",
 }
 

@@ -8,10 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryConfAnalysisResourceName = "repository-conf-analysis"
+)
+
 func repositoryConfAnalysisSampleRepositoryConfig() string {
 	return formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
-		accTestName("repository-conf-analysis", "repository"),
+		accTestName(repositoryConfAnalysisResourceName, "repository"),
 		"postgresql",
 		"some-hostname",
 		3067,

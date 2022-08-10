@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationDatadogResourceName = "integration-datadog"
+)
+
 var initialDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   accTestName("integration-datadog", "datadog"),
+	Name:   accTestName(integrationDatadogResourceName, "datadog"),
 	APIKey: "some-api-key",
 }
 
 var updatedDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   accTestName("integration-datadog", "datadog-updated"),
+	Name:   accTestName(integrationDatadogResourceName, "datadog-updated"),
 	APIKey: "some-api-key-updated",
 }
 

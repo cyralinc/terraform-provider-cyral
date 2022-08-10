@@ -19,6 +19,8 @@ NAMESPACE=terraform
 NAME=cyral
 BINARY=terraform-provider-$(NAME)_$(vVERSION)
 
+SWEEPDIR=./cyral
+
 all: local/clean local/install local/test
 
 local/build:
@@ -80,3 +82,8 @@ docker-compose/lint:
 docker-compose/docs:
 	docker-compose run app go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
 #docker-compose run build pre-commit run --show-diff-on-failure --color=always --all-files
+
+sweep:
+	@echo "WARNING: This will destroy infrastructure. Use only for development"
+	@echo "control planes."
+	go test $(SWEEPDIR) -v -sweep=dummy-region $(SWEEPARGS) -timeout 15m

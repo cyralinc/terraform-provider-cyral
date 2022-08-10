@@ -10,6 +10,8 @@ import (
 )
 
 const (
+	tprovACCPrefix = "tfprov-acc-"
+
 	basicRepositoryResName             = "test_repository"
 	basicRepositoryID                  = "cyral_repository.test_repository.id"
 	basicRepositoryBindingResName      = "test_repository_binding"
@@ -37,8 +39,11 @@ const (
 //
 // Note that doing it like above will prevent that the tests attempt to create a
 // label called LABEL1 simultaneously, which would cause a failure.
-func accTestName(resType, suffix string) string {
-	return fmt.Sprintf("tfprov-test-%s-%s", resType, suffix)
+//
+// The convention is to use hyphen-separated words if possible, and prefix data
+// sources with "data", to distinguish them and their counterpart resources.
+func accTestName(resourceType, suffix string) string {
+	return fmt.Sprintf("%s%s-%s", tprovACCPrefix, resourceType, suffix)
 }
 
 func importStateComposedIDFunc(

@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryConfAuthResourceName = "repository-conf-auth"
+)
+
 var initialRepositoryConfAuthConfig RepositoryConfAuthData = RepositoryConfAuthData{
 	AllowNativeAuth: false,
 	ClientTLS:       "disable",
@@ -54,7 +58,7 @@ func setupRepositoryConfAuthTest(repositoryConf RepositoryConfAuthData) (string,
 	var configuration string
 	configuration += formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
-		accTestName("repository-conf-auth", "repository"),
+		accTestName(repositoryConfAuthResourceName, "repository"),
 		"mysql",
 		"http://mysql.local/",
 		3306,

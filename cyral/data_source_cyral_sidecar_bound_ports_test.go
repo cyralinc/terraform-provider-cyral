@@ -9,10 +9,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	sidecarBoundPortsDataSourceName = "data-sidecar-bound-ports"
+)
+
 func dsourceSidecarBoundPortsSampleSidecarConfig() string {
 	return formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		accTestName("data-sidecar-bound-ports", "sidecar"),
+		accTestName(sidecarBoundPortsDataSourceName, "sidecar"),
 		"cloudFormation",
 	)
 }
@@ -68,7 +72,7 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 	config += dsourceSidecarBoundPortsSampleSidecarConfig()
 	config += formatBasicRepositoryIntoConfig(
 		"repo_1",
-		accTestName("data-sidecar-bound-ports", "repo1"),
+		accTestName(sidecarBoundPortsDataSourceName, "repo1"),
 		"mysql",
 		"mysql.com",
 		3306,
@@ -81,7 +85,7 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 	)
 	config += formatBasicRepositoryIntoConfig(
 		"repo_2",
-		accTestName("data-sidecar-bound-ports", "repo2"),
+		accTestName(sidecarBoundPortsDataSourceName, "repo2"),
 		"mongodb",
 		"mongodb.com",
 		27017,

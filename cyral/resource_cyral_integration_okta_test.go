@@ -7,9 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationOktaResourceName = "integration-okta"
+)
+
 var initialOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPayload{
 	Samlp: ResourceIntegrationOkta{
-		Name:         accTestName("integration-okta", "okta"),
+		Name:         accTestName(integrationOktaResourceName, "okta"),
 		Certificate:  "certificate",
 		EmailDomains: []string{"sigin.com"},
 		SignInUrl:    "https://sigin.com/in",
@@ -19,7 +23,7 @@ var initialOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPa
 
 var updatedOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPayload{
 	Samlp: ResourceIntegrationOkta{
-		Name:         accTestName("integration-okta", "okta"),
+		Name:         accTestName(integrationOktaResourceName, "okta"),
 		Certificate:  "certificate-updated",
 		EmailDomains: []string{"siginupdated.com"},
 		SignInUrl:    "https://siginupdated.com/in",

@@ -8,8 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	roleSSOGroupsResourceName = "role-sso-groups"
+)
+
 func roleSSOGroupsTestRoleName() string {
-	return accTestName("role-sso-groups", "role")
+	return accTestName(roleSSOGroupsResourceName, "role")
 }
 
 func TestAccRoleSSOGroupsResource(t *testing.T) {

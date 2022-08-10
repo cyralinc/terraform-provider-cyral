@@ -7,9 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	datalabelResourceName = "datalabel"
+)
+
 func initialDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        accTestName("datalabel", "label1"),
+		Name:        accTestName(datalabelResourceName, "label1"),
 		Description: "label1-description",
 		Tags:        []string{"tag1", "tag2"},
 	}
@@ -17,7 +21,7 @@ func initialDataLabelConfig() *DataLabel {
 
 func updatedDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        accTestName("datalabel", "label2"),
+		Name:        accTestName(datalabelResourceName, "label2"),
 		Description: "label2-description",
 		Tags:        []string{"tag1", "tag2"},
 	}

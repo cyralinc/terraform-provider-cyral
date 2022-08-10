@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	sidecarResourceName = "sidecar"
+)
+
 func getTestCBS() CertificateBundleSecrets {
 	cbs := make(CertificateBundleSecrets)
 	cbs["sidecar"] = &CertificateBundleSecret{
@@ -19,7 +23,7 @@ func getTestCBS() CertificateBundleSecrets {
 }
 
 var cloudFormationSidecarConfig *SidecarData = &SidecarData{
-	Name:                     accTestName("sidecar", "cft"),
+	Name:                     accTestName(sidecarResourceName, "cft"),
 	Labels:                   []string{"test1"},
 	SidecarProperty:          NewSidecarProperty("cloudFormation"),
 	UserEndpoint:             "some.cft.user.endpoint",
@@ -27,7 +31,7 @@ var cloudFormationSidecarConfig *SidecarData = &SidecarData{
 }
 
 var dockerSidecarConfig *SidecarData = &SidecarData{
-	Name:                     accTestName("sidecar", "docker"),
+	Name:                     accTestName(sidecarResourceName, "docker"),
 	Labels:                   []string{"test2"},
 	SidecarProperty:          NewSidecarProperty("docker"),
 	UserEndpoint:             "some.docker.user.endpoint",
@@ -35,7 +39,7 @@ var dockerSidecarConfig *SidecarData = &SidecarData{
 }
 
 var helmSidecarConfig *SidecarData = &SidecarData{
-	Name:                     accTestName("sidecar", "helm"),
+	Name:                     accTestName(sidecarResourceName, "helm"),
 	Labels:                   []string{"test3"},
 	SidecarProperty:          NewSidecarProperty("helm"),
 	UserEndpoint:             "some.helm.user.endpoint",
@@ -43,7 +47,7 @@ var helmSidecarConfig *SidecarData = &SidecarData{
 }
 
 var tfSidecarConfig *SidecarData = &SidecarData{
-	Name:                     accTestName("sidecar", "tf"),
+	Name:                     accTestName(sidecarResourceName, "tf"),
 	Labels:                   []string{"test4"},
 	SidecarProperty:          NewSidecarProperty("terraform"),
 	UserEndpoint:             "some.tf.user.endpoint",
@@ -51,7 +55,7 @@ var tfSidecarConfig *SidecarData = &SidecarData{
 }
 
 var singleContainerSidecarConfig *SidecarData = &SidecarData{
-	Name:                     accTestName("sidecar", "singleContainer"),
+	Name:                     accTestName(sidecarResourceName, "singleContainer"),
 	Labels:                   []string{"test5"},
 	SidecarProperty:          NewSidecarProperty("singleContainer"),
 	UserEndpoint:             "some.singleContainer.user.endpoint",
@@ -59,7 +63,7 @@ var singleContainerSidecarConfig *SidecarData = &SidecarData{
 }
 
 var failoverSidecarConfig *SidecarData = &SidecarData{
-	Name:            accTestName("sidecar", "failoverSidecar"),
+	Name:            accTestName(sidecarResourceName, "failoverSidecar"),
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -70,7 +74,7 @@ var failoverSidecarConfig *SidecarData = &SidecarData{
 }
 
 var passthroughSidecarConfig *SidecarData = &SidecarData{
-	Name:            accTestName("sidecar", "passthroughSidecar"),
+	Name:            accTestName(sidecarResourceName, "passthroughSidecar"),
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{

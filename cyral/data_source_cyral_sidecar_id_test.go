@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	sidecarIDDataSourceName = "data-sidecar-id"
+)
+
 func TestAccSidecarIDDataSource(t *testing.T) {
 	nonExistentSidecarName := "some-non-existent-sidecar-name"
 
@@ -50,7 +54,7 @@ func testAccSidecarIDConfig_ExistentSidecar() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		accTestName("data-sidecar-id", "sidecar"),
+		accTestName(sidecarIDDataSourceName, "sidecar"),
 		"cloudFormation",
 	)
 	config += fmt.Sprintf(`

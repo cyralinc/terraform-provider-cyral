@@ -7,16 +7,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	datalabelDataSourceName = "data-datalabel"
+)
+
 func datalabelDataSourceTestDataLabels() []*DataLabel {
 	return []*DataLabel{
 		{
-			Name:        accTestName("data-datalabel", "1"),
+			Name:        accTestName(datalabelDataSourceName, "1"),
 			Type:        dataLabelTypeCustom,
 			Description: "description-1",
 			Tags:        []string{"tag-1", "tag-2"},
 		},
 		{
-			Name:        accTestName("data-datalabel", "2"),
+			Name:        accTestName(datalabelDataSourceName, "2"),
 			Type:        dataLabelTypeCustom,
 			Description: "description-2",
 			Tags:        []string{"tag-3"},

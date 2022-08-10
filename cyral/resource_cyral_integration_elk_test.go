@@ -7,14 +7,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationELKResourceName = "integration-elk"
+)
+
 var initialELKConfig ELKIntegration = ELKIntegration{
-	Name:      accTestName("integration-elk", "ELK"),
+	Name:      accTestName(integrationELKResourceName, "ELK"),
 	KibanaURL: "kibana.local",
 	ESURL:     "es.local",
 }
 
 var updatedELKConfig ELKIntegration = ELKIntegration{
-	Name:      accTestName("integration-elk", "ELK-updated"),
+	Name:      accTestName(integrationELKResourceName, "ELK-updated"),
 	KibanaURL: "kibana-update.local",
 	ESURL:     "es-update.local",
 }
