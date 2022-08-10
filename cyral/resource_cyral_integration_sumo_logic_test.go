@@ -8,12 +8,12 @@ import (
 )
 
 var initialSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    "tf-test-sumo-logic",
+	Name:    accTestName("integration-sumo-logic", "sumo-logic"),
 	Address: "sumologic.local/initial",
 }
 
 var updatedSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    "tf-test-update-sumo-logic",
+	Name:    accTestName("integration-sumo-logic", "sumo-logic-updated"),
 	Address: "sumologic.local/updated",
 }
 

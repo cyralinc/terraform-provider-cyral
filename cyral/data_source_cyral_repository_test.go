@@ -10,14 +10,14 @@ import (
 func repositoryDataSourceTestRepos() []RepoData {
 	return []RepoData{
 		{
-			Name:     "tfprov-test-repository-dsource-sqlserver-1",
+			Name:     accTestName("data-repository", "sqlserver-1"),
 			Host:     "localhost",
 			Port:     1433,
 			RepoType: "sqlserver",
 			Labels:   []string{"rds", "us-east-2"},
 		},
 		{
-			Name:                "tfprov-test-repository-dsource-mongodb-1",
+			Name:                accTestName("repository", "mongodb-1"),
 			Host:                "localhost",
 			Port:                27017,
 			RepoType:            "mongodb",
@@ -32,12 +32,13 @@ func repositoryDataSourceTestRepos() []RepoData {
 }
 
 func TestAccRepositoryDataSource(t *testing.T) {
+	testRepos := repositoryDataSourceTestRepos()
 	testConfigNameFilter, testFuncNameFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "^tfprov-test-repository-dsource-sqlserver-1$", "")
+		testRepos, fmt.Sprintf("^%s$", testRepos[0].Name), "")
 	testConfigTypeFilter, testFuncTypeFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "", "mongodb")
+		testRepos, "", "mongodb")
 	testConfigNameTypeFilter, testFuncNameTypeFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "^tfprov-test-repository-dsource-mongodb-1$", "mongodb")
+		repositoryDataSourceTestRepos(), fmt.Sprintf("^%s$", testRepos[1].Name), "mongodb")
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -69,8 +70,8 @@ func testRepositoryDataSourceConfig(repoDatas []RepoData, nameFilter, typeFilter
 	var config string
 	var dependsOn []string
 	for _, repoData := range repoDatas {
-		config += formatRepoDataIntoConfig(repoData)
-		dependsOn = append(dependsOn, repositoryConfigResourceFullName(repoData.Name))
+		config += formatRepoDataIntoConfig(repoData, repoData.Name)
+		dependsOn = append(dependsOn, fmt.Sprintf("cyral_repository.%s", repoData.Name))
 	}
 	config += repositoryDataSourceConfig(nameFilter, typeFilter, dependsOn)
 

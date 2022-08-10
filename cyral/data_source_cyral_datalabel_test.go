@@ -10,13 +10,13 @@ import (
 func datalabelDataSourceTestDataLabels() []*DataLabel {
 	return []*DataLabel{
 		{
-			Name:        "tf-provider-test-datalabel-1",
+			Name:        accTestName("data-datalabel", "1"),
 			Type:        dataLabelTypeCustom,
 			Description: "description-1",
 			Tags:        []string{"tag-1", "tag-2"},
 		},
 		{
-			Name:        "tf-provider-test-datalabel-2",
+			Name:        accTestName("data-datalabel", "2"),
 			Type:        dataLabelTypeCustom,
 			Description: "description-2",
 			Tags:        []string{"tag-3"},

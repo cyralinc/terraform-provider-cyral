@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const (
-	roleSSOGroupsTestRoleName = "tfprov-test-role-sso-groups-role"
-)
+func roleSSOGroupsTestRoleName() string {
+	return accTestName("role-sso-groups", "role")
+}
 
 func TestAccRoleSSOGroupsResource(t *testing.T) {
 	// This resource needs to exist when the last step executes, which is an
@@ -81,7 +81,7 @@ func testAccRoleSSOGroupsConfig_EmptySSOGroup() string {
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
 		role_id=cyral_role.test_role.id
 	}
-	`, roleSSOGroupsTestRoleName)
+	`, roleSSOGroupsTestRoleName())
 }
 
 func testAccRoleSSOGroupsConfig_EmptyGroupName() string {
@@ -104,7 +104,7 @@ func testAccRoleSSOGroupsConfig_EmptyGroupName() string {
 			idp_id=cyral_integration_idp_okta.test_idp_integration.id
 		}
 	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
 }
 
 func testAccRoleSSOGroupsConfig_EmptyIdPID() string {
@@ -127,7 +127,7 @@ func testAccRoleSSOGroupsConfig_EmptyIdPID() string {
 			group_name="Everyone"
 		}
 	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
 }
 
 func testAccRoleSSOGroupsConfig_SingleSSOGroup() string {
@@ -151,7 +151,7 @@ func testAccRoleSSOGroupsConfig_SingleSSOGroup() string {
 			idp_id=cyral_integration_idp_okta.test_idp_integration.id
 		}
 	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
 }
 
 func testAccRoleSSOGroupsCheck_SingleSSOGroup() resource.TestCheckFunc {
@@ -199,7 +199,7 @@ func testAccRoleSSOGroupsConfig_MultipleSSOGroups() string {
 			idp_id=cyral_integration_idp_okta.test_idp_integration.id
 		}
 	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName)
+	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
 }
 
 func testAccRoleSSOGroupsCheck_MultipleSSOGroups() resource.TestCheckFunc {

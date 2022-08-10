@@ -19,7 +19,7 @@ func getTestCBS() CertificateBundleSecrets {
 }
 
 var cloudFormationSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-cft",
+	Name:                     accTestName("sidecar", "cft"),
 	Labels:                   []string{"test1"},
 	SidecarProperty:          NewSidecarProperty("cloudFormation"),
 	UserEndpoint:             "some.cft.user.endpoint",
@@ -27,7 +27,7 @@ var cloudFormationSidecarConfig *SidecarData = &SidecarData{
 }
 
 var dockerSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-docker",
+	Name:                     accTestName("sidecar", "docker"),
 	Labels:                   []string{"test2"},
 	SidecarProperty:          NewSidecarProperty("docker"),
 	UserEndpoint:             "some.docker.user.endpoint",
@@ -35,7 +35,7 @@ var dockerSidecarConfig *SidecarData = &SidecarData{
 }
 
 var helmSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-helm",
+	Name:                     accTestName("sidecar", "helm"),
 	Labels:                   []string{"test3"},
 	SidecarProperty:          NewSidecarProperty("helm"),
 	UserEndpoint:             "some.helm.user.endpoint",
@@ -43,7 +43,7 @@ var helmSidecarConfig *SidecarData = &SidecarData{
 }
 
 var tfSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-tf",
+	Name:                     accTestName("sidecar", "tf"),
 	Labels:                   []string{"test4"},
 	SidecarProperty:          NewSidecarProperty("terraform"),
 	UserEndpoint:             "some.tf.user.endpoint",
@@ -51,7 +51,7 @@ var tfSidecarConfig *SidecarData = &SidecarData{
 }
 
 var singleContainerSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-singleContainer",
+	Name:                     accTestName("sidecar", "singleContainer"),
 	Labels:                   []string{"test5"},
 	SidecarProperty:          NewSidecarProperty("singleContainer"),
 	UserEndpoint:             "some.singleContainer.user.endpoint",
@@ -59,7 +59,7 @@ var singleContainerSidecarConfig *SidecarData = &SidecarData{
 }
 
 var failoverSidecarConfig *SidecarData = &SidecarData{
-	Name:            "tf-provider-TestAccSidecarResource-failoverSidecar",
+	Name:            accTestName("sidecar", "failoverSidecar"),
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -70,7 +70,7 @@ var failoverSidecarConfig *SidecarData = &SidecarData{
 }
 
 var passthroughSidecarConfig *SidecarData = &SidecarData{
-	Name:            "tf-provider-TestAccSidecarResource-passthroughSidecar",
+	Name:            accTestName("sidecar", "passthroughSidecar"),
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{

@@ -9,7 +9,7 @@ import (
 
 var initialLogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash.local/",
-	Name:                       "tf-logstash-test",
+	Name:                       accTestName("integration-logstash", "logstash-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     false,
@@ -17,7 +17,7 @@ var initialLogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated1LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       "tf-logstash-update-test",
+	Name:                       accTestName("integration-logstash", "logstash-update-test"),
 	UseMutualAuthentication:    true,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     false,
@@ -25,7 +25,7 @@ var updated1LogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated2LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       "logstash-update-test",
+	Name:                       accTestName("integration-logstash", "logstash-update-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: true,
 	UseTLS:                     false,
@@ -33,7 +33,7 @@ var updated2LogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated3LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       "logstash-update-test",
+	Name:                       accTestName("integration-logstash", "logstash-update-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     true,

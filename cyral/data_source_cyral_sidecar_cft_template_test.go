@@ -26,16 +26,16 @@ func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
 	var configuration string
 	configuration += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		"tfprov-test-data-sidecar-cft-template-sidecar",
+		accTestName("data-sidecar-cft-template", "sidecar"),
 		"cloudFormation",
 	)
 	configuration += formatELKIntegrationDataIntoConfig(ELKIntegration{
-		Name:      "tfprov-test-data-sidecar-cft-template-elk",
+		Name:      accTestName("data-sidecar-cft-template", "elk"),
 		KibanaURL: "kibana.local",
 		ESURL:     "es.local",
 	})
 	configuration += formatDatadogIntegrationDataIntoConfig(DatadogIntegration{
-		Name:   "tfprov-test-data-sidecar-cft-template-datadog",
+		Name:   accTestName("data-sidecar-cft-template", "datadog"),
 		APIKey: "datadog-api-key",
 	})
 	configuration += formatSidecarCftTemplateDataIntoConfig(

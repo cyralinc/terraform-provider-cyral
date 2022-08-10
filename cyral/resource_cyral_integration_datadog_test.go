@@ -8,12 +8,12 @@ import (
 )
 
 var initialDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   "unitTest-Datadog",
+	Name:   accTestName("integration-datadog", "datadog"),
 	APIKey: "some-api-key",
 }
 
 var updatedDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   "unitTest-Datadog-updated",
+	Name:   accTestName("integration-datadog", "datadog-updated"),
 	APIKey: "some-api-key-updated",
 }
 
@@ -55,8 +55,8 @@ func setupDatadogTest(integrationData DatadogIntegration) (string, resource.Test
 
 func formatDatadogIntegrationDataIntoConfig(data DatadogIntegration) string {
 	return fmt.Sprintf(`
-resource "cyral_integration_datadog" "datadog_integration" {
-    name = "%s"
-    api_key = "%s"
-}`, data.Name, data.APIKey)
+	resource "cyral_integration_datadog" "datadog_integration" {
+		name = "%s"
+		api_key = "%s"
+	}`, data.Name, data.APIKey)
 }

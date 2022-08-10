@@ -9,7 +9,7 @@ import (
 
 var initialOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPayload{
 	Samlp: ResourceIntegrationOkta{
-		Name:         "tf-test-integration-okta",
+		Name:         accTestName("integration-okta", "okta"),
 		Certificate:  "certificate",
 		EmailDomains: []string{"sigin.com"},
 		SignInUrl:    "https://sigin.com/in",
@@ -19,7 +19,7 @@ var initialOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPa
 
 var updatedOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPayload{
 	Samlp: ResourceIntegrationOkta{
-		Name:         "tf-test-integration-okta",
+		Name:         accTestName("integration-okta", "okta"),
 		Certificate:  "certificate-updated",
 		EmailDomains: []string{"siginupdated.com"},
 		SignInUrl:    "https://siginupdated.com/in",

@@ -14,16 +14,16 @@ import (
 func roleDataSourceTestUserGroupsAndRoleNames() ([]*UserGroup, []string) {
 	return []*UserGroup{
 		{
-			Name:        "tf-provider-test-user-group-1",
+			Name:        "tfprov-test-user-group-1",
 			Description: "description-1",
 		},
 		{
-			Name:        "tf-provider-test-user-group-2",
+			Name:        "tfprov-test-user-group-2",
 			Description: "description-2",
 		},
 	}, []string{
-		"tf-provider-test-role-1",
-		"tf-provider-test-role-2",
+		"tfprov-test-role-1",
+		"tfprov-test-role-2",
 	}
 }
 */
@@ -35,13 +35,7 @@ func TestAccRoleDataSource(t *testing.T) {
 			{
 				Config: roleDataSourceConfig(
 					"main_test",
-					"tf-provider-test-user-group-1",
-					[]string{}),
-			},
-			{
-				Config: roleDataSourceConfig(
-					"main_test",
-					"tf-provider-test-user-group-2",
+					"",
 					[]string{}),
 			},
 		},

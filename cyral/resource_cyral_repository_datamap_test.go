@@ -12,18 +12,20 @@ import (
 const (
 	predefinedLabelCCN = "CCN"
 	predefinedLabelSSN = "SSN"
-
-	testRepositoryDatamapCustomLabel = "tf-provider-repository-datamap-custom-label"
 )
 
 func repositoryDatamapSampleRepositoryConfig(resName string) string {
 	return formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
-		fmt.Sprintf("tfprov-test-repository-datamap-%s", resName),
+		accTestName("repository-datamap", resName),
 		"sqlserver",
 		"localhost",
 		1433,
 	)
+}
+
+func testRepositoryDatamapCustomLabel() string {
+	return accTestName("repository-datamap", "custom-label")
 }
 
 func initialDataMapConfigRemoveMapping() *DataMap {
@@ -83,14 +85,14 @@ func updatedDataMapConfigRemoveAttribute() *DataMap {
 func dataMapConfigWithDataLabel() (*DataMap, *DataLabel) {
 	return &DataMap{
 			Labels: map[string]*DataMapMapping{
-				testRepositoryDatamapCustomLabel: &DataMapMapping{
+				testRepositoryDatamapCustomLabel(): &DataMapMapping{
 					Attributes: []string{
 						"schema1.table1.col1",
 					},
 				},
 			},
 		}, &DataLabel{
-			Name:        testRepositoryDatamapCustomLabel,
+			Name:        testRepositoryDatamapCustomLabel(),
 			Description: "custom-label-description",
 			Tags:        []string{"tag1"},
 		}
@@ -225,7 +227,7 @@ func formatDataMapIntoConfig(
 			attributes = [%s]
 		}`, label, listToStr(mapping.Attributes))
 
-		if label == testRepositoryDatamapCustomLabel {
+		if label == testRepositoryDatamapCustomLabel() {
 			// If there is a custom label in the configuration, we
 			// need to delete the data map first, otherwise the
 			// label cannot be deleted. The depends_on Terraform

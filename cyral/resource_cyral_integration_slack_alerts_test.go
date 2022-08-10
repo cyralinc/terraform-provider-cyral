@@ -8,12 +8,12 @@ import (
 )
 
 var initialSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: "tf-test-slack-alerts",
+	Name: accTestName("integration-slack-alerts", "slack-alerts"),
 	URL:  "https://slack.local",
 }
 
 var updatedSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: "tf-test-update-slack-alerts",
+	Name: accTestName("integration-slack-alerts", "slack-alerts-updated"),
 	URL:  "https://slack-updated.local",
 }
 

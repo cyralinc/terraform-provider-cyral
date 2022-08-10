@@ -8,7 +8,7 @@ import (
 )
 
 var initialRepoConfig RepoData = RepoData{
-	Name:     "repo-test",
+	Name:     accTestName("repository", "repo"),
 	Host:     "mongo.local",
 	Port:     3333,
 	RepoType: "mongodb",
@@ -16,7 +16,7 @@ var initialRepoConfig RepoData = RepoData{
 }
 
 var updatedRepoConfig RepoData = RepoData{
-	Name:     "repo-test-updated",
+	Name:     accTestName("repository", "repo-updated"),
 	Host:     "mongo-updated.local",
 	Port:     3334,
 	RepoType: "mongodb",
@@ -24,7 +24,7 @@ var updatedRepoConfig RepoData = RepoData{
 }
 
 var replicaSetRepoConfig RepoData = RepoData{
-	Name:                "repo-test-replica-set",
+	Name:                accTestName("repository", "repo-replica-set"),
 	Host:                "mongo-cluster.local",
 	Port:                27017,
 	RepoType:            "mongodb",
@@ -37,12 +37,15 @@ var replicaSetRepoConfig RepoData = RepoData{
 }
 
 func TestAccRepositoryResource(t *testing.T) {
-	testConfig, testFunc := setupRepositoryTest(initialRepoConfig)
-	testUpdateConfig, testUpdateFunc := setupRepositoryTest(updatedRepoConfig)
-	testReplicaSetConfig, testReplicaSetFunc := setupRepositoryTest(replicaSetRepoConfig)
+	testConfig, testFunc := setupRepositoryTest(
+		initialRepoConfig, "update_test")
+	testUpdateConfig, testUpdateFunc := setupRepositoryTest(
+		updatedRepoConfig, "update_test")
+	testReplicaSetConfig, testReplicaSetFunc := setupRepositoryTest(
+		replicaSetRepoConfig, "replica_config_test")
 
 	// Should use name of the last resource created.
-	importTestResourceName := repositoryConfigResourceFullName(replicaSetRepoConfig.Name)
+	importTestResourceName := "cyral_repository.replica_config_test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -68,10 +71,10 @@ func TestAccRepositoryResource(t *testing.T) {
 	})
 }
 
-func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
-	configuration := formatRepoDataIntoConfig(repoData)
+func setupRepositoryTest(repoData RepoData, resName string) (string, resource.TestCheckFunc) {
+	configuration := formatRepoDataIntoConfig(repoData, resName)
 
-	resourceFullName := repositoryConfigResourceFullName(repoData.Name)
+	resourceFullName := fmt.Sprintf("cyral_repository.%s", resName)
 
 	checkFuncs := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr(resourceFullName, "type", repoData.RepoType),
@@ -98,15 +101,7 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 	return configuration, testFunction
 }
 
-func repositoryConfigResourceFullName(repoName string) string {
-	return fmt.Sprintf("cyral_repository.%s", repositoryConfigResourceName(repoName))
-}
-
-func repositoryConfigResourceName(repoName string) string {
-	return fmt.Sprintf("test_repository_%s", repoName)
-}
-
-func formatRepoDataIntoConfig(data RepoData) string {
+func formatRepoDataIntoConfig(data RepoData, resName string) string {
 	var propertiesStr string
 	if data.Properties != nil {
 		properties := data.Properties
@@ -133,6 +128,6 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		name  = "%s"
 		labels = [%s]
 		%s
-	}`, repositoryConfigResourceName(data.Name), data.RepoType, data.Host,
+	}`, resName, data.RepoType, data.Host,
 		data.Port, data.Name, listToStr(data.Labels), propertiesStr)
 }

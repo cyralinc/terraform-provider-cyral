@@ -13,7 +13,7 @@ const (
 )
 
 func TestAccIdPIntegrationResource(t *testing.T) {
-	idpDisplayName := "tf-test-idp-integration"
+	idpDisplayName := accTestName("integration-idp", "okta")
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{

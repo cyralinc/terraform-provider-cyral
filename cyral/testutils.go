@@ -21,6 +21,26 @@ const (
 	basicPolicyID                      = "cyral_policy.test_policy.id"
 )
 
+// accTestName attempts to make resource names unique to a specific resource
+// type, and avoid name clashes with other resources that exist in the testing
+// control plane.
+//
+// Use this for every resource for which name clashes may occur.
+//
+// Example usage for cyral_datalabel resource:
+//
+//     accTestName("datalabel", "label1")
+//
+// Example usage for cyral_datalabel data source:
+//
+//     accTestName("data-datalabel", "label1")
+//
+// Note that doing it like above will prevent that the tests attempt to create a
+// label called LABEL1 simultaneously, which would cause a failure.
+func accTestName(resType, suffix string) string {
+	return fmt.Sprintf("tfprov-test-%s-%s", resType, suffix)
+}
+
 func importStateComposedIDFunc(
 	resName string,
 	idAtts []string,

@@ -9,7 +9,7 @@ import (
 
 var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tfprov-test-identity-map",
+	IdentityName: accTestName("repository-identity-map", "identity"),
 	AccessDuration: &AccessDuration{
 		Days:    7,
 		Hours:   10,
@@ -20,7 +20,7 @@ var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tfprov-test-identity-map",
+	IdentityName: accTestName("repository-identity-map", "identity"),
 	AccessDuration: &AccessDuration{
 		Days:    0,
 		Hours:   0,
@@ -31,7 +31,7 @@ var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var identityMapConfigWithoutAccessDuration RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tfprov-test-identity-map",
+	IdentityName: accTestName("repository-identity-map", "identity"),
 }
 
 func TestAccRepositoryIdentityMapResource(t *testing.T) {
@@ -42,7 +42,7 @@ func TestAccRepositoryIdentityMapResource(t *testing.T) {
 	testWithoutAccessDurationConfig, testWithoutAccessDurationFunc :=
 		setupRepositoryIdentityMapTest(identityMapConfigWithoutAccessDuration)
 
-	importStateResName := "cyral_repository_identity_map.tf_test_cyral_sidecar_template"
+	importStateResName := "cyral_repository_identity_map.test_identity_map"
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -98,28 +98,28 @@ func setupRepositoryIdentityMapTest(integrationData RepositoryIdentityMapResourc
 	var testFunction resource.TestCheckFunc
 	if integrationData.AccessDuration != nil {
 		testFunction = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_type", integrationData.IdentityType),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_name", integrationData.IdentityName),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.#", "1"),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.days", fmt.Sprintf("%d", integrationData.AccessDuration.Days)),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.hours", fmt.Sprintf("%d", integrationData.AccessDuration.Hours)),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.minutes", fmt.Sprintf("%d", integrationData.AccessDuration.Minutes)),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.seconds", fmt.Sprintf("%d", integrationData.AccessDuration.Seconds)),
 		)
 	} else {
 		testFunction = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_type", integrationData.IdentityType),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_name", integrationData.IdentityName),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.#", "0"),
 		)
 	}
@@ -133,7 +133,7 @@ func formatRepositoryIdentityMapDataIntoConfig(
 	var config string
 	if data.AccessDuration != nil {
 		config = fmt.Sprintf(`
-	resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
+	resource "cyral_repository_identity_map" "test_identity_map" {
 		repository_id               = %s
 		repository_local_account_id = %s
 		identity_type               = "%s"
@@ -149,7 +149,7 @@ func formatRepositoryIdentityMapDataIntoConfig(
 			data.AccessDuration.Minutes, data.AccessDuration.Seconds)
 	} else {
 		config = fmt.Sprintf(`
-	resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
+	resource "cyral_repository_identity_map" "test_identity_map" {
 		repository_id               = %s
 		repository_local_account_id = %s
 		identity_type               = "%s"

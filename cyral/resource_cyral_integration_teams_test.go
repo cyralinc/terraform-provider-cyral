@@ -8,12 +8,12 @@ import (
 )
 
 var initialTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: "tf-test-msteams-alerts",
+	Name: accTestName("integration-teams", "msteams-alerts"),
 	URL:  "https://msteams.local",
 }
 
 var updatedTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: "tf-test-msteams-alerts",
+	Name: accTestName("integration-teams", "msteams-alerts"),
 	URL:  "https://msteams-updated.local",
 }
 

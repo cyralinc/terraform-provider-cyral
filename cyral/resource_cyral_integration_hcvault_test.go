@@ -11,7 +11,7 @@ var initialHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
 	AuthMethod: "unitTest-auth_method",
 	ID:         "unitTest-id",
 	AuthType:   "unitTest-auth_type",
-	Name:       "unitTest-name",
+	Name:       accTestName("integration-hcvault", "hcvault"),
 	Server:     "unitTest-server",
 }
 
@@ -19,7 +19,7 @@ var updatedHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
 	AuthMethod: "unitTest-auth_method-updated",
 	ID:         "unitTest-id-updated",
 	AuthType:   "unitTest-auth_type-updated",
-	Name:       "unitTest-name-updated",
+	Name:       accTestName("integration-hcvault", "hcvault-updated"),
 	Server:     "unitTest-server-updated",
 }
 

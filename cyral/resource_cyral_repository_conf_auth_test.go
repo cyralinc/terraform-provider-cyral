@@ -50,25 +50,25 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 	})
 }
 
-func setupRepositoryConfAuthTest(integrationData RepositoryConfAuthData) (string, resource.TestCheckFunc) {
+func setupRepositoryConfAuthTest(repositoryConf RepositoryConfAuthData) (string, resource.TestCheckFunc) {
 	var configuration string
 	configuration += formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
-		"tfprov-test-repository-conf-auth-repository",
+		accTestName("repository-conf-auth", "repository"),
 		"mysql",
 		"http://mysql.local/",
 		3306,
 	)
 	configuration += formatRepositoryConfAuthDataIntoConfig(
-		integrationData, basicRepositoryID)
+		repositoryConf, basicRepositoryID)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_repository_conf_auth.my-repository-conf-auth",
-			"allow_native_auth", fmt.Sprintf("%t", integrationData.AllowNativeAuth)),
+			"allow_native_auth", fmt.Sprintf("%t", repositoryConf.AllowNativeAuth)),
 		resource.TestCheckResourceAttr("cyral_repository_conf_auth.my-repository-conf-auth",
-			"client_tls", integrationData.ClientTLS),
+			"client_tls", repositoryConf.ClientTLS),
 		resource.TestCheckResourceAttr("cyral_repository_conf_auth.my-repository-conf-auth",
-			"repo_tls", integrationData.RepoTLS),
+			"repo_tls", repositoryConf.RepoTLS),
 	)
 
 	return configuration, testFunction
@@ -78,14 +78,12 @@ func formatRepositoryConfAuthDataIntoConfig(
 	data RepositoryConfAuthData,
 	repositoryID string,
 ) string {
-	config := fmt.Sprintf(`
+	return fmt.Sprintf(`
 	resource "cyral_repository_conf_auth" "my-repository-conf-auth" {
-		repository_id = cyral_repository.test_repository.id
+		repository_id = %s
 		allow_native_auth = %t
 		client_tls = "%s"
 		identity_provider = "tf_test_conf_auth_okta"
 		repo_tls = "%s"
-	}`, data.AllowNativeAuth, data.ClientTLS, data.RepoTLS)
-
-	return config
+	}`, repositoryID, data.AllowNativeAuth, data.ClientTLS, data.RepoTLS)
 }

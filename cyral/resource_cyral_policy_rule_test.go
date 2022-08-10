@@ -79,36 +79,32 @@ func TestAccPolicyRuleResource(t *testing.T) {
 	})
 }
 
-func setupPolicyRuleTest(integrationData PolicyRuleConfig) (string, resource.TestCheckFunc) {
-	configuration := formatPolicyRuleConfigIntoConfig(integrationData)
-
-	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "deletes.0.severity", integrationData.DeletedSeverity),
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "reads.0.severity", integrationData.ReadSeverity),
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "updates.0.severity", integrationData.UpdatedSeverity),
-	)
-
-	return configuration, testFunction
-}
-
-// TODO: finish decomposing this function -aholmquist 2022-08-08
-func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
+func setupPolicyRuleTest(policyRule PolicyRuleConfig) (string, resource.TestCheckFunc) {
 	testLabelName := "TEST_CCN"
-
 	var config string
-	config += formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
-		"tf-provider-policy-rule-repository",
-		"mysql",
-		"http://mysql.local/",
-		3306,
-	)
 	config += formatBasicPolicyIntoConfig(
-		"tf-provider-policy-rule-policy",
+		accTestName("policy-rule", "policy"),
 		[]string{testLabelName},
 	)
+	config += formatPolicyRuleConfigIntoConfig(
+		policyRule,
+		testLabelName,
+	)
 
-	config += fmt.Sprintf(`
+	testFunction := resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "deletes.0.severity", policyRule.DeletedSeverity),
+		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "reads.0.severity", policyRule.ReadSeverity),
+		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "updates.0.severity", policyRule.UpdatedSeverity),
+	)
+
+	return config, testFunction
+}
+
+func formatPolicyRuleConfigIntoConfig(
+	policyRule PolicyRuleConfig,
+	dataLabelName string,
+) string {
+	return fmt.Sprintf(`
 	resource "cyral_policy_rule" "policy_rule_test" {
 		policy_id = cyral_policy.test_policy.id
 		hosts = ["192.0.2.22", "203.0.113.16/28"]
@@ -116,25 +112,24 @@ func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
 			groups = ["analyst"]
 		}
 		deletes {
-			data = ["TEST_CCN"]
+			data = ["%s"]
 			rows = 1
 			severity = "%s"
 			rate_limit = %d
 		}
 		reads {
-			data = ["TEST_CCN"]
+			data = ["%s"]
 			rows = 1
 			severity = "%s"
 			rate_limit = %d
 		}
 		updates {
-			data = ["TEST_CCN"]
+			data = ["%s"]
 			rows = 1
 			severity = "%s"
 			rate_limit = %d
 		}
-	}`, data.DeletedSeverity, data.DeletedRateLimit, data.ReadSeverity,
-		data.ReadRateLimit, data.UpdatedSeverity, data.UpdatedRateLimit)
-
-	return config
+	}`, dataLabelName, policyRule.DeletedSeverity, policyRule.DeletedRateLimit,
+		dataLabelName, policyRule.ReadSeverity, policyRule.ReadRateLimit,
+		dataLabelName, policyRule.UpdatedSeverity, policyRule.UpdatedRateLimit)
 }

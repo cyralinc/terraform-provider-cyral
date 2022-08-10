@@ -58,7 +58,7 @@ func testAccSidecarInstanceIDsConfig_NoSidecarInstances() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		"tfprov-data-sidecar-instance-ids-sidecar",
+		accTestName("data-sidecar-instance-ids", "sidecar"),
 		"cloudFormation",
 	)
 

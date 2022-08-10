@@ -8,13 +8,13 @@ import (
 )
 
 var initialELKConfig ELKIntegration = ELKIntegration{
-	Name:      "unitTest-ELK",
+	Name:      accTestName("integration-elk", "ELK"),
 	KibanaURL: "kibana.local",
 	ESURL:     "es.local",
 }
 
 var updatedELKConfig ELKIntegration = ELKIntegration{
-	Name:      "unitTest-ELK-Updated",
+	Name:      accTestName("integration-elk", "ELK-updated"),
 	KibanaURL: "kibana-update.local",
 	ESURL:     "es-update.local",
 }
@@ -57,9 +57,9 @@ func setupELKTest(integrationData ELKIntegration) (string, resource.TestCheckFun
 
 func formatELKIntegrationDataIntoConfig(data ELKIntegration) string {
 	return fmt.Sprintf(`
-resource "cyral_integration_elk" "elk_integration" {
-	name = "%s"
-	kibana_url = "%s"
-	es_url = "%s"
-}`, data.Name, data.KibanaURL, data.ESURL)
+	resource "cyral_integration_elk" "elk_integration" {
+		name = "%s"
+		kibana_url = "%s"
+		es_url = "%s"
+	}`, data.Name, data.KibanaURL, data.ESURL)
 }

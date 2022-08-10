@@ -50,7 +50,7 @@ func testAccSidecarIDConfig_ExistentSidecar() string {
 	var config string
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		"tfprov-test-data-sidecar-id-sidecar",
+		accTestName("data-sidecar-id", "sidecar"),
 		"cloudFormation",
 	)
 	config += fmt.Sprintf(`

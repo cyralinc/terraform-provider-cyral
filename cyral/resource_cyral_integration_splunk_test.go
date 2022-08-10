@@ -8,7 +8,7 @@ import (
 )
 
 var initialSplunkConfig SplunkIntegration = SplunkIntegration{
-	Name:        "splunk-test",
+	Name:        accTestName("integration-splunk", "splunk-test"),
 	AccessToken: "access-token",
 	Port:        3333,
 	Host:        "splunk.local",
@@ -17,7 +17,7 @@ var initialSplunkConfig SplunkIntegration = SplunkIntegration{
 }
 
 var updatedSplunkConfig SplunkIntegration = SplunkIntegration{
-	Name:        "splunk-test-update",
+	Name:        accTestName("integration-splunk", "splunk-test-update"),
 	AccessToken: "access-token-update",
 	Port:        6666,
 	Host:        "splunk-update.local",

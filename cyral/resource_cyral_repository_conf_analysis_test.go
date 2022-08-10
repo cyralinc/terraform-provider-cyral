@@ -11,7 +11,7 @@ import (
 func repositoryConfAnalysisSampleRepositoryConfig() string {
 	return formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
-		"tfprov-test-repository-conf-analysis-repository",
+		accTestName("repository-conf-analysis", "repository"),
 		"postgresql",
 		"some-hostname",
 		3067,

@@ -8,12 +8,12 @@ import (
 )
 
 var initialPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       "unitTest-name",
+	Name:       accTestName("integration-pager-duty", "pager-duty"),
 	Parameters: "unitTest-parameters",
 }
 
 var updatedPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       "unitTest-name-updated",
+	Name:       accTestName("integration-pager-duty", "pager-duty-updated"),
 	Parameters: "unitTest-parameters-updated",
 }
 

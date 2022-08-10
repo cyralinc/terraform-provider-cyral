@@ -9,7 +9,7 @@ import (
 
 func initialDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        "test-tf-label1",
+		Name:        accTestName("datalabel", "label1"),
 		Description: "label1-description",
 		Tags:        []string{"tag1", "tag2"},
 	}
@@ -17,7 +17,7 @@ func initialDataLabelConfig() *DataLabel {
 
 func updatedDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        "test-tf-label2",
+		Name:        accTestName("datalabel", "label2"),
 		Description: "label2-description",
 		Tags:        []string{"tag1", "tag2"},
 	}

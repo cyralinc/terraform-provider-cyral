@@ -12,7 +12,7 @@ import (
 func dsourceSidecarBoundPortsSampleSidecarConfig() string {
 	return formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		"tfprov-test-data-sidecar-bound-ports-sidecar",
+		accTestName("data-sidecar-bound-ports", "sidecar"),
 		"cloudFormation",
 	)
 }
@@ -68,7 +68,7 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 	config += dsourceSidecarBoundPortsSampleSidecarConfig()
 	config += formatBasicRepositoryIntoConfig(
 		"repo_1",
-		"tfprov-test-data-sidecar-bound-ports-repo1",
+		accTestName("data-sidecar-bound-ports", "repo1"),
 		"mysql",
 		"mysql.com",
 		3306,
@@ -81,7 +81,7 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 	)
 	config += formatBasicRepositoryIntoConfig(
 		"repo_2",
-		"tfprov-test-data-sidecar-bound-ports-repo2",
+		accTestName("data-sidecar-bound-ports", "repo2"),
 		"mongodb",
 		"mongodb.com",
 		27017,
