@@ -7,9 +7,9 @@ sweepers, avoids name clashes, and facilitates developing and maintaining test
 code. If `accTestName` is generating a name that is invalid for a particular
 resource type, please mention it in the code explicitly through comments, and
 adjust the test sweeper. We can also create other functions, such as
-`accTestNameUnderscore`, in the future.
+`accTestNameUnderscore`, in the future, if necessary.
 
 If you wish to test what Terraform calls an _in-place update_, be sure that the
-resouce is not being recreated in between the test steps. For example, if the
+resource is not being recreated in between the test steps. For example, if the
 resource name is modified, or a `ForceNew` argument is modified, the resource
 will be recreated.

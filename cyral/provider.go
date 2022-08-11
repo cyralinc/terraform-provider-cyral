@@ -243,7 +243,7 @@ func getProviderConfigFromEnv() (
 				"env var %q: %w", EnvVarTLSSkipVerify, err)
 		}
 	}
-	return clientID, clientSecret, controlPlane, tlsSkipVerify, nil
+	return
 }
 
 func newClientFromEnv() (*client.Client, error) {
