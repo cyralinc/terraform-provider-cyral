@@ -260,20 +260,20 @@ func testAccIdPIntegrationCheck_Updated(idpDisplayName string) resource.TestChec
 func testAccIdPIntegrationConfig_NotEmptyAlias() string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_idp_okta" "test_idp_integration" {
-		draft_alias = "test-alias"
+		draft_alias = "%s"
 		samlp {
 			config {
 				single_sign_on_service_url = "%s"
 			}
 		}
 	}
-	`, testSingleSignOnURL)
+	`, accTestName(integrationIdPResourceName, "test-alias"), testSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_NotEmptyAlias() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_idp_okta.test_idp_integration",
-			"draft_alias", "test-alias"),
+			"draft_alias", accTestName(integrationIdPResourceName, "test-alias")),
 		resource.TestCheckResourceAttrPair(
 			"cyral_integration_idp_okta.test_idp_integration", "id",
 			"cyral_integration_idp_okta.test_idp_integration", "draft_alias"),
