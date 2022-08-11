@@ -53,7 +53,7 @@ func TestAccDatamapResource(t *testing.T) {
 			{
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				ImportStateVerifyIgnore: []string{"mapping.", "last_updated"},
 				ResourceName:            "cyral_datamap.datamap_1",
 			},
 		},
