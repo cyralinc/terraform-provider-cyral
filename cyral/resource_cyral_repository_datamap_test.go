@@ -226,7 +226,7 @@ func formatDataMapIntoConfig(
 		mappingsStr += fmt.Sprintf(`
 		mapping {
 			label = "%s"
-			attributes = [%s]
+			attributes = %s
 		}`, label, listToStr(mapping.Attributes))
 
 		if label == testRepositoryDatamapCustomLabel() {

@@ -78,10 +78,11 @@ func setupPolicyTest(integrationData PolicyTestConfig) (string, resource.TestChe
 func formatPolicyTestConfigIntoConfig(data PolicyTestConfig) string {
 	return fmt.Sprintf(`
 	resource "cyral_policy" "policy_test" {
-		data = [%s]
+		data = %s
 		description = "%s"
 		enabled = %t
 		name = "%s"
-		tags = [%s]
-	  }`, listToStr(data.Data), data.Description, data.Enabled, data.Name, listToStr(data.Tags))
+		tags = %s
+	  }`, listToStr(data.Data), data.Description, data.Enabled,
+		data.Name, listToStr(data.Tags))
 }

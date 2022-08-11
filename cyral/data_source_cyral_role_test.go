@@ -46,6 +46,6 @@ func roleDataSourceConfig(dsourceName, nameFilter string, dependsOn []string) st
 	return fmt.Sprintf(`
 	data "cyral_role" "%s" {
 		name = "%s"
-		depends_on = [%s]
+		depends_on = %s
 	}`, dsourceName, nameFilter, listToStr(dependsOn))
 }

@@ -157,6 +157,6 @@ func datalabelDataSourceConfig(dsourceName, nameFilter, typeFilter string, depen
 	data "cyral_datalabel" "%s" {
 		name = "%s"
 		type = "%s"
-		depends_on = [%s]
+		depends_on = %s
 	}`, dsourceName, nameFilter, typeFilter, listToStr(dependsOn))
 }

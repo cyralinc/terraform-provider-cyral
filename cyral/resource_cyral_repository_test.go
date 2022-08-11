@@ -130,7 +130,7 @@ func formatRepoDataIntoConfig(data RepoData, resName string) string {
 		host  = "%s"
 		port  = %d
 		name  = "%s"
-		labels = [%s]
+		labels = %s
 		%s
 	}`, resName, data.RepoType, data.Host,
 		data.Port, data.Name, listToStr(data.Labels), propertiesStr)

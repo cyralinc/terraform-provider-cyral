@@ -79,7 +79,7 @@ func formatDataLabelIntoConfig(resName string, dataLabel *DataLabel) string {
 	resource "cyral_datalabel" "%s" {
 		name  = "%s"
 		description = "%s"
-		tags = [%s]
+		tags = %s
 	}`, resName, dataLabel.Name, dataLabel.Description,
 		listToStr(dataLabel.Tags))
 }

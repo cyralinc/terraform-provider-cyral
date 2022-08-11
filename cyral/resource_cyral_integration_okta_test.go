@@ -76,7 +76,7 @@ func formatOktaIntegrationDataIntoConfig(data ResourceIntegrationOktaPayload) st
 	resource "cyral_integration_okta" "tf_test_okta" {
 		name          = "%s"
 		certificate   = "%s"
-		email_domains = [%s]
+		email_domains = %s
 		signin_url    = "%s"
 		signout_url   = "%s"
 	  }`, data.Samlp.Name, data.Samlp.Certificate, listToStr(data.Samlp.EmailDomains), data.Samlp.SignInUrl, data.Samlp.SignOutUrl)

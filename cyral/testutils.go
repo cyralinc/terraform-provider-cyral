@@ -95,7 +95,7 @@ func formatBasicPolicyIntoConfig(name string, data []string) string {
 	return fmt.Sprintf(`
 	resource "cyral_policy" "%s" {
 		name = "%s"
-		data = [%s]
+		data = %s
 	}`, basicPolicyResName, name, listToStr(data))
 }
 
@@ -113,8 +113,7 @@ func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
 }
 
 func notZeroRegex() *regexp.Regexp {
-	// TODO: fix this regex -aholmquist 2022-08-09
-	return regexp.MustCompile("^[0-9]*[^0]$")
+	return regexp.MustCompile("[^0]|([0-9]{2,})")
 }
 
 // dsourceCheckTypeFilter is used by data source tests that accept type
@@ -155,5 +154,4 @@ func dsourceCheckTypeFilter(
 		}
 		return nil
 	}
-
 }

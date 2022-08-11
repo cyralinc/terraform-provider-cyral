@@ -177,7 +177,7 @@ func formatSidecarDataIntoConfig(sidecarData *SidecarData) string {
 	resource "cyral_sidecar" "test_sidecar" {
       		name = "%s"
 	      	deployment_method = "%s"
-		labels = [%s]
+		labels = %s
 		user_endpoint = "%s"
 		%s
 		%s

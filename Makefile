@@ -84,6 +84,5 @@ docker-compose/docs:
 #docker-compose run build pre-commit run --show-diff-on-failure --color=always --all-files
 
 sweep:
-	@echo "WARNING: This will destroy infrastructure. Use only for development"
-	@echo "control planes."
+	@echo "WARNING: This will destroy infrastructure. Use only for development control planes."
 	go test $(SWEEPDIR) -v -sweep=dummy-region $(SWEEPARGS) -timeout 15m

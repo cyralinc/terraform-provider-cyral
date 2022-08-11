@@ -148,7 +148,7 @@ func filterRepoDatas(repoDatas []RepoData, nameFilter, typeFilter string) []Repo
 func repositoryDataSourceConfig(nameFilter, typeFilter string, dependsOn []string) string {
 	return fmt.Sprintf(`
 	data "cyral_repository" "test_repository" {
-		depends_on = [%s]
+		depends_on = %s
 		name = "%s"
 		type = "%s"
 	}`, listToStr(dependsOn), nameFilter, typeFilter)

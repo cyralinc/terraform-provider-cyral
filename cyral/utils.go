@@ -1,9 +1,14 @@
 package cyral
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"sort"
 	"strings"
+
+	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
 func urlQuery(kv map[string]string) string {
@@ -30,18 +35,18 @@ func elementsMatch(this, other []string) bool {
 	return true
 }
 
-// TODO: improve this function so that it already includes the square
-// brackets. -aholmquist 2022-08-09
 func listToStr(attributes []string) string {
 	if len(attributes) == 0 {
-		return ""
+		return "[]"
 	}
-	s := fmt.Sprintf(`"%s"`, attributes[0])
+	s := "["
+	s += fmt.Sprintf(`"%s"`, attributes[0])
 	if len(attributes) > 1 {
 		for _, attribute := range attributes[1:] {
 			s += fmt.Sprintf(`, "%s"`, attribute)
 		}
 	}
+	s += "]"
 	return s
 }
 
@@ -65,4 +70,22 @@ func unmarshalComposedID(id, sep string, numFields int) ([]string, error) {
 				"fields", sep, numFields))
 	}
 	return ids, nil
+}
+
+func listSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
+	log.Printf("[DEBUG] Init listSidecars")
+	url := fmt.Sprintf("https://%s/v1/sidecars", c.ControlPlane)
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var sidecarsInfo []IdentifiedSidecarInfo
+	if err := json.Unmarshal(body, &sidecarsInfo); err != nil {
+		return nil, err
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", sidecarsInfo)
+	log.Printf("[DEBUG] End listSidecars")
+
+	return sidecarsInfo, nil
 }
