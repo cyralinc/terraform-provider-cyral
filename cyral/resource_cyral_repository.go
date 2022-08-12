@@ -33,10 +33,6 @@ type RepoData struct {
 	Properties          *RepositoryProperties `json:"properties,omitempty"`
 }
 
-func (data *RepoData) IsReplicaSet() bool {
-	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
-}
-
 func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("type", data.RepoType)
 	d.Set("host", data.Host)
@@ -44,11 +40,15 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("labels", data.Labels)
 
-	var properties []interface{}
-	if data.Properties != nil {
-		propertiesMap := make(map[string]interface{})
+	properties := data.PropertiesAsInterface()
+	d.Set("properties", properties)
+}
 
+func (data *RepoData) PropertiesAsInterface() []interface{} {
+	properties := []interface{}{}
+	if data.Properties != nil {
 		if data.IsReplicaSet() {
+			propertiesMap := make(map[string]interface{})
 			var rset []interface{}
 			rsetMap := make(map[string]interface{})
 			rsetMap["max_nodes"] = data.MaxAllowedListeners
@@ -56,12 +56,15 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 			rset = append(rset, rsetMap)
 
 			propertiesMap["mongodb_replica_set"] = rset
+			properties = append(properties, propertiesMap)
 		}
-
-		properties = append(properties, propertiesMap)
 	}
 
-	d.Set("properties", properties)
+	return properties
+}
+
+func (data *RepoData) IsReplicaSet() bool {
+	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
 }
 
 // RepositoryProperties relates to the field "properties" of the v1/repos
@@ -152,6 +155,22 @@ func resourceRepository() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				MaxItems:    1,
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					log.Printf("[DEBUG] k=%s oldValue=%s newValue=%s\n", k, oldValue, newValue)
+					log.Printf("[DEBUG] Different=%t", oldValue != newValue)
+					log.Printf("[DEBUG] ResourceData.properties=%#v", d.Get("properties").(*schema.Set).List())
+
+					propertiesSet := d.Get("properties").(*schema.Set)
+					if k == "properties.#" && oldValue == "0" && newValue == "1" && propertiesSet.Len() == 1 {
+						log.Printf("[DEBUG] In first if")
+						mongodbConfig := propertiesSet.List()[0]
+						if mongodbConfig == nil {
+							log.Printf("[DEBUG] In second if")
+							return true
+						}
+					}
+					return false
+				},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mongodb_replica_set": {
