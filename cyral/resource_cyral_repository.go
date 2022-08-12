@@ -149,6 +149,16 @@ func resourceRepository() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				MaxItems:    1,
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					propertiesSet := d.Get("properties").(*schema.Set)
+					if k == "properties.#" && oldValue == "0" && newValue == "1" && propertiesSet.Len() == 1 {
+						mongodbConfig := propertiesSet.List()[0]
+						if mongodbConfig == nil {
+							return true
+						}
+					}
+					return false
+				},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mongodb_replica_set": {
