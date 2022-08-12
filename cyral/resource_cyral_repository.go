@@ -156,16 +156,10 @@ func resourceRepository() *schema.Resource {
 				Optional:    true,
 				MaxItems:    1,
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					log.Printf("[DEBUG] k=%s oldValue=%s newValue=%s\n", k, oldValue, newValue)
-					log.Printf("[DEBUG] Different=%t", oldValue != newValue)
-					log.Printf("[DEBUG] ResourceData.properties=%#v", d.Get("properties").(*schema.Set).List())
-
 					propertiesSet := d.Get("properties").(*schema.Set)
 					if k == "properties.#" && oldValue == "0" && newValue == "1" && propertiesSet.Len() == 1 {
-						log.Printf("[DEBUG] In first if")
 						mongodbConfig := propertiesSet.List()[0]
 						if mongodbConfig == nil {
-							log.Printf("[DEBUG] In second if")
 							return true
 						}
 					}
@@ -315,6 +309,7 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
 		properties = new(RepositoryProperties)
 		for _, propertiesMap := range propertiesIface.List() {
+
 			propertiesMap := propertiesMap.(map[string]interface{})
 
 			// Replica set properties

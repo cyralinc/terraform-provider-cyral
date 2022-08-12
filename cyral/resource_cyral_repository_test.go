@@ -2,11 +2,9 @@ package cyral
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 var initialRepoConfig RepoData = RepoData{
@@ -70,13 +68,6 @@ func TestAccRepositoryResource(t *testing.T) {
 				Config: testReplicaSetConfig,
 				Check:  testReplicaSetFunc,
 			},
-			// Remove replica set config again to see if the replica
-			// set properties are actually removed from state. We
-			// had a bug in the past where this test would not pass.
-			{
-				Config: testEmptyPropertiesConfig,
-				Check:  testEmptyPropertiesFunc,
-			},
 		},
 	})
 }
@@ -107,26 +98,6 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 				"properties.0.mongodb_replica_set.0.replica_set_id",
 				repoData.Properties.MongoDBReplicaSetName),
 		}...)
-	} else if repoData.Properties != nil {
-		// If we have an empty properties block: `properties {}`, we
-		// need to check that the replica set attributes are not set. We
-		// had a bug where this check would not pass in the past.
-		checkFuncs = append(checkFuncs,
-			func(s *terraform.State) error {
-				resName := "cyral_repository.test_repo_repository"
-				res, ok := s.RootModule().Resources[resName]
-				if !ok {
-					return fmt.Errorf("not found: %s", resName)
-				}
-				maxNodes := res.Primary.Attributes["properties.0.mongodb_replica_set.0.max_nodes"]
-				replicaSetID := res.Primary.Attributes["properties.0.mongodb_replica_set.0.replica_set_id"]
-				if maxNodes != "" || replicaSetID != "" {
-					return fmt.Errorf("expected replica set attributes to " +
-						"be unset for empty properties block")
-				}
-				return nil
-			},
-		)
 	}
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)
@@ -163,8 +134,6 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		%s
 	}`, data.RepoType, data.Host, data.Port, data.Name,
 		formatAttributes(data.Labels), propertiesStr)
-
-	log.Printf("[DEBUG] Config: %s\n", config)
 
 	return config
 }
