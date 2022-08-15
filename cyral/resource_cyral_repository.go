@@ -61,8 +61,9 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("labels", data.Labels)
 
-	properties := data.PropertiesAsInterface()
-	d.Set("properties", properties)
+	if properties := data.PropertiesAsInterface(); properties != nil {
+		d.Set("properties", properties)
+	}
 }
 
 func (data *RepoData) PropertiesAsInterface() []interface{} {
@@ -291,8 +292,8 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 	var maxAllowedListeners uint32
 	var properties *RepositoryProperties
 	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
-		properties = new(RepositoryProperties)
 		for _, propertiesMap := range propertiesIface.List() {
+			properties = new(RepositoryProperties)
 			propertiesMap := propertiesMap.(map[string]interface{})
 
 			// Replica set properties
