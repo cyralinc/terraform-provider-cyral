@@ -86,15 +86,15 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 	resourceFullName := repositoryConfigResourceFullName(repoData.Name)
 
 	checkFuncs := []resource.TestCheckFunc{
-		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"type", repoData.RepoType),
-		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"host", repoData.Host),
-		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"port", fmt.Sprintf("%d", repoData.Port)),
-		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"name", repoData.Name),
-		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
+		resource.TestCheckResourceAttr(resourceFullName,
 			"labels.#", fmt.Sprintf("%d", len(repoData.Labels))),
 	}
 
@@ -143,15 +143,15 @@ func formatRepoDataIntoConfig(data RepoData) string {
 	}
 
 	config := fmt.Sprintf(`
-	resource "cyral_repository" "test_repo_repository" {
+	resource "cyral_repository" "%s" {
 		type  = "%s"
 		host  = "%s"
 		port  = %d
 		name  = "%s"
 		labels = [%s]
 		%s
-	}`, data.RepoType, data.Host, data.Port, data.Name,
-		formatAttributes(data.Labels), propertiesStr)
+	}`, repositoryConfigResourceName(data.Name), data.RepoType, data.Host,
+		data.Port, data.Name, formatAttributes(data.Labels), propertiesStr)
 
 	return config
 }
