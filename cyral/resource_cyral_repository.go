@@ -71,7 +71,6 @@ func (data *RepoData) PropertiesAsInterface() []interface{} {
 	if data.Properties != nil {
 		if data.IsReplicaSet() {
 			propertiesMap := make(map[string]interface{})
-
 			var rset []interface{}
 			rsetMap := make(map[string]interface{})
 			rsetMap["max_nodes"] = data.MaxAllowedListeners
@@ -79,7 +78,6 @@ func (data *RepoData) PropertiesAsInterface() []interface{} {
 			rset = append(rset, rsetMap)
 
 			propertiesMap["mongodb_replica_set"] = rset
-
 			properties = append(properties, propertiesMap)
 		}
 	}
