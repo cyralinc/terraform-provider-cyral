@@ -40,12 +40,13 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("labels", data.Labels)
 
-	properties := data.PropertiesAsInterface()
-	d.Set("properties", properties)
+	if properties := data.PropertiesAsInterface(); properties != nil {
+		d.Set("properties", properties)
+	}
 }
 
 func (data *RepoData) PropertiesAsInterface() []interface{} {
-	properties := []interface{}{}
+	var properties []interface{}
 	if data.Properties != nil {
 		if data.IsReplicaSet() {
 			propertiesMap := make(map[string]interface{})
@@ -155,16 +156,6 @@ func resourceRepository() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				MaxItems:    1,
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					propertiesSet := d.Get("properties").(*schema.Set)
-					if k == "properties.#" && oldValue == "0" && newValue == "1" && propertiesSet.Len() == 1 {
-						mongodbConfig := propertiesSet.List()[0]
-						if mongodbConfig == nil {
-							return true
-						}
-					}
-					return false
-				},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mongodb_replica_set": {
@@ -307,9 +298,8 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 	var maxAllowedListeners uint32
 	var properties *RepositoryProperties
 	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
-		properties = new(RepositoryProperties)
 		for _, propertiesMap := range propertiesIface.List() {
-
+			properties = new(RepositoryProperties)
 			propertiesMap := propertiesMap.(map[string]interface{})
 
 			// Replica set properties
