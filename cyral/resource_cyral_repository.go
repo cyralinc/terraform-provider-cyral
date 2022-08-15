@@ -33,10 +33,6 @@ type RepoData struct {
 	Properties          *RepositoryProperties `json:"properties,omitempty"`
 }
 
-func (data *RepoData) IsReplicaSet() bool {
-	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
-}
-
 func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("type", data.RepoType)
 	d.Set("host", data.Host)
@@ -44,11 +40,16 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	d.Set("name", data.Name)
 	d.Set("labels", data.Labels)
 
+	if properties := data.PropertiesAsInterface(); properties != nil {
+		d.Set("properties", properties)
+	}
+}
+
+func (data *RepoData) PropertiesAsInterface() []interface{} {
 	var properties []interface{}
 	if data.Properties != nil {
-		propertiesMap := make(map[string]interface{})
-
 		if data.IsReplicaSet() {
+			propertiesMap := make(map[string]interface{})
 			var rset []interface{}
 			rsetMap := make(map[string]interface{})
 			rsetMap["max_nodes"] = data.MaxAllowedListeners
@@ -56,12 +57,15 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 			rset = append(rset, rsetMap)
 
 			propertiesMap["mongodb_replica_set"] = rset
+			properties = append(properties, propertiesMap)
 		}
-
-		properties = append(properties, propertiesMap)
 	}
 
-	d.Set("properties", properties)
+	return properties
+}
+
+func (data *RepoData) IsReplicaSet() bool {
+	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
 }
 
 // RepositoryProperties relates to the field "properties" of the v1/repos
@@ -294,8 +298,8 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 	var maxAllowedListeners uint32
 	var properties *RepositoryProperties
 	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
-		properties = new(RepositoryProperties)
 		for _, propertiesMap := range propertiesIface.List() {
+			properties = new(RepositoryProperties)
 			propertiesMap := propertiesMap.(map[string]interface{})
 
 			// Replica set properties

@@ -23,12 +23,19 @@ var updatedRepoConfig RepoData = RepoData{
 	Labels:   []string{"rds", "us-east-1"},
 }
 
+var emptyPropertiesRepoConfig RepoData = RepoData{
+	Name:       "repo-test-empty-properties",
+	Host:       "mongo-cluster.local",
+	Port:       27017,
+	RepoType:   "mongodb",
+	Properties: &RepositoryProperties{},
+}
+
 var replicaSetRepoConfig RepoData = RepoData{
 	Name:                "repo-test-replica-set",
 	Host:                "mongo-cluster.local",
 	Port:                27017,
 	RepoType:            "mongodb",
-	Labels:              []string{"rds", "us-east-1"},
 	MaxAllowedListeners: 2,
 	Properties: &RepositoryProperties{
 		MongoDBReplicaSetName: "replica-set-1",
@@ -39,6 +46,7 @@ var replicaSetRepoConfig RepoData = RepoData{
 func TestAccRepositoryResource(t *testing.T) {
 	testConfig, testFunc := setupRepositoryTest(initialRepoConfig)
 	testUpdateConfig, testUpdateFunc := setupRepositoryTest(updatedRepoConfig)
+	testEmptyPropertiesConfig, testEmptyPropertiesFunc := setupRepositoryTest(emptyPropertiesRepoConfig)
 	testReplicaSetConfig, testReplicaSetFunc := setupRepositoryTest(replicaSetRepoConfig)
 
 	resource.Test(t, resource.TestCase{
@@ -51,6 +59,10 @@ func TestAccRepositoryResource(t *testing.T) {
 			{
 				Config: testUpdateConfig,
 				Check:  testUpdateFunc,
+			},
+			{
+				Config: testEmptyPropertiesConfig,
+				Check:  testEmptyPropertiesFunc,
 			},
 			{
 				Config: testReplicaSetConfig,
@@ -73,7 +85,7 @@ func setupRepositoryTest(repoData RepoData) (string, resource.TestCheckFunc) {
 		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
 			"name", repoData.Name),
 		resource.TestCheckResourceAttr("cyral_repository.test_repo_repository",
-			"labels.#", "2"),
+			"labels.#", fmt.Sprintf("%d", len(repoData.Labels))),
 	}
 
 	if repoData.IsReplicaSet() {
@@ -112,7 +124,7 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		}`, rsetStr)
 	}
 
-	return fmt.Sprintf(`
+	config := fmt.Sprintf(`
 	resource "cyral_repository" "test_repo_repository" {
 		type  = "%s"
 		host  = "%s"
@@ -122,4 +134,6 @@ func formatRepoDataIntoConfig(data RepoData) string {
 		%s
 	}`, data.RepoType, data.Host, data.Port, data.Name,
 		formatAttributes(data.Labels), propertiesStr)
+
+	return config
 }
