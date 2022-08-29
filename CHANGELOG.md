@@ -16,6 +16,15 @@ Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter
 - **Add data source to retrieve data labels**: [#261](https://github.com/cyralinc/terraform-provider-cyral/pull/261).
 - **Add single container type to sidecar resource**: [#265](https://github.com/cyralinc/terraform-provider-cyral/pull/265).
 
+## 2.7.2 (August 15, 2022)
+
+Minimum required Control Plane version: `v2.32.0`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+
+### Bug fixes:
+
+- **Fix issues with repository resource properties**: [#271](https://github.com/cyralinc/terraform-provider-cyral/pull/271).
+
 ## 2.7.1 (July 19, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
