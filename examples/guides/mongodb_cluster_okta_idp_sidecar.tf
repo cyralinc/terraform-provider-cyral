@@ -57,8 +57,11 @@ locals {
   mongodb_ports_low  = 27017
   mongodb_ports_high = local.mongodb_ports_low + local.mongodb_max_nodes
 
-  # All ports that will be used by MongoDB. This list must contain at least
-  # `local.mongodb_max_nodes` ports
+  # All ports that will be used by MongoDB. This range must span at least
+  # the `local.mongodb_max_nodes` number of ports. Note that the port number
+  # you pass as the second argument to this function is not included in the
+  # range. For example, to set port 27021 as your uppermost port number,
+  # the second argument must be 27022.
   mongodb_ports = range(local.mongodb_ports_low, local.mongodb_ports_high)
 }
 
