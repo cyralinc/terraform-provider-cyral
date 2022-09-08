@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	policyResourceName = "policy"
+)
+
 type PolicyTestConfig struct {
 	Data        []string
 	Description string
@@ -19,7 +23,7 @@ var initialPolicyConfig PolicyTestConfig = PolicyTestConfig{
 	Data:        []string{"data"},
 	Description: "description",
 	Enabled:     false,
-	Name:        "policy-test",
+	Name:        accTestName(policyResourceName, "test"),
 	Tags:        []string{"tag"},
 }
 
@@ -27,7 +31,7 @@ var updatedPolicyConfig PolicyTestConfig = PolicyTestConfig{
 	Data:        []string{"data-updated"},
 	Description: "desctiption-updated",
 	Enabled:     true,
-	Name:        "policy-test",
+	Name:        accTestName(policyResourceName, "test"),
 	Tags:        []string{"tag-updated"},
 }
 
@@ -35,7 +39,7 @@ func TestAccPolicyResource(t *testing.T) {
 	testConfig, testFunc := setupPolicyTest(initialPolicyConfig)
 	testUpdateConfig, testUpdateFunc := setupPolicyTest(updatedPolicyConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -74,10 +78,11 @@ func setupPolicyTest(integrationData PolicyTestConfig) (string, resource.TestChe
 func formatPolicyTestConfigIntoConfig(data PolicyTestConfig) string {
 	return fmt.Sprintf(`
 	resource "cyral_policy" "policy_test" {
-		data = [%s]
+		data = %s
 		description = "%s"
 		enabled = %t
 		name = "%s"
-		tags = [%s]
-	  }`, formatAttributes(data.Data), data.Description, data.Enabled, data.Name, formatAttributes(data.Tags))
+		tags = %s
+	  }`, listToStr(data.Data), data.Description, data.Enabled,
+		data.Name, listToStr(data.Tags))
 }

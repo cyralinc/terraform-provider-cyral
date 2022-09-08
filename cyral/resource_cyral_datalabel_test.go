@@ -7,9 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	datalabelResourceName = "datalabel"
+)
+
 func initialDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        "test-tf-label1",
+		Name:        accTestName(datalabelResourceName, "label1"),
 		Description: "label1-description",
 		Tags:        []string{"tag1", "tag2"},
 	}
@@ -17,7 +21,7 @@ func initialDataLabelConfig() *DataLabel {
 
 func updatedDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        "test-tf-label2",
+		Name:        accTestName(datalabelResourceName, "label2"),
 		Description: "label2-description",
 		Tags:        []string{"tag1", "tag2"},
 	}
@@ -29,7 +33,7 @@ func TestAccDatalabelResource(t *testing.T) {
 	testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
 		"main_test", updatedDataLabelConfig())
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -75,7 +79,7 @@ func formatDataLabelIntoConfig(resName string, dataLabel *DataLabel) string {
 	resource "cyral_datalabel" "%s" {
 		name  = "%s"
 		description = "%s"
-		tags = [%s]
+		tags = %s
 	}`, resName, dataLabel.Name, dataLabel.Description,
-		formatAttributes(dataLabel.Tags))
+		listToStr(dataLabel.Tags))
 }

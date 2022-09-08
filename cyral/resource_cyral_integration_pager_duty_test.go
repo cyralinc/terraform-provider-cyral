@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationPagerDutyResourceName = "integration-pager-duty"
+)
+
 var initialPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       "unitTest-name",
+	Name:       accTestName(integrationPagerDutyResourceName, "pager-duty"),
 	Parameters: "unitTest-parameters",
 }
 
 var updatedPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       "unitTest-name-updated",
+	Name:       accTestName(integrationPagerDutyResourceName, "pager-duty-updated"),
 	Parameters: "unitTest-parameters-updated",
 }
 
@@ -21,7 +25,7 @@ func TestAccPagerDutyIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupPagerDutyIntegrationTest(initialPagerDutyIntegrationConfig)
 	testUpdateConfig, testUpdateFunc := setupPagerDutyIntegrationTest(updatedPagerDutyIntegrationConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

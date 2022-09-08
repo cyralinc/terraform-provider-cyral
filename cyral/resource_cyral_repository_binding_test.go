@@ -7,17 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryBindingResourceName = "repository-binding"
+)
+
 var initialConfig RepoBindingData = RepoBindingData{
-	SidecarID:    "1",
-	RepositoryID: "1",
 	Listener: Listener{
 		Port: 1234,
 	},
 }
 
 var updatedConfig RepoBindingData = RepoBindingData{
-	SidecarID:    "2",
-	RepositoryID: "2",
 	Listener: Listener{
 		Host: "host-updated.com",
 		Port: 4321,
@@ -28,7 +28,7 @@ var updatedConfig RepoBindingData = RepoBindingData{
 
 func TestAccRepositoryBindingResource(t *testing.T) {
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -53,37 +53,34 @@ func TestAccRepositoryBindingResource(t *testing.T) {
 }
 
 func testAccRepositoryBindingConfig_DefaultValues() string {
-	return fmt.Sprintf(`
-	resource "cyral_sidecar" "test_repo_binding_sidecar_1" {
-		name = "tf-provider-repo-binding-sidecar-1"
-		deployment_method = "cloudFormation"
-	}
-
-	resource "cyral_repository" "test_repo_binding_repository_1" {
-		name  = "tf-provider-repo-binding-repo-1"
-		type  = "mongodb"
-		host  = "mongodb.cyral.com"
-		port  = 27017
-	}
-
+	var config string
+	config += formatBasicSidecarIntoConfig(
+		"sidecar_1",
+		accTestName(repositoryBindingResourceName, "sidecar-1"),
+		"cloudFormation",
+	)
+	config += formatBasicRepositoryIntoConfig(
+		"repository_1",
+		accTestName(repositoryBindingResourceName, "repository-1"),
+		"mongodb",
+		"mongodb.cyral.com",
+		27017,
+	)
+	config += fmt.Sprintf(`
 	resource "cyral_repository_binding" "repo_binding" {
-		sidecar_id    = cyral_sidecar.test_repo_binding_sidecar_%s.id
-		repository_id = cyral_repository.test_repo_binding_repository_%s.id
+		sidecar_id    = cyral_sidecar.sidecar_1.id
+		repository_id = cyral_repository.repository_1.id
 		listener_port = %d
-	}`, initialConfig.SidecarID, initialConfig.RepositoryID, initialConfig.Listener.Port)
+	}`, initialConfig.Listener.Port)
+	return config
 }
 
 func testAccRepositoryBindingCheck_DefaultValues() resource.TestCheckFunc {
-	sidecarResource := fmt.Sprintf("cyral_sidecar.test_repo_binding_sidecar_%s",
-		initialConfig.SidecarID)
-	repositoryResource := fmt.Sprintf("cyral_repository.test_repo_binding_repository_%s",
-		initialConfig.RepositoryID)
-
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair("cyral_repository_binding.repo_binding", "repository_id",
-			repositoryResource, "id"),
+			"cyral_repository.repository_1", "id"),
 		resource.TestCheckResourceAttrPair("cyral_repository_binding.repo_binding", "sidecar_id",
-			sidecarResource, "id"),
+			"cyral_sidecar.sidecar_1", "id"),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding", "listener_port",
 			fmt.Sprintf("%d", initialConfig.Listener.Port)),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
@@ -96,42 +93,38 @@ func testAccRepositoryBindingCheck_DefaultValues() resource.TestCheckFunc {
 }
 
 func testAccRepositoryBindingConfig_UpdatedIDs() string {
-	return fmt.Sprintf(`
-	resource "cyral_sidecar" "test_repo_binding_sidecar_2" {
-		name = "tf-provider-repo-binding-sidecar-2"
-		deployment_method = "cloudFormation"
-	}
-
-	resource "cyral_repository" "test_repo_binding_repository_2" {
-		name  = "tf-provider-repo-binding-repo-2"
-		type  = "mongodb"
-		host  = "mongodb.cyral.com"
-		port  = 27017
-	}
-
+	var config string
+	config += formatBasicSidecarIntoConfig(
+		"sidecar_2",
+		accTestName(repositoryBindingResourceName, "sidecar-2"),
+		"cloudFormation",
+	)
+	config += formatBasicRepositoryIntoConfig(
+		"repository_2",
+		accTestName(repositoryBindingResourceName, "repository-2"),
+		"mongodb",
+		"mongodb.cyral.com",
+		27017,
+	)
+	config += fmt.Sprintf(`
 	resource "cyral_repository_binding" "repo_binding" {
-		sidecar_id    = cyral_sidecar.test_repo_binding_sidecar_%s.id
-		repository_id = cyral_repository.test_repo_binding_repository_%s.id
+		sidecar_id    = cyral_sidecar.sidecar_2.id
+		repository_id = cyral_repository.repository_2.id
 		listener_port = %d
 		listener_host = "%s"
 		enabled = %t
 		sidecar_as_idp_access_gateway = %t
-	}`, updatedConfig.SidecarID, updatedConfig.RepositoryID,
-		updatedConfig.Listener.Port, updatedConfig.Listener.Host,
+	}`, updatedConfig.Listener.Port, updatedConfig.Listener.Host,
 		updatedConfig.Enabled, updatedConfig.SidecarAsIdPAccessGateway)
+	return config
 }
 
 func testAccRepositoryBindingCheck_UpdatedIDs() resource.TestCheckFunc {
-	sidecarResource := fmt.Sprintf("cyral_sidecar.test_repo_binding_sidecar_%s",
-		updatedConfig.SidecarID)
-	repositoryResource := fmt.Sprintf("cyral_repository.test_repo_binding_repository_%s",
-		updatedConfig.RepositoryID)
-
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair("cyral_repository_binding.repo_binding", "repository_id",
-			repositoryResource, "id"),
+			"cyral_repository.repository_2", "id"),
 		resource.TestCheckResourceAttrPair("cyral_repository_binding.repo_binding", "sidecar_id",
-			sidecarResource, "id"),
+			"cyral_sidecar.sidecar_2", "id"),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding", "listener_port",
 			fmt.Sprintf("%d", updatedConfig.Listener.Port)),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",
@@ -144,42 +137,38 @@ func testAccRepositoryBindingCheck_UpdatedIDs() resource.TestCheckFunc {
 }
 
 func testAccRepositoryBindingConfig_AccessGatewayEnabled() string {
-	return fmt.Sprintf(`
-	resource "cyral_sidecar" "test_repo_binding_sidecar_2" {
-		name = "tf-provider-repo-binding-sidecar-2"
-		deployment_method = "cloudFormation"
-	}
-
-	resource "cyral_repository" "test_repo_binding_repository_2" {
-		name  = "tf-provider-repo-binding-repo-2"
-		type  = "mongodb"
-		host  = "mongodb.cyral.com"
-		port  = 27017
-	}
-
+	var config string
+	config += formatBasicSidecarIntoConfig(
+		"sidecar_2",
+		accTestName(repositoryBindingResourceName, "sidecar-2"),
+		"cloudFormation",
+	)
+	config += formatBasicRepositoryIntoConfig(
+		"repository_2",
+		accTestName(repositoryBindingResourceName, "repository-2"),
+		"mongodb",
+		"mongodb.cyral.com",
+		27017,
+	)
+	config += fmt.Sprintf(`
 	resource "cyral_repository_binding" "repo_binding" {
-		sidecar_id    = cyral_sidecar.test_repo_binding_sidecar_%s.id
-		repository_id = cyral_repository.test_repo_binding_repository_%s.id
+		sidecar_id    = cyral_sidecar.sidecar_2.id
+		repository_id = cyral_repository.repository_2.id
 		listener_port = %d
 		listener_host = "%s"
 		enabled = %t
 		sidecar_as_idp_access_gateway = true
-	}`, updatedConfig.SidecarID, updatedConfig.RepositoryID,
-		updatedConfig.Listener.Port, updatedConfig.Listener.Host,
+	}`, updatedConfig.Listener.Port, updatedConfig.Listener.Host,
 		updatedConfig.Enabled)
+	return config
 }
 
 func testAccRepositoryBindingCheck_AccessGatewayEnabled() resource.TestCheckFunc {
-	sidecarResource := fmt.Sprintf("cyral_sidecar.test_repo_binding_sidecar_%s",
-		updatedConfig.SidecarID)
-	repositoryResource := fmt.Sprintf("cyral_repository.test_repo_binding_repository_%s",
-		updatedConfig.RepositoryID)
-
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair("cyral_repository_binding.repo_binding", "repository_id",
-			repositoryResource, "id"),
+			"cyral_repository.repository_2", "id"),
 		resource.TestCheckResourceAttrPair("cyral_repository_binding.repo_binding", "sidecar_id",
-			sidecarResource, "id"),
+			"cyral_sidecar.sidecar_2", "id"),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding", "listener_port",
 			fmt.Sprintf("%d", updatedConfig.Listener.Port)),
 		resource.TestCheckResourceAttr("cyral_repository_binding.repo_binding",

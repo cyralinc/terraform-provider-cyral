@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationSlackAlertsResourceName = "integration-slack-alerts"
+)
+
 var initialSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: "tf-test-slack-alerts",
+	Name: accTestName(integrationSlackAlertsResourceName, "slack-alerts"),
 	URL:  "https://slack.local",
 }
 
 var updatedSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: "tf-test-update-slack-alerts",
+	Name: accTestName(integrationSlackAlertsResourceName, "slack-alerts-updated"),
 	URL:  "https://slack-updated.local",
 }
 
@@ -21,7 +25,7 @@ func TestAccSlackAlertsIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSlackAlertTest(initialSlackAlertsConfig)
 	testUpdateConfig, testUpdateFunc := setupSlackAlertTest(initialSlackAlertsConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

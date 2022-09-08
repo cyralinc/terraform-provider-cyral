@@ -80,6 +80,12 @@ export TF_ACC=true
 
 2. Run `make`
 
+#### Sweeper
+
+(Feature still under implementation) To sweep leaked resources in the control
+plane, run `make sweep`. The environment variables to access the control plane must be set as instructed
+above.
+
 ### Commit instructions
 
 This project uses [pre-commit](https://pre-commit.com/) to automatically lint changes during the commit process.
@@ -99,6 +105,6 @@ Copy the desired binary file created in directory `out` (see [Build Instructions
 
 Run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
-### Terraform v0.13+
+#### Terraform v0.13+
 
 Build the project using steps in [Build Instructions](#build-instructions), then proceed normally with `terraform init` and `terraform apply` commands.

@@ -7,9 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryIdentityMapResourceName = "repository-identity-map"
+)
+
 var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tf-test-identity-map",
+	IdentityName: accTestName(repositoryIdentityMapResourceName, "identity"),
 	AccessDuration: &AccessDuration{
 		Days:    7,
 		Hours:   10,
@@ -20,7 +24,7 @@ var initialIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tf-test-identity-map",
+	IdentityName: accTestName(repositoryIdentityMapResourceName, "identity"),
 	AccessDuration: &AccessDuration{
 		Days:    0,
 		Hours:   0,
@@ -31,7 +35,7 @@ var updatedIdentityMapConfig RepositoryIdentityMapResource = RepositoryIdentityM
 
 var identityMapConfigWithoutAccessDuration RepositoryIdentityMapResource = RepositoryIdentityMapResource{
 	IdentityType: "user",
-	IdentityName: "tf-test-identity-map",
+	IdentityName: accTestName(repositoryIdentityMapResourceName, "identity"),
 }
 
 func TestAccRepositoryIdentityMapResource(t *testing.T) {
@@ -42,9 +46,9 @@ func TestAccRepositoryIdentityMapResource(t *testing.T) {
 	testWithoutAccessDurationConfig, testWithoutAccessDurationFunc :=
 		setupRepositoryIdentityMapTest(identityMapConfigWithoutAccessDuration)
 
-	importStateResName := "cyral_repository_identity_map.tf_test_cyral_sidecar_template"
+	importStateResName := "cyral_repository_identity_map.test_identity_map"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -79,79 +83,82 @@ func TestAccRepositoryIdentityMapResource(t *testing.T) {
 }
 
 func setupRepositoryIdentityMapTest(integrationData RepositoryIdentityMapResource) (string, resource.TestCheckFunc) {
-	configuration := formatRepositoryIdentityMapDataIntoConfig(integrationData)
+	var configuration string
+	configuration += formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
+		"tfprov-test-repository-identity-map-repository",
+		"mongodb",
+		"mongo.local",
+		3333,
+	)
+	configuration += formatBasicRepositoryLocalAccountIntoConfig_Cyral(
+		basicRepositoryID,
+		"tfprov-test-repository-identity-map-locaccount",
+		"some-password",
+	)
+	configuration += formatRepositoryIdentityMapDataIntoConfig(
+		integrationData, basicRepositoryID, basicRepositoryLocalAccountID)
+
 	var testFunction resource.TestCheckFunc
 	if integrationData.AccessDuration != nil {
 		testFunction = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_type", integrationData.IdentityType),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_name", integrationData.IdentityName),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.#", "1"),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.days", fmt.Sprintf("%d", integrationData.AccessDuration.Days)),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.hours", fmt.Sprintf("%d", integrationData.AccessDuration.Hours)),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.minutes", fmt.Sprintf("%d", integrationData.AccessDuration.Minutes)),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.0.seconds", fmt.Sprintf("%d", integrationData.AccessDuration.Seconds)),
 		)
 	} else {
 		testFunction = resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_type", integrationData.IdentityType),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"identity_name", integrationData.IdentityName),
-			resource.TestCheckResourceAttr("cyral_repository_identity_map.tf_test_cyral_sidecar_template",
+			resource.TestCheckResourceAttr("cyral_repository_identity_map.test_identity_map",
 				"access_duration.#", "0"),
 		)
 	}
 	return configuration, testFunction
 }
 
-func formatRepositoryIdentityMapDataIntoConfig(data RepositoryIdentityMapResource) string {
-	config := `
-	resource "cyral_repository" "test_repo_repository" {
-		type = "mongodb"
-		host = "mongo.local"
-		port = 3333
-		name = "tf-repo-test"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.test_repo_repository.id
-		environment_variable {
-			database_name = "tf_test_db_name"
-			local_account = "tf_test_repo_account"
-			variable_name = "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME"
-		}
-	}
-
-	`
+func formatRepositoryIdentityMapDataIntoConfig(
+	data RepositoryIdentityMapResource,
+	repositoryID, repositoryLocalAccID string,
+) string {
+	var config string
 	if data.AccessDuration != nil {
-		config = fmt.Sprintf(`%s
-	  resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
-			repository_id               = cyral_repository.test_repo_repository.id
-			repository_local_account_id = cyral_repository_local_account.tf_test_repository_account.id
-			identity_type               = "%s"
-			identity_name               = "%s"
-			access_duration {
-				days    = %d
-				hours   = %d
-				minutes = %d
-				seconds = %d
-			}
-	  }`, config, data.IdentityType, data.IdentityName, data.AccessDuration.Days, data.AccessDuration.Hours, data.AccessDuration.Minutes, data.AccessDuration.Seconds)
+		config = fmt.Sprintf(`
+	resource "cyral_repository_identity_map" "test_identity_map" {
+		repository_id               = %s
+		repository_local_account_id = %s
+		identity_type               = "%s"
+		identity_name               = "%s"
+		access_duration {
+			days    = %d
+			hours   = %d
+			minutes = %d
+			seconds = %d
+		}
+	}`, repositoryID, repositoryLocalAccID, data.IdentityType, data.IdentityName,
+			data.AccessDuration.Days, data.AccessDuration.Hours,
+			data.AccessDuration.Minutes, data.AccessDuration.Seconds)
 	} else {
-		config = fmt.Sprintf(`%s
-	  resource "cyral_repository_identity_map" "tf_test_cyral_sidecar_template" {
-			repository_id               = cyral_repository.test_repo_repository.id
-			repository_local_account_id = cyral_repository_local_account.tf_test_repository_account.id
-			identity_type               = "%s"
-			identity_name               = "%s"
-	  }`, config, data.IdentityType, data.IdentityName)
+		config = fmt.Sprintf(`
+	resource "cyral_repository_identity_map" "test_identity_map" {
+		repository_id               = %s
+		repository_local_account_id = %s
+		identity_type               = "%s"
+		identity_name               = "%s"
+	}`, repositoryID, repositoryLocalAccID, data.IdentityType, data.IdentityName)
 	}
 	return config
 }

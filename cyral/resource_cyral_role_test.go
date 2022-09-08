@@ -9,9 +9,16 @@ import (
 )
 
 const (
-	initialRoleName = "tf-test-role"
-	updatedRoleName = "updated-tf-test-role"
+	roleResourceName = "role"
 )
+
+func initialRoleName() string {
+	return accTestName(roleResourceName, "role")
+}
+
+func updatedRoleName() string {
+	return accTestName(roleResourceName, "role-updated")
+}
 
 var onlyFalsePermissions = map[string]string{
 	"modify_sidecars_and_repositories": "false",
@@ -47,7 +54,7 @@ var onlyTruePermissions = map[string]string{
 }
 
 func TestAccRoleResource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -103,7 +110,7 @@ func testAccRoleConfig_MultiplePermissionsBlock() string {
 		permissions{
 		}
 	}
-	`, initialRoleName)
+	`, initialRoleName())
 }
 
 func testAccRoleConfig_DefaultValues() string {
@@ -111,12 +118,12 @@ func testAccRoleConfig_DefaultValues() string {
 	resource "cyral_role" "test_role" {
 		name="%s"
 	}
-	`, initialRoleName)
+	`, initialRoleName())
 }
 
 func testAccRoleCheck_DefaultValues() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", initialRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", initialRoleName()),
 		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "0"),
 	)
 }
@@ -128,12 +135,12 @@ func testAccRoleConfig_EmptyPermissions() string {
 		permissions {
 		}
 	}
-	`, updatedRoleName)
+	`, updatedRoleName())
 }
 
 func testAccRoleCheck_EmptyPermissions() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
 		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
 			onlyFalsePermissions),
@@ -155,12 +162,12 @@ func testAccRoleConfig_OnlyFalsePermissions() string {
 			view_datamaps = false
 		}
 	}
-	`, updatedRoleName)
+	`, updatedRoleName())
 }
 
 func testAccRoleCheck_OnlyFalsePermissions() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
 		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
 			onlyFalsePermissions),
@@ -182,12 +189,12 @@ func testAccRoleConfig_TrueAndFalsePermissions() string {
 			view_datamaps = false
 		}
 	}
-	`, updatedRoleName)
+	`, updatedRoleName())
 }
 
 func testAccRoleCheck_TrueAndFalsePermissions() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
 		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
 			trueAndFalsePermissions),
@@ -209,12 +216,12 @@ func testAccRoleConfig_OnlyTruePermissions() string {
 			view_datamaps = true
 		}
 	}
-	`, updatedRoleName)
+	`, updatedRoleName())
 }
 
 func testAccRoleCheck_OnlyTruePermissions() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName),
+		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
 		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
 			onlyTruePermissions),

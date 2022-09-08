@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationTeamsResourceName = "integrations-teams"
+)
+
 var initialTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: "tf-test-msteams-alerts",
+	Name: accTestName(integrationTeamsResourceName, "msteams-alerts"),
 	URL:  "https://msteams.local",
 }
 
 var updatedTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: "tf-test-msteams-alerts",
+	Name: accTestName(integrationTeamsResourceName, "msteams-alerts"),
 	URL:  "https://msteams-updated.local",
 }
 
@@ -21,7 +25,7 @@ func TestAccMsTeamsIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupTeamsTest(initialTeamsConfig)
 	testUpdateConfig, testUpdateFunc := setupTeamsTest(initialTeamsConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

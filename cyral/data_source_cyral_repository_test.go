@@ -7,17 +7,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryDataSourceName = "data-repository"
+)
+
 func repositoryDataSourceTestRepos() []RepoData {
 	return []RepoData{
 		{
-			Name:     "tf-test-sqlserver-1",
+			Name:     accTestName(repositoryDataSourceName, "sqlserver-1"),
 			Host:     "localhost",
 			Port:     1433,
 			RepoType: "sqlserver",
 			Labels:   []string{"rds", "us-east-2"},
 		},
 		{
-			Name:                "tf-test-mongodb-1",
+			Name:                accTestName(repositoryDataSourceName, "mongodb-1"),
 			Host:                "localhost",
 			Port:                27017,
 			RepoType:            "mongodb",
@@ -32,14 +36,15 @@ func repositoryDataSourceTestRepos() []RepoData {
 }
 
 func TestAccRepositoryDataSource(t *testing.T) {
+	testRepos := repositoryDataSourceTestRepos()
 	testConfigNameFilter, testFuncNameFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "tf-test-sqlserver-1", "")
+		testRepos, fmt.Sprintf("^%s$", testRepos[0].Name), "")
 	testConfigTypeFilter, testFuncTypeFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "", "mongodb")
+		testRepos, "", "mongodb")
 	testConfigNameTypeFilter, testFuncNameTypeFilter := testRepositoryDataSource(
-		repositoryDataSourceTestRepos(), "tf-test-mongodb-1", "mongodb")
+		repositoryDataSourceTestRepos(), fmt.Sprintf("^%s$", testRepos[1].Name), "mongodb")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -69,8 +74,8 @@ func testRepositoryDataSourceConfig(repoDatas []RepoData, nameFilter, typeFilter
 	var config string
 	var dependsOn []string
 	for _, repoData := range repoDatas {
-		config += formatRepoDataIntoConfig(repoData)
-		dependsOn = append(dependsOn, repositoryConfigResourceFullName(repoData.Name))
+		config += formatRepoDataIntoConfig(repoData, repoData.Name)
+		dependsOn = append(dependsOn, fmt.Sprintf("cyral_repository.%s", repoData.Name))
 	}
 	config += repositoryDataSourceConfig(nameFilter, typeFilter, dependsOn)
 
@@ -79,6 +84,20 @@ func testRepositoryDataSourceConfig(repoDatas []RepoData, nameFilter, typeFilter
 
 func testRepositoryDataSourceChecks(repoDatas []RepoData, nameFilter, typeFilter string) resource.TestCheckFunc {
 	dataSourceFullName := "data.cyral_repository.test_repository"
+
+	if nameFilter == "" {
+		return resource.ComposeTestCheckFunc(
+			resource.TestMatchResourceAttr(dataSourceFullName,
+				"repository_list.#",
+				notZeroRegex(),
+			),
+			dsourceCheckTypeFilter(
+				dataSourceFullName,
+				"repository_list.%d.type",
+				typeFilter,
+			),
+		)
+	}
 
 	var checkFuncs []resource.TestCheckFunc
 	filteredRepoDatas := filterRepoDatas(repoDatas, nameFilter, typeFilter)
@@ -129,8 +148,8 @@ func filterRepoDatas(repoDatas []RepoData, nameFilter, typeFilter string) []Repo
 func repositoryDataSourceConfig(nameFilter, typeFilter string, dependsOn []string) string {
 	return fmt.Sprintf(`
 	data "cyral_repository" "test_repository" {
-		depends_on = [%s]
+		depends_on = %s
 		name = "%s"
 		type = "%s"
-	}`, formatAttributes(dependsOn), nameFilter, typeFilter)
+	}`, listToStr(dependsOn), nameFilter, typeFilter)
 }

@@ -7,11 +7,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationHCVaultResourceName = "integration-hcvault"
+)
+
 var initialHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
 	AuthMethod: "unitTest-auth_method",
 	ID:         "unitTest-id",
 	AuthType:   "unitTest-auth_type",
-	Name:       "unitTest-name",
+	Name:       accTestName(integrationHCVaultResourceName, "hcvault"),
 	Server:     "unitTest-server",
 }
 
@@ -19,7 +23,7 @@ var updatedHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
 	AuthMethod: "unitTest-auth_method-updated",
 	ID:         "unitTest-id-updated",
 	AuthType:   "unitTest-auth_type-updated",
-	Name:       "unitTest-name-updated",
+	Name:       accTestName(integrationHCVaultResourceName, "hcvault-updated"),
 	Server:     "unitTest-server-updated",
 }
 
@@ -27,7 +31,7 @@ func TestAccHCVaultIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupHCVaultIntegrationTest(initialHCVaultIntegrationConfig)
 	testUpdateConfig, testUpdateFunc := setupHCVaultIntegrationTest(updatedHCVaultIntegrationConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

@@ -7,14 +7,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationELKResourceName = "integration-elk"
+)
+
 var initialELKConfig ELKIntegration = ELKIntegration{
-	Name:      "unitTest-ELK",
+	Name:      accTestName(integrationELKResourceName, "ELK"),
 	KibanaURL: "kibana.local",
 	ESURL:     "es.local",
 }
 
 var updatedELKConfig ELKIntegration = ELKIntegration{
-	Name:      "unitTest-ELK-Updated",
+	Name:      accTestName(integrationELKResourceName, "ELK-updated"),
 	KibanaURL: "kibana-update.local",
 	ESURL:     "es-update.local",
 }
@@ -23,7 +27,7 @@ func TestAccELKIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupELKTest(initialELKConfig)
 	testUpdateConfig, testUpdateFunc := setupELKTest(updatedELKConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -57,9 +61,9 @@ func setupELKTest(integrationData ELKIntegration) (string, resource.TestCheckFun
 
 func formatELKIntegrationDataIntoConfig(data ELKIntegration) string {
 	return fmt.Sprintf(`
-resource "cyral_integration_elk" "elk_integration" {
-	name = "%s"
-	kibana_url = "%s"
-	es_url = "%s"
-}`, data.Name, data.KibanaURL, data.ESURL)
+	resource "cyral_integration_elk" "elk_integration" {
+		name = "%s"
+		kibana_url = "%s"
+		es_url = "%s"
+	}`, data.Name, data.KibanaURL, data.ESURL)
 }

@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationDatadogResourceName = "integration-datadog"
+)
+
 var initialDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   "unitTest-Datadog",
+	Name:   accTestName(integrationDatadogResourceName, "datadog"),
 	APIKey: "some-api-key",
 }
 
 var updatedDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   "unitTest-Datadog-updated",
+	Name:   accTestName(integrationDatadogResourceName, "datadog-updated"),
 	APIKey: "some-api-key-updated",
 }
 
@@ -21,7 +25,7 @@ func TestAccDatadogIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupDatadogTest(initialDatadogConfig)
 	testUpdateConfig, testUpdateFunc := setupDatadogTest(updatedDatadogConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -55,8 +59,8 @@ func setupDatadogTest(integrationData DatadogIntegration) (string, resource.Test
 
 func formatDatadogIntegrationDataIntoConfig(data DatadogIntegration) string {
 	return fmt.Sprintf(`
-resource "cyral_integration_datadog" "datadog_integration" {
-    name = "%s"
-    api_key = "%s"
-}`, data.Name, data.APIKey)
+	resource "cyral_integration_datadog" "datadog_integration" {
+		name = "%s"
+		api_key = "%s"
+	}`, data.Name, data.APIKey)
 }

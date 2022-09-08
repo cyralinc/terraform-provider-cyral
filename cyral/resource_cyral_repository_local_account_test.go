@@ -9,93 +9,95 @@ import (
 )
 
 const (
-	testRepoLocalAccImportName = "cyral_repository_local_account.tf_test_repository_account"
+	testRepoLocalAccImportName = "cyral_repository_local_account.test_repository_account"
+
+	repositoryLocalAccountResourceName = "repository-local-account"
 )
 
 var initialRepoAccountConfigAwsIAM = RepositoryLocalAccountResource{
 	AwsIAM: &AwsIAMResource{
-		DatabaseName: "tf-test-db-name",
-		RepoAccount:  "tf-test-repo-account",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		RoleArn:      "tf-test-role-arn",
 	},
 }
 
 var updatedRepoAccountConfigAwsIAM = RepositoryLocalAccountResource{
 	AwsIAM: &AwsIAMResource{
-		DatabaseName: "tf-test-db-name-updated",
-		RepoAccount:  "tf-test-repo-account-updated",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		RoleArn:      "tf-test-role-arn-updated",
 	},
 }
 
 var initialRepoAccountConfigAwsSecretsManager = RepositoryLocalAccountResource{
 	AwsSecretsManager: &AwsSecretsManagerResource{
-		DatabaseName: "tf-test-db-name",
-		RepoAccount:  "tf-test-repo-account",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		SecretArn:    "tf-test-secret-arn",
 	},
 }
 
 var updatedRepoAccountConfigAwsSecretsManager = RepositoryLocalAccountResource{
 	AwsSecretsManager: &AwsSecretsManagerResource{
-		DatabaseName: "tf-test-db-name-updated",
-		RepoAccount:  "tf-test-repo-account-updated",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		SecretArn:    "tf-test-secret-arn-updated",
 	},
 }
 
 var initialRepoAccountConfigCyralStorage = RepositoryLocalAccountResource{
 	CyralStorage: &CyralStorageResource{
-		DatabaseName: "tf-test-db-name",
-		RepoAccount:  "tf-test-repo-account",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		Password:     "tf-test-pasword",
 	},
 }
 
 var updatedRepoAccountConfigCyralStorage = RepositoryLocalAccountResource{
 	CyralStorage: &CyralStorageResource{
-		DatabaseName: "tf-test-db-name-updated",
-		RepoAccount:  "tf-test-repo-account-updated",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		Password:     "tf-test-pasword-updated",
 	},
 }
 
 var initialRepoAccountConfigHashicorpVault = RepositoryLocalAccountResource{
 	HashicorpVault: &HashicorpVaultResource{
-		DatabaseName: "tf-test-db-name",
-		RepoAccount:  "tf-test-repo-account",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		Path:         "tf-test-path",
 	},
 }
 
 var updatedRepoAccountConfigHashicorpVault = RepositoryLocalAccountResource{
 	HashicorpVault: &HashicorpVaultResource{
-		DatabaseName: "tf-test-db-name-updated",
-		RepoAccount:  "tf-test-repo-account-updated",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		Path:         "tf-test-path-updated",
 	},
 }
 
 var initialRepoAccountConfigEnvironmentVariable = RepositoryLocalAccountResource{
 	EnvironmentVariable: &EnvironmentVariableResource{
-		DatabaseName: "tf-test-db-name",
-		RepoAccount:  "tf-test-repo-account",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		VariableName: "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME",
 	},
 }
 
 var updatedRepoAccountConfigEnvironmentVariable = RepositoryLocalAccountResource{
 	EnvironmentVariable: &EnvironmentVariableResource{
-		DatabaseName: "tf-test-db-name-updated",
-		RepoAccount:  "tf-test-repo-account-updated",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		VariableName: "CYRAL_DBSECRETS_TF_TEST_VARIABLE_NAME_UPDATED",
 	},
 }
 
 var initialRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 	KubernetesSecret: &KubernetesSecretResource{
-		DatabaseName: "tf-test-db-name",
-		RepoAccount:  "tf-test-repo-account",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		SecretName:   "tf-test-db-secrets",
 		SecretKey:    "tf-test-secret-key",
 	},
@@ -103,8 +105,8 @@ var initialRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 
 var updatedRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 	KubernetesSecret: &KubernetesSecretResource{
-		DatabaseName: "tf-test-db-name-updated",
-		RepoAccount:  "tf-test-repo-account-updated",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		SecretName:   "db-secrets-updated",
 		SecretKey:    "tf-test-secret-key-updated",
 	},
@@ -112,18 +114,28 @@ var updatedRepoAccountConfigKubernetesSecret = RepositoryLocalAccountResource{
 
 var initialRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
 	GcpSecretManager: &GcpSecretManagerResource{
-		DatabaseName: "tf-test-db-name",
-		RepoAccount:  "tf-test-repo-account",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account"),
 		SecretName:   "projects/1234567890/secrets/my-secret/versions/1",
 	},
 }
 
 var updatedRepoAccountConfigGcpSecretManager = RepositoryLocalAccountResource{
 	GcpSecretManager: &GcpSecretManagerResource{
-		DatabaseName: "tf-test-db-name-updated",
-		RepoAccount:  "tf-test-repo-account-updated",
+		DatabaseName: accTestName(repositoryLocalAccountResourceName, "db-name-updated"),
+		RepoAccount:  accTestName(repositoryLocalAccountResourceName, "repo-account-updated"),
 		SecretName:   "projects/1234567890/secrets/my-secret-updated/versions/2",
 	},
+}
+
+func repositoryLocalAccountSampleRepositoryConfig() string {
+	return formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
+		accTestName(repositoryLocalAccountResourceName, "repository"),
+		"postgresql",
+		"http://postgres.local/",
+		5432,
+	)
 }
 
 func testRespositoryLocalAccountImportState(resName string) resource.TestStep {
@@ -139,7 +151,7 @@ func testRespositoryLocalAccountImportState(resName string) resource.TestStep {
 }
 
 func TestAccRepositoryLocalAccountResource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -155,16 +167,11 @@ func TestAccRepositoryLocalAccountResource(t *testing.T) {
 }
 
 func testAccRepositoryLocalAccountConfig_MultipleSecretManagers() string {
-	return `
-	resource "cyral_repository" "tf_test_repository" {
-		type = "postgresql"
-		host = "http://postgres.local/"
-		port = 5432
-		name = "tf-test-postgres-multiple-secret-managers"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.tf_test_repository.id
+	var config string
+	config += repositoryLocalAccountSampleRepositoryConfig()
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "test_repository_account" {
+		repository_id = %s
 		aws_iam {
 			database_name = "some-db-name"
 			local_account = "some-local-account"
@@ -176,21 +183,16 @@ func testAccRepositoryLocalAccountConfig_MultipleSecretManagers() string {
 			secret_name = "some-secret-name"
 			secret_key = "some-secret-key"
 		}
-	}
-	`
+	}`, basicRepositoryID)
+	return config
 }
 
 func testAccRepositoryLocalAccountConfig_MultipleSecretManagersOfSameType() string {
-	return `
-	resource "cyral_repository" "tf_test_repository" {
-		type = "postgresql"
-		host = "http://postgres.local/"
-		port = 5432
-		name = "tf-test-postgres-multiple-secret-managers"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.tf_test_repository.id
+	var config string
+	config += repositoryLocalAccountSampleRepositoryConfig()
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "test_repository_account" {
+		repository_id = %s
 		kubernetes_secret {
 			database_name = "some-db-name-1"
 			local_account = "some-local-account-1"
@@ -203,8 +205,8 @@ func testAccRepositoryLocalAccountConfig_MultipleSecretManagersOfSameType() stri
 			secret_name = "some-secret-name-2"
 			secret_key = "some-secret-key-2"
 		}
-	}
-	`
+	}`, basicRepositoryID)
+	return config
 }
 
 func TestAccRepositoryLocalAccountResource_GcpSecretManager(t *testing.T) {
@@ -213,7 +215,7 @@ func TestAccRepositoryLocalAccountResource_GcpSecretManager(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigGcpSecretManager)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -235,7 +237,7 @@ func TestAccRepositoryLocalAccountResource_KubernetesSecret(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigKubernetesSecret)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -257,7 +259,7 @@ func TestAccRepositoryLocalAccountResource_EnvironmentVariable(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigEnvironmentVariable)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -282,16 +284,11 @@ func TestAccRepositoryLocalAccountResource_EnvironmentVariable(t *testing.T) {
 }
 
 func testAccRepositoryLocalAccountConfig_UseEnvVarTogetherWithDeprecated() string {
-	return `
-	resource "cyral_repository" "tf_test_repository" {
-		type = "postgresql"
-		host = "http://postgres.local/"
-		port = 5432
-		name = "tf-test-postgres-multiple-secret-managers"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.tf_test_repository.id
+	var config string
+	config += repositoryLocalAccountSampleRepositoryConfig()
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "test_repository_account" {
+		repository_id = %s
 		environment_variable {
 			database_name = "some-db-name-1"
 			local_account = "some-local-account"
@@ -302,56 +299,51 @@ func testAccRepositoryLocalAccountConfig_UseEnvVarTogetherWithDeprecated() strin
 			local_account = "some-local-account"
 			variable_name = "CYRAL_DBSECRETS_SOME_VARIABLE_NAME"
 		}
-	}
-	`
+	}`, basicRepositoryID)
+	return config
 }
 
 func testAccRepositoryLocalAccountConfig_DeprecatedEnvironmentVariable() string {
-	return `
-	resource "cyral_repository" "tf_test_repository" {
-		type = "postgresql"
-		host = "http://postgres.local/"
-		port = 5432
-		name = "tf-test-postgres-multiple-secret-managers"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.tf_test_repository.id
+	var config string
+	config += repositoryLocalAccountSampleRepositoryConfig()
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "test_repository_account" {
+		repository_id = %s
 		enviroment_variable {
 			database_name = "some-db-name"
 			local_account = "some-local-account"
 			variable_name = "CYRAL_DBSECRETS_SOME_VARIABLE_NAME"
 		}
-	}
-	`
+	}`, basicRepositoryID)
+	return config
 }
 
 func testAccRepositoryLocalAccountCheck_DeprecatedEnvironmentVariable() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		// Ensure that non-deprecated argument is not set.
 		resource.TestCheckNoResourceAttr(
-			"cyral_repository_local_account.tf_test_repository_account",
+			"cyral_repository_local_account.test_repository_account",
 			"environment_variable.0.database_name",
 		),
 		resource.TestCheckNoResourceAttr(
-			"cyral_repository_local_account.tf_test_repository_account",
+			"cyral_repository_local_account.test_repository_account",
 			"environment_variable.0.local_account",
 		),
 		resource.TestCheckNoResourceAttr(
-			"cyral_repository_local_account.tf_test_repository_account",
+			"cyral_repository_local_account.test_repository_account",
 			"environment_variable.0.variable_name",
 		),
 		// Check values for deprecated argument.
 		resource.TestCheckResourceAttr(
-			"cyral_repository_local_account.tf_test_repository_account",
+			"cyral_repository_local_account.test_repository_account",
 			"enviroment_variable.0.database_name", "some-db-name",
 		),
 		resource.TestCheckResourceAttr(
-			"cyral_repository_local_account.tf_test_repository_account",
+			"cyral_repository_local_account.test_repository_account",
 			"enviroment_variable.0.local_account", "some-local-account",
 		),
 		resource.TestCheckResourceAttr(
-			"cyral_repository_local_account.tf_test_repository_account",
+			"cyral_repository_local_account.test_repository_account",
 			"enviroment_variable.0.variable_name", "CYRAL_DBSECRETS_SOME_VARIABLE_NAME",
 		),
 	)
@@ -363,7 +355,7 @@ func TestAccRepositoryLocalAccountResource_HashicorpVault(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigHashicorpVault)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -385,7 +377,7 @@ func TestAccRepositoryLocalAccountResource_CyralStorage(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigCyralStorage)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -407,7 +399,7 @@ func TestAccRepositoryLocalAccountResource_AwsSecretsManager(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigAwsSecretsManager)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -429,7 +421,7 @@ func TestAccRepositoryLocalAccountResource_AwsIAM(t *testing.T) {
 	testUpdatedConfig, testUpdatedCheck :=
 		setupRepositoryLocalAccountTest(updatedRepoAccountConfigAwsIAM)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -455,26 +447,13 @@ func setupRepositoryLocalAccountTest(
 }
 
 func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource) string {
-	const RepositoryAccountTemplate = `
-	resource "cyral_repository" "tf_test_repository" {
-		type = "mysql"
-		host = "http://mysql.local/"
-		port = 3306
-		name = "%s"
-	}
-
-	resource "cyral_repository_local_account" "tf_test_repository_account" {
-		repository_id = cyral_repository.tf_test_repository.id
-		%s
-	}
-	`
-
-	name := ""
-	config := ""
+	repositoryName := ""
+	localAccountConfig := ""
 
 	if data.AwsIAM != nil {
-		name = "tf-test-mysql-aws-iam"
-		config = fmt.Sprintf(`aws_iam {
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-aws-iam")
+		localAccountConfig = fmt.Sprintf(`aws_iam {
 			database_name = "%s"
 			local_account = "%s"
 			role_arn      = "%s"
@@ -484,8 +463,9 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.AwsIAM.RoleArn,
 		)
 	} else if data.AwsSecretsManager != nil {
-		name = "tf-test-mysql-aws-secrets-manager"
-		config = fmt.Sprintf(`aws_secrets_manager {
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-aws-secrets-manager")
+		localAccountConfig = fmt.Sprintf(`aws_secrets_manager {
 			database_name = "%s"
 			local_account = "%s"
 			secret_arn    = "%s"
@@ -495,8 +475,9 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.AwsSecretsManager.SecretArn,
 		)
 	} else if data.CyralStorage != nil {
-		name = "tf-test-mysql-cyral-storage"
-		config = fmt.Sprintf(`cyral_storage {
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-cyral-storage")
+		localAccountConfig = fmt.Sprintf(`cyral_storage {
 			database_name = "%s"
 			local_account = "%s"
 			password      = "%s"
@@ -506,8 +487,9 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.CyralStorage.Password,
 		)
 	} else if data.HashicorpVault != nil {
-		name = "tf-test-mysql-hashicorp-vault"
-		config = fmt.Sprintf(`hashicorp_vault {
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-hashicorp-vault")
+		localAccountConfig = fmt.Sprintf(`hashicorp_vault {
 			database_name = "%s"
 			local_account = "%s"
 			path          = "%s"
@@ -517,8 +499,9 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.HashicorpVault.Path,
 		)
 	} else if data.EnvironmentVariable != nil {
-		name = "tf-test-mysql-environment-variable"
-		config = fmt.Sprintf(`environment_variable {
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-environment-variable")
+		localAccountConfig = fmt.Sprintf(`environment_variable {
 			database_name = "%s"
 			local_account = "%s"
 			variable_name = "%s"
@@ -528,8 +511,9 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.EnvironmentVariable.VariableName,
 		)
 	} else if data.KubernetesSecret != nil {
-		name = "tf-test-mysql-kubernetes-secret"
-		config = fmt.Sprintf(`kubernetes_secret {
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-kubernetes-secret")
+		localAccountConfig = fmt.Sprintf(`kubernetes_secret {
 			database_name = "%s"
 			local_account = "%s"
 			secret_name = "%s"
@@ -541,8 +525,9 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 			data.KubernetesSecret.SecretKey,
 		)
 	} else if data.GcpSecretManager != nil {
-		name = "tf-test-mysql-gcp-secret-manager"
-		config = fmt.Sprintf(`gcp_secret_manager {
+		repositoryName = accTestName(repositoryLocalAccountResourceName,
+			"mysql-gcp-secret-manager")
+		localAccountConfig = fmt.Sprintf(`gcp_secret_manager {
 			database_name = "%s"
 			local_account = "%s"
 			secret_name = "%s"
@@ -553,7 +538,21 @@ func formatRepositoryLocalAccountIntoConfig(data RepositoryLocalAccountResource)
 		)
 	}
 
-	return fmt.Sprintf(RepositoryAccountTemplate, name, config)
+	var config string
+	config += formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
+		repositoryName,
+		"mysql",
+		"http://mysql.local/",
+		3306,
+	)
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "test_repository_account" {
+		repository_id = cyral_repository.test_repository.id
+		%s
+	}`, localAccountConfig)
+
+	return config
 }
 
 func getTestCheckForRepositoryLocalAccountResource(
@@ -564,109 +563,109 @@ func getTestCheckForRepositoryLocalAccountResource(
 	if data.AwsIAM != nil {
 		testCheckFunc = resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"aws_iam.0.database_name", data.AwsIAM.DatabaseName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"aws_iam.0.local_account", data.AwsIAM.RepoAccount,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"aws_iam.0.role_arn", data.AwsIAM.RoleArn,
 			),
 		)
 	} else if data.AwsSecretsManager != nil {
 		testCheckFunc = resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"aws_secrets_manager.0.database_name", data.AwsSecretsManager.DatabaseName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"aws_secrets_manager.0.local_account", data.AwsSecretsManager.RepoAccount,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"aws_secrets_manager.0.secret_arn", data.AwsSecretsManager.SecretArn,
 			),
 		)
 	} else if data.CyralStorage != nil {
 		testCheckFunc = resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"cyral_storage.0.database_name", data.CyralStorage.DatabaseName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"cyral_storage.0.local_account", data.CyralStorage.RepoAccount,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"cyral_storage.0.password", data.CyralStorage.Password,
 			),
 		)
 	} else if data.HashicorpVault != nil {
 		testCheckFunc = resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"hashicorp_vault.0.database_name", data.HashicorpVault.DatabaseName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"hashicorp_vault.0.local_account", data.HashicorpVault.RepoAccount,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"hashicorp_vault.0.path", data.HashicorpVault.Path,
 			),
 		)
 	} else if data.EnvironmentVariable != nil {
 		testCheckFunc = resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"environment_variable.0.database_name", data.EnvironmentVariable.DatabaseName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"environment_variable.0.local_account", data.EnvironmentVariable.RepoAccount,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"environment_variable.0.variable_name", data.EnvironmentVariable.VariableName,
 			),
 		)
 	} else if data.KubernetesSecret != nil {
 		testCheckFunc = resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"kubernetes_secret.0.database_name", data.KubernetesSecret.DatabaseName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"kubernetes_secret.0.local_account", data.KubernetesSecret.RepoAccount,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"kubernetes_secret.0.secret_name", data.KubernetesSecret.SecretName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"kubernetes_secret.0.secret_key", data.KubernetesSecret.SecretKey,
 			),
 		)
 	} else if data.GcpSecretManager != nil {
 		testCheckFunc = resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"gcp_secret_manager.0.database_name", data.GcpSecretManager.DatabaseName,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"gcp_secret_manager.0.local_account", data.GcpSecretManager.RepoAccount,
 			),
 			resource.TestCheckResourceAttr(
-				"cyral_repository_local_account.tf_test_repository_account",
+				"cyral_repository_local_account.test_repository_account",
 				"gcp_secret_manager.0.secret_name", data.GcpSecretManager.SecretName,
 			),
 		)

@@ -2,22 +2,25 @@ package cyral
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	datalabelDataSourceName = "data-datalabel"
+)
+
 func datalabelDataSourceTestDataLabels() []*DataLabel {
 	return []*DataLabel{
 		{
-			Name:        "tf-provider-test-datalabel-1",
+			Name:        accTestName(datalabelDataSourceName, "1"),
 			Type:        dataLabelTypeCustom,
 			Description: "description-1",
 			Tags:        []string{"tag-1", "tag-2"},
 		},
 		{
-			Name:        "tf-provider-test-datalabel-2",
+			Name:        accTestName(datalabelDataSourceName, "2"),
 			Type:        dataLabelTypeCustom,
 			Description: "description-2",
 			Tags:        []string{"tag-3"},
@@ -37,7 +40,7 @@ func TestAccDatalabelDataSource(t *testing.T) {
 	testConfigTypeFilterCustom, testFuncTypeFilterCustom := testDatalabelDataSource(t,
 		"type_filter_custom", dataLabels, "", dataLabelTypeCustom)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -80,8 +83,8 @@ func testDatalabelDataSourceConfig(
 ) string {
 	var config string
 	var dependsOn []string
-	for _, dataLabel := range dataLabels {
-		resName := dataLabel.Name
+	for i, dataLabel := range dataLabels {
+		resName := fmt.Sprintf("test_datalabel_%d", i)
 		config += formatDataLabelIntoConfig(resName, dataLabel)
 		dependsOn = append(dependsOn, datalabelConfigResourceFullName(resName))
 	}
@@ -98,11 +101,17 @@ func testDatalabelDataSourceChecks(
 ) resource.TestCheckFunc {
 	dataSourceFullName := fmt.Sprintf("data.cyral_datalabel.%s", dsourceName)
 
-	notZeroRegex := regexp.MustCompile("^[0-9]*[^0]$")
-	if typeFilter == dataLabelTypePredefined {
-		return resource.TestMatchResourceAttr(dataSourceFullName,
-			"datalabel_list.#",
-			notZeroRegex,
+	if nameFilter == "" {
+		return resource.ComposeTestCheckFunc(
+			resource.TestMatchResourceAttr(dataSourceFullName,
+				"datalabel_list.#",
+				notZeroRegex(),
+			),
+			dsourceCheckTypeFilter(
+				dataSourceFullName,
+				"datalabel_list.%d.type",
+				typeFilter,
+			),
 		)
 	}
 
@@ -148,6 +157,6 @@ func datalabelDataSourceConfig(dsourceName, nameFilter, typeFilter string, depen
 	data "cyral_datalabel" "%s" {
 		name = "%s"
 		type = "%s"
-		depends_on = [%s]
-	}`, dsourceName, nameFilter, typeFilter, formatAttributes(dependsOn))
+		depends_on = %s
+	}`, dsourceName, nameFilter, typeFilter, listToStr(dependsOn))
 }

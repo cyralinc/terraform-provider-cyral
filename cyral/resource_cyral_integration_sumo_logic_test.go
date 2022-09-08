@@ -7,13 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationSumoLogicResourceName = "integration-sumo-logic"
+)
+
 var initialSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    "tf-test-sumo-logic",
+	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic"),
 	Address: "sumologic.local/initial",
 }
 
 var updatedSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    "tf-test-update-sumo-logic",
+	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic-updated"),
 	Address: "sumologic.local/updated",
 }
 
@@ -21,7 +25,7 @@ func TestAccSumoLogicIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSumoLogicTest(initialSumoLogicConfig)
 	testUpdateConfig, testUpdateFunc := setupSumoLogicTest(updatedSumoLogicConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

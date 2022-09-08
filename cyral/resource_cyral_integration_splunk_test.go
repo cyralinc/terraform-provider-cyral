@@ -7,8 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationSplunkResourceName = "integration-splunk"
+)
+
 var initialSplunkConfig SplunkIntegration = SplunkIntegration{
-	Name:        "splunk-test",
+	Name:        accTestName(integrationSplunkResourceName, "splunk-test"),
 	AccessToken: "access-token",
 	Port:        3333,
 	Host:        "splunk.local",
@@ -17,7 +21,7 @@ var initialSplunkConfig SplunkIntegration = SplunkIntegration{
 }
 
 var updatedSplunkConfig SplunkIntegration = SplunkIntegration{
-	Name:        "splunk-test-update",
+	Name:        accTestName(integrationSplunkResourceName, "splunk-test-update"),
 	AccessToken: "access-token-update",
 	Port:        6666,
 	Host:        "splunk-update.local",
@@ -29,7 +33,7 @@ func TestAccSplunkIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSplunkTest(initialSplunkConfig)
 	testUpdateConfig, testUpdateFunc := setupSplunkTest(updatedSplunkConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

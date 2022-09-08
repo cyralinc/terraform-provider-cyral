@@ -1,15 +1,20 @@
 package cyral
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	sidecarCredentialsResourceName = "sidecar-credentials"
+)
+
 func TestAccSidecarCredentialsResource(t *testing.T) {
 	testConfig, testFunc := setupSidecarCredentialsTest()
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -48,14 +53,15 @@ func setupSidecarCredentialsTest() (string, resource.TestCheckFunc) {
 }
 
 func createSidecarCredentialsConfig() string {
-	return `
-	resource "cyral_sidecar" "test_sidecar" {
-		name = "sidecar-test"
-		deployment_method = "docker"
-	}
-
+	var config string
+	config += formatBasicSidecarIntoConfig(
+		basicSidecarResName,
+		accTestName(sidecarCredentialsResourceName, "sidecar"),
+		"docker",
+	)
+	config += fmt.Sprintf(`
 	resource "cyral_sidecar_credentials" "test_sidecar_credentials" {
-		sidecar_id = cyral_sidecar.test_sidecar.id
-	}
-	`
+		sidecar_id = %s
+	}`, basicSidecarID)
+	return config
 }

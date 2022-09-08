@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	policyRuleResourceName = "policy-rule"
+)
+
 type PolicyRuleConfig struct {
 	DeletedSeverity  string
 	UpdatedSeverity  string
@@ -50,7 +54,7 @@ func TestAccPolicyRuleResource(t *testing.T) {
 
 	importStateResName := "cyral_policy_rule.policy_rule_test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -79,82 +83,57 @@ func TestAccPolicyRuleResource(t *testing.T) {
 	})
 }
 
-func setupPolicyRuleTest(integrationData PolicyRuleConfig) (string, resource.TestCheckFunc) {
-	configuration := formatPolicyRuleConfigIntoConfig(integrationData)
-
-	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "deletes.0.severity", integrationData.DeletedSeverity),
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "reads.0.severity", integrationData.ReadSeverity),
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "updates.0.severity", integrationData.UpdatedSeverity),
+func setupPolicyRuleTest(policyRule PolicyRuleConfig) (string, resource.TestCheckFunc) {
+	testLabelName := "TEST_CCN"
+	var config string
+	config += formatBasicPolicyIntoConfig(
+		accTestName(policyRuleResourceName, "policy"),
+		[]string{testLabelName},
+	)
+	config += formatPolicyRuleConfigIntoConfig(
+		policyRule,
+		testLabelName,
 	)
 
-	return configuration, testFunction
+	testFunction := resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "deletes.0.severity", policyRule.DeletedSeverity),
+		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "reads.0.severity", policyRule.ReadSeverity),
+		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "updates.0.severity", policyRule.UpdatedSeverity),
+	)
+
+	return config, testFunction
 }
 
-func formatPolicyRuleConfigIntoConfig(data PolicyRuleConfig) string {
+func formatPolicyRuleConfigIntoConfig(
+	policyRule PolicyRuleConfig,
+	dataLabelName string,
+) string {
 	return fmt.Sprintf(`
-
-		resource "cyral_repository" "tf_test_repository" {
-			type = "mysql"
-			host = "http://mysql.local/"
-			port = 3306
-			name = "tf-test-mysql"
-	  }
-
-	  resource "cyral_sidecar" "tf_test_sidecar" {
-			name = "tf-test-sidecar"
-			deployment_method = "cloudFormation"
-	  }
-
-	  resource "cyral_repository_binding" "repo_binding" {
-			enabled       = true
-			repository_id = cyral_repository.tf_test_repository.id
-			listener_port = 3307
-			sidecar_id    = cyral_sidecar.tf_test_sidecar.id
-	  }
-
-	  resource "cyral_datamap" "test_datamap" {
-			mapping {
-				label = "TEST_CCN"
-				data_location {
-				repo       = cyral_repository.tf_test_repository.name
-				attributes = ["database.table.column"]
-				}
-			}
-	  }
-
-
-	resource "cyral_policy" "policy_rule_test_policy" {
-		data = ["TEST_CCN"]
-		description = "description"
-		enabled = true
-		name = "policy_rule_test_policy"
-		tags = ["PCI"]
-	}
-
 	resource "cyral_policy_rule" "policy_rule_test" {
-		policy_id = cyral_policy.policy_rule_test_policy.id
+		policy_id = cyral_policy.test_policy.id
 		hosts = ["192.0.2.22", "203.0.113.16/28"]
 		identities {
 			groups = ["analyst"]
 		}
 		deletes {
-			data = ["TEST_CCN"]
+			data = ["%s"]
 			rows = 1
 			severity = "%s"
 			rate_limit = %d
 		}
 		reads {
-			data = ["TEST_CCN"]
+			data = ["%s"]
 			rows = 1
 			severity = "%s"
 			rate_limit = %d
 		}
 		updates {
-			data = ["TEST_CCN"]
+			data = ["%s"]
 			rows = 1
 			severity = "%s"
 			rate_limit = %d
 		}
-	}`, data.DeletedSeverity, data.DeletedRateLimit, data.ReadSeverity, data.ReadRateLimit, data.UpdatedSeverity, data.UpdatedRateLimit)
+	}`, dataLabelName, policyRule.DeletedSeverity, policyRule.DeletedRateLimit,
+		dataLabelName, policyRule.ReadSeverity, policyRule.ReadRateLimit,
+		dataLabelName, policyRule.UpdatedSeverity, policyRule.UpdatedRateLimit)
 }

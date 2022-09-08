@@ -23,7 +23,7 @@ func TestAccLookerIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupLookerTest(initialLookerConfig)
 	testUpdateConfig, testUpdateFunc := setupLookerTest(updatedLookerConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -57,9 +57,9 @@ func setupLookerTest(integrationData LookerIntegration) (string, resource.TestCh
 
 func formatLookerIntegrationDataIntoConfig(data LookerIntegration) string {
 	return fmt.Sprintf(`
-resource "cyral_integration_looker" "looker_integration" {
-	client_id = "%s"
-	client_secret = "%s"
-	url = "%s"
-}`, data.ClientId, data.ClientSecret, data.URL)
+	resource "cyral_integration_looker" "looker_integration" {
+		client_id = "%s"
+		client_secret = "%s"
+		url = "%s"
+	}`, data.ClientId, data.ClientSecret, data.URL)
 }

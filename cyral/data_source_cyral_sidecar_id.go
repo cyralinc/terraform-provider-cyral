@@ -2,12 +2,11 @@ package cyral
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -66,22 +65,4 @@ func dataSourceSidecarIDRead(
 	log.Printf("[DEBUG] End dataSourceSidecarIDRead")
 
 	return diag.Diagnostics{}
-}
-
-func listSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
-	log.Printf("[DEBUG] Init listSidecars")
-	url := fmt.Sprintf("https://%s/v1/sidecars", c.ControlPlane)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var sidecarsInfo []IdentifiedSidecarInfo
-	if err := json.Unmarshal(body, &sidecarsInfo); err != nil {
-		return nil, err
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", sidecarsInfo)
-	log.Printf("[DEBUG] End listSidecars")
-
-	return sidecarsInfo, nil
 }

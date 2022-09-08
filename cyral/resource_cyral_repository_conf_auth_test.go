@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	repositoryConfAuthResourceName = "repository-conf-auth"
+)
+
 var initialRepositoryConfAuthConfig RepositoryConfAuthData = RepositoryConfAuthData{
 	AllowNativeAuth: false,
 	ClientTLS:       "disable",
@@ -30,7 +34,7 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 	testUpdate1Config, testUpdate1Func := setupRepositoryConfAuthTest(update1RepositoryConfAuthConfig)
 	testUpdate2Config, testUpdate2Func := setupRepositoryConfAuthTest(update2RepositoryConfAuthConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -50,35 +54,40 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 	})
 }
 
-func setupRepositoryConfAuthTest(integrationData RepositoryConfAuthData) (string, resource.TestCheckFunc) {
-	configuration := formatRepositoryConfAuthDataDataIntoConfig(integrationData)
+func setupRepositoryConfAuthTest(repositoryConf RepositoryConfAuthData) (string, resource.TestCheckFunc) {
+	var configuration string
+	configuration += formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
+		accTestName(repositoryConfAuthResourceName, "repository"),
+		"mysql",
+		"http://mysql.local/",
+		3306,
+	)
+	configuration += formatRepositoryConfAuthDataIntoConfig(
+		repositoryConf, basicRepositoryID)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_repository_conf_auth.my-repository-conf-auth",
-			"allow_native_auth", fmt.Sprintf("%t", integrationData.AllowNativeAuth)),
+			"allow_native_auth", fmt.Sprintf("%t", repositoryConf.AllowNativeAuth)),
 		resource.TestCheckResourceAttr("cyral_repository_conf_auth.my-repository-conf-auth",
-			"client_tls", integrationData.ClientTLS),
+			"client_tls", repositoryConf.ClientTLS),
 		resource.TestCheckResourceAttr("cyral_repository_conf_auth.my-repository-conf-auth",
-			"repo_tls", integrationData.RepoTLS),
+			"repo_tls", repositoryConf.RepoTLS),
 	)
 
 	return configuration, testFunction
 }
 
-func formatRepositoryConfAuthDataDataIntoConfig(data RepositoryConfAuthData) string {
+func formatRepositoryConfAuthDataIntoConfig(
+	data RepositoryConfAuthData,
+	repositoryID string,
+) string {
 	return fmt.Sprintf(`
-	resource "cyral_repository" "tf_test_repository" {
-		type = "mysql"
-		host = "http://mysql.local/"
-		port = 3306
-		name = "tf-test-mysql"
-	  }
-
 	resource "cyral_repository_conf_auth" "my-repository-conf-auth" {
-		repository_id = cyral_repository.tf_test_repository.id
+		repository_id = %s
 		allow_native_auth = %t
 		client_tls = "%s"
 		identity_provider = "tf_test_conf_auth_okta"
 		repo_tls = "%s"
-	}`, data.AllowNativeAuth, data.ClientTLS, data.RepoTLS)
+	}`, repositoryID, data.AllowNativeAuth, data.ClientTLS, data.RepoTLS)
 }

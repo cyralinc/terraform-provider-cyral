@@ -7,9 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationLogstashResourceName = "integration-logstash"
+)
+
 var initialLogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash.local/",
-	Name:                       "tf-logstash-test",
+	Name:                       accTestName(integrationLogstashResourceName, "logstash-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     false,
@@ -17,7 +21,7 @@ var initialLogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated1LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       "tf-logstash-update-test",
+	Name:                       accTestName(integrationLogstashResourceName, "logstash-update-test"),
 	UseMutualAuthentication:    true,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     false,
@@ -25,7 +29,7 @@ var updated1LogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated2LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       "logstash-update-test",
+	Name:                       accTestName(integrationLogstashResourceName, "logstash-update-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: true,
 	UseTLS:                     false,
@@ -33,7 +37,7 @@ var updated2LogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated3LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       "logstash-update-test",
+	Name:                       accTestName(integrationLogstashResourceName, "logstash-update-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     true,
@@ -45,7 +49,7 @@ func TestAccLogstashIntegrationResource(t *testing.T) {
 	testUpdate2Config, testUpdate2Func := setupLogstashTest(updated2LogstashConfig)
 	testUpdate3Config, testUpdate3Func := setupLogstashTest(updated3LogstashConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

@@ -7,9 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	integrationOktaResourceName = "integration-okta"
+)
+
 var initialOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPayload{
 	Samlp: ResourceIntegrationOkta{
-		Name:         "tf-test-integration-okta",
+		Name:         accTestName(integrationOktaResourceName, "okta"),
 		Certificate:  "certificate",
 		EmailDomains: []string{"sigin.com"},
 		SignInUrl:    "https://sigin.com/in",
@@ -19,7 +23,7 @@ var initialOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPa
 
 var updatedOktaConfig ResourceIntegrationOktaPayload = ResourceIntegrationOktaPayload{
 	Samlp: ResourceIntegrationOkta{
-		Name:         "tf-test-integration-okta",
+		Name:         accTestName(integrationOktaResourceName, "okta"),
 		Certificate:  "certificate-updated",
 		EmailDomains: []string{"siginupdated.com"},
 		SignInUrl:    "https://siginupdated.com/in",
@@ -31,7 +35,7 @@ func TestAccOktaIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupOktaTest(initialOktaConfig)
 	testUpdateConfig, testUpdateFunc := setupOktaTest(updatedOktaConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -72,8 +76,8 @@ func formatOktaIntegrationDataIntoConfig(data ResourceIntegrationOktaPayload) st
 	resource "cyral_integration_okta" "tf_test_okta" {
 		name          = "%s"
 		certificate   = "%s"
-		email_domains = [%s]
+		email_domains = %s
 		signin_url    = "%s"
 		signout_url   = "%s"
-	  }`, data.Samlp.Name, data.Samlp.Certificate, formatAttributes(data.Samlp.EmailDomains), data.Samlp.SignInUrl, data.Samlp.SignOutUrl)
+	  }`, data.Samlp.Name, data.Samlp.Certificate, listToStr(data.Samlp.EmailDomains), data.Samlp.SignInUrl, data.Samlp.SignOutUrl)
 }

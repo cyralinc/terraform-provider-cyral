@@ -6,8 +6,40 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	datamapResourceName = "datamap"
+)
+
+func datamapResourceTestRepoConfig_MySQL() string {
+	return formatBasicRepositoryIntoConfig(
+		"repo_1",
+		datamapResourceTestRepoName_MySQL(),
+		"mysql",
+		"some-host.com",
+		3306,
+	)
+}
+
+func datamapResourceTestRepoName_MySQL() string {
+	return accTestName(datamapResourceName, "mysql")
+}
+
+func datamapResourceTestRepoConfig_MariaDB() string {
+	return formatBasicRepositoryIntoConfig(
+		"repo_2",
+		datamapResourceTestRepoName_MariaDB(),
+		"mariadb",
+		"some-host.com",
+		1234,
+	)
+}
+
+func datamapResourceTestRepoName_MariaDB() string {
+	return accTestName(datamapResourceName, "mariadb")
+}
+
 func TestAccDatamapResource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -21,7 +53,7 @@ func TestAccDatamapResource(t *testing.T) {
 			{
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				ImportStateVerifyIgnore: []string{"mapping.", "last_updated"},
 				ResourceName:            "cyral_datamap.datamap_1",
 			},
 		},
@@ -29,14 +61,9 @@ func TestAccDatamapResource(t *testing.T) {
 }
 
 func testAccDatamapConfig_InitialConfig() string {
-	return `
-	resource "cyral_repository" "repo_1" {
-		type = "mysql"
-		host = "some-host.com"
-		port = 3306
-		name = "tf-test-mysql"
-	}
-
+	var config string
+	config += datamapResourceTestRepoConfig_MySQL()
+	config += `
 	resource "cyral_datamap" "datamap_1" {
 		mapping {
 			label = "CNN"
@@ -51,6 +78,7 @@ func testAccDatamapConfig_InitialConfig() string {
 			}
 		}
 	}`
+	return config
 }
 
 func testAccDatamapCheck_InitialConfig() resource.TestCheckFunc {
@@ -60,7 +88,7 @@ func testAccDatamapCheck_InitialConfig() resource.TestCheckFunc {
 			map[string]string{
 				"label":                        "CNN",
 				"data_location.#":              "1",
-				"data_location.0.repo":         "tf-test-mysql",
+				"data_location.0.repo":         datamapResourceTestRepoName_MySQL(),
 				"data_location.0.attributes.#": "4",
 			},
 		),
@@ -71,21 +99,10 @@ func testAccDatamapCheck_InitialConfig() resource.TestCheckFunc {
 }
 
 func testAccDatamapConfig_UpdatedConfig() string {
-	return `
-	resource "cyral_repository" "repo_1" {
-		type = "mysql"
-		host = "some-host.com"
-		port = 3306
-		name = "tf-test-mysql"
-	}
-
-	resource "cyral_repository" "repo_2" {
-		type = "mariadb"
-		host = "some-host.com"
-		port = 1234
-		name = "tf-test-mariadb"
-	}
-
+	var config string
+	config += datamapResourceTestRepoConfig_MySQL()
+	config += datamapResourceTestRepoConfig_MariaDB()
+	config += `
 	resource "cyral_datamap" "datamap_1" {
 		mapping {
 			label = "CNN-UPDATED"
@@ -120,6 +137,7 @@ func testAccDatamapConfig_UpdatedConfig() string {
 			}
 		}
 	}`
+	return config
 }
 
 func testAccDatamapCheck_UpdatedConfig() resource.TestCheckFunc {
@@ -136,7 +154,7 @@ func testAccDatamapCheck_UpdatedConfig() resource.TestCheckFunc {
 			map[string]string{
 				"label":                        "EMAIL",
 				"data_location.#":              "1",
-				"data_location.0.repo":         "tf-test-mariadb",
+				"data_location.0.repo":         datamapResourceTestRepoName_MariaDB(),
 				"data_location.0.attributes.#": "3",
 			},
 		),

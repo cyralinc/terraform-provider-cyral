@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	sidecarResourceName = "sidecar"
+)
+
 func getTestCBS() CertificateBundleSecrets {
 	cbs := make(CertificateBundleSecrets)
 	cbs["sidecar"] = &CertificateBundleSecret{
@@ -19,7 +23,7 @@ func getTestCBS() CertificateBundleSecrets {
 }
 
 var cloudFormationSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-cft",
+	Name:                     accTestName(sidecarResourceName, "cft"),
 	Labels:                   []string{"test1"},
 	SidecarProperty:          NewSidecarProperty("cloudFormation"),
 	UserEndpoint:             "some.cft.user.endpoint",
@@ -27,7 +31,7 @@ var cloudFormationSidecarConfig *SidecarData = &SidecarData{
 }
 
 var dockerSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-docker",
+	Name:                     accTestName(sidecarResourceName, "docker"),
 	Labels:                   []string{"test2"},
 	SidecarProperty:          NewSidecarProperty("docker"),
 	UserEndpoint:             "some.docker.user.endpoint",
@@ -35,7 +39,7 @@ var dockerSidecarConfig *SidecarData = &SidecarData{
 }
 
 var helmSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-helm",
+	Name:                     accTestName(sidecarResourceName, "helm"),
 	Labels:                   []string{"test3"},
 	SidecarProperty:          NewSidecarProperty("helm"),
 	UserEndpoint:             "some.helm.user.endpoint",
@@ -43,7 +47,7 @@ var helmSidecarConfig *SidecarData = &SidecarData{
 }
 
 var tfSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-tf",
+	Name:                     accTestName(sidecarResourceName, "tf"),
 	Labels:                   []string{"test4"},
 	SidecarProperty:          NewSidecarProperty("terraform"),
 	UserEndpoint:             "some.tf.user.endpoint",
@@ -51,7 +55,7 @@ var tfSidecarConfig *SidecarData = &SidecarData{
 }
 
 var singleContainerSidecarConfig *SidecarData = &SidecarData{
-	Name:                     "tf-provider-TestAccSidecarResource-singleContainer",
+	Name:                     accTestName(sidecarResourceName, "singleContainer"),
 	Labels:                   []string{"test5"},
 	SidecarProperty:          NewSidecarProperty("singleContainer"),
 	UserEndpoint:             "some.singleContainer.user.endpoint",
@@ -59,7 +63,7 @@ var singleContainerSidecarConfig *SidecarData = &SidecarData{
 }
 
 var bypassNeverSidecarConfig *SidecarData = &SidecarData{
-	Name:            "tf-provider-TestAccSidecarResource-bypassNeverSidecar",
+	Name:            accTestName(sidecarResourceName, "bypassNeverSidecar"),
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -70,7 +74,7 @@ var bypassNeverSidecarConfig *SidecarData = &SidecarData{
 }
 
 var bypassAlwaysSidecarConfig *SidecarData = &SidecarData{
-	Name:            "tf-provider-TestAccSidecarResource-bypassAlwaysSidecar",
+	Name:            accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
 	SidecarProperty: NewSidecarProperty("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -88,10 +92,10 @@ func TestAccSidecarResource(t *testing.T) {
 	testUpdateConfigSingleContainer, testUpdateFuncSingleContainer := setupSidecarTest(
 		singleContainerSidecarConfig,
 	)
-	testUpdateConfigBypassAlways, testUpdateFuncBypassAlways := setupSidecarTest(bypassAlwaysSidecarConfig)
 	testUpdateConfigBypassNever, testUpdateFuncBypassNever := setupSidecarTest(bypassNeverSidecarConfig)
+	testUpdateConfigBypassAlways, testUpdateFuncBypassAlways := setupSidecarTest(bypassAlwaysSidecarConfig)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -115,12 +119,12 @@ func TestAccSidecarResource(t *testing.T) {
 				Check:  testUpdateFuncSingleContainer,
 			},
 			{
-				Config: testUpdateConfigBypassAlways,
-				Check:  testUpdateFuncBypassAlways,
-			},
-			{
 				Config: testUpdateConfigBypassNever,
 				Check:  testUpdateFuncBypassNever,
+			},
+			{
+				Config: testUpdateConfigBypassAlways,
+				Check:  testUpdateFuncBypassAlways,
 			},
 			{
 				ImportState:       true,
@@ -173,13 +177,13 @@ func formatSidecarDataIntoConfig(sidecarData *SidecarData) string {
 	resource "cyral_sidecar" "test_sidecar" {
       		name = "%s"
 	      	deployment_method = "%s"
-		labels = [%s]
+		labels = %s
 		user_endpoint = "%s"
 		%s
 		%s
       	}`, sidecarData.Name,
 		sidecarData.SidecarProperty.DeploymentMethod,
-		formatAttributes(sidecarData.Labels),
+		listToStr(sidecarData.Labels),
 		sidecarData.UserEndpoint,
 		certBundleConfig,
 		servicesConfig)

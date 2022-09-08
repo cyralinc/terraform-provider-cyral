@@ -8,10 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+const (
+	sidecarInstanceIDsDataSourceName = "data-sidecar-instance-ids"
+)
+
 func TestAccSidecarInstanceIDsDataSource(t *testing.T) {
 	nonExistentSidecarID := "some-non-existent-sidecar-id"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -53,18 +57,20 @@ func testAccSidecarInstanceIDsConfig_NoSidecarFoundForGivenID(
 }
 
 func testAccSidecarInstanceIDsConfig_NoSidecarInstances() string {
-	return `
-	// Creates a sidecar that doesn't have any instances,
-	// since it was not deployed.
-	resource "cyral_sidecar" "sidecar_1" {
-		name = "tf-provider-sidecar-1"
-		deployment_method = "cloudFormation"
-		labels = ["terraform-provider", "sidecar-instance-ids"]
-	}
+	// Creates a sidecar that doesn't have any instances, since it was not
+	// deployed.
+	var config string
+	config += formatBasicSidecarIntoConfig(
+		basicSidecarResName,
+		accTestName(sidecarInstanceIDsDataSourceName, "sidecar"),
+		"cloudFormation",
+	)
+
+	config += fmt.Sprintf(`
 	data "cyral_sidecar_instance_ids" "instance_ids" {
-		sidecar_id = cyral_sidecar.sidecar_1.id
-	}
-	`
+		sidecar_id = %s
+	}`, basicSidecarID)
+	return config
 }
 
 func testAccSidecarInstanceIDsCheck_NoSidecarInstances() resource.TestCheckFunc {
