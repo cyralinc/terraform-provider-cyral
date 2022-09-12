@@ -9,13 +9,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	integrationIdPSAMLDataSourceName = "data-integration-idp-saml"
+)
+
 func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 	return []GenericSAMLIntegration{
 		{
-			ID:          "id-1",
-			DisplayName: "display-name-1",
-			IdpType:     "idp-type-1",
-			Disabled:    false,
+			ID: "id-1",
+			DisplayName: accTestName(
+				integrationIdPSAMLDataSourceName, "integration-1"),
+			IdpType:  "idp-type-1",
+			Disabled: false,
 			IdpDescriptor: &GenericSAMLIdpDescriptor{
 				SingleSignOnServiceURL:     "sso-url-1",
 				SigningCertificate:         "signing-certificate-1",
@@ -33,10 +38,11 @@ func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 			),
 		},
 		{
-			ID:          "id-2",
-			DisplayName: "display-name-2",
-			IdpType:     "idp-type-2",
-			Disabled:    true,
+			ID: "id-2",
+			DisplayName: accTestName(
+				integrationIdPSAMLDataSourceName, "integration-2"),
+			IdpType:  "idp-type-2",
+			Disabled: true,
 			IdpDescriptor: &GenericSAMLIdpDescriptor{
 				SingleSignOnServiceURL:     "sso-url-2",
 				SigningCertificate:         "signing-certificate-2",
@@ -62,7 +68,7 @@ func TestAccIntegrationIdPSAMLDataSource(t *testing.T) {
 	testConfigTypeFilter, testFuncTypeFilter := testIntegrationIdPSAMLDataSource(t,
 		"type_filter", "", "type_filter_2")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

@@ -10,9 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	integrationIdPSAMLDraftResourceName = "integration-idp-saml-draft"
+)
+
 func genericSAMLDraftConfigInitial() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
-		DisplayName:              "tf-test-saml-draft-1",
+		DisplayName: accTestName(
+			integrationIdPSAMLDraftResourceName, "integration-1"),
 		DisableIdPInitiatedLogin: false,
 		IdpType:                  "some-idp-type-1",
 		Attributes: NewRequiredUserAttributes(
@@ -26,7 +31,8 @@ func genericSAMLDraftConfigInitial() *GenericSAMLDraft {
 
 func genericSAMLDraftConfigUpdated() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
-		DisplayName:              "tf-test-saml-draft-2",
+		DisplayName: accTestName(
+			integrationIdPSAMLDraftResourceName, "integration-2"),
 		DisableIdPInitiatedLogin: true,
 		IdpType:                  "some-idp-type-2",
 		Attributes: NewRequiredUserAttributes(
@@ -40,7 +46,8 @@ func genericSAMLDraftConfigUpdated() *GenericSAMLDraft {
 
 func genericSAMLDraftConfigNoAttributes() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
-		DisplayName:              "tf-test-saml-draft-2",
+		DisplayName: accTestName(
+			integrationIdPSAMLDraftResourceName, "integration-2"),
 		DisableIdPInitiatedLogin: true,
 		IdpType:                  "some-idp-type-2",
 	}
@@ -54,7 +61,7 @@ func TestAccIntegrationIdPSAMLDraftResource(t *testing.T) {
 	noAttributesConfig, noAttributesChecks := setupIntegrationIdPSAMLDraftTest(t,
 		genericSAMLDraftConfigNoAttributes(), "no_attributes")
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{

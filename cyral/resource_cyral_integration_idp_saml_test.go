@@ -10,6 +10,8 @@ import (
 )
 
 const (
+	integrationIdPSAMLResourceName = "integration-idp-saml"
+
 	testSSOURL = "https://sso-url-example.com/sso/saml"
 )
 
@@ -45,7 +47,7 @@ func TestAccIntegrationIdPSAMLResource(t *testing.T) {
 	newConfig, newChecks := setupIntegrationIdPSAMLTest(
 		"new_test", samlMetadataDocumentSample("fakeCertificateNew"))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
@@ -86,7 +88,8 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 ) {
 	var config string
 	config += integrationIdPSAMLDraftResourceConfig(resName,
-		"some-display-name", "some-idp-type")
+		accTestName(integrationIdPSAMLResourceName, "saml-draft"),
+		"some-idp-type")
 	config += integrationIdPSAMLResourceConfig(resName, resName, metadataDoc)
 
 	resourceFullName := fmt.Sprintf("cyral_integration_idp_saml.%s", resName)
