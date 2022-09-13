@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"net/http"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -97,12 +96,6 @@ func listSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
 
 func validationStringLenAtLeast(min int) schema.SchemaValidateFunc {
 	return validation.StringLenBetween(min, math.MaxInt)
-}
-
-func validationStringPrefix(prefix string) schema.SchemaValidateFunc {
-	regex := regexp.MustCompile(fmt.Sprintf("^%s.*", prefix))
-	return validation.StringMatch(regex,
-		fmt.Sprintf("value must begin with prefix %q", prefix))
 }
 
 func typeSetNonEmpty(d *schema.ResourceData, attname string) bool {

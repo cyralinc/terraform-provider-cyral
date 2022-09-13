@@ -11,12 +11,14 @@ import (
 )
 
 func GenericSAMLIdPInfoArguments() []string {
-	return []string{"idp_metadata_url", "idp_metadata_xml", "idp_descriptor"}
+	return []string{"idp_metadata_url", "idp_metadata_xml"}
 }
 
 type CreateGenericSAMLRequest struct {
-	SAMLDraftId   string                    `json:"samlDraftId"`
-	IdpMetadata   *GenericSAMLIdpMetadata   `json:"idpMetadata,omitempty"`
+	SAMLDraftId string                  `json:"samlDraftId"`
+	IdpMetadata *GenericSAMLIdpMetadata `json:"idpMetadata,omitempty"`
+
+	// Currently unused fields. TODO: implement this -aholmquist 2022-08-03
 	IdpDescriptor *GenericSAMLIdpDescriptor `json:"idpDescriptor,omitempty"`
 }
 
@@ -29,14 +31,6 @@ func (req *CreateGenericSAMLRequest) ReadFromSchema(d *schema.ResourceData) erro
 	} else if xml := d.Get("idp_metadata_xml").(string); xml != "" {
 		req.IdpMetadata = &GenericSAMLIdpMetadata{
 			XML: xml,
-		}
-	} else if idpDescriptorList := d.Get("idp_descriptor").(*schema.Set).List(); len(idpDescriptorList) > 0 {
-		idpDescriptorMap := idpDescriptorList[0].(map[string]interface{})
-		req.IdpDescriptor = &GenericSAMLIdpDescriptor{
-			SingleSignOnServiceURL:     idpDescriptorMap["single_sign_on_service_url"].(string),
-			SigningCertificate:         idpDescriptorMap["signing_certificate"].(string),
-			DisableForceAuthentication: idpDescriptorMap["disable_force_authentication"].(bool),
-			SingleLogoutServiceURL:     idpDescriptorMap["single_logout_service_url"].(string),
 		}
 	} else {
 		panic(fmt.Sprintf("Expected one of the arguments to be set: %v.",
@@ -136,39 +130,6 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 				ForceNew:     true,
 				ExactlyOneOf: GenericSAMLIdPInfoArguments(),
 				ValidateFunc: validation.StringIsBase64,
-			},
-			"idp_descriptor": {
-				Description: "The configuration information required by the Cyral SP, provided by the IdP.",
-				Type:        schema.TypeSet,
-				Optional:    true,
-				ForceNew:    true,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"single_sign_on_service_url": {
-							Description:  "The IdP’s Single Sign-on Service (SS0) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.",
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validationStringPrefix("https://"),
-						},
-						"signing_certificate": {
-							Description: "The signing certificate used by the Cyral SP to validate signed SAML assertions sent by the IdP.",
-							Type:        schema.TypeString,
-							Required:    true,
-						},
-						"disable_force_authentication": {
-							Description: "Indicates whether the identity provider must authenticate the presenter directly rather than rely on a previous security context.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     false,
-						},
-						"single_logout_service_url": {
-							Description: "The IdP’s Single Log-out Service (SL0) URL, where Cyral will send SAML AuthnRequests via SAML-POST binding. If supplied, SLO will be enabled.",
-							Type:        schema.TypeString,
-							Optional:    true,
-						},
-					},
-				},
 			},
 
 			// Computed arguments

@@ -68,7 +68,7 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) erro
 		return err
 	}
 	if resp.Draft.Attributes != nil && typeSetNonEmpty(d, "attributes") {
-		if err := d.Set("attributes", resp.Draft.Attributes.ToInterface()); err != nil {
+		if err := resp.Draft.Attributes.WriteToSchema(d); err != nil {
 			return err
 		}
 	}

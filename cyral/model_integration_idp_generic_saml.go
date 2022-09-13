@@ -51,13 +51,15 @@ func NewRequiredUserAttributes(firstName, lastName, email, groups string) *Requi
 	}
 }
 
-func (uatt *RequiredUserAttributes) ToInterface() []interface{} {
-	return []interface{}{map[string]interface{}{
+func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData) error {
+	var attributes []interface{}
+	attributes = append(attributes, map[string]interface{}{
 		"first_name": uatt.FirstName.Name,
 		"last_name":  uatt.LastName.Name,
 		"email":      uatt.Email.Name,
 		"groups":     uatt.Groups.Name,
-	}}
+	})
+	return d.Set("attributes", attributes)
 }
 
 func RequiredUserAttributesFromSchema(d *schema.ResourceData) (*RequiredUserAttributes, error) {
@@ -105,12 +107,9 @@ func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData) error
 
 func (integ *GenericSAMLIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	integ.ID = d.Id()
-
-	idpDescriptorList := d.Get("idp_descriptor").(*schema.Set).List()
-	if len(idpDescriptorList) < 1 {
-		return nil
+	integ.IdpDescriptor = &GenericSAMLIdpDescriptor{
+		SingleSignOnServiceURL: d.Get("single_sign_on_service_url").(string),
 	}
-
 	return nil
 }
 
