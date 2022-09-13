@@ -39,7 +39,11 @@ func datamapResourceTestRepoName_MariaDB() string {
 }
 
 func TestAccDatamapResource(t *testing.T) {
-	resource.ParallelTest(t, resource.TestCase{
+	// Cannot use resource.ParallelTest, otherwise might conflict with
+	// `repository_datamap`, because it deals with a globally accessible
+	// datamap which the `repos/datamap` API also uses. Therefore, this test
+	// needs to run serially with respect to others.
+	resource.Test(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
