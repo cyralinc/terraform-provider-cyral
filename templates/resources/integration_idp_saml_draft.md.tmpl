@@ -1,0 +1,13 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+~> **NOTE** If using this resource in conjunction with
+`cyral_integration_idp_saml`, please see **NOTE** at the beginning of
+[cyral_integration_idp_saml](./cyral_integration_idp_saml.md).
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_integration_idp_saml_draft/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}

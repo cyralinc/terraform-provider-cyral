@@ -20,6 +20,10 @@ const (
 
 type URLCreatorFunc = func(d *schema.ResourceData, c *client.Client) string
 
+type RequestErrorHandler interface {
+	HandleError(d *schema.ResourceData, c *client.Client, err error) error
+}
+
 type ResourceData interface {
 	ReadFromSchema(d *schema.ResourceData) error
 }
@@ -29,9 +33,10 @@ type ResponseData interface {
 }
 
 type ResourceOperationConfig struct {
-	Name            string
-	HttpMethod      string
-	CreateURL       URLCreatorFunc
+	Name       string
+	HttpMethod string
+	CreateURL  URLCreatorFunc
+	RequestErrorHandler
 	NewResourceData func() ResourceData
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
@@ -76,6 +81,9 @@ func HandleRequest(
 		url := config.CreateURL(d, c)
 
 		body, err := c.DoRequest(url, config.HttpMethod, resourceData)
+		if config.RequestErrorHandler != nil {
+			err = config.RequestErrorHandler.HandleError(d, c, err)
+		}
 		if err != nil {
 			return createError(
 				fmt.Sprintf("Unable to %s resource", operationType),
@@ -83,7 +91,7 @@ func HandleRequest(
 			)
 		}
 
-		if config.NewResponseData != nil {
+		if body != nil && config.NewResponseData != nil {
 			if responseData := config.NewResponseData(d); responseData != nil {
 				if err := json.Unmarshal(body, responseData); err != nil {
 					return createError("Unable to unmarshall JSON", err.Error())

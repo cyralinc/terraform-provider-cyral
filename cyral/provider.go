@@ -121,6 +121,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"cyral_datalabel":            dataSourceDatalabel(),
 			"cyral_integration_idp":      dataSourceIntegrationIdP(),
+			"cyral_integration_idp_saml": dataSourceIntegrationIdPSAML(),
 			"cyral_repository":           dataSourceRepository(),
 			"cyral_role":                 dataSourceRole(),
 			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
@@ -151,6 +152,8 @@ func Provider() *schema.Provider {
 			"cyral_integration_idp_gsuite":      resourceIntegrationIdP("gsuite", ""),
 			"cyral_integration_idp_okta":        resourceIntegrationIdP("okta", ""),
 			"cyral_integration_idp_ping_one":    resourceIntegrationIdP("pingone", ""),
+			"cyral_integration_idp_saml":        resourceIntegrationIdPSAML(),
+			"cyral_integration_idp_saml_draft":  resourceIntegrationIdPSAMLDraft(),
 			"cyral_integration_sso_aad":         resourceIntegrationIdP("aad", "Use 'cyral_integration_idp_aad' instead"),
 			"cyral_integration_sso_adfs":        resourceIntegrationIdP("adfs-2016", "Use 'cyral_integration_idp_adfs' instead"),
 			"cyral_integration_sso_forgerock":   resourceIntegrationIdP("forgerock", "Use 'cyral_integration_idp_forgerock' instead"),

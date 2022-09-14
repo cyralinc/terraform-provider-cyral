@@ -112,6 +112,14 @@ func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
 	}`, basicRepositoryLocalAccountResName, repositoryID, localAccount, password)
 }
 
+func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType string) string {
+	return fmt.Sprintf(`
+	resource "cyral_integration_idp_saml_draft" "%s" {
+		display_name = "%s"
+		idp_type = "%s"
+	}`, resName, displayName, idpType)
+}
+
 func notZeroRegex() *regexp.Regexp {
 	return regexp.MustCompile("[^0]|([0-9]{2,})")
 }

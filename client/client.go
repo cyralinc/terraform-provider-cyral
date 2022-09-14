@@ -104,12 +104,16 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict ||
 		(httpMethod == http.MethodPost && strings.Contains(strings.ToLower(res.Status), "already exists")) {
-		return nil, fmt.Errorf("resource possibly exists in the control plane. Response status: %s", res.Status)
+		return nil, NewHttpError(
+			fmt.Sprintf("resource possibly exists in the control plane. Response status: %s", res.Status),
+			res.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read data from request body; err: %v", err)
+		return nil, NewHttpError(
+			fmt.Sprintf("unable to read data from request body; err: %v", err),
+			res.StatusCode)
 	}
 
 	// Redact token before logging the request
@@ -120,13 +124,15 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	log.Printf("[DEBUG] Response body: %s", string(body))
 
 	if !(res.StatusCode >= 200 && res.StatusCode < 300) {
-		err = fmt.Errorf("error executing %s request; status code: %d; body: %q",
-			httpMethod, res.StatusCode, body)
+		return nil, NewHttpError(
+			fmt.Sprintf("error executing %s request; status code: %d; body: %q",
+				httpMethod, res.StatusCode, body),
+			res.StatusCode)
 	}
 
 	log.Printf("[DEBUG] End DoRequest")
 
-	return body, err
+	return body, nil
 }
 
 func redactContent(content string) string {
