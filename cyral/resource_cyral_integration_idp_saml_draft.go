@@ -202,20 +202,6 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Description: "ID of this resource in the Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
-			},
-			// toggle_recreation is used to recreate the SAML draft
-			// in case a SAML integration that points to it is
-			// deleted, but the SAML draft remains dangling in the
-			// Terraform configuration. In this case, the object
-			// wouldn't exist in the API, only in the Terraform
-			// configuration. To help the user get out of this
-			// situation, we force its recreation when he attempts
-			// `terraform apply` again.
-			"toggle_recreation": {
-				Description: "Internal use only. Used to recreate the resource in case it reaches an inconsistent state.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
 				ForceNew:    true,
 			},
 		},
@@ -268,11 +254,7 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 	if !found {
 		log.Printf("[DEBUG] Completed draft with ID %q "+
 			"not found. Triggering recreation.", myID)
-		currentToggle := d.Get("toggle_recreation").(bool)
-		newToggle := !currentToggle
-		if err := d.Set("toggle_recreation", newToggle); err != nil {
-			return fmt.Errorf("error forcing recreation of SAML draft: %w", err)
-		}
+		d.SetId("")
 	} else {
 		log.Printf("[DEBUG] Found completed draft with ID %q.", myID)
 	}

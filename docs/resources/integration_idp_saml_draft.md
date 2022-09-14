@@ -35,7 +35,6 @@ resource "cyral_integration_idp_saml_draft" "example_draft" {
 - `attributes` (Block Set, Max: 1) SAML Attribute names for the identity attributes required by the Cyral SP. Each attribute name MUST be at least 3 characters long. (see [below for nested schema](#nestedblock--attributes))
 - `disable_idp_initiated_login` (Boolean) Whether or not IdP-Initiated login should be disabled for this generic SAML integration draft. Defaults to `false`.
 - `idp_type` (String) Identity provider type. The value provided can be used as a filter when retrieving SAML integrations. See data source `cyral_integration_idp_saml`.
-- `toggle_recreation` (Boolean) Internal use only. Used to recreate the resource in case it reaches an inconsistent state.
 
 ### Read-Only
 

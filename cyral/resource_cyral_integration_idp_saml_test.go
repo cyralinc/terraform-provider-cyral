@@ -87,7 +87,7 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 	resource.TestCheckFunc,
 ) {
 	var config string
-	config += integrationIdPSAMLDraftResourceConfig(resName,
+	config += formatBasicIntegrationIdPSAMLDraftIntoConfig(resName,
 		accTestName(integrationIdPSAMLResourceName, "saml-draft"),
 		"some-idp-type")
 	config += integrationIdPSAMLResourceConfig(resName, resName, metadataDoc)
@@ -112,18 +112,6 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 	)
 
 	return config, checkFunc
-}
-
-// integrationIdPSAMLDraftResourceConfig is a simplified version of
-// formatGenericSAMLDraftIntoConfig. It only accepts custom display and idp
-// type, and is used mostly to test the actual SAML integration (which needs a
-// SAML draft to be created).
-func integrationIdPSAMLDraftResourceConfig(resName, displayName, idpType string) string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_idp_saml_draft" "%s" {
-		display_name = "%s"
-		idp_type = "%s"
-	}`, resName, displayName, idpType)
 }
 
 func integrationIdPSAMLResourceConfig(resName, draftResName, metadataDoc string) string {

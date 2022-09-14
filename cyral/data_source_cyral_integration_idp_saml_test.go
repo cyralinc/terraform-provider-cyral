@@ -62,67 +62,84 @@ func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 	}
 }
 
+func testIntegrationIdPSAMLDataSourceName1() string {
+	return accTestName(integrationIdPSAMLDataSourceName, "1")
+}
+
+func testIntegrationIdPSAMLDataSourceName2() string {
+	return accTestName(integrationIdPSAMLDataSourceName, "2")
+}
+
 func TestAccIntegrationIdPSAMLDataSource(t *testing.T) {
-	testConfigNameFilter, testFuncNameFilter := testIntegrationIdPSAMLDataSource(t,
-		"name_filter", "name_filter_1", "")
-	testConfigTypeFilter, testFuncTypeFilter := testIntegrationIdPSAMLDataSource(t,
-		"type_filter", "", "type_filter_2")
+	testConfig1, testFunc1 := testIntegrationIdPSAMLDataSource(t,
+		"test1", testIntegrationIdPSAMLDataSourceName1(), "type1")
+	testConfig2, testFunc2 := testIntegrationIdPSAMLDataSource(t,
+		"test2", testIntegrationIdPSAMLDataSourceName2(), "type2")
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testConfigNameFilter,
-				Check:  testFuncNameFilter,
+				Config: testConfig1,
+				Check:  testFunc1,
 			},
 			{
-				Config: testConfigTypeFilter,
-				Check:  testFuncTypeFilter,
+				Config: testConfig2,
+				Check:  testFunc2,
 			},
 		},
 	})
 }
 
-func testIntegrationIdPSAMLDataSource(t *testing.T, resName string, displayName, idpType string) (
+func testIntegrationIdPSAMLDataSource(t *testing.T, resName string, nameFilter, typeFilter string) (
 	string, resource.TestCheckFunc,
 ) {
-	return testIntegrationIdPSAMLDataSourceConfig(resName, displayName, idpType),
-		testIntegrationIdPSAMLDataSourceChecks(t, resName, displayName, idpType)
+	return testIntegrationIdPSAMLDataSourceConfig(resName, nameFilter, typeFilter),
+		testIntegrationIdPSAMLDataSourceChecks(t, resName, nameFilter, typeFilter)
 }
 
-func testIntegrationIdPSAMLDataSourceConfig(resName, displayName, idpType string) string {
+// Setup two integrations that are retrieved and checked by the data source.
+func testIntegrationIdPSAMLDataSourceConfigDependencies(resName string) string {
+	resName1 := resName + "_1"
+	resName2 := resName + "_2"
+
 	var config string
-	// Setup two integrations
-	config += integrationIdPSAMLDraftResourceConfig(
-		fmt.Sprintf("%s_1", resName),
-		fmt.Sprintf("%s_1", resName),
-		fmt.Sprintf("%s_1", resName))
+	config += formatBasicIntegrationIdPSAMLDraftIntoConfig(
+		resName1,
+		testIntegrationIdPSAMLDataSourceName1(),
+		"type1")
 	config += integrationIdPSAMLResourceConfig(
-		fmt.Sprintf("%s_1", resName),
-		fmt.Sprintf("%s_1", resName),
+		resName1,
+		resName1,
 		samlMetadataDocumentSample("fake-certificate"))
-	config += integrationIdPSAMLDraftResourceConfig(
-		fmt.Sprintf("%s_2", resName),
-		fmt.Sprintf("%s_2", resName),
-		fmt.Sprintf("%s_2", resName))
+	config += formatBasicIntegrationIdPSAMLDraftIntoConfig(
+		resName2,
+		testIntegrationIdPSAMLDataSourceName2(),
+		"type2")
 	config += integrationIdPSAMLResourceConfig(
-		fmt.Sprintf("%s_2", resName),
-		fmt.Sprintf("%s_2", resName),
+		resName2,
+		resName2,
 		samlMetadataDocumentSample("fake-certificate"))
+	return config
+}
+
+func testIntegrationIdPSAMLDataSourceConfig(resName, nameFilter, typeFilter string) string {
+	var config string
+	config += testIntegrationIdPSAMLDataSourceConfigDependencies(resName)
 	config += integrationIdPSAMLDataSourceConfig(
 		resName,
 		[]string{
 			fmt.Sprintf("cyral_integration_idp_saml.%s_1", resName),
 			fmt.Sprintf("cyral_integration_idp_saml.%s_2", resName),
 		},
-		displayName,
-		idpType)
+		nameFilter,
+		typeFilter)
 	return config
 }
 
 // The checks assume that there exists two SAML integrations in the Terraform
 // state, but only one passed the filter.
-func testIntegrationIdPSAMLDataSourceChecks(t *testing.T, resName, displayName, idpType string) resource.TestCheckFunc {
+func testIntegrationIdPSAMLDataSourceChecks(t *testing.T, resName, nameFilter, typeFilter string) resource.TestCheckFunc {
 	dataSourceFullName := fmt.Sprintf("data.cyral_integration_idp_saml.%s", resName)
 
 	nonEmptyRegex, err := regexp.Compile(".+")
@@ -170,17 +187,10 @@ func testIntegrationIdPSAMLDataSourceChecks(t *testing.T, resName, displayName, 
 		),
 	}
 
-	if displayName != "" {
+	if nameFilter != "" {
 		testFunctions = append(testFunctions,
 			resource.TestCheckResourceAttr(dataSourceFullName,
-				"idp_list.0.display_name", displayName,
-			),
-		)
-	}
-	if idpType != "" {
-		testFunctions = append(testFunctions,
-			resource.TestCheckResourceAttr(dataSourceFullName,
-				"idp_list.0.idp_type", idpType,
+				"idp_list.0.display_name", nameFilter,
 			),
 		)
 	}
@@ -188,11 +198,11 @@ func testIntegrationIdPSAMLDataSourceChecks(t *testing.T, resName, displayName, 
 	return resource.ComposeTestCheckFunc(testFunctions...)
 }
 
-func filterSAMLIdps(idps []GenericSAMLIntegration, displayName, idpType string) []GenericSAMLIntegration {
+func filterSAMLIdps(idps []GenericSAMLIntegration, nameFilter, typeFilter string) []GenericSAMLIntegration {
 	var filteredIdps []GenericSAMLIntegration
 	for _, idp := range idps {
-		if (displayName == "" || idp.DisplayName == displayName) &&
-			(idpType == "" || idp.IdpType == idpType) {
+		if (nameFilter == "" || idp.DisplayName == nameFilter) &&
+			(typeFilter == "" || idp.IdpType == typeFilter) {
 			filteredIdps = append(filteredIdps, idp)
 		}
 	}
@@ -200,12 +210,12 @@ func filterSAMLIdps(idps []GenericSAMLIntegration, displayName, idpType string) 
 }
 
 func integrationIdPSAMLDataSourceConfig(resName string, dependsOn []string,
-	displayName, idpType string,
+	nameFilter, typeFilter string,
 ) string {
 	return fmt.Sprintf(`
 	data "cyral_integration_idp_saml" "%s" {
 		depends_on = %s
 		display_name = "%s"
 		idp_type = "%s"
-	}`, resName, listToStr(dependsOn), displayName, idpType)
+	}`, resName, listToStr(dependsOn), nameFilter, typeFilter)
 }
