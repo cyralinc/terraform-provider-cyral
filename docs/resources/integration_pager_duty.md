@@ -26,7 +26,7 @@ resource "cyral_integration_pager_duty" "some_resource_name" {
 ### Required
 
 - `api_token` (String, Sensitive) API token for the PagerDuty integration.
-- `name` (String) Integration name that will be used internally in the control plane.
+- `name` (String) Integration display name that will be used in the control plane.
 
 ### Read-Only
 

@@ -23,7 +23,7 @@ func resourceIntegrationPagerDuty() *schema.Resource {
 				Computed:    true,
 			},
 			"name": {
-				Description: "Integration name that will be used internally in the control plane.",
+				Description: "Integration display name that will be used in the control plane.",
 				Required:    true,
 				Type:        schema.TypeString,
 			},

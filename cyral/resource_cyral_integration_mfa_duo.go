@@ -2,9 +2,10 @@ package cyral
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceIntegrationDuoMFA() *schema.Resource {
+func resourceIntegrationMFADuo() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages [integration with Duo MFA](https://cyral.com/docs/mfa/duo).",
 		CreateContext: CreateResource(
@@ -24,27 +25,29 @@ func resourceIntegrationDuoMFA() *schema.Resource {
 			},
 
 			"name": {
-				Description: "Integration name that will be used internally in the control plane.",
-				Required:    true,
-				Type:        schema.TypeString,
+				Description:  "Integration display name that will be used in the control plane.",
+				Required:     true,
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"integration_key": {
-				Description: "API token for the duo MFA integration.",
-				Required:    true,
-				Sensitive:   true,
-				Type:        schema.TypeString,
+				Description:  "Integration key name obtained from Duo management console.",
+				Required:     true,
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"secret_key": {
-				Description: "API token for the duo MFA integration.",
-				Required:    true,
-				Sensitive:   true,
-				Type:        schema.TypeString,
+				Description:  "Secret key obtained from Duo management console.",
+				Required:     true,
+				Sensitive:    true,
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 			"api_hostname": {
-				Description: "API token for the duo MFA integration.",
-				Required:    true,
-				Sensitive:   true,
-				Type:        schema.TypeString,
+				Description:  "API hostname obtained from Duo management console.",
+				Required:     true,
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringIsNotEmpty,
 			},
 		},
 		Importer: &schema.ResourceImporter{

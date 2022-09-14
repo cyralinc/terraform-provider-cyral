@@ -27,7 +27,7 @@ func updatedDuoMFAIntegrationConfig() *IntegrationConfExtension {
 }
 
 func TestAccDuoMFAIntegrationResource(t *testing.T) {
-	tfResourceName := "duo_mfa_integration"
+	tfResourceName := "duo_integration"
 
 	testConfig, testFunc := setupDuoMFAIntegrationTest(t,
 		initialDuoMFAIntegrationConfig(), tfResourceName)
@@ -48,7 +48,7 @@ func TestAccDuoMFAIntegrationResource(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      fmt.Sprintf("cyral_integration_duo_mfa.%s", tfResourceName),
+				ResourceName:      fmt.Sprintf("cyral_integration_mfa_duo.%s", tfResourceName),
 			},
 		},
 	})
@@ -70,7 +70,7 @@ func setupDuoMFAIntegrationTest(
 		integrationData.Name, parameters.IntegrationKey,
 		parameters.SecretKey, parameters.APIHostname)
 
-	resourceFullName := fmt.Sprintf("cyral_integration_duo_mfa.%s", resourceName)
+	resourceFullName := fmt.Sprintf("cyral_integration_mfa_duo.%s", resourceName)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
@@ -88,7 +88,7 @@ func setupDuoMFAIntegrationTest(
 
 func formatDuoMFAIntegrationIntoConfig(name, integrationKey, secretKey, apiHostname string) string {
 	return fmt.Sprintf(`
-	resource "cyral_integration_duo_mfa" "duo_mfa_integration" {
+	resource "cyral_integration_mfa_duo" "duo_integration" {
 		name            = "%s"
 		integration_key = "%s"
 		secret_key      = "%s"
