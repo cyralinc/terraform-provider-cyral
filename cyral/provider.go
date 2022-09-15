@@ -174,6 +174,7 @@ func Provider() *schema.Provider {
 			"cyral_role_sso_groups":             resourceRoleSSOGroups(),
 			"cyral_sidecar":                     resourceSidecar(),
 			"cyral_sidecar_credentials":         resourceSidecarCredentials(),
+			"cyral_provider_database_account":   resourceRepositoryDatabaseAccount(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
