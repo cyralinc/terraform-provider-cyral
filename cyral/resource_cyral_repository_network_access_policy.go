@@ -3,7 +3,6 @@ package cyral
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
@@ -14,6 +13,13 @@ const (
 	repositoryNetworkAccessPolicyURLFormat = "https://%s/v1/repos/%s/networkAccessPolicy"
 )
 
+func repositoryTypesNetworkShield() []string {
+	return []string{
+		"sqlserver",
+		"oracle",
+	}
+}
+
 type NetworkAccessPolicyUpsertResp struct {
 	Policy NetworkAccessPolicy `json:"policy"`
 }
@@ -23,34 +29,38 @@ func (resp NetworkAccessPolicyUpsertResp) WriteToSchema(d *schema.ResourceData) 
 }
 
 type NetworkAccessPolicy struct {
+	Enabled            bool `json:"enabled"`
 	NetworkAccessRules `json:"networkAccessRules,omitempty"`
 }
 
 type NetworkAccessRules struct {
-	Rules []NetworkAccessRule `json:"rules"`
+	RulesBlockAccess bool                `json:"rulesBlockAccess"`
+	Rules            []NetworkAccessRule `json:"rules"`
 }
 
 type NetworkAccessRule struct {
 	ID               string   `json:"id,omitempty"`
 	Name             string   `json:"name,omitempty"`
 	Description      string   `json:"description,omitempty"`
-	Enabled          bool     `json:"enabled,omitempty"`
 	DBAccounts       []string `json:"dbAccounts,omitempty"`
 	SourceIPs        []string `json:"sourceIPs,omitempty"`
 	RulesBlockAccess bool     `json:"rulesBlockAccess,omitempty"`
 }
 
 func (nap *NetworkAccessPolicy) ReadFromSchema(d *schema.ResourceData) error {
+	nap.Enabled = d.Get("enabled").(bool)
+
 	var networkAccessRulesIfaces []interface{}
 	if set, ok := d.GetOk("network_access_rule"); ok {
-		log.Printf("[DEBUG] If1")
 		networkAccessRulesIfaces = set.(*schema.Set).List()
 	} else {
-		log.Printf("[DEBUG] If2.")
 		return nil
 	}
 
-	nap.NetworkAccessRules = NetworkAccessRules{Rules: []NetworkAccessRule{}}
+	nap.NetworkAccessRules = NetworkAccessRules{
+		RulesBlockAccess: d.Get("network_access_rules_block_access").(bool),
+		Rules:            []NetworkAccessRule{},
+	}
 	for _, networkAccessRuleIface := range networkAccessRulesIfaces {
 		networkAccessRuleMap := networkAccessRuleIface.(map[string]interface{})
 		nap.NetworkAccessRules.Rules = append(nap.NetworkAccessRules.Rules,
@@ -62,13 +72,13 @@ func (nap *NetworkAccessPolicy) ReadFromSchema(d *schema.ResourceData) error {
 			})
 	}
 
-	log.Printf("[DEBUG] Rules: %#v", nap.NetworkAccessRules.Rules)
-
 	return nil
 }
 
 func (nap *NetworkAccessPolicy) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(d.Get("repository_id").(string))
+	d.Set("enabled", nap.Enabled)
+	d.Set("network_access_rules_block_access", nap.NetworkAccessRules.RulesBlockAccess)
 
 	var networkAccessRules []interface{}
 	for _, rule := range nap.NetworkAccessRules.Rules {
@@ -105,7 +115,6 @@ func readRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() ResourceData { return &NetworkAccessPolicy{} },
 		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &NetworkAccessPolicy{} },
 	}
 }
@@ -131,14 +140,12 @@ func deleteRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() ResourceData { return &NetworkAccessPolicy{} },
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 	}
 }
 
 func resourceRepositoryNetworkAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/) of a repository.",
+		Description:   "Manages the network access policy of a repository. Network access policies are also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/). This feature is supported for the following repository types:" + supportedTypesMarkdown(repositoryTypesNetworkShield()),
 		CreateContext: CreateResource(createRepositoryNetworkAccessPolicy(), readRepositoryNetworkAccessPolicy()),
 		ReadContext:   ReadResource(readRepositoryNetworkAccessPolicy()),
 		UpdateContext: UpdateResource(updateRepositoryNetworkAccessPolicy(), readRepositoryNetworkAccessPolicy()),
@@ -151,8 +158,28 @@ func resourceRepositoryNetworkAccessPolicy() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
+
+			// This parameter also exists in the
+			// v1/repos/{repoID}/conf/auth API, but putting it under
+			// the `cyral_repository_conf_auth` resource was causing
+			// a lot of trouble: the resources would get out of sync
+			// and behave like crazy.
+			"enabled": {
+				Description: "Is the network access policy enabled?",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+			},
+
+			"network_access_rules_block_access": {
+				Description: "Determines what happens if an incoming connection matches one of the rules in `network_access_rule`. If set to true, the connection is blocked if it matches some rule (and allowed otherwise). Otherwise set to false, the connection is allowed only if it matches some rule.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+			},
+
 			"network_access_rule": {
-				Description: "",
+				Description: "Network access policy that decides whether access should be granted based on a set of rules.",
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Elem: &schema.Resource{

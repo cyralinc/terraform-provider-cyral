@@ -11,25 +11,19 @@ import (
 )
 
 const (
+	repositoryConfAuthURLFormat = "https://%s/v1/repos/%s/conf/auth"
+
 	defaultAllowNativeAuth = false
 	defaultClientTLS       = "disable"
 	defaultRepoTLS         = "disable"
 )
 
-func repositoryTypesNetworkShield() []string {
-	return []string{
-		"sqlserver",
-		"oracle",
-	}
-}
-
 type RepositoryConfAuthData struct {
-	RepoID                     *string `json:"-"`
-	AllowNativeAuth            bool    `json:"allowNativeAuth"`
-	ClientTLS                  string  `json:"clientTLS"`
-	IdentityProvider           string  `json:"identityProvider"`
-	RepoTLS                    string  `json:"repoTLS"`
-	EnableNetworkAccessControl bool    `json:"enableNetworkAccessControl"`
+	RepoID           *string `json:"-"`
+	AllowNativeAuth  bool    `json:"allowNativeAuth"`
+	ClientTLS        string  `json:"clientTLS"`
+	IdentityProvider string  `json:"identityProvider"`
+	RepoTLS          string  `json:"repoTLS"`
 }
 
 func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
@@ -53,8 +47,6 @@ func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
 
 	d.Set("repo_tls", data.RepoTLS)
 
-	d.Set("enable_network_access_control", data.EnableNetworkAccessControl)
-
 	return nil
 }
 
@@ -68,7 +60,6 @@ func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) error
 	data.ClientTLS = d.Get("client_tls").(string)
 	data.IdentityProvider = d.Get("identity_provider").(string)
 	data.RepoTLS = d.Get("repo_tls").(string)
-	data.EnableNetworkAccessControl = d.Get("enable_network_access_control").(bool)
 
 	return nil
 }
@@ -108,7 +99,7 @@ func CreateConfAuthConfig() ResourceOperationConfig {
 		Name:       "ConfAuthResourceCreate",
 		HttpMethod: http.MethodPut,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
 		NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
 		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepositoryConfAuthResponse{} },
@@ -120,7 +111,7 @@ func ReadConfAuthConfig() ResourceOperationConfig {
 		Name:       "ConfAuthResourceRead",
 		HttpMethod: http.MethodGet,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
 		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadRepositoryConfAuthResponse{} },
 	}
@@ -131,7 +122,7 @@ func UpdateConfAuthConfig() ResourceOperationConfig {
 		Name:       "ConfAuthResourceUpdate",
 		HttpMethod: http.MethodPut,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
 		NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
 	}
@@ -142,7 +133,7 @@ func DeleteConfAuthConfig() ResourceOperationConfig {
 		Name:       "ConfAuthResourceDelete",
 		HttpMethod: http.MethodDelete,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
 	}
 }
@@ -188,12 +179,6 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     defaultRepoTLS,
-			},
-
-			"enable_network_access_control": {
-				Description: "If set to true, enables the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/) feature for the repository. This feature is supported for the following repository types:" + supportedTypesMarkdown(repositoryTypesNetworkShield()),
-				Type:        schema.TypeBool,
-				Optional:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

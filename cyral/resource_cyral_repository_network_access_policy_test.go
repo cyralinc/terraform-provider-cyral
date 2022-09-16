@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,9 +14,11 @@ const (
 
 func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
 	// Recreate these resources each step
-	emptyFields := &NetworkAccessPolicy{
+	emptyFieldsNotEnabled := &NetworkAccessPolicy{
+		Enabled: false,
 		NetworkAccessRules: NetworkAccessRules{
-			Rules: []NetworkAccessRule{},
+			RulesBlockAccess: false,
+			Rules:            []NetworkAccessRule{},
 		},
 	}
 	emptyFieldsExceptName := &NetworkAccessPolicy{
@@ -27,10 +30,10 @@ func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
 			},
 		},
 	}
-	emptyFieldsTest := setupRepositoryNetworkAccessPolicyTest(
-		"initial", emptyFields, nil)
+	emptyFieldsNotEnabledTest := setupRepositoryNetworkAccessPolicyTest(
+		"initial_test", emptyFieldsNotEnabled, nil)
 	emptyFieldsExceptNameTest := setupRepositoryNetworkAccessPolicyTest(
-		"initial", emptyFieldsExceptName, nil)
+		"initial_test", emptyFieldsExceptName, nil)
 
 	// Update these resources. These resources depend on
 	// repository_local_account being in the config.
@@ -89,7 +92,7 @@ func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			// Recreation tests
-			emptyFieldsTest,
+			emptyFieldsNotEnabledTest,
 			emptyFieldsExceptNameTest,
 
 			// Update tests
@@ -102,6 +105,7 @@ func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ResourceName:      importResourceName,
+				// ImportStateVerifyIgnore: []string{"enable_network_access_control"},
 			},
 		},
 	})
@@ -154,19 +158,42 @@ func setupRepositoryNetworkAccessPolicyCheck(
 ) resource.TestCheckFunc {
 	resFullName := fmt.Sprintf("cyral_repository_network_access_policy.%s", resName)
 
-	testFuncs := []resource.TestCheckFunc{}
+	testFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(resFullName,
+			"network_access_rule.#",
+			fmt.Sprintf("%d", len(nap.NetworkAccessRules.Rules)),
+		),
+		resource.TestCheckResourceAttr(resFullName,
+			"enabled", strconv.FormatBool(nap.Enabled),
+		),
+		resource.TestCheckResourceAttr(resFullName,
+			"network_access_rules_block_access", strconv.FormatBool(nap.NetworkAccessRules.RulesBlockAccess),
+		),
+	}
 
-	testFuncs = append(testFuncs, resource.TestCheckResourceAttr(resFullName,
-		"network_access_rule.#",
-		fmt.Sprintf("%d", len(nap.NetworkAccessRules.Rules)),
-	))
+	for i, accessRule := range nap.NetworkAccessRules.Rules {
+		testFuncs = append(testFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resFullName,
+				fmt.Sprintf("network_access_rule.%d.name", i),
+				accessRule.Name),
+			resource.TestCheckResourceAttr(resFullName,
+				fmt.Sprintf("network_access_rule.%d.description", i),
+				accessRule.Description),
+		}...)
 
-	// for i, accessRule := range nap.NetworkAccessRules.Rules {
-	// 	testFuncs = append(testFuncs, []resource.TestCheckFunc{
-	// 		resource.TestCheckAttr(resFullName,
-	// 			"network_access_rule.0")
-	// 	}...)
-	// }
+		for j, dbAccount := range accessRule.DBAccounts {
+			testFuncs = append(testFuncs, resource.TestCheckResourceAttr(resFullName,
+				fmt.Sprintf("network_access_rule.%d.db_accounts.%d", i, j),
+				dbAccount),
+			)
+		}
+		for j, sourceIP := range accessRule.SourceIPs {
+			testFuncs = append(testFuncs, resource.TestCheckResourceAttr(resFullName,
+				fmt.Sprintf("network_access_rule.%d.source_ips.%d", i, j),
+				sourceIP),
+			)
+		}
+	}
 
 	return resource.ComposeTestCheckFunc(testFuncs...)
 }
@@ -189,9 +216,12 @@ func formatNetworkAccessPolicyIntoConfig(
 	config := fmt.Sprintf(`
 	resource "cyral_repository_network_access_policy" "%s" {
 		repository_id = %s
+		enabled = %t
+		network_access_rules_block_access = %t
 		%s
 		depends_on = %s
-	}`, resName, repositoryID, narStr, listToStrNoQuotes(dependsOn))
+	}`, resName, repositoryID, nap.Enabled, nap.NetworkAccessRules.RulesBlockAccess,
+		narStr, listToStrNoQuotes(dependsOn))
 
 	return config
 }

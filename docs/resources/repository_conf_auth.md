@@ -3,12 +3,12 @@
 page_title: "cyral_repository_conf_auth Resource - cyral"
 subcategory: ""
 description: |-
-  Manages the Repository Authentication settings https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication that is shown in the Advanced tab.
+  Manages the Repository Authentication settings https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication.
 ---
 
 # cyral_repository_conf_auth (Resource)
 
-Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.
+Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication).
 
 ## Example Usage
 

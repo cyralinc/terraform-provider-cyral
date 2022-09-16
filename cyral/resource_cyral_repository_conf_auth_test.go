@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -46,15 +45,6 @@ func update2RepositoryConfAuthConfig() RepositoryConfAuthData {
 	}
 }
 
-func repositoryConfAuthConfigNetworkShield() RepositoryConfAuthData {
-	return RepositoryConfAuthData{
-		AllowNativeAuth:            false,
-		ClientTLS:                  "enable",
-		RepoTLS:                    "disable",
-		EnableNetworkAccessControl: true,
-	}
-}
-
 // This tests an empty config to avoid regressions. In the past, we had a
 // problem with infinite apply loops for this resource, when running for an
 // empty config (using default values). See issue #286.
@@ -86,8 +76,6 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 	mainTestUpdate1 := setupRepositoryConfAuthTest("main_test", update1RepositoryConfAuthConfig())
 	mainTestUpdate2 := setupRepositoryConfAuthTest("main_test", update2RepositoryConfAuthConfig())
 
-	testNetworkShield := setupRepositoryConfAuthTest("main_test", repositoryConfAuthConfigNetworkShield())
-
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -97,7 +85,6 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 			mainTestUpdate1,
 			mainTestUpdate2,
 
-			testNetworkShield,
 			// TODO: add import test -aholmquist 2022-08-05
 		},
 	})
@@ -128,8 +115,6 @@ func setupRepositoryConfAuthCheck(resName string, repositoryConf RepositoryConfA
 			"client_tls", repositoryConf.ClientTLS),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"repo_tls", repositoryConf.RepoTLS),
-		resource.TestCheckResourceAttr(resourceFullName,
-			"enable_network_access_control", strconv.FormatBool(repositoryConf.EnableNetworkAccessControl)),
 	)
 }
 
@@ -145,7 +130,6 @@ func formatRepositoryConfAuthDataIntoConfig(
 		client_tls = "%s"
 		identity_provider = "tf_test_conf_auth_okta"
 		repo_tls = "%s"
-		enable_network_access_control = %t
 	}`, resName, repositoryID, data.AllowNativeAuth, data.ClientTLS,
-		data.RepoTLS, data.EnableNetworkAccessControl)
+		data.RepoTLS)
 }
