@@ -137,6 +137,7 @@ func Provider() *schema.Provider {
 			"cyral_datalabel":                   resourceDatalabel(),
 			"cyral_identity_map":                resourceRepositoryIdentityMap("Use `cyral_repository_identity_map` instead."),
 			"cyral_integration_datadog":         resourceIntegrationDatadog(),
+			"cyral_integration_mfa_duo":         resourceIntegrationMFADuo(),
 			"cyral_integration_elk":             resourceIntegrationELK(),
 			"cyral_integration_hc_vault":        resourceIntegrationHCVault(),
 			"cyral_integration_logstash":        resourceIntegrationLogstash(),

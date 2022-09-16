@@ -11,19 +11,23 @@ const (
 	integrationPagerDutyResourceName = "integration-pager-duty"
 )
 
-var initialPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       accTestName(integrationPagerDutyResourceName, "pager-duty"),
-	Parameters: "unitTest-parameters",
+func initialPagerDutyIntegrationConfig() *IntegrationConfExtension {
+	integration := NewIntegrationConfExtension(pagerDutyTemplateType)
+	integration.Name = accTestName(integrationPagerDutyResourceName, "pager-duty")
+	integration.Parameters = "unitTest-parameters"
+	return integration
 }
 
-var updatedPagerDutyIntegrationConfig PagerDutyIntegration = PagerDutyIntegration{
-	Name:       accTestName(integrationPagerDutyResourceName, "pager-duty-updated"),
-	Parameters: "unitTest-parameters-updated",
+func updatedPagerDutyIntegrationConfig() *IntegrationConfExtension {
+	integration := NewIntegrationConfExtension(pagerDutyTemplateType)
+	integration.Name = accTestName(integrationPagerDutyResourceName, "pager-duty-updated")
+	integration.Parameters = "unitTest-parameters-updated"
+	return integration
 }
 
 func TestAccPagerDutyIntegrationResource(t *testing.T) {
-	testConfig, testFunc := setupPagerDutyIntegrationTest(initialPagerDutyIntegrationConfig)
-	testUpdateConfig, testUpdateFunc := setupPagerDutyIntegrationTest(updatedPagerDutyIntegrationConfig)
+	testConfig, testFunc := setupPagerDutyIntegrationTest(initialPagerDutyIntegrationConfig())
+	testUpdateConfig, testUpdateFunc := setupPagerDutyIntegrationTest(updatedPagerDutyIntegrationConfig())
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -45,11 +49,11 @@ func TestAccPagerDutyIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupPagerDutyIntegrationTest(integrationData PagerDutyIntegration) (string, resource.TestCheckFunc) {
-	configuration := formatPagerDutyIntegrationDataIntoConfig(integrationData)
+func setupPagerDutyIntegrationTest(integrationData *IntegrationConfExtension) (string, resource.TestCheckFunc) {
+	configuration := formatPagerDutyIntegrationIntoConfig(
+		integrationData.Name, integrationData.Parameters)
 
 	testFunction := resource.ComposeTestCheckFunc(
-
 		resource.TestCheckResourceAttr("cyral_integration_pager_duty.pager_duty_integration", "name", integrationData.Name),
 		resource.TestCheckResourceAttr("cyral_integration_pager_duty.pager_duty_integration", "api_token", integrationData.Parameters),
 	)
@@ -57,10 +61,10 @@ func setupPagerDutyIntegrationTest(integrationData PagerDutyIntegration) (string
 	return configuration, testFunction
 }
 
-func formatPagerDutyIntegrationDataIntoConfig(data PagerDutyIntegration) string {
+func formatPagerDutyIntegrationIntoConfig(name, apiToken string) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_pager_duty" "pager_duty_integration" {
 		name = "%s"
 		api_token = "%s"
-	}`, data.Name, data.Parameters)
+	}`, name, apiToken)
 }
