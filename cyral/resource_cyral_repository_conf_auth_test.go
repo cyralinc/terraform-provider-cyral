@@ -61,9 +61,8 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 		Check: setupRepositoryConfAuthCheck(
 			resName,
 			RepositoryConfAuthData{
-				ClientTLS:       defaultClientTLS,
-				RepoTLS:         defaultRepoTLS,
-				AllowNativeAuth: defaultAllowNativeAuth,
+				ClientTLS: defaultClientTLS,
+				RepoTLS:   defaultRepoTLS,
 			},
 		),
 	}

@@ -13,9 +13,8 @@ import (
 const (
 	repositoryConfAuthURLFormat = "https://%s/v1/repos/%s/conf/auth"
 
-	defaultAllowNativeAuth = false
-	defaultClientTLS       = "disable"
-	defaultRepoTLS         = "disable"
+	defaultClientTLS = "disable"
+	defaultRepoTLS   = "disable"
 )
 
 type RepositoryConfAuthData struct {
@@ -140,7 +139,7 @@ func DeleteConfAuthConfig() ResourceOperationConfig {
 
 func resourceRepositoryConfAuth() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication).",
+		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
 		CreateContext: CreateResource(CreateConfAuthConfig(), ReadConfAuthConfig()),
 		ReadContext:   ReadResource(ReadConfAuthConfig()),
 		UpdateContext: UpdateResource(UpdateConfAuthConfig(), ReadConfAuthConfig()),
@@ -161,10 +160,9 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Description: "Should the communication allow native authentication?",
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     defaultAllowNativeAuth,
 			},
 			"client_tls": {
-				Description: "Is the repo Client using TLS?",
+				Description: fmt.Sprintf("Is the repo Client using TLS? Default is %q.", defaultClientTLS),
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     defaultClientTLS,
@@ -175,7 +173,7 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Optional:    true,
 			},
 			"repo_tls": {
-				Description: "Is TLS enabled for the repository?",
+				Description: fmt.Sprintf("Is TLS enabled for the repository? Default is %q.", defaultRepoTLS),
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     defaultRepoTLS,

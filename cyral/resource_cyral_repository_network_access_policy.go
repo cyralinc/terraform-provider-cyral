@@ -11,6 +11,9 @@ import (
 
 const (
 	repositoryNetworkAccessPolicyURLFormat = "https://%s/v1/repos/%s/networkAccessPolicy"
+
+	defaultNetworkAccessPolicyEnabled    = true
+	defaultNetworkAccessRulesBlockAccess = false
 )
 
 func repositoryTypesNetworkShield() []string {
@@ -166,17 +169,17 @@ func resourceRepositoryNetworkAccessPolicy() *schema.Resource {
 			// a lot of trouble: the resources would get out of sync
 			// and behave like crazy.
 			"enabled": {
-				Description: "Is the network access policy enabled?",
+				Description: fmt.Sprintf("Is the network access policy enabled? Default is %t.", defaultNetworkAccessPolicyEnabled),
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Default:     defaultNetworkAccessPolicyEnabled,
 			},
 
 			"network_access_rules_block_access": {
-				Description: "Determines what happens if an incoming connection matches one of the rules in `network_access_rule`. If set to true, the connection is blocked if it matches some rule (and allowed otherwise). Otherwise set to false, the connection is allowed only if it matches some rule.",
+				Description: fmt.Sprintf("Determines what happens if an incoming connection matches one of the rules in `network_access_rule`. If set to true, the connection is blocked if it matches some rule (and allowed otherwise). Otherwise set to false, the connection is allowed only if it matches some rule. Default is %t.", defaultNetworkAccessRulesBlockAccess),
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Default:     defaultNetworkAccessRulesBlockAccess,
 			},
 
 			"network_access_rule": {
