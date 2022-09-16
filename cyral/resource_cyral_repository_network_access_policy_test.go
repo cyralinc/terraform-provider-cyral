@@ -11,7 +11,7 @@ const (
 	repositoryNetworkAccessPolicyResourceName = "repository-network-access-policy"
 )
 
-func TestAccRepositoryNetworkAccessPolicy(t *testing.T) {
+func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
 	// Recreate these resources each step
 	emptyFields := &NetworkAccessPolicy{
 		NetworkAccessRules: NetworkAccessRules{
@@ -137,20 +137,13 @@ func setupRepositoryNetworkAccessPolicyConfig(
 	)
 
 	// Local accounts
-	config += sampleMultipleBasicRepositoryLocalAccountIntoConfig(
-		repoID, dbAccounts)
-
-	// Repo Conf Auth
-	config += formatRepositoryConfAuthDataIntoConfig(
-		resName,
-		RepositoryConfAuthData{
-			EnableNetworkAccessControl: true,
-		},
-		repoID,
-	)
+	localAccountConfig, localAccountResNames :=
+		sampleMultipleBasicRepositoryLocalAccountIntoConfig(repoID, dbAccounts)
+	config += localAccountConfig
 
 	// Network Access Policy
-	config += formatNetworkAccessPolicyIntoConfig(resName, repoID, nap)
+	config += formatNetworkAccessPolicyIntoConfig(resName, repoID, nap,
+		localAccountResNames)
 
 	return config
 }
@@ -179,7 +172,7 @@ func setupRepositoryNetworkAccessPolicyCheck(
 }
 
 func formatNetworkAccessPolicyIntoConfig(
-	resName, repositoryID string, nap *NetworkAccessPolicy,
+	resName, repositoryID string, nap *NetworkAccessPolicy, dependsOn []string,
 ) string {
 	var narStr string
 	for _, nar := range nap.Rules {
@@ -197,7 +190,8 @@ func formatNetworkAccessPolicyIntoConfig(
 	resource "cyral_repository_network_access_policy" "%s" {
 		repository_id = %s
 		%s
-	}`, resName, repositoryID, narStr)
+		depends_on = %s
+	}`, resName, repositoryID, narStr, listToStrNoQuotes(dependsOn))
 
 	return config
 }

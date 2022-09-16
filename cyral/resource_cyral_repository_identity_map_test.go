@@ -92,6 +92,7 @@ func setupRepositoryIdentityMapTest(integrationData RepositoryIdentityMapResourc
 		3333,
 	)
 	configuration += formatBasicRepositoryLocalAccountIntoConfig_Cyral(
+		basicRepositoryLocalAccountResName,
 		basicRepositoryID,
 		"tfprov-test-repository-identity-map-locaccount",
 		"some-password",

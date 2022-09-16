@@ -3,14 +3,27 @@ package cyral
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	repositoryNetworkAccessPolicyURLFormat = "https://%s/v1/repos/%s/networkAccessPolicy"
+)
+
+type NetworkAccessPolicyUpsertResp struct {
+	Policy NetworkAccessPolicy `json:"policy"`
+}
+
+func (resp NetworkAccessPolicyUpsertResp) WriteToSchema(d *schema.ResourceData) error {
+	return resp.Policy.WriteToSchema(d)
+}
+
 type NetworkAccessPolicy struct {
-	NetworkAccessRules `json:"networkAccessRules"`
+	NetworkAccessRules `json:"networkAccessRules,omitempty"`
 }
 
 type NetworkAccessRules struct {
@@ -28,33 +41,68 @@ type NetworkAccessRule struct {
 }
 
 func (nap *NetworkAccessPolicy) ReadFromSchema(d *schema.ResourceData) error {
+	var networkAccessRulesIfaces []interface{}
+	if set, ok := d.GetOk("network_access_rule"); ok {
+		log.Printf("[DEBUG] If1")
+		networkAccessRulesIfaces = set.(*schema.Set).List()
+	} else {
+		log.Printf("[DEBUG] If2.")
+		return nil
+	}
+
+	nap.NetworkAccessRules = NetworkAccessRules{Rules: []NetworkAccessRule{}}
+	for _, networkAccessRuleIface := range networkAccessRulesIfaces {
+		networkAccessRuleMap := networkAccessRuleIface.(map[string]interface{})
+		nap.NetworkAccessRules.Rules = append(nap.NetworkAccessRules.Rules,
+			NetworkAccessRule{
+				Name:        networkAccessRuleMap["name"].(string),
+				Description: networkAccessRuleMap["description"].(string),
+				DBAccounts:  getStrList(networkAccessRuleMap, "db_accounts"),
+				SourceIPs:   getStrList(networkAccessRuleMap, "source_ips"),
+			})
+	}
+
+	log.Printf("[DEBUG] Rules: %#v", nap.NetworkAccessRules.Rules)
+
 	return nil
 }
 
 func (nap *NetworkAccessPolicy) WriteToSchema(d *schema.ResourceData) error {
+	d.SetId(d.Get("repository_id").(string))
 
-	return nil
+	var networkAccessRules []interface{}
+	for _, rule := range nap.NetworkAccessRules.Rules {
+		rulesMap := map[string]interface{}{
+			"name":        rule.Name,
+			"description": rule.Description,
+			"db_accounts": rule.DBAccounts,
+			"source_ips":  rule.SourceIPs,
+		}
+		networkAccessRules = append(networkAccessRules, rulesMap)
+	}
+
+	return d.Set("network_access_rule", networkAccessRules)
 }
 
 func createRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "CreateRepositoryNetworkAccessPolicy",
+		Name:       "RepositoryNetworkAccessPolicyCreate",
 		HttpMethod: http.MethodPost,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/networkAccessPolicy",
+			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
 		NewResourceData: func() ResourceData { return &NetworkAccessPolicy{} },
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &NetworkAccessPolicy{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &NetworkAccessPolicyUpsertResp{} },
 	}
 }
 
 func readRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "ReadRepositoryNetworkAccessPolicy",
+		Name:       "RepositoryNetworkAccessPolicyRead",
 		HttpMethod: http.MethodGet,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/networkAccessPolicy",
+			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
 		NewResourceData: func() ResourceData { return &NetworkAccessPolicy{} },
@@ -64,23 +112,23 @@ func readRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 
 func updateRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "UpdateRepositoryNetworkAccessPolicy",
+		Name:       "RepositoryNetworkAccessPolicyUpdate",
 		HttpMethod: http.MethodPut,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/networkAccessPolicy",
+			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
 		NewResourceData: func() ResourceData { return &NetworkAccessPolicy{} },
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &NetworkAccessPolicy{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &NetworkAccessPolicyUpsertResp{} },
 	}
 }
 
 func deleteRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "DeleteRepositoryNetworkAccessPolicy",
+		Name:       "RepositoryNetworkAccessPolicyDelete",
 		HttpMethod: http.MethodDelete,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/repos/%s/networkAccessPolicy",
+			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
 		NewResourceData: func() ResourceData { return &NetworkAccessPolicy{} },
@@ -106,14 +154,7 @@ func resourceRepositoryNetworkAccessPolicy() *schema.Resource {
 			"network_access_rule": {
 				Description: "",
 				Type:        schema.TypeSet,
-				// The API is open to the addition new types of
-				// network access policies. If new network
-				// access policies are added in the future, this
-				// field should probably be moved to `Optional:
-				// true`, and we should add a flag saying that
-				// the two network policy type fields conflict
-				// with each other.
-				Required: true,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {

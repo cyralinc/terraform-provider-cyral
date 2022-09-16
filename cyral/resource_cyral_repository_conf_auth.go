@@ -10,6 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	defaultAllowNativeAuth = false
+	defaultClientTLS       = "disable"
+	defaultRepoTLS         = "disable"
+)
+
 func repositoryTypesNetworkShield() []string {
 	return []string{
 		"sqlserver",
@@ -47,6 +53,8 @@ func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
 
 	d.Set("repo_tls", data.RepoTLS)
 
+	d.Set("enable_network_access_control", data.EnableNetworkAccessControl)
+
 	return nil
 }
 
@@ -60,6 +68,7 @@ func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) error
 	data.ClientTLS = d.Get("client_tls").(string)
 	data.IdentityProvider = d.Get("identity_provider").(string)
 	data.RepoTLS = d.Get("repo_tls").(string)
+	data.EnableNetworkAccessControl = d.Get("enable_network_access_control").(bool)
 
 	return nil
 }
@@ -161,11 +170,13 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Description: "Should the communication allow native authentication?",
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     defaultAllowNativeAuth,
 			},
 			"client_tls": {
 				Description: "Is the repo Client using TLS?",
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     defaultClientTLS,
 			},
 			"identity_provider": {
 				Description: "The ID (Alias) of the identity provider integration.",
@@ -176,7 +187,9 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Description: "Is TLS enabled for the repository?",
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     defaultRepoTLS,
 			},
+
 			"enable_network_access_control": {
 				Description: "If set to true, enables the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/) feature for the repository. This feature is supported for the following repository types:" + supportedTypesMarkdown(repositoryTypesNetworkShield()),
 				Type:        schema.TypeBool,

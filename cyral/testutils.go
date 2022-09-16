@@ -100,7 +100,7 @@ func formatBasicPolicyIntoConfig(name string, data []string) string {
 }
 
 func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
-	repositoryID, localAccount, password string,
+	resName, repositoryID, localAccount, password string,
 ) string {
 	return fmt.Sprintf(`
 	resource "cyral_repository_local_account" "%s" {
@@ -109,7 +109,7 @@ func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
 			local_account = "%s"
 			password      = "%s"
 		}
-	}`, basicRepositoryLocalAccountResName, repositoryID, localAccount, password)
+	}`, resName, repositoryID, localAccount, password)
 }
 
 func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType string) string {
@@ -124,13 +124,16 @@ func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType 
 func sampleMultipleBasicRepositoryLocalAccountIntoConfig(
 	repoID string,
 	localAccounts []string,
-) string {
+) (string, []string) {
 	var config string
+	var resNames []string
 	for _, localAccount := range localAccounts {
+		resName := fmt.Sprintf("%s_%s", basicRepositoryLocalAccountResName, localAccount)
+		resNames = append(resNames, "cyral_repository_local_account."+resName)
 		config += formatBasicRepositoryLocalAccountIntoConfig_Cyral(
-			repoID, localAccount, "some-password")
+			resName, repoID, localAccount, "some-password")
 	}
-	return config
+	return config, resNames
 }
 
 func notZeroRegex() *regexp.Regexp {
