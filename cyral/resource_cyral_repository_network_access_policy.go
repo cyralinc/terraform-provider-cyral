@@ -140,6 +140,7 @@ func deleteRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
+		RequestErrorHandler: &DeleteIgnoreHttpNotFound{resName: "Network Access Policy"},
 	}
 }
 
