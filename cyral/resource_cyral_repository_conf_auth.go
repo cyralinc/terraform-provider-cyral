@@ -140,7 +140,7 @@ func DeleteConfAuthConfig() ResourceOperationConfig {
 
 func resourceRepositoryConfAuth() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
+		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication).",
 		CreateContext: CreateResource(CreateConfAuthConfig(), ReadConfAuthConfig()),
 		ReadContext:   ReadResource(ReadConfAuthConfig()),
 		UpdateContext: UpdateResource(UpdateConfAuthConfig(), ReadConfAuthConfig()),
@@ -179,7 +179,7 @@ func resourceRepositoryConfAuth() *schema.Resource {
 			},
 			"enable_network_access_control": {
 				Description: "If set to true, enables the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/) feature for the repository. This feature is supported for the following repository types:" + supportedTypesMarkdown(repositoryTypesNetworkShield()),
-				Type:        schema.TypeString,
+				Type:        schema.TypeBool,
 				Optional:    true,
 			},
 		},

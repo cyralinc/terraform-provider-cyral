@@ -120,6 +120,19 @@ func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType 
 	}`, resName, displayName, idpType)
 }
 
+// Builds multiple local account resources for given repository ID.
+func sampleMultipleBasicRepositoryLocalAccountIntoConfig(
+	repoID string,
+	localAccounts []string,
+) string {
+	var config string
+	for _, localAccount := range localAccounts {
+		config += formatBasicRepositoryLocalAccountIntoConfig_Cyral(
+			repoID, localAccount, "some-password")
+	}
+	return config
+}
+
 func notZeroRegex() *regexp.Regexp {
 	return regexp.MustCompile("[^0]|([0-9]{2,})")
 }
