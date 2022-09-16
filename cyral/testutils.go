@@ -31,11 +31,11 @@ const (
 //
 // Example usage for cyral_datalabel resource:
 //
-//     accTestName("datalabel", "label1")
+//	accTestName("datalabel", "label1")
 //
 // Example usage for cyral_datalabel data source:
 //
-//     accTestName("data-datalabel", "label1")
+//	accTestName("data-datalabel", "label1")
 //
 // Note that doing it like above will prevent that the tests attempt to create a
 // label called LABEL1 simultaneously, which would cause a failure.
@@ -133,11 +133,12 @@ func notZeroRegex() *regexp.Regexp {
 // Example usage:
 //
 // dsourceCheckTypeFilter(
-// 	"data.cyral_datalabel.test_datalabel",
-// 	"datalabel_list.%d.type",
-// 	"CUSTOM",
-// ),
 //
+//	"data.cyral_datalabel.test_datalabel",
+//	"datalabel_list.%d.type",
+//	"CUSTOM",
+//
+// ),
 func dsourceCheckTypeFilter(
 	dsourceFullName, typeTemplate, typeFilter string,
 ) func(s *terraform.State) error {

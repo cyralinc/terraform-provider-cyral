@@ -21,8 +21,10 @@ func TestMain(m *testing.M) {
 // resource.AddTestSweeper calls in their _init_ function.
 //
 // import (
-//    _ "github.com/cyralinc/terraform-provider-cyral/internal/resources/repository"
-//    _ "github.com/cyralinc/terraform-provider-cyral/internal/resources/sidecar"
+//
+//	_ "github.com/cyralinc/terraform-provider-cyral/internal/resources/repository"
+//	_ "github.com/cyralinc/terraform-provider-cyral/internal/resources/sidecar"
+//
 // )
 //
 // Obviously, this requires a complete reorganization of our packaging

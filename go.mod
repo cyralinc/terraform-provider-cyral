@@ -10,4 +10,5 @@ require (
 	github.com/rickb777/date v1.20.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0
+	google.golang.org/protobuf v1.28.1
 )

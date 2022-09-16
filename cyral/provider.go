@@ -16,7 +16,6 @@ import (
 
 const (
 	keycloak            = "keycloak"
-	auth0               = "auth0"
 	EnvVarClientID      = "CYRAL_TF_CLIENT_ID"
 	EnvVarClientSecret  = "CYRAL_TF_CLIENT_SECRET"
 	EnvVarCPURL         = "CYRAL_TF_CONTROL_PLANE"
@@ -170,11 +169,11 @@ func Provider() *schema.Provider {
 			"cyral_repository_datamap":          resourceRepositoryDatamap(),
 			"cyral_repository_identity_map":     resourceRepositoryIdentityMap(""),
 			"cyral_repository_local_account":    resourceRepositoryLocalAccount(),
+			"cyral_repository_user_account":     resourceRepositoryUserAccount(),
 			"cyral_role":                        resourceRole(),
 			"cyral_role_sso_groups":             resourceRoleSSOGroups(),
 			"cyral_sidecar":                     resourceSidecar(),
 			"cyral_sidecar_credentials":         resourceSidecarCredentials(),
-			"cyral_provider_database_account":   resourceRepositoryDatabaseAccount(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
