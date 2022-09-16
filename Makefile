@@ -22,6 +22,7 @@ BINARY=terraform-provider-$(NAME)_$(vVERSION)
 SWEEPDIR=./cyral
 
 all: local/clean local/install local/test
+notest: local/clean local/install
 
 local/build:
 	$(GOFMT) -w .
