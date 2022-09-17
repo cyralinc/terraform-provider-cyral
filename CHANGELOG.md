@@ -1,3 +1,26 @@
+## 2.9.0 (September 16, 2022)
+
+Minimum required Control Plane version: `v2.34.0`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+
+### Features:
+
+- **Add support for Generic SAML IdP Integration**: [#244](https://github.com/cyralinc/terraform-provider-cyral/pull/244).
+- **Add Duo MFA integration resource**: [#282](https://github.com/cyralinc/terraform-provider-cyral/pull/282).
+- **Add support for repository network shield**: [#285](https://github.com/cyralinc/terraform-provider-cyral/pull/285).
+
+### Bug fixes:
+
+- **Fix ACC test changes after merging fix**: [#275](https://github.com/cyralinc/terraform-provider-cyral/pull/275).
+- **Fix acc tests and improve sidecar test**: [#266](https://github.com/cyralinc/terraform-provider-cyral/pull/266).
+- **Fix issues with repository resource properties**: [#271](https://github.com/cyralinc/terraform-provider-cyral/pull/27`2`).
+- **Fix issue with repository resource properties**: [#272](https://github.com/cyralinc/terraform-provider-cyral/pull/272).
+
+### Improvements:
+
+- **Refactor acceptance tests**: [#267](https://github.com/cyralinc/terraform-provider-cyral/pull/267).
+- **Explain setting max value of port range**: [##277](https://github.com/cyralinc/terraform-provider-cyral/pull/#277).
+
 ## 2.8.0 (August 5, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
