@@ -42,12 +42,11 @@ type NetworkAccessRules struct {
 }
 
 type NetworkAccessRule struct {
-	ID               string   `json:"id,omitempty"`
-	Name             string   `json:"name,omitempty"`
-	Description      string   `json:"description,omitempty"`
-	DBAccounts       []string `json:"dbAccounts,omitempty"`
-	SourceIPs        []string `json:"sourceIPs,omitempty"`
-	RulesBlockAccess bool     `json:"rulesBlockAccess,omitempty"`
+	ID          string   `json:"id,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	Description string   `json:"description,omitempty"`
+	DBAccounts  []string `json:"dbAccounts,omitempty"`
+	SourceIPs   []string `json:"sourceIPs,omitempty"`
 }
 
 func (nap *NetworkAccessPolicy) ReadFromSchema(d *schema.ResourceData) error {
@@ -179,7 +178,6 @@ func resourceRepositoryNetworkAccessPolicy() *schema.Resource {
 				Description: fmt.Sprintf("Determines what happens if an incoming connection matches one of the rules in `network_access_rule`. If set to true, the connection is blocked if it matches some rule (and allowed otherwise). Otherwise set to false, the connection is allowed only if it matches some rule. Default is %t.", defaultNetworkAccessRulesBlockAccess),
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     defaultNetworkAccessRulesBlockAccess,
 			},
 
 			"network_access_rule": {
