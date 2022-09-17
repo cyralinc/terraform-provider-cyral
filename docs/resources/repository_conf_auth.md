@@ -33,9 +33,9 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 ### Optional
 
 - `allow_native_auth` (Boolean) Should the communication allow native authentication?
-- `client_tls` (String) Is the repo Client using TLS?
+- `client_tls` (String) Is the repo Client using TLS? Default is "disable".
 - `identity_provider` (String) The ID (Alias) of the identity provider integration.
-- `repo_tls` (String) Is TLS enabled for the repository?
+- `repo_tls` (String) Is TLS enabled for the repository? Default is "disable".
 
 ### Read-Only
 

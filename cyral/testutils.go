@@ -31,11 +31,11 @@ const (
 //
 // Example usage for cyral_datalabel resource:
 //
-//     accTestName("datalabel", "label1")
+//	accTestName("datalabel", "label1")
 //
 // Example usage for cyral_datalabel data source:
 //
-//     accTestName("data-datalabel", "label1")
+//	accTestName("data-datalabel", "label1")
 //
 // Note that doing it like above will prevent that the tests attempt to create a
 // label called LABEL1 simultaneously, which would cause a failure.
@@ -100,7 +100,7 @@ func formatBasicPolicyIntoConfig(name string, data []string) string {
 }
 
 func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
-	repositoryID, localAccount, password string,
+	resName, repositoryID, localAccount, password string,
 ) string {
 	return fmt.Sprintf(`
 	resource "cyral_repository_local_account" "%s" {
@@ -109,7 +109,7 @@ func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
 			local_account = "%s"
 			password      = "%s"
 		}
-	}`, basicRepositoryLocalAccountResName, repositoryID, localAccount, password)
+	}`, resName, repositoryID, localAccount, password)
 }
 
 func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType string) string {
@@ -118,6 +118,22 @@ func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType 
 		display_name = "%s"
 		idp_type = "%s"
 	}`, resName, displayName, idpType)
+}
+
+// Builds multiple local account resources for given repository ID.
+func sampleMultipleBasicRepositoryLocalAccountIntoConfig(
+	repoID string,
+	localAccounts []string,
+) (string, []string) {
+	var config string
+	var resNames []string
+	for _, localAccount := range localAccounts {
+		resName := fmt.Sprintf("%s_%s", basicRepositoryLocalAccountResName, localAccount)
+		resNames = append(resNames, "cyral_repository_local_account."+resName)
+		config += formatBasicRepositoryLocalAccountIntoConfig_Cyral(
+			resName, repoID, localAccount, "some-password")
+	}
+	return config, resNames
 }
 
 func notZeroRegex() *regexp.Regexp {
@@ -133,11 +149,12 @@ func notZeroRegex() *regexp.Regexp {
 // Example usage:
 //
 // dsourceCheckTypeFilter(
-// 	"data.cyral_datalabel.test_datalabel",
-// 	"datalabel_list.%d.type",
-// 	"CUSTOM",
-// ),
 //
+//	"data.cyral_datalabel.test_datalabel",
+//	"datalabel_list.%d.type",
+//	"CUSTOM",
+//
+// ),
 func dsourceCheckTypeFilter(
 	dsourceFullName, typeTemplate, typeFilter string,
 ) func(s *terraform.State) error {

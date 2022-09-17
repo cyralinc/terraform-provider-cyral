@@ -10,6 +10,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	repositoryConfAuthURLFormat = "https://%s/v1/repos/%s/conf/auth"
+
+	defaultClientTLS = "disable"
+	defaultRepoTLS   = "disable"
+)
+
 type RepositoryConfAuthData struct {
 	RepoID           *string `json:"-"`
 	AllowNativeAuth  bool    `json:"allowNativeAuth"`
@@ -86,49 +93,57 @@ func (data ReadRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData)
 	return nil
 }
 
-var ReadConfAuthConfig = ResourceOperationConfig{
-	Name:       "ConfAuthResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
-	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadRepositoryConfAuthResponse{} },
+func CreateConfAuthConfig() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "ConfAuthResourceCreate",
+		HttpMethod: http.MethodPut,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
+		},
+		NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepositoryConfAuthResponse{} },
+	}
+}
+
+func ReadConfAuthConfig() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "ConfAuthResourceRead",
+		HttpMethod: http.MethodGet,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
+		},
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadRepositoryConfAuthResponse{} },
+	}
+}
+
+func UpdateConfAuthConfig() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "ConfAuthResourceUpdate",
+		HttpMethod: http.MethodPut,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
+		},
+		NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
+	}
+}
+
+func DeleteConfAuthConfig() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "ConfAuthResourceDelete",
+		HttpMethod: http.MethodDelete,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
+		},
+	}
 }
 
 func resourceRepositoryConfAuth() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
-		CreateContext: CreateResource(
-			ResourceOperationConfig{
-				Name:       "ConfAuthResourceCreate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
-				},
-				NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
-				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateRepositoryConfAuthResponse{} },
-			}, ReadConfAuthConfig,
-		),
-		ReadContext: ReadResource(ReadConfAuthConfig),
-		UpdateContext: UpdateResource(
-			ResourceOperationConfig{
-				Name:       "ConfAuthResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
-				},
-				NewResourceData: func() ResourceData { return &RepositoryConfAuthData{} },
-			}, ReadConfAuthConfig,
-		),
-		DeleteContext: DeleteResource(
-			ResourceOperationConfig{
-				Name:       "ConfAuthResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth", c.ControlPlane, d.Get("repository_id"))
-				},
-			},
-		),
+		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
+		CreateContext: CreateResource(CreateConfAuthConfig(), ReadConfAuthConfig()),
+		ReadContext:   ReadResource(ReadConfAuthConfig()),
+		UpdateContext: UpdateResource(UpdateConfAuthConfig(), ReadConfAuthConfig()),
+		DeleteContext: DeleteResource(DeleteConfAuthConfig()),
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -147,9 +162,10 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Optional:    true,
 			},
 			"client_tls": {
-				Description: "Is the repo Client using TLS?",
+				Description: fmt.Sprintf("Is the repo Client using TLS? Default is %q.", defaultClientTLS),
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     defaultClientTLS,
 			},
 			"identity_provider": {
 				Description: "The ID (Alias) of the identity provider integration.",
@@ -157,9 +173,10 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Optional:    true,
 			},
 			"repo_tls": {
-				Description: "Is TLS enabled for the repository?",
+				Description: fmt.Sprintf("Is TLS enabled for the repository? Default is %q.", defaultRepoTLS),
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     defaultRepoTLS,
 			},
 		},
 		Importer: &schema.ResourceImporter{

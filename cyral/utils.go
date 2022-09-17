@@ -54,6 +54,21 @@ func listToStr(attributes []string) string {
 	return s
 }
 
+func listToStrNoQuotes(l []string) string {
+	if len(l) == 0 {
+		return "[]"
+	}
+	s := "["
+	s += l[0]
+	if len(l) > 1 {
+		for _, attribute := range l[1:] {
+			s += fmt.Sprintf(`, %s`, attribute)
+		}
+	}
+	s += "]"
+	return s
+}
+
 func supportedTypesMarkdown(types []string) string {
 	var s string
 	for _, typ := range types {
@@ -100,4 +115,12 @@ func validationStringLenAtLeast(min int) schema.SchemaValidateFunc {
 
 func typeSetNonEmpty(d *schema.ResourceData, attname string) bool {
 	return len(d.Get(attname).(*schema.Set).List()) > 0
+}
+
+func getStrList(m map[string]interface{}, attName string) []string {
+	var attStrs []string
+	for _, valIface := range m[attName].([]interface{}) {
+		attStrs = append(attStrs, valIface.(string))
+	}
+	return attStrs
 }
