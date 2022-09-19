@@ -170,7 +170,7 @@ func Provider() *schema.Provider {
 			"cyral_repository_datamap":               resourceRepositoryDatamap(),
 			"cyral_repository_identity_map":          resourceRepositoryIdentityMap(""),
 			"cyral_repository_local_account":         resourceRepositoryLocalAccount(),
-			"cyral_provider_user_account":            resourceRepositoryUserAccount(),
+			"cyral_repository_user_account":          resourceRepositoryUserAccount(),
 			"cyral_repository_network_access_policy": resourceRepositoryNetworkAccessPolicy(),
 			"cyral_role":                             resourceRole(),
 			"cyral_role_sso_groups":                  resourceRoleSSOGroups(),
