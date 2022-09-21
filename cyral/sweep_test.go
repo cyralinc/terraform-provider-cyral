@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -39,6 +38,14 @@ func init() {
 	resource.AddTestSweepers(sidecarResourceName, &resource.Sweeper{
 		Name: sidecarResourceName,
 		F:    sweepSidecar,
+	})
+	resource.AddTestSweepers(roleResourceName, &resource.Sweeper{
+		Name: roleResourceName,
+		F:    sweepRole,
+	})
+	resource.AddTestSweepers(integrationIdPResourceName, &resource.Sweeper{
+		Name: integrationIdPResourceName,
+		F:    sweepIntegrationIdP,
 	})
 	// TODO: add sweepers for rest of resources -aholmquist 2022-08-10
 }
@@ -78,7 +85,7 @@ func sweepSidecar(_ string) error {
 		return err
 	}
 	for _, sidecar := range sidecars {
-		if !strings.HasPrefix(sidecar.Sidecar.Name, tprovACCPrefix) {
+		if !hasAccTestPrefix(sidecar.Sidecar.Name) {
 			continue
 		}
 		url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane,
@@ -88,5 +95,55 @@ func sweepSidecar(_ string) error {
 			return fmt.Errorf("delete request returned error: %w", err)
 		}
 	}
+	return nil
+}
+
+func sweepRole(_ string) error {
+	c, err := newClientFromEnv()
+	if err != nil {
+		return err
+	}
+	resp, err := listRoles(c)
+	if err != nil {
+		return err
+	}
+	roles := resp.Groups
+	for _, role := range roles {
+		if !hasAccTestPrefix(role.Name) {
+			continue
+		}
+		url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane,
+			role.ID)
+		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		if err != nil {
+			return fmt.Errorf("delete request returned error: %w", err)
+		}
+	}
+	return nil
+}
+
+func sweepIntegrationIdP(_ string) error {
+	c, err := newClientFromEnv()
+	if err != nil {
+		return err
+	}
+	resp, err := listIdPIntegrations(c)
+	if err != nil {
+		return fmt.Errorf("failed to get IdP integrations: %w", err)
+	}
+
+	integrations := resp.Connections.Connections
+	for _, integration := range integrations {
+		if !hasAccTestPrefix(integration.DisplayName) {
+			continue
+		}
+		url := fmt.Sprintf("https://%s/v1/integrations/saml/%s",
+			c.ControlPlane, integration.Alias)
+		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		if err != nil {
+			return fmt.Errorf("delete request returned error: %w", err)
+		}
+	}
+
 	return nil
 }
