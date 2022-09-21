@@ -31,13 +31,10 @@ func TestMain(m *testing.M) {
 // structure is technically a breaking change, so it might be best to leave this
 // for the next MAJOR release. -aholmquist 2022-08-10
 func init() {
-	resource.AddTestSweepers(repositoryResourceName, &resource.Sweeper{
-		Name: repositoryResourceName,
-		F:    sweepRepository,
-	})
-	resource.AddTestSweepers(sidecarResourceName, &resource.Sweeper{
-		Name: sidecarResourceName,
-		F:    sweepSidecar,
+	sidecarRepositoryName := sidecarResourceName + "_" + repositoryResourceName
+	resource.AddTestSweepers(sidecarRepositoryName, &resource.Sweeper{
+		Name: sidecarRepositoryName,
+		F:    sweepSidecarAndRepository,
 	})
 	resource.AddTestSweepers(roleResourceName, &resource.Sweeper{
 		Name: roleResourceName,
@@ -48,6 +45,21 @@ func init() {
 		F:    sweepIntegrationIdP,
 	})
 	// TODO: add sweepers for rest of resources -aholmquist 2022-08-10
+}
+
+// These must be combined to ensure that sidecars are deleted before
+// repositories, otherwise deletion of repositories which have bound ports might
+// fail.
+func sweepSidecarAndRepository(_ string) error {
+	err := sweepSidecar("")
+	if err != nil {
+		return err
+	}
+	err = sweepRepository("")
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func sweepRepository(_ string) error {
