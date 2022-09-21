@@ -1,0 +1,11 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+-> **NOTE** Import ID syntax is `{sidecar_id}-{listener_id}`.
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_sidecar_listener/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
