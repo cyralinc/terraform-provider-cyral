@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -254,6 +255,21 @@ func resourceSidecarListener() *schema.Resource {
 				Description: "DynamoDB proxy mode, only relevant for DynamoDB listeners. Defaults to false.",
 				Type:        schema.TypeBool,
 				Optional:    true,
+			},
+		},
+		Importer: &schema.ResourceImporter{
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				ids, err := unmarshalComposedID(d.Id(), "-", 2)
+				if err != nil {
+					return nil, err
+				}
+				_ = d.Set("sidecar_id", ids[0])
+				d.SetId(ids[1])
+				return []*schema.ResourceData{d}, nil
 			},
 		},
 	}
