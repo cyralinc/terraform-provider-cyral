@@ -123,7 +123,8 @@ var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResourceData: func() ResourceData { return &RoleSSOGroupsDeleteRequest{} },
+	RequestErrorHandler: &DeleteIgnoreHttpNotFound{resName: "Role SSO Group Mappings"},
+	NewResourceData:     func() ResourceData { return &RoleSSOGroupsDeleteRequest{} },
 }
 
 func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) error {
