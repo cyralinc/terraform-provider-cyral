@@ -11,11 +11,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-// Listener struct. Proto ref: https://github.com/cyralinc/wrapper-client-go/blob/main/messages/listeners.proto#L112
-// the XxxSettings and XxxListener fields are oneof in protocol buffer, I assume they should be individual attributes here.
-// For these, there should be one present in payload, if more one will be picked - so all marked as omitempty.
-// golang code will need to enforce this manually. Perhaps there is a assertOneOf function in the codebase?
-// I also assume it is good practise to keep sidecarId out of JSON since that is only used as a path parameter
+// SidecarListener struct for sidecar listener.
 type SidecarListener struct {
 	SidecarId        string            `json:"-"`
 	ListenerId       string            `json:"id"`
@@ -49,7 +45,6 @@ var ReadSidecarListenersConfig = ResourceOperationConfig{
 	Name:       "SidecarListenersResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		log.Printf("[DEBUG] id: %s, listener_id: %s", d.Id(), d.Get("listener_id").(string))
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 			c.ControlPlane,
 			d.Get("sidecar_id").(string),
@@ -67,40 +62,34 @@ type CreateListenerAPIResponse struct {
 
 func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(c.ListenerId)
-	d.Set("listener_id", c.ListenerId)
+	_ = d.Set("listener_id", c.ListenerId)
 	return nil
 }
 
 func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	if data.Listener != nil {
-		d.Set("sidecar_id", data.Listener.SidecarId)
-		d.Set("listener_id", data.Listener.ListenerId)
-		d.Set("repo_types", data.Listener.RepoTypes)
-		d.Set("unix_listener_file", data.Listener.UnixListener.File)
-		d.Set("tcp_listener_port", data.Listener.TcpListener.Port)
-		d.Set("tcp_listener_host", data.Listener.TcpListener.Host)
-		d.Set("multiplexed", data.Listener.Multiplexed)
-		d.Set("mysql_settings_db_version", data.Listener.MysqlSettings.DbVersion)
-		d.Set("mysql_settings_character_set", data.Listener.MysqlSettings.CharacterSet)
-		d.Set("s3_settings_proxy_mode", data.Listener.S3Settings.ProxyMode)
-		d.Set("dynamodb_settings_proxy_mode", data.Listener.DynamoDbSettings.ProxyMode)
+		_ = d.Set("sidecar_id", data.Listener.SidecarId)
+		_ = d.Set("listener_id", data.Listener.ListenerId)
+		_ = d.Set("repo_types", data.Listener.RepoTypes)
+		_ = d.Set("unix_listener_file", data.Listener.UnixListener.File)
+		_ = d.Set("tcp_listener_port", data.Listener.TcpListener.Port)
+		_ = d.Set("tcp_listener_host", data.Listener.TcpListener.Host)
+		_ = d.Set("multiplexed", data.Listener.Multiplexed)
+		_ = d.Set("mysql_settings_db_version", data.Listener.MysqlSettings.DbVersion)
+		_ = d.Set("mysql_settings_character_set", data.Listener.MysqlSettings.CharacterSet)
+		_ = d.Set("s3_settings_proxy_mode", data.Listener.S3Settings.ProxyMode)
+		_ = d.Set("dynamodb_settings_proxy_mode", data.Listener.DynamoDbSettings.ProxyMode)
 	}
 	return nil
 }
 
-// SidecarListenerResource represents the payload of a create listener request
+// SidecarListenerResource represents the payload of a create or update a listener request
 type SidecarListenerResource struct {
-	//TODO, create and update are different:
-	// create MUST NOT have id set
-	// update MUST have id set
 	ListenerConfig SidecarListener `json:"listenerConfig"`
 }
 
+// ReadFromSchema populates the SidecarListenerResource from the schema
 func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
-	// for create we do not allow ListenerId to be set, and for update we mandate ListenerId to be set.
-	// We need to make sure this works as expected.
-	//iterate over all attributes and log them
-	log.Printf("[DEBUG] ReadFromSchema, schema: %#v", d)
 	var tcpListener TcpListener
 	ifRepoTypes := d.Get("repo_types").([]interface{})
 	repoTypes := make([]string, len(ifRepoTypes))
@@ -158,7 +147,6 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 // resourceSidecarListener returns the schema and methods for provisioning a sidecar listener
 // Sidecar listeners API is {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID
 // GET {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID (Get one listener)
-// GET {{baseURL}}/sidecars/:sidecarID/listeners/ (Get all listeners)
 // POST {{baseURL}}/sidecars/:sidecarID/listeners/ (Create a listener)
 // PUT {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID (Update a listener)
 // DELETE {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID (Delete a listener)
@@ -210,6 +198,7 @@ func resourceSidecarListener() *schema.Resource {
 			"listener_id": {
 				Description: "ID of the listener that will be bound to the sidecar.",
 				Type:        schema.TypeString,
+				ForceNew:    true,
 				Computed:    true,
 			},
 			"sidecar_id": {
@@ -219,7 +208,7 @@ func resourceSidecarListener() *schema.Resource {
 				ForceNew:    true,
 			},
 			"repo_types": {
-				Description: "List of repository types that the listener supports.",
+				Description: "List of repository types that the listener supports. Currently limited to one repo type, eg [\"mysql\"]",
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem: &schema.Schema{
@@ -227,42 +216,42 @@ func resourceSidecarListener() *schema.Resource {
 				},
 			},
 			"unix_listener_file": {
-				Description: "File in which the sidecar will listen for the given repository.",
+				Description: "File in which the sidecar will listen for the given repository. Required for unix listeners and mutual exclusive with tcp_listener_port.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
 			"tcp_listener_port": {
-				Description: "Port in which the sidecar will listen for the given repository.",
+				Description: "Port in which the sidecar will listen for the given repository. Required for tcp listeners and mutual exclusive with unix_listener_file.",
 				Type:        schema.TypeInt,
 				Optional:    true,
 			},
 			"tcp_listener_host": {
-				Description: "Host in which the sidecar will listen for the given repository.",
+				Description: "Host in which the sidecar will listen for the given repository. Omit to listen on all interfaces.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
 			"multiplexed": {
-				Description: "Multiplexed listener.",
+				Description: "Multiplexed listener, defaults to not multiplexing (false). Not supported for all repository types.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
 			"mysql_settings_db_version": {
-				Description: "MySQL version.",
+				Description: "MySQL DB version. Required (and only relevant) for multiplexed listeners of type mysql",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
 			"mysql_settings_character_set": {
-				Description: "MySQL character set.",
+				Description: "MySQL character set. Optional and only relevant for multiplexed listeners of type mysql.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
 			"s3_settings_proxy_mode": {
-				Description: "S3 proxy mode.",
+				Description: "S3 proxy mode, only relevant for S3 listeners. Defaults to false.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
 			"dynamodb_settings_proxy_mode": {
-				Description: "DynamoDB proxy mode.",
+				Description: "DynamoDB proxy mode, only relevant for DynamoDB listeners. Defaults to false.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
