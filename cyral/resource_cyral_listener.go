@@ -1,13 +1,11 @@
 package cyral
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
@@ -19,15 +17,15 @@ import (
 // golang code will need to enforce this manually. Perhaps there is a assertOneOf function in the codebase?
 // I also assume it is good practise to keep sidecarId out of JSON since that is only used as a path parameter
 type SidecarListener struct {
-	SidecarId        string           `json:"-"`
-	ListenerId       string           `json:"id"`
-	RepoTypes        []string         `json:"repoTypes"`
-	UnixListener     UnixListener     `json:"unixListener,omitempty"`
-	TcpListener      TcpListener      `json:"tcpListener,omitempty"`
-	Multiplexed      bool             `json:"multiplexed,omitempty"`
-	MysqlSettings    MysqlSettings    `json:"mysqlSettings,omitempty"`
-	S3Settings       S3Settings       `json:"s3Settings,omitempty"`
-	DynamoDbSettings DynamoDbSettings `json:"dynamoDBSettings,omitempty"`
+	SidecarId        string            `json:"-"`
+	ListenerId       string            `json:"id"`
+	RepoTypes        []string          `json:"repoTypes"`
+	UnixListener     *UnixListener     `json:"unixListener,omitempty"`
+	TcpListener      *TcpListener      `json:"tcpListener,omitempty"`
+	Multiplexed      bool              `json:"multiplexed,omitempty"`
+	MysqlSettings    *MysqlSettings    `json:"mysqlSettings,omitempty"`
+	S3Settings       *S3Settings       `json:"s3Settings,omitempty"`
+	DynamoDbSettings *DynamoDbSettings `json:"dynamoDBSettings,omitempty"`
 }
 type UnixListener struct {
 	File string `json:"file"`
@@ -51,23 +49,30 @@ var ReadSidecarListenersConfig = ResourceOperationConfig{
 	Name:       "SidecarListenersResourceRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		log.Printf("[DEBUG] id: %s, listener_id: %s", d.Id(), d.Get("listener_id").(string))
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 			c.ControlPlane,
 			d.Get("sidecar_id").(string),
-			d.Get("listener_id").(string))
+			d.Id())
 	},
-	//here
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &SidecarListenersAPIResponse{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadSidecarListenersAPIResponse{} },
 }
 
-type SidecarListenersAPIResponse struct {
+type ReadSidecarListenersAPIResponse struct {
 	Listener *SidecarListener `json:"listener"`
 }
+type CreateListenerAPIResponse struct {
+	ListenerId string `json:"listenerId"`
+}
 
-func (data SidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	if data.Listener == nil {
-		d.SetId(d.Get("listener_id").(string))
-	} else {
+func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
+	d.SetId(c.ListenerId)
+	d.Set("listener_id", c.ListenerId)
+	return nil
+}
+
+func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData) error {
+	if data.Listener != nil {
 		d.Set("sidecar_id", data.Listener.SidecarId)
 		d.Set("listener_id", data.Listener.ListenerId)
 		d.Set("repo_types", data.Listener.RepoTypes)
@@ -115,12 +120,12 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 		if v, ok := d.GetOk("tcp_listener_host"); ok {
 			tcpListener.Host = v.(string)
 		}
-		s.ListenerConfig.TcpListener = tcpListener
+		s.ListenerConfig.TcpListener = &tcpListener
 	}
 	var unixListener UnixListener
 	if v, ok := d.GetOk("unix_listener_file"); ok {
 		unixListener.File = v.(string)
-		s.ListenerConfig.UnixListener = unixListener
+		s.ListenerConfig.UnixListener = &unixListener
 	}
 	//if mysqlsettings set then set dbversion and charset
 	var mysqlSettings MysqlSettings
@@ -129,19 +134,19 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 		if v, ok = d.GetOk("mysql_settings_character_set"); ok {
 			mysqlSettings.CharacterSet = v.(string)
 		}
-		s.ListenerConfig.MysqlSettings = mysqlSettings
+		s.ListenerConfig.MysqlSettings = &mysqlSettings
 	}
 	// if s3settings set then set proxy mode
 	var s3Settings S3Settings
 	if v, ok := d.GetOk("s3_settings_proxy_mode"); ok {
 		s3Settings.ProxyMode = v.(bool)
-		s.ListenerConfig.S3Settings = s3Settings
+		s.ListenerConfig.S3Settings = &s3Settings
 	}
 	// if dynamodbsettings set then set proxy mode
 	var dynamoDbSettings DynamoDbSettings
 	if v, ok := d.GetOk("dynamodb_settings_proxy_mode"); ok {
 		dynamoDbSettings.ProxyMode = v.(bool)
-		s.ListenerConfig.DynamoDbSettings = dynamoDbSettings
+		s.ListenerConfig.DynamoDbSettings = &dynamoDbSettings
 	}
 	//print the struct in json format
 	//get json string from struct
@@ -171,7 +176,7 @@ func resourceSidecarListener() *schema.Resource {
 
 				},
 				NewResourceData: func() ResourceData { return &SidecarListenerResource{} },
-				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &SidecarListenersAPIResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) ResponseData { return &CreateListenerAPIResponse{} },
 			}, ReadSidecarListenersConfig,
 		),
 		ReadContext: ReadResource(ReadSidecarListenersConfig),
@@ -183,7 +188,7 @@ func resourceSidecarListener() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 						c.ControlPlane,
 						d.Get("sidecar_id").(string),
-						d.Get("listener_id").(string))
+						d.Id())
 
 				},
 				NewResourceData: func() ResourceData { return &SidecarListenerResource{} },
@@ -263,65 +268,4 @@ func resourceSidecarListener() *schema.Resource {
 			},
 		},
 	}
-}
-func resourceSidecarListenerCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	c := m.(*client.Client)
-	//TODO pull this out to a helper function as it's most likely re-used in other resource action functions
-	sidecarID := d.Get("sidecar_id").(string)
-	listenerID := d.Get("listener_id").(string)
-	repoTypes := d.Get("repo_types").([]string)
-	unixListenerFile := d.Get("unix_listener_file").(string)
-	tcpListenerPort := d.Get("tcp_listener_port").(int)
-	tcpListenerHost := d.Get("tcp_listener_host").(string)
-	multiplexed := d.Get("multiplexed").(bool)
-	mysqlSettingsDbVersion := d.Get("mysql_settings_db_version").(string)
-	mysqlSettingsCharacterSet := d.Get("mysql_settings_character_set").(string)
-	s3SettingsProxyMode := d.Get("s3_settings_proxy_mode").(bool)
-	dynamoDbSettingsProxyMode := d.Get("dynamodb_settings_proxy_mode").(bool)
-
-	listener := SidecarListener{
-		SidecarId:  sidecarID,
-		ListenerId: listenerID,
-		RepoTypes:  repoTypes,
-		UnixListener: UnixListener{
-			File: unixListenerFile,
-		},
-		TcpListener: TcpListener{
-			Port: tcpListenerPort,
-			Host: tcpListenerHost,
-		},
-		Multiplexed: multiplexed,
-		MysqlSettings: MysqlSettings{
-			DbVersion:    mysqlSettingsDbVersion,
-			CharacterSet: mysqlSettingsCharacterSet,
-		},
-		S3Settings: S3Settings{
-			ProxyMode: s3SettingsProxyMode,
-		},
-		DynamoDbSettings: DynamoDbSettings{
-			ProxyMode: dynamoDbSettingsProxyMode,
-		},
-	}
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane,
-		listener.SidecarId)
-	if _, err := c.DoRequest(url, http.MethodPut, listener); err != nil {
-		return createError("Unable create listener resource", fmt.Sprintf("%v", err))
-	}
-	//TODO, check response and get id from there
-	d.SetId(listenerID)
-	return diags
-
-}
-func resourceSidecarListenerRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	//TODO
-	return nil
-}
-func resourceSidecarListenerUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	//TODO
-	return nil
-}
-func resourceSidecarListenerDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	//TODO
-	return nil
 }
