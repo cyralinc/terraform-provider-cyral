@@ -14,7 +14,6 @@ import (
 )
 
 const (
-	keycloak            = "keycloak"
 	EnvVarClientID      = "CYRAL_TF_CLIENT_ID"
 	EnvVarClientSecret  = "CYRAL_TF_CLIENT_SECRET"
 	EnvVarCPURL         = "CYRAL_TF_CONTROL_PLANE"
