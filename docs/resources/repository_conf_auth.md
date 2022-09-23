@@ -39,4 +39,4 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+- `id` (String) The ID of this resource is set to `repository_id`.
