@@ -11,12 +11,10 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
 	keycloak            = "keycloak"
-	auth0               = "auth0"
 	EnvVarClientID      = "CYRAL_TF_CLIENT_ID"
 	EnvVarClientSecret  = "CYRAL_TF_CLIENT_SECRET"
 	EnvVarCPURL         = "CYRAL_TF_CONTROL_PLANE"
@@ -35,70 +33,23 @@ func init() {
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
-	auth0DeprecationMessage := "Auth0-based control planes are no longer supported."
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"auth_provider": {
-				Description:  fmt.Sprintf("%s Use `keycloak` or remove the argument declaration.", auth0DeprecationMessage),
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      keycloak,
-				ValidateFunc: validation.StringInSlice([]string{keycloak}, false),
-				Deprecated:   fmt.Sprintf("%s Use `keycloak` or remove the argument declaration.", auth0DeprecationMessage),
-			},
-			"auth0_audience": {
-				Description: "Auth0 audience.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				RequiredWith: []string{
-					"auth0_domain",
-				},
-				Deprecated: auth0DeprecationMessage,
-			},
-			"auth0_domain": {
-				Description: "Auth0 domain name.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				RequiredWith: []string{
-					"auth0_audience",
-				},
-				Deprecated: auth0DeprecationMessage,
-			},
-			"auth0_client_id": {
-				Description:   "Auth0 client id.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Sensitive:     true,
-				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_ID", nil),
-				ConflictsWith: []string{"client_id"},
-				Deprecated:    auth0DeprecationMessage,
-			},
-			"auth0_client_secret": {
-				Description:   "Auth0 client secret.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Sensitive:     true,
-				DefaultFunc:   schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
-				ConflictsWith: []string{"client_secret"},
-				Deprecated:    auth0DeprecationMessage,
-			},
 			"client_id": {
 				Description: "Client id used to authenticate against the control plane. Can be ommited and " +
 					"declared using the environment variable `CYRAL_TF_CLIENT_ID`.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Sensitive:     true,
-				ConflictsWith: []string{"auth0_client_id"},
-				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientID, nil),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc(EnvVarClientID, nil),
 			},
 			"client_secret": {
 				Description: "Client secret used to authenticate against the control plane. Can be ommited and " +
 					"declared using the environment variable `CYRAL_TF_CLIENT_SECRET`.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Sensitive:     true,
-				ConflictsWith: []string{"auth0_client_secret"},
-				DefaultFunc:   schema.EnvDefaultFunc(EnvVarClientSecret, nil),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc(EnvVarClientSecret, nil),
 			},
 			"control_plane": {
 				Description: "Control plane host and API port (ex: `some-cp.cyral.com:8000`)",
@@ -133,7 +84,6 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"cyral_datamap":                          resourceDatamap("Use `cyral_repository_datamap` instead."),
 			"cyral_datalabel":                        resourceDatalabel(),
 			"cyral_integration_datadog":              resourceIntegrationDatadog(),
 			"cyral_integration_mfa_duo":              resourceIntegrationMFADuo(),
@@ -142,24 +92,17 @@ func Provider() *schema.Provider {
 			"cyral_integration_logstash":             resourceIntegrationLogstash(),
 			"cyral_integration_looker":               resourceIntegrationLooker(),
 			"cyral_integration_microsoft_teams":      resourceIntegrationMsTeams(),
-			"cyral_integration_okta":                 resourceIntegrationOkta(),
 			"cyral_integration_pager_duty":           resourceIntegrationPagerDuty(),
 			"cyral_integration_slack_alerts":         resourceIntegrationSlackAlerts(),
 			"cyral_integration_splunk":               resourceIntegrationSplunk(),
-			"cyral_integration_idp_aad":              resourceIntegrationIdP("aad", ""),
-			"cyral_integration_idp_adfs":             resourceIntegrationIdP("adfs-2016", ""),
-			"cyral_integration_idp_forgerock":        resourceIntegrationIdP("forgerock", ""),
-			"cyral_integration_idp_gsuite":           resourceIntegrationIdP("gsuite", ""),
-			"cyral_integration_idp_okta":             resourceIntegrationIdP("okta", ""),
-			"cyral_integration_idp_ping_one":         resourceIntegrationIdP("pingone", ""),
+			"cyral_integration_idp_aad":              resourceIntegrationIdP("aad"),
+			"cyral_integration_idp_adfs":             resourceIntegrationIdP("adfs-2016"),
+			"cyral_integration_idp_forgerock":        resourceIntegrationIdP("forgerock"),
+			"cyral_integration_idp_gsuite":           resourceIntegrationIdP("gsuite"),
+			"cyral_integration_idp_okta":             resourceIntegrationIdP("okta"),
+			"cyral_integration_idp_ping_one":         resourceIntegrationIdP("pingone"),
 			"cyral_integration_idp_saml":             resourceIntegrationIdPSAML(),
 			"cyral_integration_idp_saml_draft":       resourceIntegrationIdPSAMLDraft(),
-			"cyral_integration_sso_aad":              resourceIntegrationIdP("aad", "Use 'cyral_integration_idp_aad' instead"),
-			"cyral_integration_sso_adfs":             resourceIntegrationIdP("adfs-2016", "Use 'cyral_integration_idp_adfs' instead"),
-			"cyral_integration_sso_forgerock":        resourceIntegrationIdP("forgerock", "Use 'cyral_integration_idp_forgerock' instead"),
-			"cyral_integration_sso_gsuite":           resourceIntegrationIdP("gsuite", "Use 'cyral_integration_idp_gsuite' instead"),
-			"cyral_integration_sso_okta":             resourceIntegrationIdP("okta", "Use 'cyral_integration_idp_okta' instead"),
-			"cyral_integration_sso_ping_one":         resourceIntegrationIdP("pingone", "Use 'cyral_integration_idp_ping_one' instead"),
 			"cyral_integration_sumo_logic":           resourceIntegrationSumoLogic(),
 			"cyral_policy":                           resourcePolicy(),
 			"cyral_policy_rule":                      resourcePolicyRule(),
