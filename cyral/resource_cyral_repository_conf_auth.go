@@ -80,7 +80,7 @@ func (data RepositoryConfAuthData) isRepoTLSValid() error {
 type CreateRepositoryConfAuthResponse struct{}
 
 func (data CreateRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId("repo-conf")
+	d.SetId(d.Get("repository_id").(string))
 	return nil
 }
 
@@ -147,7 +147,7 @@ func resourceRepositoryConfAuth() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "ID of this resource in Cyral environment",
+				Description: "The ID of this resource is set to `repository_id`.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},

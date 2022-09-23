@@ -44,6 +44,14 @@ type Identity struct {
 	Users    []string `json:"users,omitempty"`
 }
 
+func unmarshalPolicyRuleID(id string) (policyID string, policyRuleID string) {
+	ids, err := unmarshalComposedID(id, "/", 2)
+	if err != nil {
+		panic(fmt.Errorf("Unable to unmarshal id: %w", err))
+	}
+	return ids[0], ids[1]
+}
+
 func ruleSchema(description string) *schema.Schema {
 	return &schema.Schema{
 		Description: description,
@@ -218,9 +226,7 @@ func resourcePolicyRule() *schema.Resource {
 					return nil, err
 				}
 				policyID := ids[0]
-				policyRuleID := ids[1]
 				d.Set("policy_id", policyID)
-				d.SetId(policyRuleID)
 				return []*schema.ResourceData{d}, nil
 			},
 		},
@@ -248,9 +254,10 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	// TODO (next MAJOR): set ID to be of the format
-	// {policyID}/{policyRuleID}, to facilitate importing. -aholmquist 2022-08-01
-	d.SetId(response.ID)
+	d.SetId(marshalComposedID([]string{
+		policyID,
+		response.ID},
+		"/"))
 
 	log.Printf("[DEBUG] End resourcePolicyRuleCreate")
 
@@ -261,7 +268,9 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	log.Printf("[DEBUG] Init resourcePolicyRuleRead")
 	c := m.(*client.Client)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
+	policyID, policyRuleID := unmarshalPolicyRuleID(d.Id())
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
+		c.ControlPlane, policyID, policyRuleID)
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
@@ -312,7 +321,9 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 	policyRule := getPolicyRuleInfoFromResource(d)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
+	policyID, policyRuleID := unmarshalPolicyRuleID(d.Id())
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane,
+		policyID, policyRuleID)
 
 	_, err := c.DoRequest(url, http.MethodPut, policyRule)
 	if err != nil {
@@ -328,7 +339,9 @@ func resourcePolicyRuleDelete(ctx context.Context, d *schema.ResourceData, m int
 	log.Printf("[DEBUG] Init resourcePolicyRuleDelete")
 	c := m.(*client.Client)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
+	policyID, policyRuleID := unmarshalPolicyRuleID(d.Id())
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
+		c.ControlPlane, policyID, policyRuleID)
 
 	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
 		return createError("Unable to delete policy rule", fmt.Sprintf("%v", err))

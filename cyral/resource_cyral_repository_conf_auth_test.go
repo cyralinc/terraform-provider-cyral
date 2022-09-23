@@ -84,7 +84,11 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 			mainTestUpdate1,
 			mainTestUpdate2,
 
-			// TODO: add import test -aholmquist 2022-08-05
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_repository_conf_auth.main_test",
+			},
 		},
 	})
 }

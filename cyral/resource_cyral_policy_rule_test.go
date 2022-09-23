@@ -72,12 +72,7 @@ func TestAccPolicyRuleResource(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: importStateComposedIDFunc(
-					importStateResName,
-					[]string{"policy_id", "id"},
-					"/",
-				),
-				ResourceName: importStateResName,
+				ResourceName:      importStateResName,
 			},
 		},
 	})

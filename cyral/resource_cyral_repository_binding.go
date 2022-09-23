@@ -81,7 +81,7 @@ func resourceRepositoryBinding() *schema.Resource {
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				ids, err := unmarshalComposedID(d.Id(), "-", 2)
+				ids, err := unmarshalComposedID(d.Id(), "/", 2)
 				if err != nil {
 					return nil, err
 				}
@@ -106,11 +106,10 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
 	}
 
-	// TODO (next MAJOR): use "/" separator instead of "-" -aholmquist 2022-08-01
 	d.SetId(marshalComposedID([]string{
 		resourceData.SidecarID,
 		resourceData.RepositoryID},
-		"-"))
+		"/"))
 
 	return resourceRepositoryBindingRead(ctx, d, m)
 }

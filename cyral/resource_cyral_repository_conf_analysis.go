@@ -173,7 +173,7 @@ func resourceRepositoryConfAnalysisCreate(ctx context.Context, d *schema.Resourc
 
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	d.SetId(fmt.Sprintf("%s/ConfAnalysis", d.Get("repository_id")))
+	d.SetId(d.Get("repository_id").(string))
 
 	log.Printf("[DEBUG] End resourceRepositoryConfAnalysisCreate")
 

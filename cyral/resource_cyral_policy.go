@@ -6,29 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
-
-type Policy struct {
-	Meta *PolicyMetadata `json:"meta" yaml:"meta"`
-	Data []string        `json:"data,omitempty" yaml:"data,omitempty,flow"`
-}
-
-type PolicyMetadata struct {
-	ID          string    `json:"id" yaml:"id"`
-	Name        string    `json:"name" yaml:"name"`
-	Version     string    `json:"version" yaml:"version"`
-	Created     time.Time `json:"created" yaml:"created"`
-	LastUpdated time.Time `json:"lastUpdated" yaml:"lastUpdated"`
-	Type        string    `json:"type" yaml:"type"`
-	Tags        []string  `json:"tags" yaml:"tags"`
-	Enabled     bool      `json:"enabled" yaml:"enabled"`
-	Description string    `json:"description" yaml:"description"`
-}
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
