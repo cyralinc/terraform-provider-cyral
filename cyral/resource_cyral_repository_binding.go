@@ -25,14 +25,8 @@ type Listener struct {
 	Port int    `json:"port"`
 }
 
-func resourceRepositoryBinding() *schema.Resource {
+func repositoryBindingV0ResourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [repositories to sidecars binding](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
-		CreateContext: resourceRepositoryBindingCreate,
-		ReadContext:   resourceRepositoryBindingRead,
-		UpdateContext: resourceRepositoryBindingUpdate,
-		DeleteContext: resourceRepositoryBindingDelete,
-
 		Schema: map[string]*schema.Schema{
 			"enabled": {
 				Description: "Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`.",
@@ -75,6 +69,51 @@ func resourceRepositoryBinding() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 		},
+	}
+}
+
+// The upgrade from v0 to v1 of the repository binding resource consists simply
+// in changing the format of the `id` from `{sidecar_id}-{repository_id}` to
+// `{sidecar_id}/{repository_id}`.
+func upgradeRepositoryBindingV0(
+	_ context.Context,
+	rawState map[string]interface{},
+	meta interface{},
+) (map[string]interface{}, error) {
+	prevID := rawState["id"].(string)
+	prevSep := "-"
+	newSep := "/"
+	ids, err := unmarshalComposedID(prevID, prevSep, 2)
+	if err != nil {
+		// We just treat IDs with the right format for previous version.
+		log.Printf("[INFO] Unable to unmarshal composed ID: %v. Skipping state upgrade.", err)
+		return rawState, nil
+	}
+	sidecarID := ids[0]
+	repositoryID := ids[1]
+	rawState["id"] = marshalComposedID([]string{sidecarID, repositoryID}, newSep)
+	return rawState, nil
+}
+
+func resourceRepositoryBinding() *schema.Resource {
+	return &schema.Resource{
+		Description:   "Manages [repositories to sidecars binding](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
+		CreateContext: resourceRepositoryBindingCreate,
+		ReadContext:   resourceRepositoryBindingRead,
+		UpdateContext: resourceRepositoryBindingUpdate,
+		DeleteContext: resourceRepositoryBindingDelete,
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type:    repositoryBindingV0ResourceSchema().CoreConfigSchema().ImpliedType(),
+				Upgrade: upgradeRepositoryBindingV0,
+			},
+		},
+
+		Schema: repositoryBindingV0ResourceSchema().Schema,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
