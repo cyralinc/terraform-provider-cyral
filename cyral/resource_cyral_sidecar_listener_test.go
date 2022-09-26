@@ -1,7 +1,6 @@
 package cyral
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -10,23 +9,55 @@ import (
 )
 
 const (
-	sidecarListenerResourceName = "cyral_sidecar_listener"
+	sidecarListenerResourceName    = "cyral_sidecar_listener"
+	plainMySQLListenerResourceName = "plain_mysql"
+	plainMySQLListener             = `resource "%s" "%s" {
+  sidecar_id = %s
+  tcp_listener {
+    port = 3306
+  }
+  repo_types =["mysql"]
+}
+`
+	multiplexedMySQLListenerResourceName = "multiplexed_mysql"
+	multiplexedMySQLListener             = `resource "%s" "%s" {
+    sidecar_id = %s
+    tcp_listener {
+		port = 3307
+    }
+    multiplexed = true
+    mysql_settings {
+		db_version = "5.7"
+    }
+    repo_types =["mysql"]
+}
+`
+	s3ListenerResourceName = "s3"
+	s3Listener             = `resource "%s" "%s" {
+    sidecar_id = %s
+    tcp_listener {
+		port = 443
+	}
+    s3_settings {
+		proxy_mode = true
+    }
+    repo_types =["s3"]
+}
+`
+	mariaDbSocketListenerResourceName = "maria_db_socket"
+	mariaDbSocketListener             = `resource "%s" "%s" {
+    sidecar_id = %s
+    unix_listener {
+		file = "/var/run/mysqld/mysql.sock"
+    }
+    repo_types =["mariadb"]
+}
+`
 )
 
-func TestUnmarshal(t *testing.T) {
-	// create variable of type ReadidecarListenersAPIResponse
-	// unmarshal the json into the variable
-	var sidecarListenerResponse ReadSidecarListenersAPIResponse
-	jsonString := `{"listenerConfig":{"id":"2FIv17glqx4adFJiXrPAQDdAKeH", "tcpListener":{"host":"", "port":3306}, "repoTypes":["mysql"], "multiplexed":false}}`
-	err := json.Unmarshal([]byte(jsonString), &sidecarListenerResponse)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-}
 func TestSidecarListenerResource(t *testing.T) {
 
-	testConfig, testFunc := setupSidecarListenerTest(cloudFormationSidecarConfig)
+	testConfig, testFunc := setupSidecarListenerTest()
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -44,15 +75,35 @@ func TestSidecarListenerResource(t *testing.T) {
 
 }
 
-func setupSidecarListenerTest(sidecarData *SidecarData) (string, resource.TestCheckFunc) {
-	// create a test config string from the sidecarData
-	// create a test function that will check the sidecarData
-	// return both
+func setupSidecarListenerTest() (string, resource.TestCheckFunc) {
 	configuration := createSidecarListenerConfig()
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair(
-			fmt.Sprintf("%s.plain_mysql", sidecarListenerResourceName), "sidecar_id",
+			fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "sidecar_id",
 			"cyral_sidecar.test_sidecar", "id"),
+		resource.TestCheckResourceAttrSet(fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "id"),
+		resource.TestCheckResourceAttrSet(fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "listener_id"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "repo_types.#", "1"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "repo_types.0", "mysql"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "tcp_listener.#", "1"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "tcp_listener.0.port", "3306"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, plainMySQLListenerResourceName), "unix_listener.#", "0"),
+
+		resource.TestCheckResourceAttrPair(
+			fmt.Sprintf("%s.%s", sidecarListenerResourceName, multiplexedMySQLListenerResourceName), "sidecar_id",
+			"cyral_sidecar.test_sidecar", "id"),
+		resource.TestCheckResourceAttrPair(
+			fmt.Sprintf("%s.%s", sidecarListenerResourceName, s3ListenerResourceName), "sidecar_id",
+			"cyral_sidecar.test_sidecar", "id"),
+		resource.TestCheckResourceAttrPair(
+			fmt.Sprintf("%s.%s", sidecarListenerResourceName, mariaDbSocketListenerResourceName), "sidecar_id",
+			"cyral_sidecar.test_sidecar", "id"),
+		resource.TestCheckResourceAttrSet(fmt.Sprintf("%s.%s", sidecarListenerResourceName, mariaDbSocketListenerResourceName), "id"),
+		resource.TestCheckResourceAttrSet(fmt.Sprintf("%s.%s", sidecarListenerResourceName, mariaDbSocketListenerResourceName), "listener_id"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, mariaDbSocketListenerResourceName), "repo_types.#", "1"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, mariaDbSocketListenerResourceName), "repo_types.0", "mariadb"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, mariaDbSocketListenerResourceName), "unix_listener.#", "1"),
+		resource.TestCheckResourceAttr(fmt.Sprintf("%s.%s", sidecarListenerResourceName, mariaDbSocketListenerResourceName), "unix_listener.0.file", "/var/run/mysqld/mysql.sock"),
 	)
 	return configuration, testFunction
 
@@ -68,14 +119,10 @@ func createSidecarListenerConfig() string {
 		accTestName(sidecarResourceName, id.String()),
 		"docker",
 	)
-	config += fmt.Sprintf(`
-resource "cyral_sidecar_listener" "plain_mysql" {
-  sidecar_id = %s
-  tcp_listener {
-    port = 3306
-  }
-  repo_types =["mysql"]
-}
-`, basicSidecarID)
+	config += "\n"
+	config += fmt.Sprintf(plainMySQLListener, sidecarListenerResourceName, plainMySQLListenerResourceName, basicSidecarID)
+	config += fmt.Sprintf(multiplexedMySQLListener, sidecarListenerResourceName, multiplexedMySQLListenerResourceName, basicSidecarID)
+	config += fmt.Sprintf(s3Listener, sidecarListenerResourceName, s3ListenerResourceName, basicSidecarID)
+	config += fmt.Sprintf(mariaDbSocketListener, sidecarListenerResourceName, mariaDbSocketListenerResourceName, basicSidecarID)
 	return config
 }
