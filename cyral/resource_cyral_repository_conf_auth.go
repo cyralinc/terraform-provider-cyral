@@ -176,6 +176,9 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 	}
 }
 
+// Previously, the id of the resource `cyral_repository_conf_auth` was hardcoded
+// to `repo-conf`, which doesn't make sense. The goal here is to set it to be
+// the repository ID.
 func upgradeRepositoryConfAuthV0(
 	_ context.Context,
 	rawState map[string]interface{},

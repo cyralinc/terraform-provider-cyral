@@ -85,9 +85,10 @@ func upgradeRepositoryBindingV0(
 	newSep := "/"
 	ids, err := unmarshalComposedID(prevID, prevSep, 2)
 	if err != nil {
-		// We just treat IDs with the right format for previous version.
-		log.Printf("[WARN] Unable to unmarshal composed ID: %v. Skipping state upgrade.", err)
-		return rawState, nil
+		// If we ignore this error, the ID will be inconsistent with
+		// what we expect in v1. We should not let that happen,
+		// therefore return error here.
+		return rawState, fmt.Errorf("unable to unmarshal composed ID: %w", err)
 	}
 	sidecarID := ids[0]
 	repositoryID := ids[1]

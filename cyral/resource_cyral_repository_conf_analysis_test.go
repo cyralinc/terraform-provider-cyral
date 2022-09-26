@@ -59,13 +59,15 @@ func TestAccRepositoryConfAnalysisResource(t *testing.T) {
 
 func TestRepositoryConfAnalysisResourceUpgradeV0(t *testing.T) {
 	previousState := map[string]interface{}{
-		"id": "repositoryID/ConfAnalysis",
+		"id":            "repositoryID/ConfAnalysis",
+		"repository_id": "repositoryID",
 	}
 	actualNewState, err := upgradeRepositoryConfAnalysisV0(context.Background(),
 		previousState, nil)
 	require.NoError(t, err)
 	expectedNewState := map[string]interface{}{
-		"id": "repositoryID",
+		"id":            "repositoryID",
+		"repository_id": "repositoryID",
 	}
 	require.Equal(t, expectedNewState, actualNewState)
 }

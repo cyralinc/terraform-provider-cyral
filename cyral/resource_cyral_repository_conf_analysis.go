@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -128,22 +127,15 @@ func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
 	}
 }
 
+// Previously, the ID for cyral_repository_conf_analysis had the format
+// {repository_id}/ConfAnalysis. The goal of this state upgrade is to remove
+// this suffix `ConfAnalysis`.
 func upgradeRepositoryConfAnalysisV0(
 	_ context.Context,
 	rawState map[string]interface{},
 	_ interface{},
 ) (map[string]interface{}, error) {
-	prevID := rawState["id"].(string)
-	idComponents := strings.Split(prevID, "/")
-	deprecatedSuffix := "ConfAnalysis"
-	if len(idComponents) < 2 || idComponents[len(idComponents)-1] != deprecatedSuffix {
-		log.Printf("[WARN] ID from version 0 of repository conf " +
-			"auth does not match expected format. Skipping " +
-			"state upgrade.")
-		return rawState, nil
-	}
-	newID := marshalComposedID(idComponents[:len(idComponents)-1], "/")
-	rawState["id"] = newID
+	rawState["id"] = rawState["repository_id"]
 	return rawState, nil
 }
 

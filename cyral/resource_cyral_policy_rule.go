@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -214,19 +215,42 @@ func policyRuleResourceSchemaV0() *schema.Resource {
 					},
 				},
 			},
+
+			// Computed arguments
+			"policy_rule_id": {
+				Description: "The ID of the policy rule.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 		},
 	}
 }
 
+// Previously, the ID of `cyral_policy_rule` was simply the policy rule ID. That
+// is not ideal, because to realize the resource we also need the policy ID
+// itself. That creates an inconsistency between the ID syntax used in
+// `terraform import` and the computed id for the resource. The goal of this
+// upgrade is to set the `id` attribute to have the format
+// `{policy_rule_id}/{policy_id}`.
 func upgradePolicyRuleV0(
 	_ context.Context,
 	rawState map[string]interface{},
 	_ interface{},
 ) (map[string]interface{}, error) {
 	policyRuleID := rawState["id"].(string)
+
+	// Make sure there is not `/` in the previous ID, otherwise the new
+	// resource state ID will become inconsistent.
+	idComponents := strings.Split(policyRuleID, "/")
+	if len(idComponents) > 1 {
+		return rawState, fmt.Errorf("unexpected format for resource ID: " +
+			`found more than one field separated by "/"`)
+	}
+
 	policyID := rawState["policy_id"].(string)
 	newID := marshalComposedID([]string{policyID, policyRuleID}, "/")
 	rawState["id"] = newID
+
 	return rawState, nil
 }
 
@@ -352,6 +376,9 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	}
 
 	d.Set("hosts", response.Hosts)
+
+	// Computed arguments
+	d.Set("policy_rule_id", policyRuleID)
 
 	log.Printf("[DEBUG] End resourcePolicyRuleRead")
 	return diag.Diagnostics{}
