@@ -300,7 +300,7 @@ func resourceSidecarListener() *schema.Resource {
 				ForceNew:    true,
 			},
 			RepoTypesKey: {
-				Description: "List of repository types that the listener supports. Currently limited to one repo type, eg [\"mysql\"]",
+				Description: "List of repository types that the listener supports. Currently limited to one repo type, eg [\"mysql\"].",
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem: &schema.Schema{
@@ -329,7 +329,7 @@ func resourceSidecarListener() *schema.Resource {
 				Optional:    true,
 			},
 			TcpListenerKey: {
-				Description: "tcp listener settings.",
+				Description: "TCP listener settings.",
 				Type:        schema.TypeSet,
 				Optional:    true,
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
@@ -350,7 +350,7 @@ func resourceSidecarListener() *schema.Resource {
 				},
 			},
 			MysqlSettingsKey: {
-				Description: "MysqlSettings represents the listener settings for a mysql data repository.",
+				Description: "MysqlSettings represents the listener settings for a [mysql, galera, mariadb] data repository.",
 				Type:        schema.TypeSet,
 				Optional:    true,
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
