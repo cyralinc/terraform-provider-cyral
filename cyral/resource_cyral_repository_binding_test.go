@@ -54,7 +54,7 @@ func TestAccRepositoryBindingResource(t *testing.T) {
 	})
 }
 
-func TestRepositoryBindingResourceUpgradeV1(t *testing.T) {
+func TestRepositoryBindingResourceUpgradeV0(t *testing.T) {
 	previousState := map[string]interface{}{
 		"id": "sidecarID-repositoryID",
 	}

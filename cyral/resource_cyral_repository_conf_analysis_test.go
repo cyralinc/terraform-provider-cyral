@@ -1,11 +1,13 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -53,6 +55,19 @@ func TestAccRepositoryConfAnalysisResource(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestRepositoryConfAnalysisResourceUpgradeV0(t *testing.T) {
+	previousState := map[string]interface{}{
+		"id": "repositoryID/ConfAnalysis",
+	}
+	actualNewState, err := upgradeRepositoryConfAnalysisV0(context.Background(),
+		previousState, nil)
+	require.NoError(t, err)
+	expectedNewState := map[string]interface{}{
+		"id": "repositoryID",
+	}
+	require.Equal(t, expectedNewState, actualNewState)
 }
 
 func testAccRepoConfAnalysisConfig_ErrorRedact() string {

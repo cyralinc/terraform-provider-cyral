@@ -107,7 +107,8 @@ func resourceRepositoryBinding() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Version: 0,
-				Type:    repositoryBindingResourceSchemaV0().CoreConfigSchema().ImpliedType(),
+				Type: repositoryBindingResourceSchemaV0().
+					CoreConfigSchema().ImpliedType(),
 				Upgrade: upgradeRepositoryBindingV0,
 			},
 		},

@@ -1,10 +1,12 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -76,6 +78,21 @@ func TestAccPolicyRuleResource(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestPolicyRuleResourceUpgradeV0(t *testing.T) {
+	previousState := map[string]interface{}{
+		"id":        "policy-rule-id",
+		"policy_id": "policy-id",
+	}
+	actualNewState, err := upgradePolicyRuleV0(context.Background(),
+		previousState, nil)
+	require.NoError(t, err)
+	expectedNewState := map[string]interface{}{
+		"id":        "policy-id/policy-rule-id",
+		"policy_id": "policy-id",
+	}
+	require.Equal(t, expectedNewState, actualNewState)
 }
 
 func setupPolicyRuleTest(policyRule PolicyRuleConfig) (string, resource.TestCheckFunc) {

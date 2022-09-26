@@ -197,7 +197,8 @@ func resourceRepositoryConfAuth() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Version: 0,
-				Type:    repositoryConfAuthResourceSchemaV0().CoreConfigSchema().ImpliedType(),
+				Type: repositoryConfAuthResourceSchemaV0().
+					CoreConfigSchema().ImpliedType(),
 				Upgrade: upgradeRepositoryConfAuthV0,
 			},
 		},

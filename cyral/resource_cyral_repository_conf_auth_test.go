@@ -95,7 +95,7 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 	})
 }
 
-func TestRepositoryConfAuthResourceUpgradeV1(t *testing.T) {
+func TestRepositoryConfAuthResourceUpgradeV0(t *testing.T) {
 	previousState := map[string]interface{}{
 		"id":            "repo-conf",
 		"repository_id": "my-repository-id",

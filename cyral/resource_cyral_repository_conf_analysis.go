@@ -29,17 +29,8 @@ type UserFacingConfig struct {
 	RewriteOnViolation         bool     `json:"rewriteOnViolation"`
 }
 
-func resourceRepositoryConfAnalysis() *schema.Resource {
+func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages Repository Analysis Configuration. This resource allows configuring both " +
-			"[Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) " +
-			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) " +
-			"(Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.",
-		CreateContext: resourceRepositoryConfAnalysisCreate,
-		ReadContext:   resourceRepositoryConfAnalysisRead,
-		UpdateContext: resourceRepositoryConfAnalysisUpdate,
-		DeleteContext: resourceRepositoryConfAnalysisDelete,
-
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "ID of this resource in Cyral environment",
@@ -134,16 +125,58 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				},
 			},
 		},
+	}
+}
+
+func upgradeRepositoryConfAnalysisV0(
+	_ context.Context,
+	rawState map[string]interface{},
+	_ interface{},
+) (map[string]interface{}, error) {
+	prevID := rawState["id"].(string)
+	idComponents := strings.Split(prevID, "/")
+	deprecatedSuffix := "ConfAnalysis"
+	if len(idComponents) < 2 || idComponents[len(idComponents)-1] != deprecatedSuffix {
+		log.Printf("[WARN] ID from version 0 of repository conf " +
+			"auth does not match expected format. Skipping " +
+			"state upgrade.")
+		return rawState, nil
+	}
+	newID := marshalComposedID(idComponents[:len(idComponents)-1], "/")
+	rawState["id"] = newID
+	return rawState, nil
+}
+
+func resourceRepositoryConfAnalysis() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages Repository Analysis Configuration. This resource allows configuring both " +
+			"[Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) " +
+			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) " +
+			"(Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.",
+		CreateContext: resourceRepositoryConfAnalysisCreate,
+		ReadContext:   resourceRepositoryConfAnalysisRead,
+		UpdateContext: resourceRepositoryConfAnalysisUpdate,
+		DeleteContext: resourceRepositoryConfAnalysisDelete,
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type: repositoryConfAnalysisResourceSchemaV0().
+					CoreConfigSchema().ImpliedType(),
+				Upgrade: upgradeRepositoryConfAnalysisV0,
+			},
+		},
+
+		Schema: repositoryConfAnalysisResourceSchemaV0().Schema,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				// This splitting is done to properly capture
-				// the ID format `{repositoryID}/ConfAnalysis`.
-				splitID := strings.Split(d.Id(), "/")
-				d.Set("repository_id", splitID[0])
+				d.Set("repository_id", d.Id())
 				return []*schema.ResourceData{d}, nil
 			},
 		},
