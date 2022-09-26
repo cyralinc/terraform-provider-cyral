@@ -25,7 +25,7 @@ type Listener struct {
 	Port int    `json:"port"`
 }
 
-func repositoryBindingV0ResourceSchema() *schema.Resource {
+func repositoryBindingResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"enabled": {
@@ -86,7 +86,7 @@ func upgradeRepositoryBindingV0(
 	ids, err := unmarshalComposedID(prevID, prevSep, 2)
 	if err != nil {
 		// We just treat IDs with the right format for previous version.
-		log.Printf("[INFO] Unable to unmarshal composed ID: %v. Skipping state upgrade.", err)
+		log.Printf("[WARN] Unable to unmarshal composed ID: %v. Skipping state upgrade.", err)
 		return rawState, nil
 	}
 	sidecarID := ids[0]
@@ -107,12 +107,12 @@ func resourceRepositoryBinding() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Version: 0,
-				Type:    repositoryBindingV0ResourceSchema().CoreConfigSchema().ImpliedType(),
+				Type:    repositoryBindingResourceSchemaV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: upgradeRepositoryBindingV0,
 			},
 		},
 
-		Schema: repositoryBindingV0ResourceSchema().Schema,
+		Schema: repositoryBindingResourceSchemaV0().Schema,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: func(

@@ -137,14 +137,8 @@ func DeleteConfAuthConfig() ResourceOperationConfig {
 	}
 }
 
-func resourceRepositoryConfAuth() *schema.Resource {
+func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
-		CreateContext: CreateResource(CreateConfAuthConfig(), ReadConfAuthConfig()),
-		ReadContext:   ReadResource(ReadConfAuthConfig()),
-		UpdateContext: UpdateResource(UpdateConfAuthConfig(), ReadConfAuthConfig()),
-		DeleteContext: DeleteResource(DeleteConfAuthConfig()),
-
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "The ID of this resource is set to `repository_id`.",
@@ -179,6 +173,37 @@ func resourceRepositoryConfAuth() *schema.Resource {
 				Default:     defaultRepoTLS,
 			},
 		},
+	}
+}
+
+func upgradeRepositoryConfAuthV0(
+	_ context.Context,
+	rawState map[string]interface{},
+	_ interface{},
+) (map[string]interface{}, error) {
+	rawState["id"] = rawState["repository_id"]
+	return rawState, nil
+}
+
+func resourceRepositoryConfAuth() *schema.Resource {
+	return &schema.Resource{
+		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
+		CreateContext: CreateResource(CreateConfAuthConfig(), ReadConfAuthConfig()),
+		ReadContext:   ReadResource(ReadConfAuthConfig()),
+		UpdateContext: UpdateResource(UpdateConfAuthConfig(), ReadConfAuthConfig()),
+		DeleteContext: DeleteResource(DeleteConfAuthConfig()),
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type:    repositoryConfAuthResourceSchemaV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: upgradeRepositoryConfAuthV0,
+			},
+		},
+
+		Schema: repositoryConfAuthResourceSchemaV0().Schema,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
