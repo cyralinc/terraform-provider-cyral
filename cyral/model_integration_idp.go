@@ -144,18 +144,3 @@ type SAMLSetting struct {
 type SAMLIntegrationData struct {
 	SAMLSetting *SAMLSetting `json:"samlSetting,omitempty"`
 }
-
-type SAMLIntegrationConnection struct {
-	Alias                  string `json:"alias,omitempty"`
-	DisplayName            string `json:"displayName,omitempty"`
-	Enabled                bool   `json:"enabled"`
-	SingleSignOnServiceURL string `json:"singleSignOnServiceURL"`
-}
-
-type SAMLIntegrationConnections struct {
-	Connections []SAMLIntegrationConnection `json:"connections,omitempty`
-}
-
-type SAMLIntegrationListResponse struct {
-	Connections *SAMLIntegrationConnections `json:"connections,omitempty"`
-}
