@@ -1,9 +1,11 @@
 package cyral
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -11,6 +13,17 @@ const (
 	sidecarListenerResourceName = "cyral_sidecar_listener"
 )
 
+func TestUnmarshal(t *testing.T) {
+	// create variable of type ReadidecarListenersAPIResponse
+	// unmarshal the json into the variable
+	var sidecarListenerResponse ReadSidecarListenersAPIResponse
+	jsonString := `{"listenerConfig":{"id":"2FIv17glqx4adFJiXrPAQDdAKeH", "tcpListener":{"host":"", "port":3306}, "repoTypes":["mysql"], "multiplexed":false}}`
+	err := json.Unmarshal([]byte(jsonString), &sidecarListenerResponse)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+}
 func TestSidecarListenerResource(t *testing.T) {
 
 	testConfig, testFunc := setupSidecarListenerTest(cloudFormationSidecarConfig)
@@ -24,7 +37,7 @@ func TestSidecarListenerResource(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      "cyral_sidecar_listener.plain_mysql_non_exist",
+				ResourceName:      "cyral_sidecar_listener.plain_mysql",
 			},
 		},
 	})
@@ -47,9 +60,12 @@ func setupSidecarListenerTest(sidecarData *SidecarData) (string, resource.TestCh
 
 func createSidecarListenerConfig() string {
 	var config string
+	// generate random string of eight characters
+	id := uuid.New()
+
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		accTestName(sidecarResourceName, "listener2"),
+		accTestName(sidecarResourceName, id.String()),
 		"docker",
 	)
 	config += fmt.Sprintf(`

@@ -74,7 +74,7 @@ var ReadSidecarListenersConfig = ResourceOperationConfig{
 }
 
 type ReadSidecarListenersAPIResponse struct {
-	Listener *SidecarListener `json:"listener"`
+	ListenerConfig *SidecarListener `json:"listenerConfig"`
 }
 type CreateListenerAPIResponse struct {
 	ListenerId string `json:"listenerId"`
@@ -87,23 +87,26 @@ func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 }
 
 func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	if data.Listener != nil {
-		_ = d.Set(SidecarIdKey, data.Listener.SidecarId)
-		_ = d.Set(ListenerIdKey, data.Listener.ListenerId)
-		_ = d.Set(RepoTypesKey, data.Listener.RepoTypesAsInterface())
-		_ = d.Set(UnixListenerKey, data.Listener.UnixSettingsAsInterface())
-		_ = d.Set(TcpListenerKey, data.Listener.TcpSettingsAsInterface())
-		_ = d.Set(MultiplexedKey, data.Listener.Multiplexed)
-		_ = d.Set(S3SettingsKey, data.Listener.S3SettingsAsInterface())
-		_ = d.Set(DynamoDbSettingsKey, data.Listener.DynamoDbSettingsAsInterface())
+	if data.ListenerConfig != nil {
+		_ = d.Set(ListenerIdKey, data.ListenerConfig.ListenerId)
+		_ = d.Set(RepoTypesKey, data.ListenerConfig.RepoTypesAsInterface())
+		_ = d.Set(UnixListenerKey, data.ListenerConfig.UnixSettingsAsInterface())
+		_ = d.Set(TcpListenerKey, data.ListenerConfig.TcpSettingsAsInterface())
+		_ = d.Set(MultiplexedKey, data.ListenerConfig.Multiplexed)
+		_ = d.Set(S3SettingsKey, data.ListenerConfig.S3SettingsAsInterface())
+		_ = d.Set(DynamoDbSettingsKey, data.ListenerConfig.DynamoDbSettingsAsInterface())
 	}
 	return nil
 }
-func (l *SidecarListener) RepoTypesAsInterface() []interface{} {
+func (l *SidecarListener) RepoTypesAsInterface() *[]interface{} {
 	if l.RepoTypes == nil {
 		return nil
 	}
-	return []interface{}{l.RepoTypes}
+	result := make([]interface{}, len(l.RepoTypes))
+	for i, v := range l.RepoTypes {
+		result[i] = v
+	}
+	return &result
 }
 func (l *SidecarListener) RepoTypesFromInterface(anInterface []interface{}) {
 	repoTypes := make([]string, len(anInterface))
@@ -112,12 +115,14 @@ func (l *SidecarListener) RepoTypesFromInterface(anInterface []interface{}) {
 	}
 	l.RepoTypes = repoTypes
 }
-func (l *SidecarListener) TcpSettingsAsInterface() interface{} {
+func (l *SidecarListener) TcpSettingsAsInterface() []interface{} {
 	if l.TcpListener != nil {
-		return map[string]interface{}{
-			PortKey: l.TcpListener.Port,
+		result := make([]interface{}, 1)
+		result[0] = map[string]interface{}{
 			HostKey: l.TcpListener.Host,
+			PortKey: l.TcpListener.Port,
 		}
+		return result
 	}
 	return nil
 }
@@ -133,11 +138,13 @@ func (l *SidecarListener) TcpSettingsFromInterface(anInterface []interface{}) {
 	}
 	log.Printf("[DEBUG] LOLOLO: %s %d", l.TcpListener.Host, l.TcpListener.Port)
 }
-func (l *SidecarListener) UnixSettingsAsInterface() interface{} {
+func (l *SidecarListener) UnixSettingsAsInterface() []interface{} {
 	if l.UnixListener != nil {
-		return map[string]interface{}{
+		result := make([]interface{}, 1)
+		result[0] = map[string]interface{}{
 			FileKey: l.UnixListener.File,
 		}
+		return result
 	}
 	return nil
 }
