@@ -10,10 +10,30 @@ import (
 
 const (
 	roleSSOGroupsResourceName = "role-sso-groups"
+
+	testRoleSSOGroupsRoleResName            = "test_role"
+	testRoleSSOGroupsRoleFullResName        = "cyral_role.test_role"
+	testRoleSSOGroupsIntegrationResName     = "test_integration"
+	testRoleSSOGroupsIntegrationFullResName = "cyral_integration_idp_okta.test_integration"
 )
 
 func roleSSOGroupsTestRoleName() string {
 	return accTestName(roleSSOGroupsResourceName, "role")
+}
+
+func roleSSOGroupsTestRole() string {
+	return fmt.Sprintf(`
+	resource "cyral_role" "%s" {
+		name="%s"
+	}`, testRoleSSOGroupsRoleResName, roleSSOGroupsTestRoleName())
+}
+
+func roleSSOGroupsTestOktaIntegration() string {
+	return formatBasicIntegrationIdPOktaIntoConfig(
+		testRoleSSOGroupsIntegrationResName,
+		accTestName(roleSSOGroupsResourceName, "integration"),
+		testSingleSignOnURL,
+	)
 }
 
 func TestAccRoleSSOGroupsResource(t *testing.T) {
@@ -58,111 +78,78 @@ func TestAccRoleSSOGroupsResource(t *testing.T) {
 }
 
 func testAccRoleSSOGroupsConfig_EmptyRoleId() string {
-	return `
-	resource "cyral_integration_idp_okta" "test_idp_integration" {
-		samlp {
-			config {
-				single_sign_on_service_url = "%s"
-			}
-		}
-	}
-
+	var config string
+	config += roleSSOGroupsTestOktaIntegration()
+	config += fmt.Sprintf(`
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
 		sso_group {
 			group_name="Everyone"
-			idp_id=cyral_integration_idp_okta.test_idp_integration.id
+			idp_id = %s.id
 		}
 	}
-	`
+	`, testRoleSSOGroupsIntegrationFullResName)
+	return config
 }
 
 func testAccRoleSSOGroupsConfig_EmptySSOGroup() string {
-	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
-		name="%s"
-	}
-
+	var config string
+	config += roleSSOGroupsTestRole()
+	config += fmt.Sprintf(`
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
-		role_id=cyral_role.test_role.id
-	}
-	`, roleSSOGroupsTestRoleName())
+		role_id = %s.id
+	}`, testRoleSSOGroupsRoleFullResName)
+	return config
 }
 
 func testAccRoleSSOGroupsConfig_EmptyGroupName() string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_idp_okta" "test_idp_integration" {
-		samlp {
-			config {
-				single_sign_on_service_url = "%s"
-			}
-		}
-	}
-
-	resource "cyral_role" "test_role" {
-		name="%s"
-	}
-
+	var config string
+	config += roleSSOGroupsTestOktaIntegration()
+	config += roleSSOGroupsTestRole()
+	config += fmt.Sprintf(`
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
-		role_id=cyral_role.test_role.id
+		role_id = %s.id
 		sso_group {
-			idp_id=cyral_integration_idp_okta.test_idp_integration.id
+			idp_id = %s.id
 		}
-	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
+	}`, testRoleSSOGroupsRoleFullResName, testRoleSSOGroupsIntegrationFullResName)
+	return config
 }
 
 func testAccRoleSSOGroupsConfig_EmptyIdPID() string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_idp_okta" "test_idp_integration" {
-		samlp {
-			config {
-				single_sign_on_service_url = "%s"
-			}
-		}
-	}
-
-	resource "cyral_role" "test_role" {
-		name="%s"
-	}
-
+	var config string
+	config += roleSSOGroupsTestOktaIntegration()
+	config += roleSSOGroupsTestRole()
+	config += fmt.Sprintf(`
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
-		role_id=cyral_role.test_role.id
+		role_id = %s.id
 		sso_group {
 			group_name="Everyone"
 		}
-	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
+	}`, testRoleSSOGroupsRoleFullResName)
+	return config
 }
 
 func testAccRoleSSOGroupsConfig_SingleSSOGroup() string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_idp_okta" "test_idp_integration" {
-		samlp {
-			config {
-				single_sign_on_service_url = "%s"
-			}
-		}
-	}
-
-	resource "cyral_role" "test_role" {
-		name="%s"
-	}
-
+	var config string
+	config += roleSSOGroupsTestOktaIntegration()
+	config += roleSSOGroupsTestRole()
+	config += fmt.Sprintf(`
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
-		role_id=cyral_role.test_role.id
+		role_id = %s.id
 		sso_group {
 			group_name="Everyone"
-			idp_id=cyral_integration_idp_okta.test_idp_integration.id
+			idp_id = %s.id
 		}
 	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
+	`, testRoleSSOGroupsRoleFullResName, testRoleSSOGroupsIntegrationFullResName)
+	return config
 }
 
 func testAccRoleSSOGroupsCheck_SingleSSOGroup() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "role_id",
-			"cyral_role.test_role", "id"),
+			testRoleSSOGroupsRoleFullResName, "id"),
 		resource.TestCheckResourceAttr("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.#", "1"),
 		resource.TestCheckResourceAttrSet("cyral_role_sso_groups.test_role_sso_groups",
@@ -171,46 +158,38 @@ func testAccRoleSSOGroupsCheck_SingleSSOGroup() resource.TestCheckFunc {
 			"sso_group.0.group_name", "Everyone"),
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_id",
-			"cyral_integration_idp_okta.test_idp_integration", "id"),
+			testRoleSSOGroupsIntegrationFullResName, "id"),
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_name",
-			"cyral_integration_idp_okta.test_idp_integration", "samlp.0.display_name"),
+			testRoleSSOGroupsIntegrationFullResName, "samlp.0.display_name"),
 	)
 }
 
 func testAccRoleSSOGroupsConfig_MultipleSSOGroups() string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_idp_okta" "test_idp_integration" {
-		samlp {
-			config {
-				single_sign_on_service_url = "%s"
-			}
-		}
-	}
-
-	resource "cyral_role" "test_role" {
-		name="%s"
-	}
-
+	var config string
+	config += roleSSOGroupsTestOktaIntegration()
+	config += roleSSOGroupsTestRole()
+	config += fmt.Sprintf(`
 	resource "cyral_role_sso_groups" "test_role_sso_groups" {
-		role_id=cyral_role.test_role.id
+		role_id = %s.id
 		sso_group {
 			group_name="Admin"
-			idp_id=cyral_integration_idp_okta.test_idp_integration.id
+			idp_id = %s.id
 		}
 		sso_group {
 			group_name="Dev"
-			idp_id=cyral_integration_idp_okta.test_idp_integration.id
+			idp_id = %s.id
 		}
-	}
-	`, testSingleSignOnURL, roleSSOGroupsTestRoleName())
+	}`, testRoleSSOGroupsRoleFullResName, testRoleSSOGroupsIntegrationFullResName,
+		testRoleSSOGroupsIntegrationFullResName)
+	return config
 }
 
 func testAccRoleSSOGroupsCheck_MultipleSSOGroups() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "role_id",
-			"cyral_role.test_role", "id"),
+			testRoleSSOGroupsRoleFullResName, "id"),
 		resource.TestCheckResourceAttr("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.#", "2"),
 		resource.TestCheckResourceAttrSet("cyral_role_sso_groups.test_role_sso_groups",
@@ -219,19 +198,19 @@ func testAccRoleSSOGroupsCheck_MultipleSSOGroups() resource.TestCheckFunc {
 			"sso_group.*", map[string]string{"group_name": "Admin"}),
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_id",
-			"cyral_integration_idp_okta.test_idp_integration", "id"),
+			testRoleSSOGroupsIntegrationFullResName, "id"),
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.0.idp_name",
-			"cyral_integration_idp_okta.test_idp_integration", "samlp.0.display_name"),
+			testRoleSSOGroupsIntegrationFullResName, "samlp.0.display_name"),
 		resource.TestCheckResourceAttrSet("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.1.id"),
 		resource.TestCheckTypeSetElemNestedAttrs("cyral_role_sso_groups.test_role_sso_groups",
 			"sso_group.*", map[string]string{"group_name": "Dev"}),
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.1.idp_id",
-			"cyral_integration_idp_okta.test_idp_integration", "id"),
+			testRoleSSOGroupsIntegrationFullResName, "id"),
 		resource.TestCheckResourceAttrPair(
 			"cyral_role_sso_groups.test_role_sso_groups", "sso_group.1.idp_name",
-			"cyral_integration_idp_okta.test_idp_integration", "samlp.0.display_name"),
+			testRoleSSOGroupsIntegrationFullResName, "samlp.0.display_name"),
 	)
 }

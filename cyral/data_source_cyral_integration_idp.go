@@ -15,21 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-type IdPIntegrations struct {
-	Connections *Connections `json:"connections,omitempty"`
-}
-
-type Connections struct {
-	Connections []*Connection `json:"connections,omitempty"`
-}
-
-type Connection struct {
-	DisplayName            string `json:"displayName,omitempty"`
-	Alias                  string `json:"alias,omitempty"`
-	SingleSignOnServiceURL string `json:"singleSignOnServiceURL,omitempty"`
-	Enabled                bool   `json:"enabled,omitempty"`
-}
-
 func dataSourceIntegrationIdP() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve and filter IdP integrations.",

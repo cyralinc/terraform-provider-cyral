@@ -54,6 +54,11 @@ var onlyTruePermissions = map[string]string{
 }
 
 func TestAccRoleResource(t *testing.T) {
+	initialResName := "initial_role"
+	updatedResName := "initial_role"
+
+	importResourceName := fmt.Sprintf("cyral_role.%s", updatedResName)
+
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
@@ -62,36 +67,40 @@ func TestAccRoleResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`The argument "name" is required`),
 			},
 			{
-				Config:      testAccRoleConfig_MultiplePermissionsBlock(),
+				Config:      testAccRoleConfig_MultiplePermissionsBlock(initialResName),
 				ExpectError: regexp.MustCompile(`No more than 1 "permissions" blocks are allowed`),
 			},
 			{
-				Config: testAccRoleConfig_DefaultValues(),
-				Check:  testAccRoleCheck_DefaultValues(),
+				Config: testAccRoleConfig_DefaultValues(initialResName),
+				Check:  testAccRoleCheck_DefaultValues(initialResName),
 			},
 			{
-				Config: testAccRoleConfig_EmptyPermissions(),
-				Check:  testAccRoleCheck_EmptyPermissions(),
+				Config: testAccRoleConfig_EmptyPermissions(updatedResName),
+				Check:  testAccRoleCheck_EmptyPermissions(updatedResName),
 			},
 			{
-				Config: testAccRoleConfig_OnlyFalsePermissions(),
-				Check:  testAccRoleCheck_OnlyFalsePermissions(),
+				Config: testAccRoleConfig_OnlyFalsePermissions(updatedResName),
+				Check:  testAccRoleCheck_OnlyFalsePermissions(updatedResName),
 			},
 			{
-				Config: testAccRoleConfig_TrueAndFalsePermissions(),
-				Check:  testAccRoleCheck_TrueAndFalsePermissions(),
+				Config: testAccRoleConfig_TrueAndFalsePermissions(updatedResName),
+				Check:  testAccRoleCheck_TrueAndFalsePermissions(updatedResName),
 			},
 			{
-				Config: testAccRoleConfig_OnlyTruePermissions(),
-				Check:  testAccRoleCheck_OnlyTruePermissions(),
+				Config: testAccRoleConfig_OnlyTruePermissions(updatedResName),
+				Check:  testAccRoleCheck_OnlyTruePermissions(updatedResName),
 			},
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      "cyral_role.test_role",
+				ResourceName:      importResourceName,
 			},
 		},
 	})
+}
+
+func testRoleResourceFullName(resName string) string {
+	return fmt.Sprintf("cyral_role.%s", resName)
 }
 
 func testAccRoleConfig_EmptyRoleName() string {
@@ -101,55 +110,55 @@ func testAccRoleConfig_EmptyRoleName() string {
 	`
 }
 
-func testAccRoleConfig_MultiplePermissionsBlock() string {
+func testAccRoleConfig_MultiplePermissionsBlock(resName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
+	resource "cyral_role" "%s" {
 		name="%s"
 		permissions{
 		}
 		permissions{
 		}
 	}
-	`, initialRoleName())
+	`, resName, initialRoleName())
 }
 
-func testAccRoleConfig_DefaultValues() string {
+func testAccRoleConfig_DefaultValues(resName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
+	resource "cyral_role" "%s" {
 		name="%s"
 	}
-	`, initialRoleName())
+	`, resName, initialRoleName())
 }
 
-func testAccRoleCheck_DefaultValues() resource.TestCheckFunc {
+func testAccRoleCheck_DefaultValues(resName string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", initialRoleName()),
-		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "0"),
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "name", initialRoleName()),
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "permissions.#", "0"),
 	)
 }
 
-func testAccRoleConfig_EmptyPermissions() string {
+func testAccRoleConfig_EmptyPermissions(resName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
+	resource "cyral_role" "%s" {
 		name="%s"
 		permissions {
 		}
 	}
-	`, updatedRoleName())
+	`, resName, updatedRoleName())
 }
 
-func testAccRoleCheck_EmptyPermissions() resource.TestCheckFunc {
+func testAccRoleCheck_EmptyPermissions(resName string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
-		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
-		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "name", updatedRoleName()),
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "permissions.#", "1"),
+		resource.TestCheckTypeSetElemNestedAttrs(testRoleResourceFullName(resName), "permissions.*",
 			onlyFalsePermissions),
 	)
 }
 
-func testAccRoleConfig_OnlyFalsePermissions() string {
+func testAccRoleConfig_OnlyFalsePermissions(resName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
+	resource "cyral_role" "%s" {
 		name="%s"
 		permissions {
 			modify_sidecars_and_repositories = false
@@ -162,21 +171,21 @@ func testAccRoleConfig_OnlyFalsePermissions() string {
 			view_datamaps = false
 		}
 	}
-	`, updatedRoleName())
+	`, resName, updatedRoleName())
 }
 
-func testAccRoleCheck_OnlyFalsePermissions() resource.TestCheckFunc {
+func testAccRoleCheck_OnlyFalsePermissions(resName string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
-		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
-		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "name", updatedRoleName()),
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "permissions.#", "1"),
+		resource.TestCheckTypeSetElemNestedAttrs(testRoleResourceFullName(resName), "permissions.*",
 			onlyFalsePermissions),
 	)
 }
 
-func testAccRoleConfig_TrueAndFalsePermissions() string {
+func testAccRoleConfig_TrueAndFalsePermissions(resName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
+	resource "cyral_role" "%s" {
 		name="%s"
 		permissions {
 			modify_sidecars_and_repositories = true
@@ -189,21 +198,21 @@ func testAccRoleConfig_TrueAndFalsePermissions() string {
 			view_datamaps = false
 		}
 	}
-	`, updatedRoleName())
+	`, resName, updatedRoleName())
 }
 
-func testAccRoleCheck_TrueAndFalsePermissions() resource.TestCheckFunc {
+func testAccRoleCheck_TrueAndFalsePermissions(resName string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
-		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
-		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "name", updatedRoleName()),
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "permissions.#", "1"),
+		resource.TestCheckTypeSetElemNestedAttrs(testRoleResourceFullName(resName), "permissions.*",
 			trueAndFalsePermissions),
 	)
 }
 
-func testAccRoleConfig_OnlyTruePermissions() string {
+func testAccRoleConfig_OnlyTruePermissions(resName string) string {
 	return fmt.Sprintf(`
-	resource "cyral_role" "test_role" {
+	resource "cyral_role" "%s" {
 		name="%s"
 		permissions {
 			modify_sidecars_and_repositories = true
@@ -216,14 +225,14 @@ func testAccRoleConfig_OnlyTruePermissions() string {
 			view_datamaps = true
 		}
 	}
-	`, updatedRoleName())
+	`, resName, updatedRoleName())
 }
 
-func testAccRoleCheck_OnlyTruePermissions() resource.TestCheckFunc {
+func testAccRoleCheck_OnlyTruePermissions(resName string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_role.test_role", "name", updatedRoleName()),
-		resource.TestCheckResourceAttr("cyral_role.test_role", "permissions.#", "1"),
-		resource.TestCheckTypeSetElemNestedAttrs("cyral_role.test_role", "permissions.*",
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "name", updatedRoleName()),
+		resource.TestCheckResourceAttr(testRoleResourceFullName(resName), "permissions.#", "1"),
+		resource.TestCheckTypeSetElemNestedAttrs(testRoleResourceFullName(resName), "permissions.*",
 			onlyTruePermissions),
 	)
 }

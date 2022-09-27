@@ -21,6 +21,8 @@ const (
 	basicSidecarID                     = "cyral_sidecar.test_sidecar.id"
 	basicPolicyResName                 = "test_policy"
 	basicPolicyID                      = "cyral_policy.test_policy.id"
+
+	testSingleSignOnURL = "https://some-test-sso-url.com"
 )
 
 // accTestName attempts to make resource names unique to a specific resource
@@ -44,6 +46,10 @@ const (
 // sources with "data", to distinguish them and their counterpart resources.
 func accTestName(resourceType, suffix string) string {
 	return fmt.Sprintf("%s%s-%s", tprovACCPrefix, resourceType, suffix)
+}
+
+func hasAccTestPrefix(name string) bool {
+	return strings.HasPrefix(name, tprovACCPrefix)
 }
 
 func importStateComposedIDFunc(
@@ -112,28 +118,24 @@ func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
 	}`, resName, repositoryID, localAccount, password)
 }
 
+func formatBasicIntegrationIdPOktaIntoConfig(resName, displayName, ssoURL string) string {
+	return fmt.Sprintf(`
+	resource "cyral_integration_idp_okta" "%s" {
+		samlp {
+			display_name = "%s"
+			config {
+				single_sign_on_service_url = "%s"
+			}
+		}
+	}`, resName, displayName, ssoURL)
+}
+
 func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType string) string {
 	return fmt.Sprintf(`
 	resource "cyral_integration_idp_saml_draft" "%s" {
 		display_name = "%s"
 		idp_type = "%s"
 	}`, resName, displayName, idpType)
-}
-
-// Builds multiple local account resources for given repository ID.
-func sampleMultipleBasicRepositoryLocalAccountIntoConfig(
-	repoID string,
-	localAccounts []string,
-) (string, []string) {
-	var config string
-	var resNames []string
-	for _, localAccount := range localAccounts {
-		resName := fmt.Sprintf("%s_%s", basicRepositoryLocalAccountResName, localAccount)
-		resNames = append(resNames, "cyral_repository_local_account."+resName)
-		config += formatBasicRepositoryLocalAccountIntoConfig_Cyral(
-			resName, repoID, localAccount, "some-password")
-	}
-	return config, resNames
 }
 
 func notZeroRegex() *regexp.Regexp {

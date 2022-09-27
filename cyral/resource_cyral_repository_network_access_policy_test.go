@@ -13,7 +13,7 @@ const (
 )
 
 func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
-	// Recreate these resources each step
+	// In these tests, the resources should be recreated every time.
 	emptyFieldsNotEnabled := &NetworkAccessPolicy{
 		Enabled: false,
 		NetworkAccessRules: NetworkAccessRules{
@@ -31,12 +31,11 @@ func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
 		},
 	}
 	emptyFieldsNotEnabledTest := setupRepositoryNetworkAccessPolicyTest(
-		"initial_test", emptyFieldsNotEnabled, nil)
+		"empty_fields_not_enabled", emptyFieldsNotEnabled, nil)
 	emptyFieldsExceptNameTest := setupRepositoryNetworkAccessPolicyTest(
-		"initial_test", emptyFieldsExceptName, nil)
+		"empty_fields_except_name", emptyFieldsExceptName, nil)
 
-	// Update these resources. These resources depend on
-	// repository_local_account being in the config.
+	// In these tests, the resources should be updated in-place
 	fullRule := &NetworkAccessPolicy{
 		NetworkAccessRules: NetworkAccessRules{
 			Rules: []NetworkAccessRule{
@@ -105,7 +104,6 @@ func TestAccRepositoryNetworkAccessPolicyResource(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ResourceName:      importResourceName,
-				// ImportStateVerifyIgnore: []string{"enable_network_access_control"},
 			},
 		},
 	})
@@ -134,20 +132,14 @@ func setupRepositoryNetworkAccessPolicyConfig(
 	repoID := fmt.Sprintf("cyral_repository.%s.id", repoResName)
 	config += formatBasicRepositoryIntoConfig(
 		repoResName,
-		accTestName(repositoryNetworkAccessPolicyResourceName, "repo-name"),
+		accTestName(repositoryNetworkAccessPolicyResourceName, resName),
 		"sqlserver",
 		"my.host.com",
 		1433,
 	)
 
-	// Local accounts
-	localAccountConfig, localAccountResNames :=
-		sampleMultipleBasicRepositoryLocalAccountIntoConfig(repoID, dbAccounts)
-	config += localAccountConfig
-
 	// Network Access Policy
-	config += formatNetworkAccessPolicyIntoConfig(resName, repoID, nap,
-		localAccountResNames)
+	config += formatNetworkAccessPolicyIntoConfig(resName, repoID, nap, nil)
 
 	return config
 }

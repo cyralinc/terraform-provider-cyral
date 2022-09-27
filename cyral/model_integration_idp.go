@@ -1,5 +1,20 @@
 package cyral
 
+type IdPIntegrations struct {
+	Connections *Connections `json:"connections,omitempty"`
+}
+
+type Connections struct {
+	Connections []*Connection `json:"connections,omitempty"`
+}
+
+type Connection struct {
+	DisplayName            string `json:"displayName,omitempty"`
+	Alias                  string `json:"alias,omitempty"`
+	SingleSignOnServiceURL string `json:"singleSignOnServiceURL,omitempty"`
+	Enabled                bool   `json:"enabled,omitempty"`
+}
+
 type ParseSAMLMetadataRequest struct {
 	// This is the full SAML metadata URL we should use to parse to a SAML config.
 	SamlMetadataURL string `json:"samlMetadataURL,omitempty"`
