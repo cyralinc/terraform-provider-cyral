@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -32,13 +31,8 @@ type RoleSSOGroupsDeleteRequest struct {
 	SSOGroupsMappingsIds []string `json:"mappings,omitempty"`
 }
 
-func resourceRoleSSOGroups() *schema.Resource {
+func roleSSOGroupsResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [mapping SSO groups to specific roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role) on Cyral control plane. See also: [Role](./role.md).",
-		CreateContext: CreateResource(createRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
-		ReadContext:   ReadResource(readRoleSSOGroupsConfig),
-		DeleteContext: DeleteResource(deleteRoleSSOGroupsConfig),
-
 		Schema: map[string]*schema.Schema{
 			"role_id": {
 				Description: "The ID of the role resource that will be configured.",
@@ -79,16 +73,47 @@ func resourceRoleSSOGroups() *schema.Resource {
 				},
 			},
 		},
+	}
+}
+
+// Previously, the ID for cyral_role_sso_groups had the format
+// {role_id}/SSOGroups. The goal of this tate upgrade is to remove the suffix
+// `SSOGroups`.
+func upgradeRoleSSOGroupsV0(
+	_ context.Context,
+	rawState map[string]interface{},
+	_ interface{},
+) (map[string]interface{}, error) {
+	rawState["id"] = rawState["role_id"]
+	return rawState, nil
+}
+
+func resourceRoleSSOGroups() *schema.Resource {
+	return &schema.Resource{
+		Description:   "Manages [mapping SSO groups to specific roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role) on Cyral control plane. See also: [Role](./role.md).",
+		CreateContext: CreateResource(createRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
+		ReadContext:   ReadResource(readRoleSSOGroupsConfig),
+		DeleteContext: DeleteResource(deleteRoleSSOGroupsConfig),
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type: roleSSOGroupsResourceSchemaV0().
+					CoreConfigSchema().ImpliedType(),
+				Upgrade: upgradeRoleSSOGroupsV0,
+			},
+		},
+
+		Schema: roleSSOGroupsResourceSchemaV0().Schema,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				// This splitting is done to properly capture
-				// the ID format `{roleID}/SSOGroups`.
-				splitID := strings.Split(d.Id(), "/")
-				d.Set("role_id", splitID[0])
+				d.Set("role_id", d.Id())
 				return []*schema.ResourceData{d}, nil
 			},
 		},
@@ -127,7 +152,7 @@ var deleteRoleSSOGroupsConfig = ResourceOperationConfig{
 }
 
 func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(fmt.Sprintf("%s/SSOGroups", d.Get("role_id")))
+	d.SetId(d.Get("role_id").(string))
 	return nil
 }
 
