@@ -12,15 +12,13 @@ import (
 const (
 	tprovACCPrefix = "tfprov-acc-"
 
-	basicRepositoryResName             = "test_repository"
-	basicRepositoryID                  = "cyral_repository.test_repository.id"
-	basicRepositoryBindingResName      = "test_repository_binding"
-	basicRepositoryLocalAccountResName = "test_repository_local_account"
-	basicRepositoryLocalAccountID      = "cyral_repository_local_account.test_repository_local_account.id"
-	basicSidecarResName                = "test_sidecar"
-	basicSidecarID                     = "cyral_sidecar.test_sidecar.id"
-	basicPolicyResName                 = "test_policy"
-	basicPolicyID                      = "cyral_policy.test_policy.id"
+	basicRepositoryResName        = "test_repository"
+	basicRepositoryID             = "cyral_repository.test_repository.id"
+	basicRepositoryBindingResName = "test_repository_binding"
+	basicSidecarResName           = "test_sidecar"
+	basicSidecarID                = "cyral_sidecar.test_sidecar.id"
+	basicPolicyResName            = "test_policy"
+	basicPolicyID                 = "cyral_policy.test_policy.id"
 
 	testSingleSignOnURL = "https://some-test-sso-url.com"
 )
@@ -103,19 +101,6 @@ func formatBasicPolicyIntoConfig(name string, data []string) string {
 		name = "%s"
 		data = %s
 	}`, basicPolicyResName, name, listToStr(data))
-}
-
-func formatBasicRepositoryLocalAccountIntoConfig_Cyral(
-	resName, repositoryID, localAccount, password string,
-) string {
-	return fmt.Sprintf(`
-	resource "cyral_repository_local_account" "%s" {
-		repository_id = %s
-		cyral_storage {
-			local_account = "%s"
-			password      = "%s"
-		}
-	}`, resName, repositoryID, localAccount, password)
 }
 
 func formatBasicIntegrationIdPOktaIntoConfig(resName, displayName, ssoURL string) string {

@@ -6,7 +6,7 @@ resource "cyral_repository" "my_sqlserver_repo" {
     port = 1433
 }
 
-# Allow access from IPs 1.2.3.4 and 4.3.2.1 for Admin local
+# Allow access from IPs 1.2.3.4 and 4.3.2.1 for Admin database
 # account, and from any IP address for accounts Engineer and
 # Analyst.
 resource "cyral_repository_network_access_policy" "my_sqlserver_repo_policy" {
