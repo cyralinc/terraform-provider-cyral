@@ -197,7 +197,7 @@ func resourceRepositoryNetworkAccessPolicy() *schema.Resource {
 							Optional:    true,
 						},
 						"db_accounts": {
-							Description: "Specify which accounts this rule applies to. The account name must match an existing account in your database. See also [cyral_repository_local_account](./repository_local_account.md).",
+							Description: "Specify which accounts this rule applies to. The account name must match an existing account in your database.",
 							Type:        schema.TypeList,
 							Optional:    true,
 							Elem: &schema.Schema{

@@ -26,7 +26,7 @@ resource "cyral_repository" "my_sqlserver_repo" {
     port = 1433
 }
 
-# Allow access from IPs 1.2.3.4 and 4.3.2.1 for Admin local
+# Allow access from IPs 1.2.3.4 and 4.3.2.1 for Admin database
 # account, and from any IP address for accounts Engineer and
 # Analyst.
 resource "cyral_repository_network_access_policy" "my_sqlserver_repo_policy" {
@@ -71,6 +71,6 @@ Required:
 
 Optional:
 
-- `db_accounts` (List of String) Specify which accounts this rule applies to. The account name must match an existing account in your database. See also [cyral_repository_local_account](./repository_local_account.md).
+- `db_accounts` (List of String) Specify which accounts this rule applies to. The account name must match an existing account in your database.
 - `description` (String) Description of the network access policy.
 - `source_ips` (List of String) Specify IPs to restrict the range of allowed IP addresses for this rule.
