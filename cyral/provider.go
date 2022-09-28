@@ -135,7 +135,6 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_datamap":                          resourceDatamap("Use `cyral_repository_datamap` instead."),
 			"cyral_datalabel":                        resourceDatalabel(),
-			"cyral_identity_map":                     resourceRepositoryIdentityMap("Use `cyral_repository_identity_map` instead."),
 			"cyral_integration_datadog":              resourceIntegrationDatadog(),
 			"cyral_integration_mfa_duo":              resourceIntegrationMFADuo(),
 			"cyral_integration_elk":                  resourceIntegrationELK(),
@@ -169,8 +168,6 @@ func Provider() *schema.Provider {
 			"cyral_repository_conf_analysis":         resourceRepositoryConfAnalysis(),
 			"cyral_repository_conf_auth":             resourceRepositoryConfAuth(),
 			"cyral_repository_datamap":               resourceRepositoryDatamap(),
-			"cyral_repository_identity_map":          resourceRepositoryIdentityMap(""),
-			"cyral_repository_local_account":         resourceRepositoryLocalAccount(),
 			"cyral_repository_network_access_policy": resourceRepositoryNetworkAccessPolicy(),
 			"cyral_role":                             resourceRole(),
 			"cyral_role_sso_groups":                  resourceRoleSSOGroups(),
