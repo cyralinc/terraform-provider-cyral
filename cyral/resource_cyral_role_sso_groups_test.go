@@ -1,11 +1,13 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -75,6 +77,21 @@ func TestAccRoleSSOGroupsResource(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestRoleSSOGroupsResourceUpgradeV0(t *testing.T) {
+	previousState := map[string]interface{}{
+		"id":      "roleID/SSOGroups",
+		"role_id": "roleID",
+	}
+	actualNewState, err := upgradeRoleSSOGroupsV0(context.Background(),
+		previousState, nil)
+	require.NoError(t, err)
+	expectedNewState := map[string]interface{}{
+		"id":      "roleID",
+		"role_id": "roleID",
+	}
+	require.Equal(t, expectedNewState, actualNewState)
 }
 
 func testAccRoleSSOGroupsConfig_EmptyRoleId() string {

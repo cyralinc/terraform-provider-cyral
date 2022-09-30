@@ -1,10 +1,12 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -84,9 +86,28 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 			mainTestUpdate1,
 			mainTestUpdate2,
 
-			// TODO: add import test -aholmquist 2022-08-05
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_repository_conf_auth.main_test",
+			},
 		},
 	})
+}
+
+func TestRepositoryConfAuthResourceUpgradeV0(t *testing.T) {
+	previousState := map[string]interface{}{
+		"id":            "repo-conf",
+		"repository_id": "my-repository-id",
+	}
+	actualNewState, err := upgradeRepositoryConfAuthV0(context.Background(),
+		previousState, nil)
+	require.NoError(t, err)
+	expectedNewState := map[string]interface{}{
+		"id":            "my-repository-id",
+		"repository_id": "my-repository-id",
+	}
+	require.Equal(t, expectedNewState, actualNewState)
 }
 
 func setupRepositoryConfAuthTest(resName string, repositoryConf RepositoryConfAuthData) resource.TestStep {

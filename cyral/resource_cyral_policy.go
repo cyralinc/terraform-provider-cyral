@@ -6,30 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
-
-type Policy struct {
-	Meta *PolicyMetadata `json:"meta" yaml:"meta"`
-	Data []string        `json:"data,omitempty" yaml:"data,omitempty,flow"`
-}
-
-type PolicyMetadata struct {
-	ID          string            `json:"id" yaml:"id"`
-	Name        string            `json:"name" yaml:"name"`
-	Version     string            `json:"version" yaml:"version"`
-	Created     time.Time         `json:"created" yaml:"created"`
-	LastUpdated time.Time         `json:"lastUpdated" yaml:"lastUpdated"`
-	Type        string            `json:"type" yaml:"type"`
-	Tags        []string          `json:"tags" yaml:"tags"`
-	Enabled     bool              `json:"enabled" yaml:"enabled"`
-	Description string            `json:"description" yaml:"description"`
-	Properties  map[string]string `json:"properties" yaml:"properties"`
-}
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
@@ -74,23 +55,6 @@ func resourcePolicy() *schema.Resource {
 				Description: "Policy name that will be used internally in Control Plane (ex: `your_policy_name`).",
 				Type:        schema.TypeString,
 				Required:    true,
-			},
-			"properties": {
-				Type:       schema.TypeSet,
-				Optional:   true,
-				Deprecated: "This argument will be removed in a future release.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
 			},
 			"tags": {
 				Description: "Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).",
@@ -161,16 +125,12 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	propertiesList := flattenProperties(response.Meta)
-	log.Printf("[DEBUG] resourcePolicyRead - policy: %#v", propertiesList)
-
 	d.Set("created", response.Meta.Created.String())
 	d.Set("data", response.Data)
 	d.Set("description", response.Meta.Description)
 	d.Set("enabled", response.Meta.Enabled)
 	d.Set("last_updated", response.Meta.LastUpdated.String())
 	d.Set("name", response.Meta.Name)
-	d.Set("properties", propertiesList)
 	d.Set("tags", response.Meta.Tags)
 	d.Set("type", response.Meta.Type)
 	d.Set("version", response.Meta.Version)
@@ -227,20 +187,10 @@ func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 	data := getStrListFromSchemaField(d, "data")
 	tags := getStrListFromSchemaField(d, "tags")
 
-	propertiesList := d.Get("properties").(*schema.Set).List()
-	properties := make(map[string]string)
-	for _, property := range propertiesList {
-		propertyMap := property.(map[string]interface{})
-
-		name := propertyMap["name"].(string)
-		properties[name] = propertyMap["description"].(string)
-	}
-
 	policy := Policy{
 		Data: data,
 		Meta: &PolicyMetadata{
-			Tags:       tags,
-			Properties: properties,
+			Tags: tags,
 		},
 	}
 
@@ -265,23 +215,4 @@ func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 	}
 
 	return policy
-}
-
-func flattenProperties(policyMetadata *PolicyMetadata) []interface{} {
-	if policyMetadata != nil {
-
-		propertiesList := make([]map[string]interface{},
-			len(policyMetadata.Properties), len(policyMetadata.Properties))
-
-		for name, description := range policyMetadata.Properties {
-			propertyMap := make(map[string]interface{})
-
-			propertyMap["name"] = name
-			propertyMap["description"] = description
-			propertiesList = append(propertiesList, propertyMap)
-		}
-
-	}
-
-	return make([]interface{}, 0)
 }

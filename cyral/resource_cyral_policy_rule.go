@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -42,6 +43,25 @@ type Identity struct {
 	Groups   []string `json:"groups,omitempty"`
 	Services []string `json:"services,omitempty"`
 	Users    []string `json:"users,omitempty"`
+}
+
+func unmarshalPolicyRuleID(d *schema.ResourceData) (policyID string, policyRuleID string) {
+	// We must be careful when dealing with the ID. Specially in the Read
+	// operation, due to state upgrade from v0 of this resource's schema to
+	// v1. In v0, there exists only one field (the policy rule
+	// ID). Therefore, if we assume there are two, the first `terraform
+	// refresh` done when upgrading will fail.
+	ids, err := unmarshalComposedID(d.Id(), "/", 2)
+	if err == nil {
+		// This is the new way to organize the IDs (v1).
+		policyID = ids[0]
+		policyRuleID = ids[1]
+	} else {
+		// This conditional branch is here to treat legacy resources (v0).
+		policyID = d.Get("policy_id").(string)
+		policyRuleID = d.Id()
+	}
+	return
 }
 
 func ruleSchema(description string) *schema.Schema {
@@ -132,19 +152,8 @@ func ruleSchema(description string) *schema.Schema {
 	}
 }
 
-func resourcePolicyRule() *schema.Resource {
+func policyRuleResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [policy rules](https://cyral.com/docs/reference/policy/#rules). See also: [Policy](./policy.md)" +
-			"\n\n> Notes:\n>" +
-			"\n> 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them." +
-			"\n> 2. Each contexted rule comprises these fields: `data`, `rows`, `severity` `additional_checks`, `dataset_rewrites`. The only required fields are `data` and `rows`." +
-			"\n> 3. The rules block does not need to include all three operation types (reads, updates and deletes); actions you omit are disallowed." +
-			"\n> 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address." +
-			"\n\nFor more information, see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).",
-		CreateContext: resourcePolicyRuleCreate,
-		ReadContext:   resourcePolicyRuleRead,
-		UpdateContext: resourcePolicyRuleUpdate,
-		DeleteContext: resourcePolicyRuleDelete,
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
 				Description: "The ID of the policy you are adding this rule to.",
@@ -206,7 +215,72 @@ func resourcePolicyRule() *schema.Resource {
 					},
 				},
 			},
+
+			// Computed arguments
+			"policy_rule_id": {
+				Description: "The ID of the policy rule.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 		},
+	}
+}
+
+// Previously, the ID of `cyral_policy_rule` was simply the policy rule ID. That
+// is not ideal, because to realize the resource we also need the policy ID
+// itself. That creates an inconsistency between the ID syntax used in
+// `terraform import` and the computed id for the resource. The goal of this
+// upgrade is to set the `id` attribute to have the format
+// `{policy_id}/{policy_rule_id}`.
+func upgradePolicyRuleV0(
+	_ context.Context,
+	rawState map[string]interface{},
+	_ interface{},
+) (map[string]interface{}, error) {
+	policyRuleID := rawState["id"].(string)
+
+	// Make sure there is not `/` in the previous ID, otherwise the new
+	// resource state ID will become inconsistent.
+	idComponents := strings.Split(policyRuleID, "/")
+	if len(idComponents) > 1 {
+		return rawState, fmt.Errorf("unexpected format for resource ID: " +
+			`found more than one field separated by "/"`)
+	}
+
+	policyID := rawState["policy_id"].(string)
+	newID := marshalComposedID([]string{policyID, policyRuleID}, "/")
+	rawState["id"] = newID
+
+	return rawState, nil
+}
+
+func resourcePolicyRule() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages [policy rules](https://cyral.com/docs/reference/policy/#rules). See also: [Policy](./policy.md)" +
+			"\n\n> Notes:\n>" +
+			"\n> 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them." +
+			"\n> 2. Each contexted rule comprises these fields: `data`, `rows`, `severity` `additional_checks`, `dataset_rewrites`. The only required fields are `data` and `rows`." +
+			"\n> 3. The rules block does not need to include all three operation types (reads, updates and deletes); actions you omit are disallowed." +
+			"\n> 4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address." +
+			"\n\nFor more information, see the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).",
+
+		CreateContext: resourcePolicyRuleCreate,
+		ReadContext:   resourcePolicyRuleRead,
+		UpdateContext: resourcePolicyRuleUpdate,
+		DeleteContext: resourcePolicyRuleDelete,
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type: policyRuleResourceSchemaV0().
+					CoreConfigSchema().ImpliedType(),
+				Upgrade: upgradePolicyRuleV0,
+			},
+		},
+
+		Schema: policyRuleResourceSchemaV0().Schema,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
@@ -218,9 +292,7 @@ func resourcePolicyRule() *schema.Resource {
 					return nil, err
 				}
 				policyID := ids[0]
-				policyRuleID := ids[1]
 				d.Set("policy_id", policyID)
-				d.SetId(policyRuleID)
 				return []*schema.ResourceData{d}, nil
 			},
 		},
@@ -248,9 +320,10 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	// TODO (next MAJOR): set ID to be of the format
-	// {policyID}/{policyRuleID}, to facilitate importing. -aholmquist 2022-08-01
-	d.SetId(response.ID)
+	d.SetId(marshalComposedID([]string{
+		policyID,
+		response.ID},
+		"/"))
 
 	log.Printf("[DEBUG] End resourcePolicyRuleCreate")
 
@@ -261,7 +334,9 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	log.Printf("[DEBUG] Init resourcePolicyRuleRead")
 	c := m.(*client.Client)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
+	policyID, policyRuleID := unmarshalPolicyRuleID(d)
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
+		c.ControlPlane, policyID, policyRuleID)
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
@@ -302,6 +377,9 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 
 	d.Set("hosts", response.Hosts)
 
+	// Computed arguments
+	d.Set("policy_rule_id", policyRuleID)
+
 	log.Printf("[DEBUG] End resourcePolicyRuleRead")
 	return diag.Diagnostics{}
 }
@@ -312,7 +390,9 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 	policyRule := getPolicyRuleInfoFromResource(d)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
+	policyID, policyRuleID := unmarshalPolicyRuleID(d)
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane,
+		policyID, policyRuleID)
 
 	_, err := c.DoRequest(url, http.MethodPut, policyRule)
 	if err != nil {
@@ -328,7 +408,9 @@ func resourcePolicyRuleDelete(ctx context.Context, d *schema.ResourceData, m int
 	log.Printf("[DEBUG] Init resourcePolicyRuleDelete")
 	c := m.(*client.Client)
 
-	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
+	policyID, policyRuleID := unmarshalPolicyRuleID(d)
+	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
+		c.ControlPlane, policyID, policyRuleID)
 
 	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
 		return createError("Unable to delete policy rule", fmt.Sprintf("%v", err))

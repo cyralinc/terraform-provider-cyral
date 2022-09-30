@@ -25,14 +25,8 @@ type Listener struct {
 	Port int    `json:"port"`
 }
 
-func resourceRepositoryBinding() *schema.Resource {
+func repositoryBindingResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [repositories to sidecars binding](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
-		CreateContext: resourceRepositoryBindingCreate,
-		ReadContext:   resourceRepositoryBindingRead,
-		UpdateContext: resourceRepositoryBindingUpdate,
-		DeleteContext: resourceRepositoryBindingDelete,
-
 		Schema: map[string]*schema.Schema{
 			"enabled": {
 				Description: "Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`.",
@@ -75,13 +69,60 @@ func resourceRepositoryBinding() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 		},
+	}
+}
+
+// The upgrade from v0 to v1 of the repository binding resource consists simply
+// in changing the format of the `id` from `{sidecar_id}-{repository_id}` to
+// `{sidecar_id}/{repository_id}`.
+func upgradeRepositoryBindingV0(
+	_ context.Context,
+	rawState map[string]interface{},
+	meta interface{},
+) (map[string]interface{}, error) {
+	prevID := rawState["id"].(string)
+	prevSep := "-"
+	newSep := "/"
+	ids, err := unmarshalComposedID(prevID, prevSep, 2)
+	if err != nil {
+		// If we ignore this error, the ID will be inconsistent with
+		// what we expect in v1. We should not let that happen,
+		// therefore return error here.
+		return rawState, fmt.Errorf("unable to unmarshal composed ID: %w", err)
+	}
+	sidecarID := ids[0]
+	repositoryID := ids[1]
+	rawState["id"] = marshalComposedID([]string{sidecarID, repositoryID}, newSep)
+	return rawState, nil
+}
+
+func resourceRepositoryBinding() *schema.Resource {
+	return &schema.Resource{
+		Description:   "Manages [repositories to sidecars binding](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
+		CreateContext: resourceRepositoryBindingCreate,
+		ReadContext:   resourceRepositoryBindingRead,
+		UpdateContext: resourceRepositoryBindingUpdate,
+		DeleteContext: resourceRepositoryBindingDelete,
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type: repositoryBindingResourceSchemaV0().
+					CoreConfigSchema().ImpliedType(),
+				Upgrade: upgradeRepositoryBindingV0,
+			},
+		},
+
+		Schema: repositoryBindingResourceSchemaV0().Schema,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				ids, err := unmarshalComposedID(d.Id(), "-", 2)
+				ids, err := unmarshalComposedID(d.Id(), "/", 2)
 				if err != nil {
 					return nil, err
 				}
@@ -106,11 +147,10 @@ func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData
 		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
 	}
 
-	// TODO (next MAJOR): use "/" separator instead of "-" -aholmquist 2022-08-01
 	d.SetId(marshalComposedID([]string{
 		resourceData.SidecarID,
 		resourceData.RepositoryID},
-		"-"))
+		"/"))
 
 	return resourceRepositoryBindingRead(ctx, d, m)
 }

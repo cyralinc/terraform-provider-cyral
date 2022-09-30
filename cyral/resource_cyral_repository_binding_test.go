@@ -1,10 +1,12 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -50,6 +52,19 @@ func TestAccRepositoryBindingResource(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestRepositoryBindingResourceUpgradeV0(t *testing.T) {
+	previousState := map[string]interface{}{
+		"id": "sidecarID-repositoryID",
+	}
+	actualNewState, err := upgradeRepositoryBindingV0(context.Background(),
+		previousState, nil)
+	require.NoError(t, err)
+	expectedNewState := map[string]interface{}{
+		"id": "sidecarID/repositoryID",
+	}
+	require.Equal(t, expectedNewState, actualNewState)
 }
 
 func testAccRepositoryBindingConfig_DefaultValues() string {

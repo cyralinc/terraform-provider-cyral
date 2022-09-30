@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -29,17 +28,8 @@ type UserFacingConfig struct {
 	RewriteOnViolation         bool     `json:"rewriteOnViolation"`
 }
 
-func resourceRepositoryConfAnalysis() *schema.Resource {
+func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages Repository Analysis Configuration. This resource allows configuring both " +
-			"[Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) " +
-			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) " +
-			"(Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.",
-		CreateContext: resourceRepositoryConfAnalysisCreate,
-		ReadContext:   resourceRepositoryConfAnalysisRead,
-		UpdateContext: resourceRepositoryConfAnalysisUpdate,
-		DeleteContext: resourceRepositoryConfAnalysisDelete,
-
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "ID of this resource in Cyral environment",
@@ -134,16 +124,51 @@ func resourceRepositoryConfAnalysis() *schema.Resource {
 				},
 			},
 		},
+	}
+}
+
+// Previously, the ID for cyral_repository_conf_analysis had the format
+// {repository_id}/ConfAnalysis. The goal of this state upgrade is to remove
+// this suffix `ConfAnalysis`.
+func upgradeRepositoryConfAnalysisV0(
+	_ context.Context,
+	rawState map[string]interface{},
+	_ interface{},
+) (map[string]interface{}, error) {
+	rawState["id"] = rawState["repository_id"]
+	return rawState, nil
+}
+
+func resourceRepositoryConfAnalysis() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages Repository Analysis Configuration. This resource allows configuring both " +
+			"[Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) " +
+			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) " +
+			"(Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.",
+		CreateContext: resourceRepositoryConfAnalysisCreate,
+		ReadContext:   resourceRepositoryConfAnalysisRead,
+		UpdateContext: resourceRepositoryConfAnalysisUpdate,
+		DeleteContext: resourceRepositoryConfAnalysisDelete,
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type: repositoryConfAnalysisResourceSchemaV0().
+					CoreConfigSchema().ImpliedType(),
+				Upgrade: upgradeRepositoryConfAnalysisV0,
+			},
+		},
+
+		Schema: repositoryConfAnalysisResourceSchemaV0().Schema,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
 				d *schema.ResourceData,
 				m interface{},
 			) ([]*schema.ResourceData, error) {
-				// This splitting is done to properly capture
-				// the ID format `{repositoryID}/ConfAnalysis`.
-				splitID := strings.Split(d.Id(), "/")
-				d.Set("repository_id", splitID[0])
+				d.Set("repository_id", d.Id())
 				return []*schema.ResourceData{d}, nil
 			},
 		},
@@ -173,7 +198,7 @@ func resourceRepositoryConfAnalysisCreate(ctx context.Context, d *schema.Resourc
 
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
-	d.SetId(fmt.Sprintf("%s/ConfAnalysis", d.Get("repository_id")))
+	d.SetId(d.Get("repository_id").(string))
 
 	log.Printf("[DEBUG] End resourceRepositoryConfAnalysisCreate")
 

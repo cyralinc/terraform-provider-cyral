@@ -44,6 +44,10 @@ func init() {
 		Name: integrationIdPResourceName,
 		F:    sweepIntegrationIdP,
 	})
+	resource.AddTestSweepers(policyResourceName, &resource.Sweeper{
+		Name: policyResourceName,
+		F:    sweepPolicy,
+	})
 	// TODO: add sweepers for rest of resources -aholmquist 2022-08-10
 }
 
@@ -129,6 +133,29 @@ func sweepRole(_ string) error {
 		_, err := c.DoRequest(url, http.MethodDelete, nil)
 		if err != nil {
 			return fmt.Errorf("delete request returned error: %w", err)
+		}
+	}
+	return nil
+}
+
+func sweepPolicy(_ string) error {
+	c, err := newClientFromEnv()
+	if err != nil {
+		return err
+	}
+	policies, err := listPolicies(c)
+	if err != nil {
+		return err
+	}
+	for _, policy := range policies {
+		if !hasAccTestPrefix(policy.Meta.Name) {
+			continue
+		}
+		url := fmt.Sprintf("https://%s/v1/policies/%s",
+			c.ControlPlane, policy.Meta.ID)
+		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

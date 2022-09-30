@@ -7,7 +7,6 @@ COPY main.go go.mod go.sum ./
 COPY client/ client/
 COPY cyral/ cyral/
 COPY docs/ docs/
-COPY scripts/ scripts/
 RUN gofmt -w . \
     && go test ./... -race \
     && mkdir -p /out \

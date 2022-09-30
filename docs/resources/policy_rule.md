@@ -83,6 +83,7 @@ resource "cyral_policy_rule" "some_resource_name" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `policy_rule_id` (String) The ID of the policy rule.
 
 <a id="nestedblock--deletes"></a>
 
