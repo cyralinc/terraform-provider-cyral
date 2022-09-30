@@ -1,0 +1,11 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+-> **NOTE** Import ID syntax is `{repository_id}/{user_account_id}`, where `{user_account_id}` is the ID of the user account in the Cyral Control Plane.
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_repository_user_account/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
