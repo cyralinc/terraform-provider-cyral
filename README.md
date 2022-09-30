@@ -60,6 +60,12 @@ make docker-compose/docs
 pre-commit run --show-diff-on-failure --color=always --all-files
 ```
 
+Note: pre-commit can sometimes fail because your user is not the owner of the files in the `/docs` directory. To solve this problem, run the following before the `pre-commit` stuff above:
+
+```bash
+find docs -exec sudo chown <your_username> {} \;
+```
+
 ### Test Instructions
 
 The test framework requires basic configuration before it can be executed as follows:
