@@ -231,7 +231,7 @@ func policyRuleResourceSchemaV0() *schema.Resource {
 // itself. That creates an inconsistency between the ID syntax used in
 // `terraform import` and the computed id for the resource. The goal of this
 // upgrade is to set the `id` attribute to have the format
-// `{policy_rule_id}/{policy_id}`.
+// `{policy_id}/{policy_rule_id}`.
 func upgradePolicyRuleV0(
 	_ context.Context,
 	rawState map[string]interface{},
