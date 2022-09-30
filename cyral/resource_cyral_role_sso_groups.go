@@ -77,7 +77,7 @@ func roleSSOGroupsResourceSchemaV0() *schema.Resource {
 }
 
 // Previously, the ID for cyral_role_sso_groups had the format
-// {role_id}/SSOGroups. The goal of this tate upgrade is to remove the suffix
+// {role_id}/SSOGroups. The goal of this state upgrade is to remove the suffix
 // `SSOGroups`.
 func upgradeRoleSSOGroupsV0(
 	_ context.Context,
