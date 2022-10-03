@@ -321,12 +321,11 @@ var ReadRepositoryUserAccountConfig = ResourceOperationConfig{
 }
 
 func resourceRepositoryUserAccount() *schema.Resource {
-	var authSchemeTypesFullScope []string
+	authSchemeTypesFullScopes := make([]string, 0, len(allAuthSchemes))
 	for _, authType := range allAuthSchemes {
-		authSchemeTypesFullScope = append(authSchemeTypesFullScope,
+		authSchemeTypesFullScopes = append(authSchemeTypesFullScopes,
 			fmt.Sprintf("auth_scheme.0.%s", authType))
 	}
-
 	return &schema.Resource{
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
@@ -487,7 +486,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 								"Environment Variable.",
 							Optional:     true,
 							Type:         schema.TypeSet,
-							ExactlyOneOf: authSchemeTypesFullScope,
+							ExactlyOneOf: authSchemeTypesFullScopes,
 							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -505,7 +504,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 								"AWS IAM.",
 							Optional:     true,
 							Type:         schema.TypeSet,
-							ExactlyOneOf: authSchemeTypesFullScope,
+							ExactlyOneOf: authSchemeTypesFullScopes,
 							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -523,7 +522,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 								"AWS Secrets Manager.",
 							Optional:     true,
 							Type:         schema.TypeSet,
-							ExactlyOneOf: authSchemeTypesFullScope,
+							ExactlyOneOf: authSchemeTypesFullScopes,
 							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -541,7 +540,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 								"Cyral Storage.",
 							Optional:     true,
 							Type:         schema.TypeSet,
-							ExactlyOneOf: authSchemeTypesFullScope,
+							ExactlyOneOf: authSchemeTypesFullScopes,
 							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -560,7 +559,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 								"Hashicorp Vault.",
 							Optional:     true,
 							Type:         schema.TypeSet,
-							ExactlyOneOf: authSchemeTypesFullScope,
+							ExactlyOneOf: authSchemeTypesFullScopes,
 							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -585,7 +584,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 								"a Kubernetes secret.",
 							Optional:     true,
 							Type:         schema.TypeSet,
-							ExactlyOneOf: authSchemeTypesFullScope,
+							ExactlyOneOf: authSchemeTypesFullScopes,
 							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -608,7 +607,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 								"GCP Secrets Manager.",
 							Optional:     true,
 							Type:         schema.TypeSet,
-							ExactlyOneOf: authSchemeTypesFullScope,
+							ExactlyOneOf: authSchemeTypesFullScopes,
 							MaxItems:     1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
