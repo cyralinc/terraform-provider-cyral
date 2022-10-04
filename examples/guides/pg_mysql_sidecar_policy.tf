@@ -1,5 +1,6 @@
 locals {
-  # PHONE is a predefined label. It exists by default in your control plane.
+  # PHONE is a predefined label. It exists by default in your control
+  # plane.
   phone_label = "PHONE"
 }
 

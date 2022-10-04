@@ -192,7 +192,7 @@ module "cyral_sidecar" {
   # Use the module version that is compatible with your sidecar. This
   # information can be extracted from the template downloaded from the
   # UI.
-  version = "~> 3.0.0"
+  version = "~> 3.0"
 
   sidecar_id = cyral_sidecar.mongodb_sidecar.id
 

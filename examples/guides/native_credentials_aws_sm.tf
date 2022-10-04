@@ -1,6 +1,6 @@
-# All information related to the database that will be mapped
-# to a cyral repository is defined here for clarity, but you
-# can define somewhere else.
+# All information related to the database that will be mapped to a
+# cyral repository is defined here for clarity, but you can define
+# somewhere else.
 locals {
   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
   control_plane_host = "[TENANT].app.cyral.com"
