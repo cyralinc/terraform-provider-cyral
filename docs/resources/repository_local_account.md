@@ -6,6 +6,27 @@ Manages [repository local accounts](https://cyral.com/docs/using-cyral/sso-auth-
 
 ## Example Usage
 
+### Automatic Approval
+
+```terraform
+### AWS Secrets Manager with automatic approval
+resource "cyral_repository_local_account" "some_resource_name" {
+    repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
+    config {
+        auto_approve_access = true
+        # Automatically approve 5 minutes access requests
+        max_auto_approve_duration = "PT5M"
+    }
+    aws_secrets_manager {
+        database_name = ""
+        local_account = ""
+        secret_arn = ""
+    }
+}
+```
+
+### Different auth schemes
+
 ```terraform
 ### AWS IAM
 resource "cyral_repository_local_account" "some_resource_name" {
@@ -89,6 +110,7 @@ resource "cyral_repository_local_account" "some_resource_name" {
 
 - `aws_iam` (Block Set, Max: 1) Credential option to set the local account from AWS IAM. (see [below for nested schema](#nestedblock--aws_iam))
 - `aws_secrets_manager` (Block Set, Max: 1) Credential option to set the local account from AWS Secrets Manager. (see [below for nested schema](#nestedblock--aws_secrets_manager))
+- `config` (Block Set, Max: 1) Optional configuration for automatic approvals. (see [below for nested schema](#nestedblock--config))
 - `cyral_storage` (Block Set, Max: 1) Credential option to set the local account from Cyral Storage. (see [below for nested schema](#nestedblock--cyral_storage))
 - `enviroment_variable` (Block Set, Max: 1, Deprecated) Credential option to set the local account from Environment Variable. (see [below for nested schema](#nestedblock--enviroment_variable))
 - `environment_variable` (Block Set, Max: 1) Credential option to set the local account from Environment Variable. (see [below for nested schema](#nestedblock--environment_variable))
@@ -125,6 +147,18 @@ Required:
 Optional:
 
 - `database_name` (String) Database name that the local account corresponds to.
+
+<a id="nestedblock--config"></a>
+
+### Nested Schema for `config`
+
+Required:
+
+- `auto_approve_access` (Boolean) If true, enables automatic approvals for this local account.
+
+Optional:
+
+- `max_auto_approve_duration` (String) Maximum duration (in seconds) for which approvals can be automatically granted, following ISO 8601 time format. For example, "PT1H2M3S" indicates 1 hour, 2 minutes and 3 seconds. "PT4S" denotes 4 seconds.
 
 <a id="nestedblock--cyral_storage"></a>
 
