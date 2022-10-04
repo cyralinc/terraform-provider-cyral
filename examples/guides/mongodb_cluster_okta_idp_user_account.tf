@@ -7,8 +7,9 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "mongodb_creds" {
-  # The sidecar deployed using our AWS sidecar module has access to all secrets
-  # with the prefix '/cyral/' in the region it is deployed.
+  # The sidecar deployed using our AWS sidecar module has access to
+  # all secrets with the prefix '/cyral/' in the region it is
+  # deployed.
   name = join("", [
     "/cyral/dbsecrets/",
     cyral_repository.mongodb_repo.id
@@ -20,13 +21,15 @@ resource "aws_secretsmanager_secret_version" "mongodb_creds_version" {
   secret_string = jsonencode(local.database_credentials)
 }
 
-resource "cyral_repository_local_account" "mongodb_local_account" {
+resource "cyral_repository_user_account" "mongodb_user_account" {
   repository_id = cyral_repository.mongodb_repo.id
-  aws_secrets_manager {
-    # Set the name of the target MongoDB database.
-    database_name = ""
-    # Set the name of local account. This can be chosen freely.
-    local_account = ""
-    secret_arn    = aws_secretsmanager_secret.mongodb_creds.arn
+  # Set the name of the user account. This can be chosen freely.
+  name = ""
+  # Set the name of the target MongoDB database.
+  auth_database_name = ""
+  auth_scheme {
+    aws_secrets_manager {
+      secret_arn = aws_secretsmanager_secret.mongodb_creds.arn
+    }
   }
 }
