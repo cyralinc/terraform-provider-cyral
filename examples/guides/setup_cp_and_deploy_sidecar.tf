@@ -115,8 +115,6 @@ module "cyral_sidecar" {
 
   sidecar_id = cyral_sidecar.main_sidecar.id
 
-  name_prefix = local.sidecar.sidecar_name_prefix
-
   control_plane = local.control_plane_host
 
   repositories_supported = ["postgresql", "mysql"]

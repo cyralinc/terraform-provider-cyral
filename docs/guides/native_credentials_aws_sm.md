@@ -22,6 +22,15 @@ locals {
   }
 }
 
+terraform {
+  required_providers {
+    cyral = {
+      source  = "cyralinc/cyral"
+      version = ">= 3.0.0"
+    }
+  }
+}
+
 provider "cyral" {
   # Follow the instructions in the Cyral Terraform Provider page to
   # set up the Control Plane credentials:

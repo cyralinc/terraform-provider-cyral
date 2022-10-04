@@ -9,7 +9,7 @@ By running this example you will have a fully functional sidecar on your AWS
 account to protect your database. Read the comments and update the necessary
 parameters as instructed.
 
-See also the [Cyral sidecar module for AWS](https://registry.terraform.io/modules/cyralinc/sidecar-aws/cyral/latest)
+See also the [Cyral Sidecar module for AWS EC2](https://registry.terraform.io/modules/cyralinc/sidecar-ec2/aws/latest)
 for more details on how the sidecar is deployed to AWS.
 
 ```terraform
@@ -130,8 +130,6 @@ module "cyral_sidecar" {
 
   sidecar_id = cyral_sidecar.main_sidecar.id
 
-  name_prefix = local.sidecar.sidecar_name_prefix
-
   control_plane = local.control_plane_host
 
   repositories_supported = ["postgresql", "mysql"]
@@ -177,3 +175,8 @@ output "sidecar_load_balancer_dns" {
 
 To learn how to access a repository through the sidecar, see [Connect to a
 repository](https://cyral.com/docs/connect/repo-connect).
+
+## Enforcing access policies
+
+To attach access policies to the created data repositories, please follow the
+guide [Setup policy control over PostgreSQL and MySQL](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/pg_mysql_sidecar_policy).

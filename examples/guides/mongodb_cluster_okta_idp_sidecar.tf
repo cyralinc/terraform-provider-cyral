@@ -8,7 +8,7 @@ locals {
     instance_type = "t3.medium"
     # Set to true if you want a sidecar deployed with an
     # internet-facing load balancer (requires a public subnet).
-    public_sidecar = true
+    public_sidecar = false
 
     # Set the AWS region that the sidecar will be deployed to
     region = ""
