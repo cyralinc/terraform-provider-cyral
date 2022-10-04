@@ -240,7 +240,13 @@ func (resource *CreateRepoAccountResponse) ReadFromSchema(d *schema.ResourceData
 	return nil
 }
 
+type RepoAccountConfig struct {
+	AutoApproveAccess      bool   `json:"autoApproveAccess,omitempty"`
+	MaxAutoApproveDuration string `json:"maxAutoApproveDuration,omitempty"`
+}
+
 type RepositoryLocalAccountResource struct {
+	Config              *RepoAccountConfig           `json:"config,omitempty"`
 	AwsIAM              *AwsIAMResource              `json:"awsIAM,omitempty"`
 	AwsSecretsManager   *AwsSecretsManagerResource   `json:"awsSecretsManager,omitempty"`
 	CyralStorage        *CyralStorageResource        `json:"cyralStorage,omitempty"`
@@ -252,6 +258,24 @@ type RepositoryLocalAccountResource struct {
 
 func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.ResourceData) error {
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - WriteToSchema START")
+
+	// Optional `config` field
+	if repoAccount.Config != nil {
+		config := repoAccount.Config
+		configMap := make(map[string]interface{})
+		configMap["auto_approve_access"] = config.AutoApproveAccess
+		configMap["max_auto_approve_duration"] = config.MaxAutoApproveDuration
+		d.Set("config", []interface{}{configMap})
+	}
+
+	configList := d.Get("config").(*schema.Set).List()
+	if len(configList) > 0 {
+		configMap := configList[0].(map[string]interface{})
+		repoAccount.Config = &RepoAccountConfig{
+			AutoApproveAccess:      configMap["auto_approve_access"].(bool),
+			MaxAutoApproveDuration: configMap["max_auto_approve_duration"].(string),
+		}
+	}
 
 	if repoAccount.AwsIAM != nil {
 		repoAccount.AwsIAM.WriteToSchema(d)
@@ -276,6 +300,17 @@ func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.Resour
 
 func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.ResourceData) error {
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema START")
+
+	configList := d.Get("config").(*schema.Set).List()
+	log.Printf("[DEBUG] Config list: %#v", configList)
+	if len(configList) > 0 {
+		configMap := configList[0].(map[string]interface{})
+		log.Printf("[DEBUG] Config map: %#v", configMap)
+		repoAccount.Config = &RepoAccountConfig{
+			AutoApproveAccess:      configMap["auto_approve_access"].(bool),
+			MaxAutoApproveDuration: configMap["max_auto_approve_duration"].(string),
+		}
+	}
 
 	if _, hasAwsIam := d.GetOk("aws_iam"); hasAwsIam {
 		repoAccount.AwsIAM = &AwsIAMResource{}
@@ -582,6 +617,7 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				},
 			},
 		),
+
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "ID of this resource in Cyral environment.",
@@ -594,6 +630,29 @@ func resourceRepositoryLocalAccount() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
+
+			"config": {
+				Description: "Optional configuration for automatic approvals.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auto_approve_access": {
+							Description: "If true, enables automatic approvals for this local account.",
+							Type:        schema.TypeBool,
+							Required:    true,
+						},
+						"max_auto_approve_duration": {
+							Description: `Maximum duration (in seconds) for which approvals can be automatically granted, following ISO 8601 time format. For example, "PT1H2M3S" indicates 1 hour, 2 minutes and 3 seconds. "PT4S" denotes 4 seconds.`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "P0D",
+						},
+					},
+				},
+			},
+
 			"aws_iam":              awsIAMSchema,
 			"aws_secrets_manager":  awsSecretsManagerSchema,
 			"cyral_storage":        cyralStorageSchema,
