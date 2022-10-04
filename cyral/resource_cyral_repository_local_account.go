@@ -301,11 +301,10 @@ func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.Resour
 func (repoAccount *RepositoryLocalAccountResource) ReadFromSchema(d *schema.ResourceData) error {
 	log.Printf("[DEBUG] RepositoryLocalAccountResource - ReadFromSchema START")
 
+	// `config` optional field
 	configList := d.Get("config").(*schema.Set).List()
-	log.Printf("[DEBUG] Config list: %#v", configList)
 	if len(configList) > 0 {
 		configMap := configList[0].(map[string]interface{})
-		log.Printf("[DEBUG] Config map: %#v", configMap)
 		repoAccount.Config = &RepoAccountConfig{
 			AutoApproveAccess:      configMap["auto_approve_access"].(bool),
 			MaxAutoApproveDuration: configMap["max_auto_approve_duration"].(string),
