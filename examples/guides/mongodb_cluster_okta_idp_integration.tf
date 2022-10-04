@@ -23,7 +23,7 @@ resource "cyral_repository_access_rules" "access_rules" {
   rule {
     identity {
       type = "username"
-      name = ""
+      name = "me@mycompany.com"
     }
   }
 }

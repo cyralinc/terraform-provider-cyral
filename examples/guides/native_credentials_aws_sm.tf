@@ -22,11 +22,11 @@ terraform {
   }
 }
 
+# Follow the instructions in the Cyral Terraform Provider page to set
+# up the Control Plane credentials:
+#
+# * https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
 provider "cyral" {
-  # Follow the instructions in the Cyral Terraform Provider page to
-  # set up the Control Plane credentials:
-  #
-  # * https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
   client_id     = ""
   client_secret = ""
   control_plane = "${local.control_plane_host}:${local.control_plane_port}"
@@ -43,7 +43,7 @@ provider "aws" {
 
 resource "cyral_repository" "mongodb_repo" {
   type = "mongodb"
-  host = ""
+  host = "mongodb.mycompany.com"
   port = 27017
   name = "mymongodb"
 }

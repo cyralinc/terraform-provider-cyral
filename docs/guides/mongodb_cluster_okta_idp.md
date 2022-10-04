@@ -36,7 +36,7 @@ Configure the providers:
 ```terraform
 locals {
   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
-  control_plane_host = ""
+  control_plane_host = "[TENANT].app.cyral.com"
   # Set the control plane API port
   control_plane_port = 443
 }
@@ -154,7 +154,7 @@ resource "cyral_repository" "mongodb_repo" {
       # replica set ID, see our article:
       #
       # * https://cyral.freshdesk.com/a/solutions/articles/44002241594
-      replica_set_id = ""
+      replica_set_id = "my-replica-set-id"
     }
   }
 }
@@ -325,7 +325,7 @@ resource "cyral_repository_access_rules" "access_rules" {
   rule {
     identity {
       type = "username"
-      name = ""
+      name = "me@mycompany.com"
     }
   }
 }

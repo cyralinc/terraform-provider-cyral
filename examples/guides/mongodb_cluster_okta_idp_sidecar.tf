@@ -78,7 +78,7 @@ resource "cyral_repository" "mongodb_repo" {
       # replica set ID, see our article:
       #
       # * https://cyral.freshdesk.com/a/solutions/articles/44002241594
-      replica_set_id = ""
+      replica_set_id = "my-replica-set-id"
     }
   }
 }
