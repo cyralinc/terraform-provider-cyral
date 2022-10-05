@@ -1,7 +1,12 @@
 ## 3.0.0 (October 5, 2022)
 
 Minimum required Control Plane version: `v3.0.0`.
-Resources incompatible with Control Planes `v2.x` and `v3.x`: `cyral_datamap` (removed), `cyral_identity_map` (removed), `cyral_integration_okta` (removed), `cyral_integration_sso_*` (renamed, refer to `cyral_integration_idp_*` instead), `cyral_repository_identity_map` (removed, use `cyral_repository_access_rules` instead), `cyral_repository_local_account` (removed, use `cyral_repository_user_account` instead).
+
+Resources incompatible with Control Planes `v2.x`: `cyral_datamap` (removed),
+`cyral_identity_map` (removed), `cyral_integration_okta` (removed),
+`cyral_integration_sso_*` (renamed, refer to `cyral_integration_idp_*` instead),
+`cyral_repository_identity_map` (removed, use `cyral_repository_access_rules` instead),
+`cyral_repository_local_account` (removed, use `cyral_repository_user_account` instead).
 
 ### Features:
 
