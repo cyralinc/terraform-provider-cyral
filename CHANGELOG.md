@@ -1,3 +1,12 @@
+## 2.10.0 (October 5, 2022)
+
+Minimum required Control Plane version: `v2.34.0`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+
+### Features:
+
+- **Add support for local account automatic approvals**: [#296](https://github.com/cyralinc/terraform-provider-cyral/pull/296).
+
 ## 2.9.0 (September 16, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
