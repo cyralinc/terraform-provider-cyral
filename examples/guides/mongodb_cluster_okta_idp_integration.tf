@@ -7,7 +7,7 @@ locals {
 
 module "cyral_idp_okta" {
   source  = "cyralinc/idp/okta"
-  version = ">= 3.0.2"
+  version = "~> 3.0"
 
   tenant = "default"
 

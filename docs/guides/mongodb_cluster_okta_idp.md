@@ -22,7 +22,7 @@ terraform {
   required_providers {
     cyral = {
       source  = "cyralinc/cyral"
-      version = ">= 3.0.0"
+      version = "~> 3.0"
     }
     okta = {
       source = "okta/okta"
@@ -142,7 +142,7 @@ resource "cyral_repository" "mongodb_repo" {
   # Specify the address or hostname of the endpoint of one node in the
   # MongoDB replica set. Cyral will automatically/dynamically identify
   # the remaining nodes of the replication cluster.
-  host = ""
+  host = "mycluster-shard-00-01.example.mongodb.net"
 
   port = local.mongodb_ports_low
   properties {
@@ -309,7 +309,7 @@ locals {
 
 module "cyral_idp_okta" {
   source  = "cyralinc/idp/okta"
-  version = ">= 3.0.2"
+  version = "~> 3.0"
 
   tenant = "default"
 

@@ -66,7 +66,7 @@ resource "cyral_repository" "mongodb_repo" {
   # Specify the address or hostname of the endpoint of one node in the
   # MongoDB replica set. Cyral will automatically/dynamically identify
   # the remaining nodes of the replication cluster.
-  host = ""
+  host = "mycluster-shard-00-01.example.mongodb.net"
 
   port = local.mongodb_ports_low
   properties {
