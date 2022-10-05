@@ -9,6 +9,15 @@ locals {
     }
 }
 
+terraform {
+  required_providers {
+    cyral = {
+      source  = "cyralinc/cyral"
+      version = "~> 2.10"
+    }
+  }
+}
+
 # See the Cyral provider documentation for more
 # information on how to initialize it correctly.
 provider "cyral" {
