@@ -268,15 +268,6 @@ func (repoAccount RepositoryLocalAccountResource) WriteToSchema(d *schema.Resour
 		d.Set("config", []interface{}{configMap})
 	}
 
-	configList := d.Get("config").(*schema.Set).List()
-	if len(configList) > 0 {
-		configMap := configList[0].(map[string]interface{})
-		repoAccount.Config = &RepoAccountConfig{
-			AutoApproveAccess:      configMap["auto_approve_access"].(bool),
-			MaxAutoApproveDuration: configMap["max_auto_approve_duration"].(string),
-		}
-	}
-
 	if repoAccount.AwsIAM != nil {
 		repoAccount.AwsIAM.WriteToSchema(d)
 	} else if repoAccount.AwsSecretsManager != nil {
