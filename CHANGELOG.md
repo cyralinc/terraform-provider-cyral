@@ -1,3 +1,24 @@
+## 3.0.0 (October 5, 2022)
+
+Minimum required Control Plane version: `v3.0.0`.
+Resources incompatible with Control Planes `v2.x` and `v3.x`: `cyral_datamap` (removed), `cyral_identity_map` (removed), `cyral_integration_okta` (removed), `cyral_integration_sso_*` (renamed, refer to `cyral_integration_idp_*` instead), `cyral_repository_identity_map` (removed, use `cyral_repository_access_rules` instead), `cyral_repository_local_account` (removed, use `cyral_repository_user_account` instead).
+
+### Features:
+
+- **Add resource AccessRules**: [#280](https://github.com/cyralinc/terraform-provider-cyral/pull/280).
+- **User Account resource for Gatekeeper Project**: [#288](https://github.com/cyralinc/terraform-provider-cyral/pull/288).
+- **Adapt guides to v3**: [#297](https://github.com/cyralinc/terraform-provider-cyral/pull/297).
+
+### Backwards compatibility breaks:
+
+- **Remove deprecated resources for major version 3**: [#291](https://github.com/cyralinc/terraform-provider-cyral/pull/291).
+- **Remove resources for local_accounts and identity_maps**: [#293](https://github.com/cyralinc/terraform-provider-cyral/pull/293).
+
+### Bug fixes:
+
+- **Fix acceptance tests for network access policy**: [#289](https://github.com/cyralinc/terraform-provider-cyral/pull/289).
+- **Fix race condition in user accounts test**: [#295](https://github.com/cyralinc/terraform-provider-cyral/pull/295).
+
 ## 2.9.0 (September 16, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
