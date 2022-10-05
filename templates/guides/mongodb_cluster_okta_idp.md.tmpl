@@ -32,18 +32,18 @@ the Cyral control plane or see [in the public repository](https://github.com/cyr
 
 {{ tffile "examples/guides/mongodb_cluster_okta_idp_sidecar.tf" }}
 
-## Configure a local account with the database credentials
+## Configure a user account with the database credentials
 
-Put the following in `local_account.tf`.
+Put the following in `user_account.tf`.
 
-{{ tffile "examples/guides/mongodb_cluster_okta_idp_local_account.tf" }}
+{{ tffile "examples/guides/mongodb_cluster_okta_idp_user_account.tf" }}
 
 ## Configure Okta IdP
 
 Finally, configure the Okta integration with the Cyral control plane. Put the
-code in the file `okta.tf`.
+code in the file `integration.tf`.
 
-{{ tffile "examples/guides/mongodb_cluster_okta_idp_okta.tf" }}
+{{ tffile "examples/guides/mongodb_cluster_okta_idp_integration.tf" }}
 
 ## Testing
 
@@ -55,4 +55,4 @@ repository](https://cyral.com/docs/connect/repo-connect/#connect-to-a-data-repos
 In this guide, we configured a _user_ identity from Okta. You may also choose to
 use group identities. For more information on Okta SSO integration, visit [SSO with
 Okta](https://cyral.com/docs/sso/okta/sso) or our
-[Terraform IdP integration module for Okta](https://github.com/cyralinc/terraform-okta-idp).
+[Terraform IdP integration module for Okta](https://registry.terraform.io/modules/cyralinc/idp-okta/cyral/latest).
