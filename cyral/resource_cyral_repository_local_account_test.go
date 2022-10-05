@@ -162,6 +162,8 @@ func TestAccRepositoryLocalAccountResource(t *testing.T) {
 				Config:      testAccRepositoryLocalAccountConfig_MultipleSecretManagersOfSameType(),
 				ExpectError: regexp.MustCompile("Error: Too many .* blocks"),
 			},
+			testAccRepositoryLocalAccount_AutoApprovalNoMax(),
+			testAccRepositoryLocalAccount_AutoApprovalWithMax(),
 		},
 	})
 }
@@ -207,6 +209,71 @@ func testAccRepositoryLocalAccountConfig_MultipleSecretManagersOfSameType() stri
 		}
 	}`, basicRepositoryID)
 	return config
+}
+
+func testAccRepositoryLocalAccount_AutoApprovalNoMax() resource.TestStep {
+	var config string
+	config += repositoryLocalAccountSampleRepositoryConfig()
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "test_repository_account" {
+		repository_id = %s
+		config {
+			auto_approve_access = true
+		}
+		aws_iam {
+			database_name = "some-db-name"
+			local_account = "some-local-account"
+			role_arn = "some-role-arn"
+		}
+	}`, basicRepositoryID)
+
+	fullResName := "cyral_repository_local_account.test_repository_account"
+	checkFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(fullResName,
+			"config.0.auto_approve_access", "true",
+		),
+		resource.TestCheckResourceAttr(fullResName,
+			"config.0.max_auto_approve_duration", "P0D",
+		),
+	}
+
+	return resource.TestStep{
+		Config: config,
+		Check:  resource.ComposeTestCheckFunc(checkFuncs...),
+	}
+}
+
+func testAccRepositoryLocalAccount_AutoApprovalWithMax() resource.TestStep {
+	var config string
+	config += repositoryLocalAccountSampleRepositoryConfig()
+	config += fmt.Sprintf(`
+	resource "cyral_repository_local_account" "test_repository_account" {
+		repository_id = %s
+		config {
+			auto_approve_access = true
+			max_auto_approve_duration = "PT4S"
+		}
+		aws_iam {
+			database_name = "some-db-name"
+			local_account = "some-local-account"
+			role_arn = "some-role-arn"
+		}
+	}`, basicRepositoryID)
+
+	fullResName := "cyral_repository_local_account.test_repository_account"
+	checkFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(fullResName,
+			"config.0.auto_approve_access", "true",
+		),
+		resource.TestCheckResourceAttr(fullResName,
+			"config.0.max_auto_approve_duration", "PT4S",
+		),
+	}
+
+	return resource.TestStep{
+		Config: config,
+		Check:  resource.ComposeTestCheckFunc(checkFuncs...),
+	}
 }
 
 func TestAccRepositoryLocalAccountResource_GcpSecretManager(t *testing.T) {
