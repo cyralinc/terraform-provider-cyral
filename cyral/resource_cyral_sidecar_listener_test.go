@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -111,12 +110,9 @@ func setupSidecarListenerTest() (string, resource.TestCheckFunc) {
 
 func createSidecarListenerConfig() string {
 	var config string
-	// generate random string of eight characters
-	id := uuid.New()
-
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		accTestName(sidecarResourceName, id.String()),
+		accTestName(sidecarResourceName, "1"),
 		"docker",
 	)
 	config += "\n"
