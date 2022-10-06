@@ -22,7 +22,7 @@ terraform {
   required_providers {
     cyral = {
       source  = "cyralinc/cyral"
-      version = ">= 2.7.0"
+      version = "~> 2.7"
     }
     okta = {
       source = "okta/okta"
@@ -300,7 +300,7 @@ locals {
 
 module "cyral_idp_okta" {
   source = "cyralinc/idp/okta"
-  version = ">= 3.0.2"
+  version = "~> 3.0"
 
   tenant = "default"
 

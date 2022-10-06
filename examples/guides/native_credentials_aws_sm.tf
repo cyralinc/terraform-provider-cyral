@@ -9,10 +9,23 @@ locals {
     }
 }
 
-# See the Cyral provider documentation for more
-# information on how to initialize it correctly.
+terraform {
+  required_providers {
+    cyral = {
+      source  = "cyralinc/cyral"
+      version = "~> 2.10"
+    }
+  }
+}
+
+# Follow the instructions in the Cyral Terraform Provider page to set
+# up the credentials:
+#
+# * https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
 provider "cyral" {
     control_plane = "mycontrolplane.cyral.com:8000"
+    client_id     = ""
+    client_secret = ""
 }
 
 resource "cyral_repository" "mongodb_repo" {
