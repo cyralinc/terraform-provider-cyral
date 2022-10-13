@@ -25,7 +25,7 @@ echo
 echo "Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file."
 echo
 read -p "Are you ready to continue? [N/y] " -n 1 -r
-echo 
+echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     echo "Exiting..."
@@ -57,7 +57,7 @@ IFS=$'\n' read -r -d '' -a tf_state < <( terraform state list && printf '\0' )
 
 # Find all cyral_repository_identity_maps and cyral_repository_local_accounts
 for resource in ${tf_state[@]}; do
-  if [[ $resource == cyral_repository_identity_map.* ]] 
+  if [[ $resource == cyral_repository_identity_map.* ]]
   then
     # We will need to delete this identity map from the .tf file, store its name
     identity_maps_to_delete+=($resource)
@@ -67,12 +67,12 @@ for resource in ${tf_state[@]}; do
     identity_type=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.identity_type" | sed 's/"//g')
     access_duration=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.access_duration")
     if [[ $access_duration != $empty_access_duration ]] && [[ $identity_type == "user" ]]; then
-        # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing. 
+        # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
         continue
     fi
-    # Construct import ID for the access rule that was migrated from this identity map. 
+    # Construct import ID for the access rule that was migrated from this identity map.
     import_id="$repo_id/$local_account_id"
-    # Construct name of the access rule that will be imported. 
+    # Construct name of the access rule that will be imported.
     import_name=cyral_repository_access_rules.${resource##"cyral_repository_identity_map."}
     # Save name of the new access rule, so that it can be added to the .tf file
     access_rule_resource_defs+=("resource \"cyral_repository_access_rules\" \"${resource##"cyral_repository_identity_map."}\" {}")
@@ -87,9 +87,9 @@ for resource in ${tf_state[@]}; do
     local_account_id=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.id" | sed 's/"//g')
     # We will need to delete this local account from the .tf file, store its name
     local_accounts_to_delete+=($resource)
-    # Construct import ID for the user account that was migrated from this local account. 
+    # Construct import ID for the user account that was migrated from this local account.
     import_id="$repo_id/$local_account_id"
-    # Construct name of the user account that will be imported. 
+    # Construct name of the user account that will be imported.
     import_name=cyral_repository_user_account.${resource##"cyral_repository_local_account."}
     # Save name of the migrated user account, so that it can be added to the .tf file
     user_account_resource_defs+=("resource \"cyral_repository_user_account\" \"${resource##"cyral_repository_local_account."}\" {}")
@@ -104,7 +104,7 @@ echo "Found ${#local_accounts_to_delete[@]} cyral_repository_local_accounts to m
 echo "Found ${#identity_maps_to_delete[@]} cyral_repository_identity_maps to migrate to cyral_repository_access_rules."
 echo
 echo "The following file path was provided for CYRAL_TF_FILE_PATH: ${CYRAL_TF_FILE_PATH}"
-read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r 
+read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r
 if [[  $REPLY =~ ^[Yy]$ ]]
 then
     printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
@@ -119,21 +119,21 @@ echo; echo; echo;
 echo "Now its time to upgrade your Cyral Terraform Provider to version 3.0.0!"
 echo
 echo "Before we procede, you will need to do the following:
-    1.  Open your Terraform .tf configuration file. 
+    1.  Open your Terraform .tf configuration file.
     2.  Change the version number of the cyral provider in the required_providers
         section of your .tf configuration file to 3.0.0. It should look like this:
             cyral = {
                 source  = \"cyralinc/cyral\"
                 version = \"3.0.0\"
             }
-    3. Ensure that that new empty resource definitions were added to the end of 
+    3. Ensure that that new empty resource definitions were added to the end of
         your .tf file. The definitions will look like this:
-            User Account   
+            User Account
             resource \"cyral_repository_user_account\" \"<resource_name>\" {}
 
-            Access Rules  
+            Access Rules
             resource \"cyral_repository_local_account\" \"<resource_name>\" {}"
-echo 
+echo
 read -p "Are you ready to upgrade Terraform? [N/y] " -n 1 -r
 echo    # move to a new line
 if [[ ! $REPLY =~ ^[Yy]$ ]]
@@ -190,7 +190,7 @@ echo "Now that the Terraform state is up-to-date, lets clean up your .tf file."
 echo "This script created a new .tf file containing the resources definitions"
 echo "for the cyral_repository_access_rules and cyral_repository_user_accounts"
 echo "that were migrated into your Terraform state. The new .tf file is called:"
-echo 
+echo
 echo "cyral_migration_repository_access_rules_and_user_accounts.tf"
 echo
 echo
@@ -204,7 +204,7 @@ echo "  2.  Remove the empty resource definitions for the "
 echo "      cyral_repository_access_rules and cyral_repository_user_accounts"
 echo "      that were added to the end of your .tf file, which is named:"
 echo "      ${CYRAL_TF_FILE_PATH}"
-echo 
+echo
 echo
 echo "When you are done, run the following command:"
 echo "terraform plan"
@@ -221,11 +221,11 @@ echo    # move to a new line
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     echo "Exiting..."
-    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 
+    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
 echo "Your previous .tf file was copied before the migration was ran. It is called "
-echo "cyral_terraform_migration_backup_configuration.txt" 
+echo "cyral_terraform_migration_backup_configuration.txt"
 echo
 echo "Please perform the following action before proceding:"
 echo "  1.  Replace the contents of your .tf file ${CYRAL_TF_FILE_PATH} "
@@ -239,7 +239,7 @@ echo    # move to a new line
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     echo "Exiting..."
-    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 
+    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
 # Downgrade Terraform
