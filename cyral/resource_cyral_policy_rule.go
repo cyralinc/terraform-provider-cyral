@@ -409,7 +409,7 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 func deletePolicyRule() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "RepositoryNetworkAccessPolicyDelete",
+		Name:       "PolicyRuleDelete",
 		HttpMethod: http.MethodDelete,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			policyID, policyRuleID := unmarshalPolicyRuleID(d)
