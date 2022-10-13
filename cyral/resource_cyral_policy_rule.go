@@ -13,12 +13,12 @@ import (
 )
 
 type PolicyRule struct {
-	Deletes    []Rule   `json:"deletes,omitempty"`
-	Hosts      []string `json:"hosts,omitempty"`
-	Identities Identity `json:"identities,omitempty"`
-	Reads      []Rule   `json:"reads,omitempty"`
-	RuleID     string   `json:"ruleId"`
-	Updates    []Rule   `json:"updates,omitempty"`
+	Deletes    []Rule    `json:"deletes,omitempty"`
+	Hosts      []string  `json:"hosts,omitempty"`
+	Identities *Identity `json:"identities,omitempty"`
+	Reads      []Rule    `json:"reads,omitempty"`
+	RuleID     string    `json:"ruleId"`
+	Updates    []Rule    `json:"updates,omitempty"`
 }
 
 type Rule struct {
@@ -144,7 +144,7 @@ func resourcePolicyRule() *schema.Resource {
 		CreateContext: resourcePolicyRuleCreate,
 		ReadContext:   resourcePolicyRuleRead,
 		UpdateContext: resourcePolicyRuleUpdate,
-		DeleteContext: resourcePolicyRuleDelete,
+		DeleteContext: DeleteResource(deletePolicyRule()),
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
 				Description: "The ID of the policy you are adding this rule to.",
@@ -292,11 +292,14 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 		return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
-	if response.Identities.DBRoles != nil || response.Identities.Users != nil || response.Identities.Groups != nil || response.Identities.Services != nil {
-		identities := flattenIdentities(response.Identities)
-		log.Printf("[DEBUG] flattened identities %#v", identities)
-		if err := d.Set("identities", identities); err != nil {
-			return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+	if response.Identities != nil {
+		if response.Identities.DBRoles != nil || response.Identities.Users != nil ||
+			response.Identities.Groups != nil || response.Identities.Services != nil {
+			identities := flattenIdentities(response.Identities)
+			log.Printf("[DEBUG] flattened identities %#v", identities)
+			if err := d.Set("identities", identities); err != nil {
+				return createError("Unable to read policy rule", fmt.Sprintf("%v", err))
+			}
 		}
 	}
 
@@ -324,19 +327,18 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 	return resourcePolicyRuleRead(ctx, d, m)
 }
 
-func resourcePolicyRuleDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyRuleDelete")
-	c := m.(*client.Client)
-
-	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane, d.Get("policy_id").(string), d.Id())
-
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
-		return createError("Unable to delete policy rule", fmt.Sprintf("%v", err))
+func deletePolicyRule() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "PolicyRuleDelete",
+		HttpMethod: http.MethodDelete,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			policyID := d.Get("policy_id").(string)
+			policyRuleID := d.Id()
+			return fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
+				c.ControlPlane, policyID, policyRuleID)
+		},
+		RequestErrorHandler: &DeleteIgnoreHttpNotFound{resName: "Policy Rule"},
 	}
-
-	log.Printf("[DEBUG] End resourcePolicyRuleDelete")
-
-	return diag.Diagnostics{}
 }
 
 func getStrListFromInterfaceList(interfaceList []interface{}) []string {
@@ -406,11 +408,11 @@ func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
 
 	identity := d.Get("identities").([]interface{})
 
-	var identities Identity
+	var identities *Identity
 	for _, id := range identity {
 		idMap := id.(map[string]interface{})
 
-		identities = Identity{
+		identities = &Identity{
 			DBRoles:  getStrListFromInterfaceList(idMap["db_roles"].([]interface{})),
 			Groups:   getStrListFromInterfaceList(idMap["groups"].([]interface{})),
 			Services: getStrListFromInterfaceList(idMap["services"].([]interface{})),
@@ -431,7 +433,7 @@ func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
 	return policyRule
 }
 
-func flattenIdentities(identities Identity) []interface{} {
+func flattenIdentities(identities *Identity) []interface{} {
 	log.Printf("[DEBUG] Init flattenIdentities")
 	log.Printf("[DEBUG] identities %#v", identities)
 	identityMap := make(map[string]interface{})
