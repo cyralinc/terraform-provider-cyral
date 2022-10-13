@@ -79,11 +79,21 @@ var updatedUsersPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
 	},
 }
 
+var updatedNoIdentityPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
+	DeletedSeverity:  "low",
+	UpdatedSeverity:  "medium",
+	ReadSeverity:     "high",
+	DeletedRateLimit: 1,
+	UpdatedRateLimit: 2,
+	ReadRateLimit:    3,
+}
+
 func TestAccPolicyRuleResource(t *testing.T) {
 	testConfig, testFunc := setupPolicyRuleTest(initialPolicyRuleConfig)
 	testGroupsConfig, testGroupsFunc := setupPolicyRuleTest(updatedGroupsPolicyRuleConfig)
 	testServicesConfig, testServicesFunc := setupPolicyRuleTest(updatedServicesPolicyRuleConfig)
 	testUsersConfig, testUsersFunc := setupPolicyRuleTest(updatedServicesPolicyRuleConfig)
+	testNoIdentityConfig, testNoIdentityFunc := setupPolicyRuleTest(updatedNoIdentityPolicyRuleConfig)
 
 	importStateResName := "cyral_policy_rule.policy_rule_test"
 
@@ -105,6 +115,10 @@ func TestAccPolicyRuleResource(t *testing.T) {
 			{
 				Config: testUsersConfig,
 				Check:  testUsersFunc,
+			},
+			{
+				Config: testNoIdentityConfig,
+				Check:  testNoIdentityFunc,
 			},
 			{
 				ImportState:       true,
