@@ -16,7 +16,7 @@ then
     exit
 fi
 
-echo "Welcome to Cyral's Terraform 3.0 Migration script!"
+echo "Welcome to Cyral's Terraform Provider Version 3 Migration script!"
 echo
 echo "This script will create new resource definitions for the"
 echo "cyral_repository_user_accounts and cyral_repository_access_rules that will "
@@ -116,15 +116,15 @@ else
 fi
 
 echo; echo; echo;
-echo "Now its time to upgrade your Cyral Terraform Provider to version 3.0.0!"
+echo "Now its time to upgrade your Cyral Terraform Provider to version 3!"
 echo
 echo "Before we procede, you will need to do the following:
     1.  Open your Terraform .tf configuration file.
     2.  Change the version number of the cyral provider in the required_providers
-        section of your .tf configuration file to 3.0.0. It should look like this:
+        section of your .tf configuration file to '>= 3.0.0'. It should look like this:
             cyral = {
                 source  = \"cyralinc/cyral\"
-                version = \"3.0.0\"
+                version >= \"3.0.0\"
             }
     3. Ensure that that new empty resource definitions were added to the end of
         your .tf file. The definitions will look like this:
@@ -186,7 +186,7 @@ mv cyral_migration_repository_access_rules_and_user_accounts.txt cyral_migration
 terraform fmt
 
 echo; echo; echo;
-echo "Now that the Terraform state is up-to-date, lets clean up your .tf file."
+echo "Now that the Terraform state is up-to-date, let's clean up your .tf file."
 echo "This script created a new .tf file containing the resources definitions"
 echo "for the cyral_repository_access_rules and cyral_repository_user_accounts"
 echo "that were migrated into your Terraform state. The new .tf file is called:"
