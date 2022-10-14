@@ -3,7 +3,6 @@ package cyral
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -82,8 +81,7 @@ type CreateListenerAPIResponse struct {
 
 func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(marshalComposedID([]string{d.Get(SidecarIdKey).(string), c.ListenerId}, "/"))
-	_ = d.Set(ListenerIdKey, c.ListenerId)
-	return nil
+	return d.Set(ListenerIdKey, c.ListenerId)
 }
 
 func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData) error {
@@ -98,7 +96,7 @@ func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData
 	}
 	return nil
 }
-func (l *SidecarListener) RepoTypesAsInterface() *[]interface{} {
+func (l *SidecarListener) RepoTypesAsInterface() []interface{} {
 	if l.RepoTypes == nil {
 		return nil
 	}
@@ -106,7 +104,7 @@ func (l *SidecarListener) RepoTypesAsInterface() *[]interface{} {
 	for i, v := range l.RepoTypes {
 		result[i] = v
 	}
-	return &result
+	return result
 }
 func (l *SidecarListener) RepoTypesFromInterface(anInterface []interface{}) {
 	repoTypes := make([]string, len(anInterface))
@@ -117,45 +115,42 @@ func (l *SidecarListener) RepoTypesFromInterface(anInterface []interface{}) {
 }
 func (l *SidecarListener) TcpSettingsAsInterface() []interface{} {
 	if l.TcpListener != nil {
-		result := make([]interface{}, 1)
-		result[0] = map[string]interface{}{
-			HostKey: l.TcpListener.Host,
-			PortKey: l.TcpListener.Port,
+		result := []interface{}{
+			map[string]interface{}{
+				HostKey: l.TcpListener.Host,
+				PortKey: l.TcpListener.Port,
+			},
 		}
 		return result
 	}
 	return nil
 }
 func (l *SidecarListener) TcpSettingsFromInterface(anInterface []interface{}) {
-	if len(anInterface) == 0 {
+	if len(anInterface) == 0 || anInterface == nil {
 		return
 	}
-	if anInterface != nil {
-		l.TcpListener = &TcpListener{
-			Host: anInterface[0].(map[string]interface{})[HostKey].(string),
-			Port: anInterface[0].(map[string]interface{})[PortKey].(int),
-		}
+	l.TcpListener = &TcpListener{
+		Host: anInterface[0].(map[string]interface{})[HostKey].(string),
+		Port: anInterface[0].(map[string]interface{})[PortKey].(int),
 	}
-	log.Printf("[DEBUG] LOLOLO: %s %d", l.TcpListener.Host, l.TcpListener.Port)
 }
 func (l *SidecarListener) UnixSettingsAsInterface() []interface{} {
 	if l.UnixListener != nil {
-		result := make([]interface{}, 1)
-		result[0] = map[string]interface{}{
-			FileKey: l.UnixListener.File,
+		result := []interface{}{
+			map[string]interface{}{
+				FileKey: l.UnixListener.File,
+			},
 		}
 		return result
 	}
 	return nil
 }
 func (l *SidecarListener) UnixSettingsFromInterface(anInterface []interface{}) {
-	if len(anInterface) == 0 {
+	if len(anInterface) == 0 || anInterface == nil {
 		return
 	}
-	if anInterface != nil {
-		l.UnixListener = &UnixListener{
-			File: anInterface[0].(map[string]interface{})[FileKey].(string),
-		}
+	l.UnixListener = &UnixListener{
+		File: anInterface[0].(map[string]interface{})[FileKey].(string),
 	}
 }
 func (l *SidecarListener) MysqlSettingsAsInterface() []interface{} {
@@ -236,6 +231,15 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 	return nil
 }
 
+func multiplexRepoTypes() []string {
+	return []string{
+		"galera",
+		"mariadb",
+		"mysql",
+		"postgresql",
+	}
+}
+
 // resourceSidecarListener returns the schema and methods for provisioning a sidecar listener
 // Sidecar listeners API is {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID
 // GET {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID (Get one listener)
@@ -300,7 +304,7 @@ func resourceSidecarListener() *schema.Resource {
 				ForceNew:    true,
 			},
 			RepoTypesKey: {
-				Description: "List of repository types that the listener supports. Currently limited to one repo type, eg [\"mysql\"].",
+				Description: "List of repository types that the listener supports. Currently limited to one repo type from supported repo types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem: &schema.Schema{
@@ -308,9 +312,10 @@ func resourceSidecarListener() *schema.Resource {
 				},
 			},
 			UnixListenerKey: {
-				Description: "Unix listener settings.",
-				Type:        schema.TypeSet,
-				Optional:    true,
+				Description:  "Unix listener settings.",
+				Type:         schema.TypeSet,
+				Optional:     true,
+				ExactlyOneOf: []string{UnixListenerKey, TcpListenerKey},
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -324,14 +329,15 @@ func resourceSidecarListener() *schema.Resource {
 				},
 			},
 			MultiplexedKey: {
-				Description: "Multiplexed listener, defaults to not multiplexing (false). Not supported for all repository types.",
+				Description: "Multiplexed listener, defaults to not multiplexing (false). Note currently only suppoerted by repo types: " + supportedTypesMarkdown(multiplexRepoTypes()),
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
 			TcpListenerKey: {
-				Description: "TCP listener settings.",
-				Type:        schema.TypeSet,
-				Optional:    true,
+				Description:  "TCP listener settings.",
+				Type:         schema.TypeSet,
+				Optional:     true,
+				ExactlyOneOf: []string{UnixListenerKey, TcpListenerKey},
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
 				MaxItems: 1,
 				Elem: &schema.Resource{
