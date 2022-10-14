@@ -3,7 +3,7 @@ page_title: "Cyral Terraform Provider V3 Migration Guide"
 ---
 
 This guide will take you through the steps required to upgrade your Cyral Terraform provider
-to major version 3. The Terraform migration can be performed on any Cyral Terraform provider with
+to MAJOR version 3. The Terraform migration can be performed on any Cyral Terraform provider with
 version 2.x. There is no need to upgrade to an intermediate version before upgrading to verison 3.
 The migration will be handled by an interactive Bash script.
 
@@ -33,7 +33,7 @@ The following steps should be taken to upgrade the Cyral CP and the Cyral Terraf
 
 3. Perform the Cyral Terraform Provider V3 Migration after upgrading the Cyral CP to MAJOR version 3.
 
-It is essential that the Cyral V3 Terraform Migration is run **after** the CP has been upgraded.
+It is essential that the Cyral Terraform Provider V3 Migration is run **after** the CP has been upgraded.
 
 ## Prerequisites
 
@@ -73,7 +73,7 @@ If migration failed for one or two resources, do the following.
 2.  Manually remove the problematic resources from your .tf file, and copy them elsewhere.
 3.  Run the migration script again.
 4.  Once the script is finished, recreate the problematic resources using the new resource types.
-    *  If the resource was a cyral_repository_local_account, replace it with a cyral_repository_user_account resource.
-    *   If the resource was a cyral_repository_identity_map, replace it with a cyral_repository_access_rules resource.
+    *  If the resource was a `cyral_repository_local_account`, replace it with a `cyral_repository_user_account` resource.
+    *   If the resource was a `cyral_repository_identity_map`, replace it with a `cyral_repository_access_rules` resource.
         Note: If the identity map had `identity_type=user` and some non-zero `access_duration`, then
         *there is no need to recreate the resource*. Instead, use the Cyral UI to create an equivalent Approval.
