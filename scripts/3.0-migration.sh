@@ -121,10 +121,10 @@ echo
 echo "Before we proceed, you will need to do the following:
     1.  Open your Terraform .tf configuration file.
     2.  Change the version number of the cyral provider in the required_providers
-        section of your .tf configuration file to 3.0.0. It should look like this:
+        section of your .tf configuration file to '~>3.0'. It should look like this:
             cyral = {
                 source  = \"cyralinc/cyral\"
-                version = \"3.0.0\"
+                version = \"~>3.0\"
             }
     3. Ensure that new empty resource definitions were added to the end of
         your .tf file. The definitions will look like this:
