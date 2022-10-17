@@ -2,7 +2,7 @@
 
 if ! command -v terraform &> /dev/null
 then
-    echo "The Terraform cli must be installed for this script to run."
+    echo "The Terraform CLI must be installed for this script to run."
     echo "Instructions for installation can be found here:"
     echo "https://learn.hashicorp.com/tutorials/terraform/install-cli"
     exit
@@ -82,11 +82,11 @@ for resource in ${tf_state[@]}; do
     access_rule_resource_names+=("${import_name}")
   elif [[ $resource == cyral_repository_local_account.* ]]
   then
+    # We will need to delete this local account from the .tf file, store its name
+    local_accounts_to_delete+=($resource)
     # Get repo ID and local account ID for the local account.
     repo_id=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.repository_id" | sed 's/"//g' )
     local_account_id=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.id" | sed 's/"//g')
-    # We will need to delete this local account from the .tf file, store its name
-    local_accounts_to_delete+=($resource)
     # Construct import ID for the user account that was migrated from this local account.
     import_id="$repo_id/$local_account_id"
     # Construct name of the user account that will be imported.
@@ -118,21 +118,21 @@ fi
 echo; echo; echo;
 echo "Now its time to upgrade your Cyral Terraform Provider to version 3!"
 echo
-echo "Before we procede, you will need to do the following:
+echo "Before we proceed, you will need to do the following:
     1.  Open your Terraform .tf configuration file.
     2.  Change the version number of the cyral provider in the required_providers
-        section of your .tf configuration file to '>= 3.0.0'. It should look like this:
+        section of your .tf configuration file to 3.0.0. It should look like this:
             cyral = {
                 source  = \"cyralinc/cyral\"
-                version >= \"3.0.0\"
+                version = \"3.0.0\"
             }
-    3. Ensure that that new empty resource definitions were added to the end of
+    3. Ensure that new empty resource definitions were added to the end of
         your .tf file. The definitions will look like this:
             User Account
             resource \"cyral_repository_user_account\" \"<resource_name>\" {}
 
             Access Rules
-            resource \"cyral_repository_local_account\" \"<resource_name>\" {}"
+            resource \"cyral_repository_access_rules\" \"<resource_name>\" {}"
 echo
 read -p "Are you ready to upgrade Terraform? [N/y] " -n 1 -r
 echo    # move to a new line
@@ -145,11 +145,11 @@ fi
 terraform init -upgrade
 
 echo
-echo "Importing the following cyral_repository_access_rules into your Terraform state:"
-printf '%s\n' "${access_rule_resource_names[@]}"
-echo
 echo "Importing the following cyral_repository_user_accounts into your Terraform state:"
 printf '%s\n' "${user_account_resource_names[@]}"
+echo
+echo "Importing the following cyral_repository_access_rules into your Terraform state:"
+printf '%s\n' "${access_rule_resource_names[@]}"
 echo
 
 for ((i = 0; i < ${#user_account_import_ids[@]}; i++));do
@@ -160,11 +160,11 @@ for ((i = 0; i < ${#access_rule_import_ids[@]}; i++));do
 done
 
 echo
-echo "Removing the following cyral_repository_identity_maps:"
-printf '%s\n' "${identity_maps_to_delete[@]}"
-echo
 echo "Removing the following cyral_repository_local_accounts:"
 printf '%s\n' "${local_accounts_to_delete[@]}"
+echo
+echo "Removing the following cyral_repository_identity_maps:"
+printf '%s\n' "${identity_maps_to_delete[@]}"
 echo
 
 for ((i = 0; i < ${#local_accounts_to_delete[@]}; i++));do
