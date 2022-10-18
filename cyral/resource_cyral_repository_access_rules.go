@@ -61,7 +61,7 @@ func (arr *AccessRulesResponse) WriteToSchema(d *schema.ResourceData) error {
 		m["valid_from"] = rule.ValidFrom
 		m["valid_until"] = rule.ValidUntil
 
-		if rule.Config != nil {
+		if rule.Config != nil && len(rule.Config.AuthorizationPolicyInstanceIDs) > 0 {
 			m["config"] = []interface{}{
 				map[string]interface{}{
 					"policy_ids": rule.Config.AuthorizationPolicyInstanceIDs,
