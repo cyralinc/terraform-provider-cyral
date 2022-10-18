@@ -267,7 +267,7 @@ func resourcePolicyRule() *schema.Resource {
 		CreateContext: resourcePolicyRuleCreate,
 		ReadContext:   resourcePolicyRuleRead,
 		UpdateContext: resourcePolicyRuleUpdate,
-		DeleteContext: DeleteResource(deletePolicyRule()),
+		DeleteContext: DeleteResource(policyRuleDeleteConfig()),
 
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
@@ -407,7 +407,7 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 	return resourcePolicyRuleRead(ctx, d, m)
 }
 
-func deletePolicyRule() ResourceOperationConfig {
+func policyRuleDeleteConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "PolicyRuleDelete",
 		HttpMethod: http.MethodDelete,
