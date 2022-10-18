@@ -144,7 +144,7 @@ func resourcePolicyRule() *schema.Resource {
 		CreateContext: resourcePolicyRuleCreate,
 		ReadContext:   resourcePolicyRuleRead,
 		UpdateContext: resourcePolicyRuleUpdate,
-		DeleteContext: DeleteResource(deletePolicyRule()),
+		DeleteContext: DeleteResource(policyRuleDeleteConfig()),
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
 				Description: "The ID of the policy you are adding this rule to.",
@@ -327,7 +327,7 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 	return resourcePolicyRuleRead(ctx, d, m)
 }
 
-func deletePolicyRule() ResourceOperationConfig {
+func policyRuleDeleteConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "PolicyRuleDelete",
 		HttpMethod: http.MethodDelete,

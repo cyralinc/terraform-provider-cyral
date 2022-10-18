@@ -18,6 +18,7 @@ type PolicyRuleConfig struct {
 	DeletedRateLimit int
 	UpdatedRateLimit int
 	ReadRateLimit    int
+	Identities       *Identity
 }
 
 var initialPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
@@ -27,30 +28,70 @@ var initialPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
 	DeletedRateLimit: 1,
 	UpdatedRateLimit: 2,
 	ReadRateLimit:    3,
+	Identities: &Identity{
+		DBRoles: []string{
+			"db-role-1",
+		},
+	},
 }
 
-var updated1PolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
+var updatedGroupsPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
 	DeletedSeverity:  "low",
 	UpdatedSeverity:  "medium",
 	ReadSeverity:     "high",
 	DeletedRateLimit: 2,
 	UpdatedRateLimit: 3,
 	ReadRateLimit:    4,
+	Identities: &Identity{
+		Groups: []string{
+			"groups-1",
+		},
+	},
 }
 
-var updated2PolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
+var updatedServicesPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
 	DeletedSeverity:  "high",
 	UpdatedSeverity:  "low",
 	ReadSeverity:     "medium",
 	DeletedRateLimit: 5,
 	UpdatedRateLimit: 6,
 	ReadRateLimit:    7,
+	Identities: &Identity{
+		Services: []string{
+			"services-1",
+		},
+	},
+}
+
+var updatedUsersPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
+	DeletedSeverity:  "high",
+	UpdatedSeverity:  "low",
+	ReadSeverity:     "medium",
+	DeletedRateLimit: 5,
+	UpdatedRateLimit: 6,
+	ReadRateLimit:    7,
+	Identities: &Identity{
+		Users: []string{
+			"users-1",
+		},
+	},
+}
+
+var updatedNoIdentityPolicyRuleConfig PolicyRuleConfig = PolicyRuleConfig{
+	DeletedSeverity:  "low",
+	UpdatedSeverity:  "medium",
+	ReadSeverity:     "high",
+	DeletedRateLimit: 1,
+	UpdatedRateLimit: 2,
+	ReadRateLimit:    3,
 }
 
 func TestAccPolicyRuleResource(t *testing.T) {
 	testConfig, testFunc := setupPolicyRuleTest(initialPolicyRuleConfig)
-	testUpdate1Config, testUpdate1Func := setupPolicyRuleTest(updated1PolicyRuleConfig)
-	testUpdate2Config, testUpdate2Func := setupPolicyRuleTest(updated2PolicyRuleConfig)
+	testGroupsConfig, testGroupsFunc := setupPolicyRuleTest(updatedGroupsPolicyRuleConfig)
+	testServicesConfig, testServicesFunc := setupPolicyRuleTest(updatedServicesPolicyRuleConfig)
+	testUsersConfig, testUsersFunc := setupPolicyRuleTest(updatedUsersPolicyRuleConfig)
+	testNoIdentityConfig, testNoIdentityFunc := setupPolicyRuleTest(updatedNoIdentityPolicyRuleConfig)
 
 	importStateResName := "cyral_policy_rule.policy_rule_test"
 
@@ -62,12 +103,20 @@ func TestAccPolicyRuleResource(t *testing.T) {
 				Check:  testFunc,
 			},
 			{
-				Config: testUpdate1Config,
-				Check:  testUpdate1Func,
+				Config: testGroupsConfig,
+				Check:  testGroupsFunc,
 			},
 			{
-				Config: testUpdate2Config,
-				Check:  testUpdate2Func,
+				Config: testServicesConfig,
+				Check:  testServicesFunc,
+			},
+			{
+				Config: testUsersConfig,
+				Check:  testUsersFunc,
+			},
+			{
+				Config: testNoIdentityConfig,
+				Check:  testNoIdentityFunc,
 			},
 			{
 				ImportState:       true,
@@ -95,26 +144,84 @@ func setupPolicyRuleTest(policyRule PolicyRuleConfig) (string, resource.TestChec
 		testLabelName,
 	)
 
-	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "deletes.0.severity", policyRule.DeletedSeverity),
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "reads.0.severity", policyRule.ReadSeverity),
-		resource.TestCheckResourceAttr("cyral_policy_rule.policy_rule_test", "updates.0.severity", policyRule.UpdatedSeverity),
-	)
+	resFullName := "cyral_policy_rule.policy_rule_test"
+	testFunctions := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(resFullName,
+			"deletes.0.severity", policyRule.DeletedSeverity),
+		resource.TestCheckResourceAttr(resFullName,
+			"reads.0.severity", policyRule.ReadSeverity),
+		resource.TestCheckResourceAttr(resFullName,
+			"updates.0.severity", policyRule.UpdatedSeverity),
+	}
 
-	return config, testFunction
+	if policyRule.Identities != nil {
+		identities := policyRule.Identities
+
+		for i, dbRole := range identities.DBRoles {
+			testFunctions = append(testFunctions,
+				resource.TestCheckResourceAttr(resFullName,
+					fmt.Sprintf("identities.0.db_roles.%d", i), dbRole),
+			)
+		}
+		for i, group := range identities.Groups {
+			testFunctions = append(testFunctions,
+				resource.TestCheckResourceAttr(resFullName,
+					fmt.Sprintf("identities.0.groups.%d", i), group),
+			)
+		}
+		for i, service := range identities.Services {
+			testFunctions = append(testFunctions,
+				resource.TestCheckResourceAttr(resFullName,
+					fmt.Sprintf("identities.0.services.%d", i), service),
+			)
+		}
+		for i, user := range identities.Users {
+			testFunctions = append(testFunctions,
+				resource.TestCheckResourceAttr(resFullName,
+					fmt.Sprintf("identities.0.users.%d", i), user),
+			)
+		}
+	}
+
+	return config, resource.ComposeTestCheckFunc(testFunctions...)
 }
 
 func formatPolicyRuleConfigIntoConfig(
 	policyRule PolicyRuleConfig,
 	dataLabelName string,
 ) string {
+	var identitiesStr string
+	if policyRule.Identities != nil {
+		identities := policyRule.Identities
+		identitiesStr += `
+		identities {`
+
+		if identities.DBRoles != nil {
+			identitiesStr += fmt.Sprintf(`
+			db_roles = %s`, listToStr(identities.DBRoles))
+		}
+		if identities.Groups != nil {
+			identitiesStr += fmt.Sprintf(`
+			groups = %s`, listToStr(identities.Groups))
+		}
+		if identities.Services != nil {
+			identitiesStr += fmt.Sprintf(`
+			services = %s`, listToStr(identities.Services))
+		}
+		if identities.Users != nil {
+			identitiesStr += fmt.Sprintf(`
+			users = %s`, listToStr(identities.Users))
+		}
+
+		identitiesStr += `
+		}`
+	}
+
 	return fmt.Sprintf(`
 	resource "cyral_policy_rule" "policy_rule_test" {
 		policy_id = cyral_policy.test_policy.id
 		hosts = ["192.0.2.22", "203.0.113.16/28"]
-		identities {
-			groups = ["analyst"]
-		}
+		%s
 		deletes {
 			data = ["%s"]
 			rows = 1
@@ -133,7 +240,8 @@ func formatPolicyRuleConfigIntoConfig(
 			severity = "%s"
 			rate_limit = %d
 		}
-	}`, dataLabelName, policyRule.DeletedSeverity, policyRule.DeletedRateLimit,
+	}`, identitiesStr,
+		dataLabelName, policyRule.DeletedSeverity, policyRule.DeletedRateLimit,
 		dataLabelName, policyRule.ReadSeverity, policyRule.ReadRateLimit,
 		dataLabelName, policyRule.UpdatedSeverity, policyRule.UpdatedRateLimit)
 }
