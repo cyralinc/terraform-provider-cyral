@@ -92,7 +92,7 @@ func TestAccPolicyRuleResource(t *testing.T) {
 	testConfig, testFunc := setupPolicyRuleTest(initialPolicyRuleConfig)
 	testGroupsConfig, testGroupsFunc := setupPolicyRuleTest(updatedGroupsPolicyRuleConfig)
 	testServicesConfig, testServicesFunc := setupPolicyRuleTest(updatedServicesPolicyRuleConfig)
-	testUsersConfig, testUsersFunc := setupPolicyRuleTest(updatedServicesPolicyRuleConfig)
+	testUsersConfig, testUsersFunc := setupPolicyRuleTest(updatedUsersPolicyRuleConfig)
 	testNoIdentityConfig, testNoIdentityFunc := setupPolicyRuleTest(updatedNoIdentityPolicyRuleConfig)
 
 	importStateResName := "cyral_policy_rule.policy_rule_test"
