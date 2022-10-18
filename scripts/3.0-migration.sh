@@ -199,7 +199,7 @@ echo "Please perform the following actions: "
 echo
 echo "  1.  Find all references to cyral_repository_identity_maps and"
 echo "      cyral_repository_local_accounts in your .tf file and remove the"
-echo "      entire resource defintion for each one."
+echo "      entire resource definition for each one."
 echo "  2.  Remove the empty resource definitions for the "
 echo "      cyral_repository_access_rules and cyral_repository_user_accounts"
 echo "      that were added to the end of your .tf file, which is named:"
@@ -213,7 +213,7 @@ echo
 echo "If migration was successful, you should see the following message:"
 echo "No changes. Your infrastructure matches the configuration."
 echo
-echo "If migration was not successful, you have to option to revert to your"
+echo "If migration was not successful, you have the option to revert to your"
 echo "previous Terraform state and try again."
 echo
 read -p "Would you revert to your previous state and try the migration again? [N/y] " -n 1 -r
