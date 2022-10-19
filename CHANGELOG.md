@@ -1,3 +1,12 @@
+## 2.10.2 (October 18, 2022)
+
+Minimum required Control Plane version: `v2.34.0`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+
+### Bug fixes:
+
+- **Policy rule identities field should be omitted by default**: [#302](https://github.com/cyralinc/terraform-provider-cyral/pull/302).
+
 ## 2.10.1 (October 6, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
