@@ -197,8 +197,8 @@ echo
 echo "It is finally time to remove the old resources from your .tf files."
 echo "Please perform the following actions: "
 echo
-echo "  1.  Find all references to cyral_repository_identity_maps and"
-echo "      cyral_repository_local_accounts in your .tf file and remove the"
+echo "  1.  Find all references to cyral_repository_identity_map and"
+echo "      cyral_repository_local_account in your .tf file and remove the"
 echo "      entire resource definition for each one."
 echo "  2.  Remove the empty resource definitions for the "
 echo "      cyral_repository_access_rules and cyral_repository_user_accounts"
