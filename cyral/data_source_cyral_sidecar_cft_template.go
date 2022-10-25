@@ -225,7 +225,7 @@ func getTemplateForSidecarProperties(
 	}
 
 	var url string
-	if sidecarData.SidecarProperty.DeploymentMethod == CloudFormationDeploymentMethod {
+	if sidecarData.Properties.DeploymentMethod == CloudFormationDeploymentMethod {
 		url = fmt.Sprintf("https://%s/deploy/cft/", controlPlane)
 		url += urlQuery(sidecarTemplatePropertiesKV)
 	} else {

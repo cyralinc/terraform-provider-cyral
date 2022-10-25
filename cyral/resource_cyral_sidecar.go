@@ -14,51 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-type CreateSidecarResponse struct {
-	ID string `json:"ID"`
-}
-
-type SidecarData struct {
-	ID                       string                   `json:"id"`
-	Name                     string                   `json:"name"`
-	Labels                   []string                 `json:"labels"`
-	SidecarProperty          *SidecarProperty         `json:"properties"`
-	ServicesConfig           SidecarServicesConfig    `json:"services"`
-	UserEndpoint             string                   `json:"userEndpoint"`
-	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
-}
-
-func (sd *SidecarData) BypassMode() string {
-	if sd.ServicesConfig != nil {
-		if dispConfig, ok := sd.ServicesConfig["dispatcher"]; ok {
-			if bypass_mode, ok := dispConfig["bypass"]; ok {
-				return bypass_mode
-			}
-		}
-	}
-	return ""
-}
-
-type SidecarProperty struct {
-	DeploymentMethod string `json:"deploymentMethod"`
-}
-
-func NewSidecarProperty(deploymentMethod string) *SidecarProperty {
-	return &SidecarProperty{
-		DeploymentMethod: deploymentMethod,
-	}
-}
-
-type SidecarServicesConfig map[string]map[string]string
-
-type CertificateBundleSecrets map[string]*CertificateBundleSecret
-
-type CertificateBundleSecret struct {
-	Engine   string `json:"engine,omitempty"`
-	SecretId string `json:"secretId,omitempty"`
-	Type     string `json:"type,omitempty"`
-}
-
 func resourceSidecar() *schema.Resource {
 	return &schema.Resource{
 		Description:   "Manages [sidecars](https://cyral.com/docs/sidecars/sidecar-manage).",
@@ -112,7 +67,7 @@ func resourceSidecar() *schema.Resource {
 				}, false),
 			},
 			"certificate_bundle_secrets": {
-				Description: "Certificate Bundle Secret is a configuration that holds data about the" +
+				Description: "Configuration that holds data about the" +
 					" location of a particular TLS certificate bundle in a secrets manager.",
 				Type:     schema.TypeSet,
 				MaxItems: 1,
@@ -127,21 +82,22 @@ func resourceSidecar() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"engine": {
-										Description: "Engine is the name of the engine used with the given secrets" +
-											" manager type, when applicable.",
+										Description: "Name of the engine used with the given secrets " +
+											"manager type, when applicable.",
 										Type:     schema.TypeString,
 										Optional: true,
 									},
 									"secret_id": {
-										Description: "Secret ID is the identifier or location for the secret that" +
-											" holds the certificate bundle.",
+										Description: "Identifier or location of the secret that " +
+											"holds the certificate bundle.",
 										Type:     schema.TypeString,
 										Required: true,
 									},
 									"type": {
-										Description: "Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.",
-										Type:        schema.TypeString,
-										Required:    true,
+										Description: "Type identifies the secret manager used to store the secret. " +
+											"Valid values are: `aws` and `k8s`.",
+										Type:     schema.TypeString,
+										Required: true,
 										ValidateFunc: validation.StringInSlice([]string{
 											"aws",
 											"k8s",
@@ -223,7 +179,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("name", response.Name)
-	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
+	d.Set("deployment_method", response.Properties.DeploymentMethod)
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
 	if bypassMode := response.BypassMode(); bypassMode != "" {
@@ -276,7 +232,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 
 	deploymentMethod := d.Get("deployment_method").(string)
 
-	sp := NewSidecarProperty(deploymentMethod)
+	sp := NewSidecarProperties(deploymentMethod)
 
 	svcconf := SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -299,8 +255,8 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 		ID:                       d.Id(),
 		Name:                     d.Get("name").(string),
 		Labels:                   sidecarDataLabels,
-		SidecarProperty:          sp,
-		ServicesConfig:           svcconf,
+		Properties:               sp,
+		Services:                 svcconf,
 		UserEndpoint:             d.Get("user_endpoint").(string),
 		CertificateBundleSecrets: cbs,
 	}, nil

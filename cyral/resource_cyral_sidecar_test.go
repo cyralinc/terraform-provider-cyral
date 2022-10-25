@@ -25,7 +25,7 @@ func getTestCBS() CertificateBundleSecrets {
 var cloudFormationSidecarConfig *SidecarData = &SidecarData{
 	Name:                     accTestName(sidecarResourceName, "cft"),
 	Labels:                   []string{"test1"},
-	SidecarProperty:          NewSidecarProperty("cloudFormation"),
+	Properties:               NewSidecarProperties("cloudFormation"),
 	UserEndpoint:             "some.cft.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
@@ -33,7 +33,7 @@ var cloudFormationSidecarConfig *SidecarData = &SidecarData{
 var dockerSidecarConfig *SidecarData = &SidecarData{
 	Name:                     accTestName(sidecarResourceName, "docker"),
 	Labels:                   []string{"test2"},
-	SidecarProperty:          NewSidecarProperty("docker"),
+	Properties:               NewSidecarProperties("docker"),
 	UserEndpoint:             "some.docker.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
@@ -41,7 +41,7 @@ var dockerSidecarConfig *SidecarData = &SidecarData{
 var helmSidecarConfig *SidecarData = &SidecarData{
 	Name:                     accTestName(sidecarResourceName, "helm"),
 	Labels:                   []string{"test3"},
-	SidecarProperty:          NewSidecarProperty("helm"),
+	Properties:               NewSidecarProperties("helm"),
 	UserEndpoint:             "some.helm.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
@@ -49,7 +49,7 @@ var helmSidecarConfig *SidecarData = &SidecarData{
 var tfSidecarConfig *SidecarData = &SidecarData{
 	Name:                     accTestName(sidecarResourceName, "tf"),
 	Labels:                   []string{"test4"},
-	SidecarProperty:          NewSidecarProperty("terraform"),
+	Properties:               NewSidecarProperties("terraform"),
 	UserEndpoint:             "some.tf.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
@@ -57,15 +57,15 @@ var tfSidecarConfig *SidecarData = &SidecarData{
 var singleContainerSidecarConfig *SidecarData = &SidecarData{
 	Name:                     accTestName(sidecarResourceName, "singleContainer"),
 	Labels:                   []string{"test5"},
-	SidecarProperty:          NewSidecarProperty("singleContainer"),
+	Properties:               NewSidecarProperties("singleContainer"),
 	UserEndpoint:             "some.singleContainer.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
 var bypassNeverSidecarConfig *SidecarData = &SidecarData{
-	Name:            accTestName(sidecarResourceName, "bypassNeverSidecar"),
-	SidecarProperty: NewSidecarProperty("terraform"),
-	ServicesConfig: SidecarServicesConfig{
+	Name:       accTestName(sidecarResourceName, "bypassNeverSidecar"),
+	Properties: NewSidecarProperties("terraform"),
+	Services: SidecarServicesConfig{
 		"dispatcher": map[string]string{
 			"bypass": "never",
 		},
@@ -74,9 +74,9 @@ var bypassNeverSidecarConfig *SidecarData = &SidecarData{
 }
 
 var bypassAlwaysSidecarConfig *SidecarData = &SidecarData{
-	Name:            accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
-	SidecarProperty: NewSidecarProperty("terraform"),
-	ServicesConfig: SidecarServicesConfig{
+	Name:       accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
+	Properties: NewSidecarProperties("terraform"),
+	Services: SidecarServicesConfig{
 		"dispatcher": map[string]string{
 			"bypass": "always",
 		},
@@ -140,7 +140,7 @@ func setupSidecarTest(sidecarData *SidecarData) (string, resource.TestCheckFunc)
 
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "name", sidecarData.Name),
-		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "deployment_method", sidecarData.SidecarProperty.DeploymentMethod),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "deployment_method", sidecarData.Properties.DeploymentMethod),
 	}
 
 	if bypassMode := sidecarData.BypassMode(); bypassMode != "" {
@@ -182,7 +182,7 @@ func formatSidecarDataIntoConfig(sidecarData *SidecarData) string {
 		%s
 		%s
       	}`, sidecarData.Name,
-		sidecarData.SidecarProperty.DeploymentMethod,
+		sidecarData.Properties.DeploymentMethod,
 		listToStr(sidecarData.Labels),
 		sidecarData.UserEndpoint,
 		certBundleConfig,

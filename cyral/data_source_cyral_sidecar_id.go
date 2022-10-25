@@ -11,11 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type IdentifiedSidecarInfo struct {
-	ID      string      `json:"id"`
-	Sidecar SidecarData `json:"sidecar"`
-}
-
 func dataSourceSidecarID() *schema.Resource {
 	return &schema.Resource{
 		Description: "Given a sidecar name, retrieves the respective sidecar ID.",
