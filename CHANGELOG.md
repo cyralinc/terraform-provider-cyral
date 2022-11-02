@@ -44,9 +44,9 @@ Removed provider arguments:
 
 Renamed resource arguments:
 
-- `cyral_policy_rule.id` -- now `cyral_policy_rule.policy_rule_id` contains the
-  ID of the policy rule in the Cyral environment. `cyral_policy_rule.id` now
-  contains a composed ID in the format `{policy_id}/{policy_rule_id}`.
+- `cyral_policy_rule.id` -- now
+  `cyral_policy_rule.policy_rule_id`. `cyral_policy_rule.id` now contains a
+  composed ID in the format `{policy_id}/{policy_rule_id}`.
 
 The format of the `id` argument of the following resources was modified:
 
