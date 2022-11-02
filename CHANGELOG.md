@@ -30,6 +30,32 @@ Resources incompatible with Control Planes `v2.x`:
 `cyral_repository_identity_map` (removed, use `cyral_repository_access_rules` instead),
 `cyral_repository_local_account` (removed, use `cyral_repository_user_account` instead).
 
+Removed resource arguments:
+
+- `cyral_policy.properties`
+
+Removed provider arguments:
+
+- `auth_provider`
+- `auth0_audience`
+- `auth0_domain`
+- `auth0_client_id`
+- `auth0_client_secret`
+
+Renamed resource arguments:
+
+- `cyral_policy_rule.id` -- now `cyral_policy_rule.policy_rule_id` contains the
+  ID of the policy rule in the Cyral environment. `cyral_policy_rule.id` now
+  contains a composed ID in the format `{policy_id}/{policy_rule_id}`.
+
+The format of the `id` argument of the following resources was modified:
+
+- `cyral_repository_binding` -- was `{sidecar_id}-{repository_id}`, now `{sidecar_id}/{repository_id}`.
+- `cyral_repository_conf_auth` -- was `repo-conf`, now `{repository_id}`.
+- `cyral_repository_conf_analysis` -- was `{repository_id}/ConfAnalysis`, now `{repository_id}`.
+- `cyral_policy_rule` -- was `{policy_rule_id}`, now `{policy_id}/{policy_rule_id}`.
+- `cyral_role_sso_groups` -- was `{role_id}/SSOGroups`, now `{role_id}`.
+
 ### Features:
 
 - **Add resource AccessRules**: [#280](https://github.com/cyralinc/terraform-provider-cyral/pull/280).

@@ -25,20 +25,10 @@ type UserFacingConfig struct {
 	EnableDataMasking          bool     `json:"enableDataMasking"`
 	LogGroups                  []string `json:"logGroups,omitempty"`
 	Redact                     string   `json:"redact"`
-
-	// TODO: RewriteOnViolation is deprecated and only works for CP versions
-	// <= 3.0.1. In 3.0.2, it was substituted by
-	// `enableDatasetRewrites`. Remove this in the next MAJOR release.
-	RewriteOnViolation bool `json:"rewriteOnViolation"`
-
-	EnableDatasetRewrites bool `json:"enableDatasetRewrites"`
+	EnableDatasetRewrites      bool     `json:"enableDatasetRewrites"`
 }
 
 func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
-	rewriteOnViolationDeprecationMessage := "This argument only works with " +
-		"control plane versions up to 3.0.1. It will be removed in a " +
-		"future release. Use `enable_dataset_rewrites` instead."
-
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -86,14 +76,6 @@ func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
 				Description: "If set to `true` it will *disable* filter analysis.",
 				Type:        schema.TypeBool,
 				Optional:    true,
-			},
-			// TODO: Remove `rewrite_on_violation` next MAJOR
-			// release.
-			"rewrite_on_violation": {
-				Description: "If set to `true` it will enable rewriting queries on violations.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Deprecated:  rewriteOnViolationDeprecationMessage,
 			},
 			"enable_dataset_rewrites": {
 				Description: "If set to `true` it will enable rewriting queries.",
@@ -299,12 +281,6 @@ func getConfAnalysisDataFromResource(d *schema.ResourceData) (RepositoryConfAnal
 		}
 	}
 
-	// To avoid breaking backwards compatibility with previous control plane
-	// versions, we provide both values to the API.
-	deprecatedRewriteOnViolationArgVal := d.Get("rewrite_on_violation").(bool)
-	enableDatasetRewritesArgVal := d.Get("enable_dataset_rewrites").(bool)
-	enableDatasetRewrites := deprecatedRewriteOnViolationArgVal || enableDatasetRewritesArgVal
-
 	return RepositoryConfAnalysisData{
 		Config: UserFacingConfig{
 			AlertOnViolation:           d.Get("alert_on_violation").(bool),
@@ -315,11 +291,7 @@ func getConfAnalysisDataFromResource(d *schema.ResourceData) (RepositoryConfAnal
 			CommentAnnotationGroups:    annotationGroups,
 			LogGroups:                  logGroups,
 			Redact:                     d.Get("redact").(string),
-
-			// Remove RewriteOnViolation in the next MAJOR release.
-			RewriteOnViolation: enableDatasetRewrites,
-
-			EnableDatasetRewrites: enableDatasetRewrites,
+			EnableDatasetRewrites:      d.Get("enable_dataset_rewrites").(bool),
 		},
 	}, nil
 }
@@ -345,9 +317,5 @@ func setConfAnalysisDataToResource(d *schema.ResourceData, resourceData Reposito
 	d.Set("enable_data_masking", resourceData.Config.EnableDataMasking)
 	d.Set("log_groups", logGroupsSet)
 	d.Set("redact", resourceData.Config.Redact)
-
-	// TODO: Remove RewriteOnViolation on next MAJOR release.
-	d.Set("rewrite_on_violation", resourceData.Config.RewriteOnViolation)
-
 	d.Set("enable_dataset_rewrites", resourceData.Config.EnableDatasetRewrites)
 }
