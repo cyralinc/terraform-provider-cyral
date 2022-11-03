@@ -28,14 +28,6 @@ Renamed resource arguments:
   `cyral_policy_rule.policy_rule_id`. `cyral_policy_rule.id` now contains a
   composed ID in the format `{policy_id}/{policy_rule_id}`.
 
-The format of the `id` argument of the following resources was modified:
-
-- `cyral_repository_binding` -- was `{sidecar_id}-{repository_id}`, now `{sidecar_id}/{repository_id}`.
-- `cyral_repository_conf_auth` -- was `repo-conf`, now `{repository_id}`.
-- `cyral_repository_conf_analysis` -- was `{repository_id}/ConfAnalysis`, now `{repository_id}`.
-- `cyral_policy_rule` -- was `{policy_rule_id}`, now `{policy_id}/{policy_rule_id}`.
-- `cyral_role_sso_groups` -- was `{role_id}/SSOGroups`, now `{role_id}`.
-
 ### Features:
 
 - **Add Cyral Terraform 3.0 Migration Guide**: [#303](https://github.com/cyralinc/terraform-provider-cyral/pull/303).
@@ -73,14 +65,6 @@ Renamed resource arguments:
 - `cyral_policy_rule.id` -- now
   `cyral_policy_rule.policy_rule_id`. `cyral_policy_rule.id` now contains a
   composed ID in the format `{policy_id}/{policy_rule_id}`.
-
-The format of the `id` argument of the following resources was modified:
-
-- `cyral_repository_binding` -- was `{sidecar_id}-{repository_id}`, now `{sidecar_id}/{repository_id}`.
-- `cyral_repository_conf_auth` -- was `repo-conf`, now `{repository_id}`.
-- `cyral_repository_conf_analysis` -- was `{repository_id}/ConfAnalysis`, now `{repository_id}`.
-- `cyral_policy_rule` -- was `{policy_rule_id}`, now `{policy_id}/{policy_rule_id}`.
-- `cyral_role_sso_groups` -- was `{role_id}/SSOGroups`, now `{role_id}`.
 
 ### Features:
 
