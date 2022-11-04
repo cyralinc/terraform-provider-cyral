@@ -41,58 +41,6 @@ There are some breaking changes in version 3 which our Bash script does not
 automatically migrate. For a full list of breaking changes, please see Cyral
 Provider's
 [CHANGELOG](https://github.com/cyralinc/terraform-provider-cyral/blob/main/CHANGELOG.md).
-Below, we provide some examples of how a manual migration can be done.
-
-### Removed resource parameters
-
-The following resource parameters were removed:
-
-- `properties` from the resource `cyral_policy`.
-
-To migrate, simply remove this argument from your `cyral_policy` resource. For
-example:
-
-```terraform
-resource "cyral_policy" "my_policy" {
-  name = "my_policy"
-  properties {
-    # ...
-  }
-}
-```
-
-should be replaced by:
-
-```terraform
-resource "cyral_policy" "my_policy" {
-  name = "my_policy"
-}
-```
-
-### Renamed resource parameters
-
-The following resource parameters were renamed:
-
-- `rewrite_on_violation` from `cyral_repository_conf_analysis` was renamed to `enable_dataset_rewrites`.
-
-To migrate, simply replace `rewrite_on_violation` by
-`enable_dataset_rewrites`. For example:
-
-```terraform
-resource "cyral_repository_conf_analysis" "my_config" {
-  repository_id = "..."
-  rewrite_on_violation = true
-}
-```
-
-should be replaced by:
-
-```terraform
-resource "cyral_repository_conf_analysis" "my_config" {
-  repository_id = "..."
-  enable_dataset_rewrites = true
-}
-```
 
 ## Prerequisites
 
