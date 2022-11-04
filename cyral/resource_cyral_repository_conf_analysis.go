@@ -25,7 +25,7 @@ type UserFacingConfig struct {
 	EnableDataMasking          bool     `json:"enableDataMasking"`
 	LogGroups                  []string `json:"logGroups,omitempty"`
 	Redact                     string   `json:"redact"`
-	RewriteOnViolation         bool     `json:"rewriteOnViolation"`
+	EnableDatasetRewrites      bool     `json:"enableDatasetRewrites"`
 }
 
 func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
@@ -77,8 +77,8 @@ func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
-			"rewrite_on_violation": {
-				Description: "If set to `true` it will enable rewriting queries on violations.",
+			"enable_dataset_rewrites": {
+				Description: "If set to `true` it will enable rewriting queries.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
@@ -291,7 +291,7 @@ func getConfAnalysisDataFromResource(d *schema.ResourceData) (RepositoryConfAnal
 			CommentAnnotationGroups:    annotationGroups,
 			LogGroups:                  logGroups,
 			Redact:                     d.Get("redact").(string),
-			RewriteOnViolation:         d.Get("rewrite_on_violation").(bool),
+			EnableDatasetRewrites:      d.Get("enable_dataset_rewrites").(bool),
 		},
 	}, nil
 }
@@ -317,5 +317,5 @@ func setConfAnalysisDataToResource(d *schema.ResourceData, resourceData Reposito
 	d.Set("enable_data_masking", resourceData.Config.EnableDataMasking)
 	d.Set("log_groups", logGroupsSet)
 	d.Set("redact", resourceData.Config.Redact)
-	d.Set("rewrite_on_violation", resourceData.Config.RewriteOnViolation)
+	d.Set("enable_dataset_rewrites", resourceData.Config.EnableDatasetRewrites)
 }

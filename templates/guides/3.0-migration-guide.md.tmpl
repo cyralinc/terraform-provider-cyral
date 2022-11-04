@@ -13,15 +13,15 @@ Cyral Terraform Provider V3 Migration is required once a Cyral Control Plane (CP
 are migrated to new objects, called Access Rules and User Accounts respectively. The Terraform migration is
 needed to import these newly migrated resources into your Terraform state and configuration files.
 
-```
 Version 3 of the Cyral Terraform provider no longer supports the following resources:
-  * cyral_repository_identity_map
-  * cyral_repository_local_account
+
+- `cyral_repository_identity_map`
+- `cyral_repository_local_account`
 
 The resources above have been replaced by the following, respectively:
-  * cyral_repository_access_rules
-  * cyral_repository_user_account
-```
+
+- `cyral_repository_access_rules`
+- `cyral_repository_user_account`
 
 ### When should the Cyral Terraform Provider V3 Migration be performed?
 
@@ -34,6 +34,13 @@ The following steps should be taken to upgrade the Cyral CP and the Cyral Terraf
 3. Perform the Cyral Terraform Provider V3 Migration after upgrading the Cyral CP to MAJOR version 3.
 
 It is essential that the Cyral Terraform Provider V3 Migration is run **after** the CP has been upgraded.
+
+## Other breaking changes
+
+There are some breaking changes in version 3 which our Bash script does not
+automatically migrate. For a full list of breaking changes, please see Cyral
+Provider's
+[CHANGELOG](https://github.com/cyralinc/terraform-provider-cyral/blob/main/CHANGELOG.md).
 
 ## Prerequisites
 

@@ -138,7 +138,7 @@ func testAccRepoConfAnalysisCheck_DefaultValues() resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"redact", "all"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"rewrite_on_violation", "false"),
+			"enable_dataset_rewrites", "false"),
 	)
 }
 
@@ -153,7 +153,7 @@ func testAccRepoConfAnalysisConfig_Updated() string {
 		disable_pre_configured_alerts = false
 		block_on_violation = true
 		disable_filter_analysis = false
-		rewrite_on_violation = true
+		enable_dataset_rewrites = true
 		enable_data_masking = true
 		comment_annotation_groups = [
 			"identity"
@@ -183,7 +183,7 @@ func testAccRepoConfAnalysisCheck_Updated() resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"enable_data_masking", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
-			"rewrite_on_violation", "true"),
+			"enable_dataset_rewrites", "true"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"comment_annotation_groups.#", "1"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",

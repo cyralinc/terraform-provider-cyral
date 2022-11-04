@@ -21,7 +21,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_enabled" {
   disable_pre_configured_alerts = false
   block_on_violation = true
   disable_filter_analysis = false
-  rewrite_on_violation = true
+  enable_dataset_rewrites = true
   enable_data_masking = true
   comment_annotation_groups = [ "identity" ]
   log_groups = [ "everything" ]
@@ -35,7 +35,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
   disable_pre_configured_alerts = true
   block_on_violation = false
   disable_filter_analysis = true
-  rewrite_on_violation = false
+  enable_dataset_rewrites = false
   enable_data_masking = false
   comment_annotation_groups = []
   log_groups = []
@@ -58,6 +58,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
 - `disable_filter_analysis` (Boolean) If set to `true` it will _disable_ filter analysis.
 - `disable_pre_configured_alerts` (Boolean) If set to `true` it will _disable_ preconfigured alerts.
 - `enable_data_masking` (Boolean) If set to `true` it will allow policies to force the masking of specified data fields in the results of queries. [Learn more](https://cyral.com/docs/using-cyral/masking/).
+- `enable_dataset_rewrites` (Boolean) If set to `true` it will enable rewriting queries.
 - `log_groups` (Set of String) Responsible for configuring the Log Settings. Valid values are documented below. The `log_groups` list support the following values:
   - `everything` - Enables all the Log Settings.
   - `dql` - Enables the `DQLs` setting for `all requests`.
@@ -79,7 +80,6 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
   - `new-connections` - Log new connections.
   - `closed-connections` - Log closed connections.
 - `redact` (String) Valid values are: `all`, `none` and `watched`. If set to `all` it will enable the redact of all literal values, `none` will disable it, and `watched` will only redact values from tracked fields set in the Datamap.
-- `rewrite_on_violation` (Boolean) If set to `true` it will enable rewriting queries on violations.
 
 ### Read-Only
 
