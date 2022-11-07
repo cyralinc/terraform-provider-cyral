@@ -17,7 +17,8 @@ parameters, like the Cyral control plane reference and authentication secrets.
 provider "cyral" {
     client_id = ""
     client_secret = ""
-    control_plane = "some-cp.cyral.com:8000"
+    # For old control plane, set to "some-cp.cyral.com:8000"
+    control_plane = "some-cp.cyral.com"
 }
 ```
 
@@ -36,7 +37,8 @@ terraform {
 provider "cyral" {
     client_id = ""
     client_secret = ""
-    control_plane = "some-cp.cyral.com:8000"
+    # For old control plane, set to "some-cp.cyral.com:8000"
+    control_plane = "some-cp.cyral.com"
 }
 ```
 
