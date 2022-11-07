@@ -1,3 +1,13 @@
+## 2.11.0 (November 7, 2022)
+
+Minimum required Control Plane version: `v2.35.0`.
+Resource incompatible with Control Planes between previous to `v2.35`: parameter `enable_dataset_rewrites` from resource `cyral_repository_conf_analysis`.
+
+### Features:
+
+- **Deprecate rewrite_on_violation, add enable_dataset_rewrites**: [#310](https://github.com/cyralinc/terraform-provider-cyral/pull/310).
+- **Add support for linux sidecar deployment**: [#311](https://github.com/cyralinc/terraform-provider-cyral/pull/311).
+
 ## 2.10.2 (October 18, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
