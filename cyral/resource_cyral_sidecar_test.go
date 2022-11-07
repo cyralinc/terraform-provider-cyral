@@ -62,6 +62,14 @@ var singleContainerSidecarConfig *SidecarData = &SidecarData{
 	CertificateBundleSecrets: getTestCBS(),
 }
 
+var linuxSidecarConfig *SidecarData = &SidecarData{
+	Name:                     accTestName(sidecarResourceName, "linux"),
+	Labels:                   []string{"test6"},
+	SidecarProperty:          NewSidecarProperty("linux"),
+	UserEndpoint:             "some.linux.user.endpoint",
+	CertificateBundleSecrets: getTestCBS(),
+}
+
 var bypassNeverSidecarConfig *SidecarData = &SidecarData{
 	Name:            accTestName(sidecarResourceName, "bypassNeverSidecar"),
 	SidecarProperty: NewSidecarProperty("terraform"),
@@ -92,6 +100,9 @@ func TestAccSidecarResource(t *testing.T) {
 	testUpdateConfigSingleContainer, testUpdateFuncSingleContainer := setupSidecarTest(
 		singleContainerSidecarConfig,
 	)
+	testUpdateConfigLinux, testUpdateFuncLinux := setupSidecarTest(
+		linuxSidecarConfig,
+	)
 	testUpdateConfigBypassNever, testUpdateFuncBypassNever := setupSidecarTest(bypassNeverSidecarConfig)
 	testUpdateConfigBypassAlways, testUpdateFuncBypassAlways := setupSidecarTest(bypassAlwaysSidecarConfig)
 
@@ -117,6 +128,10 @@ func TestAccSidecarResource(t *testing.T) {
 			{
 				Config: testUpdateConfigSingleContainer,
 				Check:  testUpdateFuncSingleContainer,
+			},
+			{
+				Config: testUpdateConfigLinux,
+				Check:  testUpdateFuncLinux,
 			},
 			{
 				Config: testUpdateConfigBypassNever,
