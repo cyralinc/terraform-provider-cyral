@@ -73,8 +73,9 @@ The test framework requires basic configuration before it can be executed as fol
 1. Set the configuration environment variables:
 
 ```bash
-# Set the control plane DNS name and port (default 8000):
-export CYRAL_TF_CONTROL_PLANE=mycp.cyral.com:8000
+# Set the control plane DNS name and port (for old control plane,
+# set to "mycp.cyral.com:8000"):
+export CYRAL_TF_CONTROL_PLANE=mycp.cyral.com
 
 # Set client and secret ID:
 export CYRAL_TF_CLIENT_ID=?
