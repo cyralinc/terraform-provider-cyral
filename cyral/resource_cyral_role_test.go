@@ -24,7 +24,6 @@ var onlyFalsePermissions = map[string]string{
 	"modify_sidecars_and_repositories": "false",
 	"modify_users":                     "false",
 	"modify_policies":                  "false",
-	"view_sidecars_and_repositories":   "false",
 	"view_audit_logs":                  "false",
 	"modify_integrations":              "false",
 	"modify_roles":                     "false",
@@ -35,7 +34,6 @@ var trueAndFalsePermissions = map[string]string{
 	"modify_sidecars_and_repositories": "true",
 	"modify_users":                     "true",
 	"modify_policies":                  "true",
-	"view_sidecars_and_repositories":   "true",
 	"view_audit_logs":                  "false",
 	"modify_integrations":              "false",
 	"modify_roles":                     "false",
@@ -46,7 +44,6 @@ var onlyTruePermissions = map[string]string{
 	"modify_sidecars_and_repositories": "true",
 	"modify_users":                     "true",
 	"modify_policies":                  "true",
-	"view_sidecars_and_repositories":   "true",
 	"view_audit_logs":                  "true",
 	"modify_integrations":              "true",
 	"modify_roles":                     "true",
@@ -155,7 +152,6 @@ func testAccRoleConfig_OnlyFalsePermissions() string {
 			modify_sidecars_and_repositories = false
 			modify_users = false
 			modify_policies = false
-			view_sidecars_and_repositories = false
 			view_audit_logs = false
 			modify_integrations = false
 			modify_roles = false
@@ -182,7 +178,6 @@ func testAccRoleConfig_TrueAndFalsePermissions() string {
 			modify_sidecars_and_repositories = true
 			modify_users = true
 			modify_policies = true
-			view_sidecars_and_repositories = true
 			view_audit_logs = false
 			modify_integrations = false
 			modify_roles = false
@@ -209,7 +204,6 @@ func testAccRoleConfig_OnlyTruePermissions() string {
 			modify_sidecars_and_repositories = true
 			modify_users = true
 			modify_policies = true
-			view_sidecars_and_repositories = true
 			view_audit_logs = true
 			modify_integrations = true
 			modify_roles = true
