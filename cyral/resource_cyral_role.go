@@ -89,7 +89,7 @@ func resourceRole() *schema.Resource {
 							Description: "Allows viewing sidecars and repositories for this role. Defaults to `false`.",
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Deprecated:  fmt.Sprintf(permissionIsDeprecatedMessage, "2.34.x", "2.35.x"),
+							Deprecated:  fmt.Sprintf(permissionIsDeprecatedMessage, "3.0.2", "3.0.3"),
 							Default:     false,
 						},
 						"view_audit_logs": {
