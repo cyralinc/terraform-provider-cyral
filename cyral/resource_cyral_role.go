@@ -13,6 +13,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	permissionIsDeprecatedMessage = "This permission can only be set " +
+		"on control plane versions up to `%s`. This permission is " +
+		"automatically granted to all Cyral Roles for control " +
+		"plane versions greater or equal to `%s`."
+)
+
 // Roles correspond to Groups in API.
 type RoleDataRequest struct {
 	Name string `json:"name,omitempty"`
@@ -82,6 +89,7 @@ func resourceRole() *schema.Resource {
 							Description: "Allows viewing sidecars and repositories for this role. Defaults to `false`.",
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Deprecated:  fmt.Sprintf(permissionIsDeprecatedMessage, "2.34.x", "2.35.x"),
 							Default:     false,
 						},
 						"view_audit_logs": {
@@ -104,6 +112,18 @@ func resourceRole() *schema.Resource {
 						},
 						"view_datamaps": {
 							Description: "Allows viewing datamaps for this role. Defaults to `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+						},
+						"approval_management": {
+							Description: "Allows approving or denying approval requests. Defaults to `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+						},
+						"repo_crawler": {
+							Description: "Allows discovery of cyral_repository_user_accounts. Defaults to `false`.",
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     false,

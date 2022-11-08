@@ -24,33 +24,36 @@ var onlyFalsePermissions = map[string]string{
 	"modify_sidecars_and_repositories": "false",
 	"modify_users":                     "false",
 	"modify_policies":                  "false",
-	"view_sidecars_and_repositories":   "false",
 	"view_audit_logs":                  "false",
 	"modify_integrations":              "false",
 	"modify_roles":                     "false",
 	"view_datamaps":                    "false",
+	"repo_crawler":                     "false",
+	"approval_management":              "false",
 }
 
 var trueAndFalsePermissions = map[string]string{
 	"modify_sidecars_and_repositories": "true",
 	"modify_users":                     "true",
 	"modify_policies":                  "true",
-	"view_sidecars_and_repositories":   "true",
 	"view_audit_logs":                  "false",
 	"modify_integrations":              "false",
 	"modify_roles":                     "false",
 	"view_datamaps":                    "false",
+	"repo_crawler":                     "true",
+	"approval_management":              "true",
 }
 
 var onlyTruePermissions = map[string]string{
 	"modify_sidecars_and_repositories": "true",
 	"modify_users":                     "true",
 	"modify_policies":                  "true",
-	"view_sidecars_and_repositories":   "true",
 	"view_audit_logs":                  "true",
 	"modify_integrations":              "true",
 	"modify_roles":                     "true",
 	"view_datamaps":                    "true",
+	"repo_crawler":                     "true",
+	"approval_management":              "true",
 }
 
 func TestAccRoleResource(t *testing.T) {
@@ -164,11 +167,12 @@ func testAccRoleConfig_OnlyFalsePermissions(resName string) string {
 			modify_sidecars_and_repositories = false
 			modify_users = false
 			modify_policies = false
-			view_sidecars_and_repositories = false
 			view_audit_logs = false
 			modify_integrations = false
 			modify_roles = false
 			view_datamaps = false
+			repo_crawler = false
+			approval_management = false
 		}
 	}
 	`, resName, updatedRoleName())
@@ -191,11 +195,12 @@ func testAccRoleConfig_TrueAndFalsePermissions(resName string) string {
 			modify_sidecars_and_repositories = true
 			modify_users = true
 			modify_policies = true
-			view_sidecars_and_repositories = true
 			view_audit_logs = false
 			modify_integrations = false
 			modify_roles = false
 			view_datamaps = false
+			repo_crawler = true
+			approval_management = true
 		}
 	}
 	`, resName, updatedRoleName())
@@ -218,11 +223,12 @@ func testAccRoleConfig_OnlyTruePermissions(resName string) string {
 			modify_sidecars_and_repositories = true
 			modify_users = true
 			modify_policies = true
-			view_sidecars_and_repositories = true
 			view_audit_logs = true
 			modify_integrations = true
 			modify_roles = true
 			view_datamaps = true
+			repo_crawler = true
+			approval_management = true
 		}
 	}
 	`, resName, updatedRoleName())
