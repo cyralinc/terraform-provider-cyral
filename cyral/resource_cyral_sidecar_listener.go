@@ -92,6 +92,7 @@ func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData
 		_ = d.Set(TcpListenerKey, data.ListenerConfig.TcpSettingsAsInterface())
 		_ = d.Set(MultiplexedKey, data.ListenerConfig.Multiplexed)
 		_ = d.Set(S3SettingsKey, data.ListenerConfig.S3SettingsAsInterface())
+		_ = d.Set(MysqlSettingsKey, data.ListenerConfig.MysqlSettingsAsInterface())
 		_ = d.Set(DynamoDbSettingsKey, data.ListenerConfig.DynamoDbSettingsAsInterface())
 	}
 	return nil
@@ -126,7 +127,7 @@ func (l *SidecarListener) TcpSettingsAsInterface() []interface{} {
 	return nil
 }
 func (l *SidecarListener) TcpSettingsFromInterface(anInterface []interface{}) {
-	if len(anInterface) == 0 || anInterface == nil {
+	if len(anInterface) == 0 {
 		return
 	}
 	l.TcpListener = &TcpListener{
@@ -146,7 +147,7 @@ func (l *SidecarListener) UnixSettingsAsInterface() []interface{} {
 	return nil
 }
 func (l *SidecarListener) UnixSettingsFromInterface(anInterface []interface{}) {
-	if len(anInterface) == 0 || anInterface == nil {
+	if len(anInterface) == 0 {
 		return
 	}
 	l.UnixListener = &UnixListener{
@@ -166,11 +167,9 @@ func (l *SidecarListener) MysqlSettingsFromInterface(anInterface []interface{}) 
 	if len(anInterface) == 0 {
 		return
 	}
-	if anInterface != nil {
-		l.MysqlSettings = &MysqlSettings{
-			DbVersion:    anInterface[0].(map[string]interface{})[DbVersionKey].(string),
-			CharacterSet: anInterface[0].(map[string]interface{})[CharacterSetKey].(string),
-		}
+	l.MysqlSettings = &MysqlSettings{
+		DbVersion:    anInterface[0].(map[string]interface{})[DbVersionKey].(string),
+		CharacterSet: anInterface[0].(map[string]interface{})[CharacterSetKey].(string),
 	}
 }
 func (l *SidecarListener) S3SettingsAsInterface() []interface{} {
@@ -185,10 +184,8 @@ func (l *SidecarListener) S3SettingsFromInterface(anInterface []interface{}) {
 	if len(anInterface) == 0 {
 		return
 	}
-	if anInterface != nil {
-		l.S3Settings = &S3Settings{
-			ProxyMode: anInterface[0].(map[string]interface{})[ProxyModeKey].(bool),
-		}
+	l.S3Settings = &S3Settings{
+		ProxyMode: anInterface[0].(map[string]interface{})[ProxyModeKey].(bool),
 	}
 }
 func (l *SidecarListener) DynamoDbSettingsAsInterface() []interface{} {
@@ -203,10 +200,8 @@ func (l *SidecarListener) DynamoDbSettingsFromInterface(anInterface []interface{
 	if len(anInterface) == 0 {
 		return
 	}
-	if anInterface != nil {
-		l.DynamoDbSettings = &DynamoDbSettings{
-			ProxyMode: anInterface[0].(map[string]interface{})[ProxyModeKey].(bool),
-		}
+	l.DynamoDbSettings = &DynamoDbSettings{
+		ProxyMode: anInterface[0].(map[string]interface{})[ProxyModeKey].(bool),
 	}
 }
 
@@ -356,7 +351,7 @@ func resourceSidecarListener() *schema.Resource {
 				},
 			},
 			MysqlSettingsKey: {
-				Description: "MysqlSettings represents the listener settings for a [mysql, galera, mariadb] data repository.",
+				Description: "MySQL settings represents the listener settings for a [`mysql`, `galera`, `mariadb`] data repository.",
 				Type:        schema.TypeSet,
 				Optional:    true,
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
@@ -364,12 +359,12 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						DbVersionKey: {
-							Description: "MySQL DB version. Required (and only relevant) for multiplexed listeners of type mysql",
+							Description: "MySQL DB version. Required (and only relevant) for multiplexed listeners of type `mysql`.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
 						CharacterSetKey: {
-							Description: "MySQL character set. Optional and only relevant for multiplexed listeners of type mysql.",
+							Description: "MySQL character set. Optional and only relevant for multiplexed listeners of type `mysql`.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},

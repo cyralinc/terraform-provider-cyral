@@ -58,16 +58,36 @@ resource "cyral_sidecar_listener" "file_mariadb" {
 
 ### Required
 
-- `repo_types` (List of String) List of repository types that the listener supports. Currently limited to one repo type, eg ["mysql"]
+- `repo_types` (List of String) List of repository types that the listener supports. Currently limited to one repo type from supported repo types:
+  - `bigquery`
+  - `cassandra`
+  - `denodo`
+  - `dremio`
+  - `dynamodb`
+  - `dynamodbstreams`
+  - `galera`
+  - `mariadb`
+  - `mongodb`
+  - `mysql`
+  - `oracle`
+  - `postgresql`
+  - `redshift`
+  - `s3`
+  - `snowflake`
+  - `sqlserver`
 - `sidecar_id` (String) ID of the sidecar that the listener will be bound to.
 
 ### Optional
 
 - `dynamodb_settings` (Block Set, Max: 1) DynamoDB settings. (see [below for nested schema](#nestedblock--dynamodb_settings))
-- `multiplexed` (Boolean) Multiplexed listener, defaults to not multiplexing (false). Not supported for all repository types.
-- `mysql_settings` (Block Set, Max: 1) MysqlSettings represents the listener settings for a mysql data repository. (see [below for nested schema](#nestedblock--mysql_settings))
+- `multiplexed` (Boolean) Multiplexed listener, defaults to not multiplexing (false). Note currently only suppoerted by repo types:
+  - `galera`
+  - `mariadb`
+  - `mysql`
+  - `postgresql`
+- `mysql_settings` (Block Set, Max: 1) MySQL settings represents the listener settings for a [`mysql`, `galera`, `mariadb`] data repository. (see [below for nested schema](#nestedblock--mysql_settings))
 - `s3_settings` (Block Set, Max: 1) S3 settings. (see [below for nested schema](#nestedblock--s3_settings))
-- `tcp_listener` (Block Set, Max: 1) tcp listener settings. (see [below for nested schema](#nestedblock--tcp_listener))
+- `tcp_listener` (Block Set, Max: 1) TCP listener settings. (see [below for nested schema](#nestedblock--tcp_listener))
 - `unix_listener` (Block Set, Max: 1) Unix listener settings. (see [below for nested schema](#nestedblock--unix_listener))
 
 ### Read-Only
@@ -89,8 +109,8 @@ Optional:
 
 Optional:
 
-- `character_set` (String) MySQL character set. Optional and only relevant for multiplexed listeners of type mysql.
-- `db_version` (String) MySQL DB version. Required (and only relevant) for multiplexed listeners of type mysql
+- `character_set` (String) MySQL character set. Optional and only relevant for multiplexed listeners of type `mysql`.
+- `db_version` (String) MySQL DB version. Required (and only relevant) for multiplexed listeners of type `mysql`.
 
 <a id="nestedblock--s3_settings"></a>
 
