@@ -116,18 +116,6 @@ func resourceRole() *schema.Resource {
 							Optional:    true,
 							Default:     false,
 						},
-						"approval_management": {
-							Description: "Allows approving or denying approval requests. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"repo_crawler": {
-							Description: "Allows discovery of cyral_repository_user_accounts. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
 					},
 				},
 			},
