@@ -15,10 +15,9 @@ import (
 
 const (
 	permissionIsDeprecatedMessage = "Setting this permission is " +
-	"deprecated. It will be automatically granted to all Cyral " +
-	"Roles for Control Planes `v3.x` and later."
+		"deprecated. It will be automatically granted to all Cyral " +
+		"Roles for Control Planes `v3.x` and later."
 )
-
 
 // Roles correspond to Groups in API.
 type RoleDataRequest struct {
