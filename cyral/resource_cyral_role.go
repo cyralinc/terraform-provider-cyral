@@ -109,7 +109,7 @@ func resourceRole() *schema.Resource {
 							Default:     false,
 						},
 						"repo_crawler": {
-							Description: "Allows discovery of cyral_repository_user_accounts. Defaults to `false`.",
+							Description: "Allows reporting of cyral_repository_user_accounts. Defaults to `false`.",
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     false,
