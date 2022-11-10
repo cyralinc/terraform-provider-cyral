@@ -25,7 +25,6 @@ resource "cyral_role" "some_resource_name" {
     modify_sidecars_and_repositories = true
     modify_users = true
     modify_policies = true
-    view_sidecars_and_repositories = true
     view_audit_logs = false
     modify_integrations = false
     modify_roles = false
@@ -63,4 +62,4 @@ Optional:
 - `modify_users` (Boolean) Allows modifying users for this role. Defaults to `false`.
 - `view_audit_logs` (Boolean) Allows viewing audit logs for this role. Defaults to `false`.
 - `view_datamaps` (Boolean) Allows viewing datamaps for this role. Defaults to `false`.
-- `view_sidecars_and_repositories` (Boolean) Allows viewing sidecars and repositories for this role. Defaults to `false`.
+- `view_sidecars_and_repositories` (Boolean, Deprecated) Allows viewing sidecars and repositories for this role. Defaults to `false`.
