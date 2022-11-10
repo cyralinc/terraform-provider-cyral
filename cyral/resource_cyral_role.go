@@ -78,12 +78,6 @@ func resourceRole() *schema.Resource {
 							Optional:    true,
 							Default:     false,
 						},
-						"view_sidecars_and_repositories": {
-							Description: "Allows viewing sidecars and repositories for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
 						"view_audit_logs": {
 							Description: "Allows viewing audit logs for this role. Defaults to `false`.",
 							Type:        schema.TypeBool,
@@ -104,6 +98,18 @@ func resourceRole() *schema.Resource {
 						},
 						"view_datamaps": {
 							Description: "Allows viewing datamaps for this role. Defaults to `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+						},
+						"approval_management": {
+							Description: "Allows approving or denying approval requests. Defaults to `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+						},
+						"repo_crawler": {
+							Description: "Allows reporting of cyral_repository_user_accounts. Defaults to `false`.",
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     false,
