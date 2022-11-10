@@ -25,11 +25,12 @@ resource "cyral_role" "some_resource_name" {
     modify_sidecars_and_repositories = true
     modify_users = true
     modify_policies = true
-    view_sidecars_and_repositories = true
     view_audit_logs = false
     modify_integrations = false
     modify_roles = false
     view_datamaps = false
+    repo_crawler = false
+    approval_management = false
   }
 }
 ```
@@ -56,11 +57,12 @@ resource "cyral_role" "some_resource_name" {
 
 Optional:
 
+- `approval_management` (Boolean) Allows approving or denying approval requests. Defaults to `false`.
 - `modify_integrations` (Boolean) Allows modifying integrations for this role. Defaults to `false`.
 - `modify_policies` (Boolean) Allows modifying policies for this role. Defaults to `false`.
 - `modify_roles` (Boolean) Allows modifying roles for this role. Defaults to `false`.
 - `modify_sidecars_and_repositories` (Boolean) Allows modifying sidecars and repositories for this role. Defaults to `false`.
 - `modify_users` (Boolean) Allows modifying users for this role. Defaults to `false`.
+- `repo_crawler` (Boolean) Allows reporting of cyral_repository_user_accounts. Defaults to `false`.
 - `view_audit_logs` (Boolean) Allows viewing audit logs for this role. Defaults to `false`.
 - `view_datamaps` (Boolean) Allows viewing datamaps for this role. Defaults to `false`.
-- `view_sidecars_and_repositories` (Boolean) Allows viewing sidecars and repositories for this role. Defaults to `false`.
