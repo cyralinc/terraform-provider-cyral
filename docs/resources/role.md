@@ -63,4 +63,4 @@ Optional:
 - `modify_users` (Boolean) Allows modifying users for this role. Defaults to `false`.
 - `view_audit_logs` (Boolean) Allows viewing audit logs for this role. Defaults to `false`.
 - `view_datamaps` (Boolean) Allows viewing datamaps for this role. Defaults to `false`.
-- `view_sidecars_and_repositories` (Boolean) Allows viewing sidecars and repositories for this role. Defaults to `false`.
+- `view_sidecars_and_repositories` (Boolean, Deprecated) Allows viewing sidecars and repositories for this role. Defaults to `false`.
