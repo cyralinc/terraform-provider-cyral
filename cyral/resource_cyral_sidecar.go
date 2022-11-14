@@ -22,7 +22,7 @@ type SidecarData struct {
 	ID                       string                   `json:"id"`
 	Name                     string                   `json:"name"`
 	Labels                   []string                 `json:"labels"`
-	SidecarProperty          *SidecarProperty         `json:"properties"`
+	SidecarProperties        *SidecarProperties       `json:"properties"`
 	ServicesConfig           SidecarServicesConfig    `json:"services"`
 	UserEndpoint             string                   `json:"userEndpoint"`
 	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
@@ -39,12 +39,12 @@ func (sd *SidecarData) BypassMode() string {
 	return ""
 }
 
-type SidecarProperty struct {
+type SidecarProperties struct {
 	DeploymentMethod string `json:"deploymentMethod"`
 }
 
-func NewSidecarProperty(deploymentMethod string) *SidecarProperty {
-	return &SidecarProperty{
+func NewSidecarProperties(deploymentMethod string) *SidecarProperties {
+	return &SidecarProperties{
 		DeploymentMethod: deploymentMethod,
 	}
 }
@@ -224,7 +224,9 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
 	d.Set("name", response.Name)
-	d.Set("deployment_method", response.SidecarProperty.DeploymentMethod)
+	if properties := response.SidecarProperties; properties != nil {
+		d.Set("deployment_method", properties.DeploymentMethod)
+	}
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
 	if bypassMode := response.BypassMode(); bypassMode != "" {
@@ -277,7 +279,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 
 	deploymentMethod := d.Get("deployment_method").(string)
 
-	sp := NewSidecarProperty(deploymentMethod)
+	properties := NewSidecarProperties(deploymentMethod)
 
 	svcconf := SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -300,7 +302,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 		ID:                       d.Id(),
 		Name:                     d.Get("name").(string),
 		Labels:                   sidecarDataLabels,
-		SidecarProperty:          sp,
+		SidecarProperties:        properties,
 		ServicesConfig:           svcconf,
 		UserEndpoint:             d.Get("user_endpoint").(string),
 		CertificateBundleSecrets: cbs,
