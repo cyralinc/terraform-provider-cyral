@@ -111,20 +111,20 @@ func removePortFromURL(url string) string {
 	return strings.Split(url, ":")[0]
 }
 
-func getSidecarData(c *client.Client, d *schema.ResourceData) (*SidecarData, error) {
+func getSidecarData(c *client.Client, d *schema.ResourceData) (SidecarData, error) {
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Get("sidecar_id").(string))
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
-		return nil, err
+		return SidecarData{}, err
 	}
 
 	response := SidecarData{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return nil, err
+		return SidecarData{}, err
 	}
 
-	return &response, nil
+	return response, nil
 }
 
 func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
@@ -169,7 +169,7 @@ func filterIntegrationData(integrations []IntegrationsData, id string) *Integrat
 }
 
 func getTemplateForSidecarProperties(
-	sidecarData *SidecarData,
+	sidecarData SidecarData,
 	logging []IntegrationsData,
 	metrics []IntegrationsData,
 	c *client.Client,
@@ -225,7 +225,8 @@ func getTemplateForSidecarProperties(
 	}
 
 	var url string
-	if sidecarData.SidecarProperty.DeploymentMethod == CloudFormationDeploymentMethod {
+	properties := sidecarData.SidecarProperties
+	if properties != nil && properties.DeploymentMethod == CloudFormationDeploymentMethod {
 		url = fmt.Sprintf("https://%s/deploy/cft/", controlPlane)
 		url += urlQuery(sidecarTemplatePropertiesKV)
 	} else {
