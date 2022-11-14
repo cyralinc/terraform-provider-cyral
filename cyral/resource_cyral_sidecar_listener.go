@@ -16,12 +16,10 @@ const (
 	SidecarIdKey        = "sidecar_id"
 	ListenerIdKey       = "listener_id"
 	RepoTypesKey        = "repo_types"
-	UnixListenerKey     = "unix_listener"
-	TcpListenerKey      = "tcp_listener"
+	NetworkAddressKey   = "network_address"
 	PortKey             = "port"
 	HostKey             = "host"
 	FileKey             = "file"
-	MultiplexedKey      = "multiplexed"
 	MysqlSettingsKey    = "mysql_settings"
 	DbVersionKey        = "db_version"
 	CharacterSetKey     = "character_set"
@@ -35,9 +33,7 @@ type SidecarListener struct {
 	SidecarId        string            `json:"-"`
 	ListenerId       string            `json:"id"`
 	RepoTypes        []string          `json:"repoTypes"`
-	UnixListener     *UnixListener     `json:"unixListener,omitempty"`
-	TcpListener      *TcpListener      `json:"tcpListener,omitempty"`
-	Multiplexed      bool              `json:"multiplexed,omitempty"`
+	NetworkAddress   *NetworkAddress   `json:"address,omitempty"`
 	MysqlSettings    *MysqlSettings    `json:"mysqlSettings,omitempty"`
 	S3Settings       *S3Settings       `json:"s3Settings,omitempty"`
 	DynamoDbSettings *DynamoDbSettings `json:"dynamoDBSettings,omitempty"`
@@ -45,7 +41,7 @@ type SidecarListener struct {
 type UnixListener struct {
 	File string `json:"file"`
 }
-type TcpListener struct {
+type NetworkAddress struct {
 	Host string `json:"host,omitempty"`
 	Port int    `json:"port"`
 }
@@ -88,9 +84,7 @@ func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData
 	if data.ListenerConfig != nil {
 		_ = d.Set(ListenerIdKey, data.ListenerConfig.ListenerId)
 		_ = d.Set(RepoTypesKey, data.ListenerConfig.RepoTypesAsInterface())
-		_ = d.Set(UnixListenerKey, data.ListenerConfig.UnixSettingsAsInterface())
-		_ = d.Set(TcpListenerKey, data.ListenerConfig.TcpSettingsAsInterface())
-		_ = d.Set(MultiplexedKey, data.ListenerConfig.Multiplexed)
+		_ = d.Set(NetworkAddressKey, data.ListenerConfig.NetworkAddressAsInterface())
 		_ = d.Set(S3SettingsKey, data.ListenerConfig.S3SettingsAsInterface())
 		_ = d.Set(MysqlSettingsKey, data.ListenerConfig.MysqlSettingsAsInterface())
 		_ = d.Set(DynamoDbSettingsKey, data.ListenerConfig.DynamoDbSettingsAsInterface())
@@ -114,44 +108,25 @@ func (l *SidecarListener) RepoTypesFromInterface(anInterface []interface{}) {
 	}
 	l.RepoTypes = repoTypes
 }
-func (l *SidecarListener) TcpSettingsAsInterface() []interface{} {
-	if l.TcpListener != nil {
+func (l *SidecarListener) NetworkAddressAsInterface() []interface{} {
+	if l.NetworkAddress != nil {
 		result := []interface{}{
 			map[string]interface{}{
-				HostKey: l.TcpListener.Host,
-				PortKey: l.TcpListener.Port,
+				HostKey: l.NetworkAddress.Host,
+				PortKey: l.NetworkAddress.Port,
 			},
 		}
 		return result
 	}
 	return nil
 }
-func (l *SidecarListener) TcpSettingsFromInterface(anInterface []interface{}) {
+func (l *SidecarListener) NetworkAddressFromInterface(anInterface []interface{}) {
 	if len(anInterface) == 0 {
 		return
 	}
-	l.TcpListener = &TcpListener{
+	l.NetworkAddress = &NetworkAddress{
 		Host: anInterface[0].(map[string]interface{})[HostKey].(string),
 		Port: anInterface[0].(map[string]interface{})[PortKey].(int),
-	}
-}
-func (l *SidecarListener) UnixSettingsAsInterface() []interface{} {
-	if l.UnixListener != nil {
-		result := []interface{}{
-			map[string]interface{}{
-				FileKey: l.UnixListener.File,
-			},
-		}
-		return result
-	}
-	return nil
-}
-func (l *SidecarListener) UnixSettingsFromInterface(anInterface []interface{}) {
-	if len(anInterface) == 0 {
-		return
-	}
-	l.UnixListener = &UnixListener{
-		File: anInterface[0].(map[string]interface{})[FileKey].(string),
 	}
 }
 func (l *SidecarListener) MysqlSettingsAsInterface() []interface{} {
@@ -213,13 +188,11 @@ type SidecarListenerResource struct {
 // ReadFromSchema populates the SidecarListenerResource from the schema
 func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 	s.ListenerConfig = SidecarListener{
-		SidecarId:   d.Get(SidecarIdKey).(string),
-		ListenerId:  d.Get(ListenerIdKey).(string),
-		Multiplexed: d.Get(MultiplexedKey).(bool),
+		SidecarId:  d.Get(SidecarIdKey).(string),
+		ListenerId: d.Get(ListenerIdKey).(string),
 	}
 	s.ListenerConfig.RepoTypesFromInterface(d.Get(RepoTypesKey).([]interface{}))
-	s.ListenerConfig.TcpSettingsFromInterface(d.Get(TcpListenerKey).(*schema.Set).List())
-	s.ListenerConfig.UnixSettingsFromInterface(d.Get(UnixListenerKey).(*schema.Set).List())
+	s.ListenerConfig.NetworkAddressFromInterface(d.Get(NetworkAddressKey).(*schema.Set).List())
 	s.ListenerConfig.MysqlSettingsFromInterface(d.Get(MysqlSettingsKey).(*schema.Set).List())
 	s.ListenerConfig.S3SettingsFromInterface(d.Get(S3SettingsKey).(*schema.Set).List())
 	s.ListenerConfig.DynamoDbSettingsFromInterface(d.Get(DynamoDbSettingsKey).(*schema.Set).List())
@@ -306,33 +279,11 @@ func resourceSidecarListener() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			UnixListenerKey: {
-				Description:  "Unix listener settings.",
-				Type:         schema.TypeSet,
-				Optional:     true,
-				ExactlyOneOf: []string{UnixListenerKey, TcpListenerKey},
-				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						FileKey: {
-							Description: "File in which the sidecar will listen for the given repository.",
-							Type:        schema.TypeString,
-							Required:    true,
-						},
-					},
-				},
-			},
-			MultiplexedKey: {
-				Description: "Multiplexed listener, defaults to not multiplexing (false). Note currently only suppoerted by repo types: " + supportedTypesMarkdown(multiplexRepoTypes()),
-				Type:        schema.TypeBool,
-				Optional:    true,
-			},
-			TcpListenerKey: {
+			NetworkAddressKey: {
 				Description:  "TCP listener settings.",
 				Type:         schema.TypeSet,
 				Optional:     true,
-				ExactlyOneOf: []string{UnixListenerKey, TcpListenerKey},
+				ExactlyOneOf: []string{NetworkAddressKey},
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
 				MaxItems: 1,
 				Elem: &schema.Resource{
