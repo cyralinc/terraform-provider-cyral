@@ -22,57 +22,57 @@ func getTestCBS() CertificateBundleSecrets {
 	return cbs
 }
 
-var cloudFormationSidecarConfig *SidecarData = &SidecarData{
+var cloudFormationSidecarConfig = SidecarData{
 	Name:                     accTestName(sidecarResourceName, "cft"),
 	Labels:                   []string{"test1"},
-	SidecarProperty:          NewSidecarProperty("cloudFormation"),
+	SidecarProperties:        NewSidecarProperties("cloudFormation"),
 	UserEndpoint:             "some.cft.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
-var dockerSidecarConfig *SidecarData = &SidecarData{
+var dockerSidecarConfig = SidecarData{
 	Name:                     accTestName(sidecarResourceName, "docker"),
 	Labels:                   []string{"test2"},
-	SidecarProperty:          NewSidecarProperty("docker"),
+	SidecarProperties:        NewSidecarProperties("docker"),
 	UserEndpoint:             "some.docker.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
-var helmSidecarConfig *SidecarData = &SidecarData{
+var helmSidecarConfig = SidecarData{
 	Name:                     accTestName(sidecarResourceName, "helm"),
 	Labels:                   []string{"test3"},
-	SidecarProperty:          NewSidecarProperty("helm"),
+	SidecarProperties:        NewSidecarProperties("helm"),
 	UserEndpoint:             "some.helm.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
-var tfSidecarConfig *SidecarData = &SidecarData{
+var tfSidecarConfig = SidecarData{
 	Name:                     accTestName(sidecarResourceName, "tf"),
 	Labels:                   []string{"test4"},
-	SidecarProperty:          NewSidecarProperty("terraform"),
+	SidecarProperties:        NewSidecarProperties("terraform"),
 	UserEndpoint:             "some.tf.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
-var singleContainerSidecarConfig *SidecarData = &SidecarData{
+var singleContainerSidecarConfig = SidecarData{
 	Name:                     accTestName(sidecarResourceName, "singleContainer"),
 	Labels:                   []string{"test5"},
-	SidecarProperty:          NewSidecarProperty("singleContainer"),
+	SidecarProperties:        NewSidecarProperties("singleContainer"),
 	UserEndpoint:             "some.singleContainer.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
-var linuxSidecarConfig *SidecarData = &SidecarData{
+var linuxSidecarConfig = SidecarData{
 	Name:                     accTestName(sidecarResourceName, "linux"),
 	Labels:                   []string{"test6"},
-	SidecarProperty:          NewSidecarProperty("linux"),
+	SidecarProperties:        NewSidecarProperties("linux"),
 	UserEndpoint:             "some.linux.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
-var bypassNeverSidecarConfig *SidecarData = &SidecarData{
-	Name:            accTestName(sidecarResourceName, "bypassNeverSidecar"),
-	SidecarProperty: NewSidecarProperty("terraform"),
+var bypassNeverSidecarConfig = SidecarData{
+	Name:              accTestName(sidecarResourceName, "bypassNeverSidecar"),
+	SidecarProperties: NewSidecarProperties("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
 			"bypass": "never",
@@ -81,9 +81,9 @@ var bypassNeverSidecarConfig *SidecarData = &SidecarData{
 	UserEndpoint: "some.user.endpoint",
 }
 
-var bypassAlwaysSidecarConfig *SidecarData = &SidecarData{
-	Name:            accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
-	SidecarProperty: NewSidecarProperty("terraform"),
+var bypassAlwaysSidecarConfig = SidecarData{
+	Name:              accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
+	SidecarProperties: NewSidecarProperties("terraform"),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
 			"bypass": "always",
@@ -150,12 +150,16 @@ func TestAccSidecarResource(t *testing.T) {
 	})
 }
 
-func setupSidecarTest(sidecarData *SidecarData) (string, resource.TestCheckFunc) {
+func setupSidecarTest(sidecarData SidecarData) (string, resource.TestCheckFunc) {
 	configuration := formatSidecarDataIntoConfig(sidecarData)
 
+	var deploymentMethod string
+	if properties := sidecarData.SidecarProperties; properties != nil {
+		deploymentMethod = properties.DeploymentMethod
+	}
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "name", sidecarData.Name),
-		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "deployment_method", sidecarData.SidecarProperty.DeploymentMethod),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "deployment_method", deploymentMethod),
 	}
 
 	if bypassMode := sidecarData.BypassMode(); bypassMode != "" {
@@ -166,7 +170,7 @@ func setupSidecarTest(sidecarData *SidecarData) (string, resource.TestCheckFunc)
 	return configuration, resource.ComposeTestCheckFunc(testFunctions...)
 }
 
-func formatSidecarDataIntoConfig(sidecarData *SidecarData) string {
+func formatSidecarDataIntoConfig(sidecarData SidecarData) string {
 	var certBundleConfig string
 	if sidecarData.CertificateBundleSecrets != nil {
 		certBundleConfig = fmt.Sprintf(`
@@ -188,6 +192,11 @@ func formatSidecarDataIntoConfig(sidecarData *SidecarData) string {
 		bypass_mode = "%s"`, bypassMode)
 	}
 
+	var deploymentMethod string
+	if properties := sidecarData.SidecarProperties; properties != nil {
+		deploymentMethod = properties.DeploymentMethod
+	}
+
 	config := fmt.Sprintf(`
 	resource "cyral_sidecar" "test_sidecar" {
       		name = "%s"
@@ -197,7 +206,7 @@ func formatSidecarDataIntoConfig(sidecarData *SidecarData) string {
 		%s
 		%s
       	}`, sidecarData.Name,
-		sidecarData.SidecarProperty.DeploymentMethod,
+		deploymentMethod,
 		listToStr(sidecarData.Labels),
 		sidecarData.UserEndpoint,
 		certBundleConfig,
