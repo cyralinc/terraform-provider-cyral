@@ -1,3 +1,12 @@
+## 2.11.1 (November 14, 2022)
+
+Minimum required Control Plane version: `v2.35.0`.
+Resource incompatible with Control Planes between previous to `v2.35`: parameter `enable_dataset_rewrites` from resource `cyral_repository_conf_analysis`.
+
+### Bug fixes:
+
+- **Deprecate 'View Sidecars and Repositories'**: [#315](https://github.com/cyralinc/terraform-provider-cyral/pull/315).
+
 ## 2.11.0 (November 7, 2022)
 
 Minimum required Control Plane version: `v2.35.0`.
