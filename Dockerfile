@@ -13,8 +13,10 @@ RUN gofmt -w . \
     && GOOS=darwin GOARCH=amd64 go build -o out/darwin_amd64/terraform-provider-cyral . \
     && GOOS=linux GOARCH=amd64 go build -o out/linux_amd64/terraform-provider-cyral .
 
-FROM alpine:3.16.2 as output
+FROM gcr.io/cyral-dev/cyral-alpine:v0.0.14 as output
+USER root
 ARG VERSION
 RUN mkdir -p /root/.terraform.d/plugins/local/terraform/cyral/${VERSION:?You must set the VERSION build argument}
 COPY --from=build /go/src/cyral/out/ /root/.terraform.d/plugins/local/terraform/cyral/${VERSION}
 COPY --from=terraform /bin/terraform /bin/terraform
+USER nobody
