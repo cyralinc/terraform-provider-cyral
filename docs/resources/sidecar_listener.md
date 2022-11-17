@@ -7,33 +7,34 @@ Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
 ## Example Usage
 
 ```terraform
-### plain mySQL listener
+### Plain mySQL listener
 resource "cyral_sidecar_listener" "plain_mysql" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  tcp_listener {
+  sidecar_id = "some-sidecar-id"
+  network_address {
     port = 3306
   }
   repo_types =["mysql"]
 }
 
-### multiplexed mySQL listener
-resource "cyral_sidecar_listener" "multiplex_mysql" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  tcp_listener {
+### MySQL listener with Settings
+resource "cyral_sidecar_listener" "mysql_with_settings" {
+  sidecar_id = "some-sidecar-id"
+  network_address {
     port = 3307
+    host = "some.mysqldb.com"
   }
-  multiplexed = true
   mysql_settings {
-    db_version = "5.7"
+    db_version = "5.7.0"
+    character_set = "latin1_german1_ci"
   }
   repo_types =["mysql"]
 }
 
 
-### S3 listener, using proxy mode
+### S3 listener with Proxy Mode
 resource "cyral_sidecar_listener" "s3_proxy" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  tcp_listener {
+  sidecar_id = "some-sidecar-id"
+  network_address {
     port = 443
   }
   s3_settings {
@@ -42,13 +43,16 @@ resource "cyral_sidecar_listener" "s3_proxy" {
   repo_types =["s3"]
 }
 
-### mariaDB using unix socket listener
-resource "cyral_sidecar_listener" "file_mariadb" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  unix_listener {
-    file = "/var/run/mysqld/mysql.sock"
+### DynamoDB listener with Proxy Mode
+resource "cyral_sidecar_listener" "dynamodb_proxy" {
+  sidecar_id = "some-sidecar-id"
+  network_address {
+    port = 8000
   }
-  repo_types =["mariadb"]
+  dynamodb_settings {
+    proxy_mode = true
+  }
+  repo_types =["dynamodb"]
 }
 ```
 
@@ -80,15 +84,9 @@ resource "cyral_sidecar_listener" "file_mariadb" {
 ### Optional
 
 - `dynamodb_settings` (Block Set, Max: 1) DynamoDB settings. (see [below for nested schema](#nestedblock--dynamodb_settings))
-- `multiplexed` (Boolean) Multiplexed listener, defaults to not multiplexing (false). Note currently only suppoerted by repo types:
-  - `galera`
-  - `mariadb`
-  - `mysql`
-  - `postgresql`
 - `mysql_settings` (Block Set, Max: 1) MySQL settings represents the listener settings for a [`mysql`, `galera`, `mariadb`] data repository. (see [below for nested schema](#nestedblock--mysql_settings))
+- `network_address` (Block Set, Max: 1) The network address that the sidecar listens on. (see [below for nested schema](#nestedblock--network_address))
 - `s3_settings` (Block Set, Max: 1) S3 settings. (see [below for nested schema](#nestedblock--s3_settings))
-- `tcp_listener` (Block Set, Max: 1) TCP listener settings. (see [below for nested schema](#nestedblock--tcp_listener))
-- `unix_listener` (Block Set, Max: 1) Unix listener settings. (see [below for nested schema](#nestedblock--unix_listener))
 
 ### Read-Only
 
@@ -101,7 +99,7 @@ resource "cyral_sidecar_listener" "file_mariadb" {
 
 Optional:
 
-- `proxy_mode` (Boolean) DynamoDB proxy mode, only relevant for DynamoDB listeners. Defaults to false.
+- `proxy_mode` (Boolean) DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Note that `proxy_mode` must be set to `true` for listeners of type `dynamodb`. Defaults to false.
 
 <a id="nestedblock--mysql_settings"></a>
 
@@ -109,8 +107,20 @@ Optional:
 
 Optional:
 
-- `character_set` (String) MySQL character set. Optional and only relevant for multiplexed listeners of type `mysql`.
-- `db_version` (String) MySQL DB version. Required (and only relevant) for multiplexed listeners of type `mysql`.
+- `character_set` (String) MySQL character set. Optional and only relevant for listeners of type `mysql`.
+- `db_version` (String) MySQL DB version. Required (and only relevant) for listeners of type `mysql`.
+
+<a id="nestedblock--network_address"></a>
+
+### Nested Schema for `network_address`
+
+Required:
+
+- `port` (Number) Port where the sidecar will listen for the given repository.
+
+Optional:
+
+- `host` (String) Host where the sidecar will listen for the given repository. Omit to listen on all interfaces.
 
 <a id="nestedblock--s3_settings"></a>
 
@@ -119,23 +129,3 @@ Optional:
 Optional:
 
 - `proxy_mode` (Boolean) S3 proxy mode, only relevant for S3 listeners. Defaults to false.
-
-<a id="nestedblock--tcp_listener"></a>
-
-### Nested Schema for `tcp_listener`
-
-Required:
-
-- `port` (Number) Port in which the sidecar will listen for the given repository.
-
-Optional:
-
-- `host` (String) Host in which the sidecar will listen for the given repository. Omit to listen on all interfaces.
-
-<a id="nestedblock--unix_listener"></a>
-
-### Nested Schema for `unix_listener`
-
-Required:
-
-- `file` (String) File in which the sidecar will listen for the given repository.

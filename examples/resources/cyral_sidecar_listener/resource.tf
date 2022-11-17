@@ -1,31 +1,31 @@
-
-### plain mySQL listener
+### Plain mySQL listener
 resource "cyral_sidecar_listener" "plain_mysql" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  tcp_listener {
+  sidecar_id = "some-sidecar-id"
+  network_address {
     port = 3306
   }
   repo_types =["mysql"]
 }
 
-### multiplexed mySQL listener
-resource "cyral_sidecar_listener" "multiplex_mysql" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  tcp_listener {
+### MySQL listener with Settings
+resource "cyral_sidecar_listener" "mysql_with_settings" {
+  sidecar_id = "some-sidecar-id"
+  network_address {
     port = 3307
+    host = "some.mysqldb.com"
   }
-  multiplexed = true
   mysql_settings {
-    db_version = "5.7"
+    db_version = "5.7.0"
+    character_set = "latin1_german1_ci"
   }
   repo_types =["mysql"]
 }
 
 
-### S3 listener, using proxy mode
+### S3 listener with Proxy Mode
 resource "cyral_sidecar_listener" "s3_proxy" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  tcp_listener {
+  sidecar_id = "some-sidecar-id"
+  network_address {
     port = 443
   }
   s3_settings {
@@ -34,11 +34,14 @@ resource "cyral_sidecar_listener" "s3_proxy" {
   repo_types =["s3"]
 }
 
-### mariaDB using unix socket listener
-resource "cyral_sidecar_listener" "file_mariadb" {
-  sidecar_id = "2F1rBhVT7nX3GCzXGEWOHGcmEzP"
-  unix_listener {
-    file = "/var/run/mysqld/mysql.sock"
+### DynamoDB listener with Proxy Mode
+resource "cyral_sidecar_listener" "dynamodb_proxy" {
+  sidecar_id = "some-sidecar-id"
+  network_address {
+    port = 8000
   }
-  repo_types =["mariadb"]
+  dynamodb_settings {
+    proxy_mode = true
+  }
+  repo_types =["dynamodb"]
 }

@@ -20,7 +20,7 @@ const (
 	PortKey             = "port"
 	HostKey             = "host"
 	FileKey             = "file"
-	MysqlSettingsKey    = "mysql_settings"
+	MySQLSettingsKey    = "mysql_settings"
 	DbVersionKey        = "db_version"
 	CharacterSetKey     = "character_set"
 	S3SettingsKey       = "s3_settings"
@@ -34,18 +34,15 @@ type SidecarListener struct {
 	ListenerId       string            `json:"id"`
 	RepoTypes        []string          `json:"repoTypes"`
 	NetworkAddress   *NetworkAddress   `json:"address,omitempty"`
-	MysqlSettings    *MysqlSettings    `json:"mysqlSettings,omitempty"`
+	MySQLSettings    *MySQLSettings    `json:"mysqlSettings,omitempty"`
 	S3Settings       *S3Settings       `json:"s3Settings,omitempty"`
-	DynamoDbSettings *DynamoDbSettings `json:"dynamoDBSettings,omitempty"`
-}
-type UnixListener struct {
-	File string `json:"file"`
+	DynamoDbSettings *DynamoDbSettings `json:"dynamoDbSettings,omitempty"`
 }
 type NetworkAddress struct {
 	Host string `json:"host,omitempty"`
 	Port int    `json:"port"`
 }
-type MysqlSettings struct {
+type MySQLSettings struct {
 	DbVersion    string `json:"dbVersion,omitempty"`
 	CharacterSet string `json:"characterSet,omitempty"`
 }
@@ -86,7 +83,7 @@ func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData
 		_ = d.Set(RepoTypesKey, data.ListenerConfig.RepoTypesAsInterface())
 		_ = d.Set(NetworkAddressKey, data.ListenerConfig.NetworkAddressAsInterface())
 		_ = d.Set(S3SettingsKey, data.ListenerConfig.S3SettingsAsInterface())
-		_ = d.Set(MysqlSettingsKey, data.ListenerConfig.MysqlSettingsAsInterface())
+		_ = d.Set(MySQLSettingsKey, data.ListenerConfig.MySQLSettingsAsInterface())
 		_ = d.Set(DynamoDbSettingsKey, data.ListenerConfig.DynamoDbSettingsAsInterface())
 	}
 	return nil
@@ -129,20 +126,20 @@ func (l *SidecarListener) NetworkAddressFromInterface(anInterface []interface{})
 		Port: anInterface[0].(map[string]interface{})[PortKey].(int),
 	}
 }
-func (l *SidecarListener) MysqlSettingsAsInterface() []interface{} {
-	if l.MysqlSettings == nil {
+func (l *SidecarListener) MySQLSettingsAsInterface() []interface{} {
+	if l.MySQLSettings == nil {
 		return nil
 	}
 	return []interface{}{map[string]interface{}{
-		DbVersionKey:    l.MysqlSettings.DbVersion,
-		CharacterSetKey: l.MysqlSettings.CharacterSet,
+		DbVersionKey:    l.MySQLSettings.DbVersion,
+		CharacterSetKey: l.MySQLSettings.CharacterSet,
 	}}
 }
-func (l *SidecarListener) MysqlSettingsFromInterface(anInterface []interface{}) {
+func (l *SidecarListener) MySQLSettingsFromInterface(anInterface []interface{}) {
 	if len(anInterface) == 0 {
 		return
 	}
-	l.MysqlSettings = &MysqlSettings{
+	l.MySQLSettings = &MySQLSettings{
 		DbVersion:    anInterface[0].(map[string]interface{})[DbVersionKey].(string),
 		CharacterSet: anInterface[0].(map[string]interface{})[CharacterSetKey].(string),
 	}
@@ -193,19 +190,10 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 	}
 	s.ListenerConfig.RepoTypesFromInterface(d.Get(RepoTypesKey).([]interface{}))
 	s.ListenerConfig.NetworkAddressFromInterface(d.Get(NetworkAddressKey).(*schema.Set).List())
-	s.ListenerConfig.MysqlSettingsFromInterface(d.Get(MysqlSettingsKey).(*schema.Set).List())
+	s.ListenerConfig.MySQLSettingsFromInterface(d.Get(MySQLSettingsKey).(*schema.Set).List())
 	s.ListenerConfig.S3SettingsFromInterface(d.Get(S3SettingsKey).(*schema.Set).List())
 	s.ListenerConfig.DynamoDbSettingsFromInterface(d.Get(DynamoDbSettingsKey).(*schema.Set).List())
 	return nil
-}
-
-func multiplexRepoTypes() []string {
-	return []string{
-		"galera",
-		"mariadb",
-		"mysql",
-		"postgresql",
-	}
 }
 
 // resourceSidecarListener returns the schema and methods for provisioning a sidecar listener
@@ -280,28 +268,27 @@ func resourceSidecarListener() *schema.Resource {
 				},
 			},
 			NetworkAddressKey: {
-				Description:  "TCP listener settings.",
+				Description:  "The network address that the sidecar listens on.",
 				Type:         schema.TypeSet,
-				Optional:     true,
+				Optional:     true, // This field is required, due to ExactlyOneOf directive
 				ExactlyOneOf: []string{NetworkAddressKey},
-				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
-				MaxItems: 1,
+				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						HostKey: {
-							Description: "Host in which the sidecar will listen for the given repository. Omit to listen on all interfaces.",
+							Description: "Host where the sidecar will listen for the given repository. Omit to listen on all interfaces.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
 						PortKey: {
-							Description: "Port in which the sidecar will listen for the given repository.",
+							Description: "Port where the sidecar will listen for the given repository.",
 							Type:        schema.TypeInt,
 							Required:    true,
 						},
 					},
 				},
 			},
-			MysqlSettingsKey: {
+			MySQLSettingsKey: {
 				Description: "MySQL settings represents the listener settings for a [`mysql`, `galera`, `mariadb`] data repository.",
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -310,14 +297,15 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						DbVersionKey: {
-							Description: "MySQL DB version. Required (and only relevant) for multiplexed listeners of type `mysql`.",
+							Description: "MySQL DB version. Required (and only relevant) for listeners of type `mysql`.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
 						CharacterSetKey: {
-							Description: "MySQL character set. Optional and only relevant for multiplexed listeners of type `mysql`.",
+							Description: "MySQL character set. Optional and only relevant for listeners of type `mysql`.",
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -347,9 +335,10 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						ProxyModeKey: {
-							Description: "DynamoDB proxy mode, only relevant for DynamoDB listeners. Defaults to false.",
-							Type:        schema.TypeBool,
-							Optional:    true,
+							Description: "DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Note " +
+								"that `proxy_mode` must be set to `true` for listeners of type `dynamodb`. Defaults to false.",
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 					},
 				},
