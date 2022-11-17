@@ -53,19 +53,21 @@ identity_maps_to_delete=()
 empty_access_duration="$(printf '%s' '[]')"
 
 # Create array of all resources in the terraform state
-IFS=$'\n' read -r -d '' -a tf_state < <( terraform state list && printf '\0' )
+tf_state=($(terraform state list | grep "cyral_repository_local_account\|cyral_repository_identity_map"))
 
 # Find all cyral_repository_identity_maps and cyral_repository_local_accounts
 for resource in ${tf_state[@]}; do
+  tmp_out=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\")")
+  # Get repoID
+  repo_id=$(echo $tmp_out | jq ".values.repository_id" | sed 's/"//g' )
   if [[ $resource == cyral_repository_identity_map.* ]]
   then
     # We will need to delete this identity map from the .tf file, store its name
     identity_maps_to_delete+=($resource)
-    # Get repo ID and local account ID for the identity map.
-    repo_id=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.repository_id" | sed 's/"//g' )
-    local_account_id=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.repository_local_account_id" | sed 's/"//g')
-    identity_type=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.identity_type" | sed 's/"//g')
-    access_duration=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.access_duration")
+    # Get local account ID for the identity map.
+    local_account_id=$(echo $tmp_out | jq ".values.repository_local_account_id" | sed 's/"//g')
+    identity_type=$(echo $tmp_out | jq ".values.identity_type" | sed 's/"//g')
+    access_duration=$(echo $tmp_out | jq ".values.access_duration")
     if [[ $access_duration != $empty_access_duration ]] && [[ $identity_type == "user" ]]; then
         # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
         continue
@@ -84,9 +86,8 @@ for resource in ${tf_state[@]}; do
   then
     # We will need to delete this local account from the .tf file, store its name
     local_accounts_to_delete+=($resource)
-    # Get repo ID and local account ID for the local account.
-    repo_id=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.repository_id" | sed 's/"//g' )
-    local_account_id=$(terraform show -json | jq ".values.root_module.resources[] | select(.address == \"$resource\") | .values.id" | sed 's/"//g')
+    # Get local account ID for the local account.
+    local_account_id=$(echo $tmp_out | jq ".values.id" | sed 's/"//g')
     # Construct import ID for the user account that was migrated from this local account.
     import_id="$repo_id/$local_account_id"
     # Construct name of the user account that will be imported.
