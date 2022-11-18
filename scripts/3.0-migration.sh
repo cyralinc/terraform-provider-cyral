@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Set the color variable
+red='\033[0;31m'
+# Clear the color after that
+clear='\033[0m'
+
 if ! command -v terraform &> /dev/null
 then
     echo "The Terraform CLI must be installed for this script to run."
@@ -137,11 +142,11 @@ echo "Before we proceed, you will need to do the following:
 
             Access Rules
             resource \"cyral_repository_access_rules\" \"<resource_name>\" {}
-    ***********************************
-    *                                 *
-    * IMPORTANT STEP PLEASE DONT SKIP *
-    *                                 *
-    ***********************************
+    ************************************************
+    *                                              *
+    *        ${red}IMPORTANT STEP PLEASE DONT SKIP${clear}       *
+    *                                              *
+    ************************************************
     4.  Find all references to cyral_repository_identity_map and
         cyral_repository_local_account in your .tf file and remove the
         entire resource definition for each one."
