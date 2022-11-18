@@ -302,7 +302,7 @@ func resourceSidecarListener() *schema.Resource {
 							Optional:    true,
 						},
 						CharacterSetKey: {
-							Description: "MySQL character set. Optional and only relevant for listeners of type `mysql`.",
+							Description: "MySQL character set. Optional (and only relevant) for listeners of type `mysql`.",
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
