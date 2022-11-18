@@ -104,9 +104,6 @@ for resource in ${tf_state[@]}; do
   fi
 done
 
-echo ${user_account_resource_defs[1]}
-echo ${access_rule_resource_defs[1]}
-
 echo "Found ${#local_accounts_to_delete[@]} cyral_repository_local_accounts to migrate to cyral_repository_user_accounts."
 echo "Found ${#identity_maps_to_delete[@]} cyral_repository_identity_maps to migrate to cyral_repository_access_rules."
 echo
@@ -140,6 +137,11 @@ echo "Before we proceed, you will need to do the following:
 
             Access Rules
             resource \"cyral_repository_access_rules\" \"<resource_name>\" {}
+    ***********************************
+    *                                 *
+    * IMPORTANT STEP PLEASE DONT SKIP *
+    *                                 *
+    ***********************************
     4.  Find all references to cyral_repository_identity_map and
         cyral_repository_local_account in your .tf file and remove the
         entire resource definition for each one."
