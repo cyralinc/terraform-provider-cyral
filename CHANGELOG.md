@@ -1,3 +1,13 @@
+## 3.0.4 (November 18, 2022)
+
+Minimum required Control Plane version: `v3.0.0`.
+
+See the list of incompatible resources with Control Planes `v2.x` and Terraform `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
+
+### Bug fixes:
+
+- **Modified the script to call terraform show less**: [#320](https://github.com/cyralinc/terraform-provider-cyral/pull/#320).
+
 ## 3.0.3 (November 14, 2022)
 
 Minimum required Control Plane version: `v3.0.0`.
