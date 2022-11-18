@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	mongodbRepoType             = "mongodb"
-	mongodbReplicaSetServerType = "replicaset"
+	mongodbRepoType                  = "mongodb"
+	mongodbReplicaSetServerType      = "replicaset"
+	deprecatedHostAndPortMessage     = "`%s` is deprecated. Use `repoNodes` instead, which support single as well as multi-node repo types."
+	deprecatedRepoProperitiesMessage = "`%s` is deprecated. Use `mongodb_settings` instead to set MongoDB properties."
 )
 
 func repositoryTypes() []string {
@@ -40,22 +42,62 @@ func repositoryTypes() []string {
 }
 
 type GetRepoByIDResponse struct {
-	Repo RepoData `json:"repo"`
+	Repo RepoInfo `json:"repo"`
 }
 
-type RepoData struct {
-	ID                  string                `json:"id"`
-	RepoType            string                `json:"type"`
-	Name                string                `json:"name"`
-	Host                string                `json:"repoHost"`
-	Port                int                   `json:"repoPort"`
-	Labels              []string              `json:"labels"`
-	MaxAllowedListeners uint32                `json:"maxAllowedListeners,omitempty"`
-	Properties          *RepositoryProperties `json:"properties,omitempty"`
+type RepoInfo struct {
+	ID                       string                `json:"id"`
+	Name                     string                `json:"name"`
+	Type                     string                `json:"type"`
+	Host                     string                `json:"repoHost"`
+	Port                     uint32                `json:"repoPort"`
+	ConnParams               *ConnParams           `json:"connParams"`
+	Labels                   []string              `json:"labels"`
+	MaxAllowedListeners      uint32                `json:"maxAllowedListeners,omitempty"`
+	Properties               *RepositoryProperties `json:"properties,omitempty"`
+	RepoNodes                []*RepoNode           `json:"repoNodes,omitempty"`
+	MongoDbSettings          *MongoDbSettings      `json:"mongoDbSettings,omitempty"`
+	PreferredAccessGwBinding *BindingKey           `json:"preferredAccessGwBinding,omitempty"`
 }
 
-func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
-	d.Set("type", data.RepoType)
+type ConnParams struct {
+	ConnDraining *ConnDraining `json:"connDraining"`
+}
+
+type ConnDraining struct {
+	Auto     bool   `json:"auto"`
+	WaitTime uint32 `json:"waitTime"`
+}
+
+// RepositoryProperties relates to the field "properties" of the v1/repos
+// API. All fields of this struct _must_ be of type string, to comply with the
+// API.
+type RepositoryProperties struct {
+	// Replica set
+	MongoDBReplicaSetName string `json:"mongodb-replicaset-name,omitempty"`
+	MongoDBServerType     string `json:"mongodb-server-type,omitempty"`
+}
+
+type MongoDbSettings struct {
+	ReplicaSetName string `json:"replicaSetName,omitempty"`
+	ServerType     string `json:"serverType,omitempty"`
+}
+
+type BindingKey struct {
+	SidecarID string `json:"sidecarId,omitempty"`
+	BindingID string `json:"bindingId,omitempty"`
+}
+
+// RepoNode represents a node in a repo
+type RepoNode struct {
+	Name    string `json:"name"`
+	Host    string `json:"host"`
+	Port    uint32 `json:"port"`
+	Dynamic bool   `json:"dynamic"`
+}
+
+func (data *RepoInfo) WriteToSchema(d *schema.ResourceData) error {
+	d.Set("type", data.Type)
 	d.Set("host", data.Host)
 	d.Set("port", data.Port)
 	d.Set("name", data.Name)
@@ -64,9 +106,18 @@ func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
 	if properties := data.PropertiesAsInterface(); properties != nil {
 		d.Set("properties", properties)
 	}
+	return nil
 }
 
-func (data *RepoData) PropertiesAsInterface() []interface{} {
+func (data *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
+	return nil
+}
+
+func (data *GetRepoByIDResponse) WriteToSchema(d *schema.ResourceData) error {
+	return nil
+}
+
+func (data *RepoInfo) PropertiesAsInterface() []interface{} {
 	var properties []interface{}
 	if data.Properties != nil {
 		if data.IsReplicaSet() {
@@ -85,17 +136,23 @@ func (data *RepoData) PropertiesAsInterface() []interface{} {
 	return properties
 }
 
-func (data *RepoData) IsReplicaSet() bool {
+func (data *RepoInfo) IsReplicaSet() bool {
 	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
 }
 
-// RepositoryProperties relates to the field "properties" of the v1/repos
-// API. All fields of this struct _must_ be of type string, to comply with the
-// API.
-type RepositoryProperties struct {
-	// Replica set
-	MongoDBReplicaSetName string `json:"mongodb-replicaset-name,omitempty"`
-	MongoDBServerType     string `json:"mongodb-server-type,omitempty"`
+var ReadRepositoryConfig = ResourceOperationConfig{
+	Name:       "RepositoryRead",
+	HttpMethod: http.MethodGet,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf(
+			"https://%s/v1/repos/%s",
+			c.ControlPlane,
+			d.Id(),
+		)
+	},
+	NewResponseData: func(_ *schema.ResourceData) ResponseData {
+		return &RepoInfo{}
+	},
 }
 
 func resourceRepository() *schema.Resource {
@@ -103,10 +160,56 @@ func resourceRepository() *schema.Resource {
 		Description: "Manages [repositories](https://cyral.com/docs/manage-repositories/repo-track)." +
 			"\n\nSee also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config)." +
 			"\nThis module provides the repository configuration options as shown in Cyral UI.",
-		CreateContext: resourceRepositoryCreate,
-		ReadContext:   resourceRepositoryRead,
-		UpdateContext: resourceRepositoryUpdate,
-		DeleteContext: resourceRepositoryDelete,
+		CreateContext: CreateResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf(
+						"https://%s/v1/repos",
+						c.ControlPlane,
+					)
+				},
+				NewResourceData: func() ResourceData {
+					return &RepoInfo{}
+				},
+				NewResponseData: func(_ *schema.ResourceData) ResponseData {
+					return &GetRepoByIDResponse{}
+				},
+			},
+			ReadRepositoryConfig,
+		),
+		ReadContext: ReadResource(ReadRepositoryUserAccountConfig),
+		UpdateContext: UpdateResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf(
+						"https://%s/v1/repos/%s",
+						c.ControlPlane,
+						d.Id(),
+					)
+				},
+				NewResourceData: func() ResourceData {
+					return &RepoInfo{}
+				},
+			},
+			ReadRepositoryConfig,
+		),
+		DeleteContext: DeleteResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf(
+						"https://%s/v1/repos/%s",
+						c.ControlPlane,
+						d.Id(),
+					)
+				},
+			},
+		),
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -124,11 +227,13 @@ func resourceRepository() *schema.Resource {
 				Description: "Repository host name (ex: `somerepo.cyral.com`).",
 				Type:        schema.TypeString,
 				Required:    true,
+				Deprecated:  fmt.Sprintf(deprecatedHostAndPortMessage, "host"),
 			},
 			"port": {
 				Description: "Repository access port (ex: `3306`).",
 				Type:        schema.TypeInt,
 				Required:    true,
+				Deprecated:  fmt.Sprintf(deprecatedHostAndPortMessage, "port"),
 			},
 			"name": {
 				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`).",
@@ -148,6 +253,7 @@ func resourceRepository() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				MaxItems:    1,
+				Deprecated:  fmt.Sprintf(deprecatedRepoProperitiesMessage, "properties"),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mongodb_replica_set": {
@@ -161,6 +267,7 @@ func resourceRepository() *schema.Resource {
 										Description:  "Maximum number of nodes of the replica set cluster.",
 										Type:         schema.TypeInt,
 										Required:     true,
+										Deprecated:   fmt.Sprintf(deprecatedRepoProperitiesMessage, "max_nodes"),
 										ValidateFunc: validation.IntAtLeast(1),
 									},
 									"replica_set_id": {
@@ -168,6 +275,7 @@ func resourceRepository() *schema.Resource {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: validation.StringIsNotEmpty,
+										Deprecated:   fmt.Sprintf(deprecatedRepoProperitiesMessage, "replica_set_id"),
 									},
 								},
 							},
@@ -271,13 +379,13 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m int
 	return diag.Diagnostics{}
 }
 
-func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
-	repoData := RepoData{
-		ID:       d.Id(),
-		RepoType: d.Get("type").(string),
-		Host:     d.Get("host").(string),
-		Name:     d.Get("name").(string),
-		Port:     d.Get("port").(int),
+func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoInfo, error) {
+	repoData := RepoInfo{
+		ID:   d.Id(),
+		Type: d.Get("type").(string),
+		Host: d.Get("host").(string),
+		Name: d.Get("name").(string),
+		Port: uint32(d.Get("port").(int)),
 	}
 
 	labels := d.Get("labels").([]interface{})
@@ -296,8 +404,8 @@ func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData
 
 			// Replica set properties
 			if rsetIface, ok := propertiesMap["mongodb_replica_set"]; ok {
-				if repoData.RepoType != mongodbRepoType {
-					return RepoData{}, fmt.Errorf(
+				if repoData.Type != mongodbRepoType {
+					return RepoInfo{}, fmt.Errorf(
 						"replica sets are only supported for repository type '%s'",
 						mongodbRepoType)
 				}

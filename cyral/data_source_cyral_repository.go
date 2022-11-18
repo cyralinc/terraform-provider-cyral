@@ -12,11 +12,11 @@ import (
 )
 
 // GetReposSubResponse is different from GetRepoByIDResponse. For the by-id
-// reponse, we expect the ids to be embedded in the RepoData struct. For
-// GetReposSubResponse, the ids come outside of RepoData.
+// reponse, we expect the ids to be embedded in the RepoInfo struct. For
+// GetReposSubResponse, the ids come outside of RepoInfo.
 type GetReposSubResponse struct {
 	ID   string   `json:"id"`
-	Repo RepoData `json:"repo"`
+	Repo RepoInfo `json:"repo"`
 }
 
 type GetReposResponse struct {
@@ -31,7 +31,7 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 		argumentVals := map[string]interface{}{
 			"id":         repoID,
 			"name":       repoData.Name,
-			"type":       repoData.RepoType,
+			"type":       repoData.Type,
 			"host":       repoData.Host,
 			"port":       repoData.Port,
 			"labels":     repoData.Labels,

@@ -11,20 +11,20 @@ const (
 	repositoryDataSourceName = "data-repository"
 )
 
-func repositoryDataSourceTestRepos() []RepoData {
-	return []RepoData{
+func repositoryDataSourceTestRepos() []RepoInfo {
+	return []RepoInfo{
 		{
-			Name:     accTestName(repositoryDataSourceName, "sqlserver-1"),
-			Host:     "localhost",
-			Port:     1433,
-			RepoType: "sqlserver",
-			Labels:   []string{"rds", "us-east-2"},
+			Name:   accTestName(repositoryDataSourceName, "sqlserver-1"),
+			Host:   "localhost",
+			Port:   1433,
+			Type:   "sqlserver",
+			Labels: []string{"rds", "us-east-2"},
 		},
 		{
 			Name:                accTestName(repositoryDataSourceName, "mongodb-1"),
 			Host:                "localhost",
 			Port:                27017,
-			RepoType:            "mongodb",
+			Type:                "mongodb",
 			Labels:              []string{"rds", "us-east-1"},
 			MaxAllowedListeners: 2,
 			Properties: &RepositoryProperties{
@@ -63,14 +63,14 @@ func TestAccRepositoryDataSource(t *testing.T) {
 	})
 }
 
-func testRepositoryDataSource(repoDatas []RepoData, nameFilter, typeFilter string) (
+func testRepositoryDataSource(repoDatas []RepoInfo, nameFilter, typeFilter string) (
 	string, resource.TestCheckFunc,
 ) {
 	return testRepositoryDataSourceConfig(repoDatas, nameFilter, typeFilter),
 		testRepositoryDataSourceChecks(repoDatas, nameFilter, typeFilter)
 }
 
-func testRepositoryDataSourceConfig(repoDatas []RepoData, nameFilter, typeFilter string) string {
+func testRepositoryDataSourceConfig(repoDatas []RepoInfo, nameFilter, typeFilter string) string {
 	var config string
 	var dependsOn []string
 	for _, repoData := range repoDatas {
@@ -82,7 +82,7 @@ func testRepositoryDataSourceConfig(repoDatas []RepoData, nameFilter, typeFilter
 	return config
 }
 
-func testRepositoryDataSourceChecks(repoDatas []RepoData, nameFilter, typeFilter string) resource.TestCheckFunc {
+func testRepositoryDataSourceChecks(repoDatas []RepoInfo, nameFilter, typeFilter string) resource.TestCheckFunc {
 	dataSourceFullName := "data.cyral_repository.test_repository"
 
 	if nameFilter == "" {
@@ -107,7 +107,7 @@ func testRepositoryDataSourceChecks(repoDatas []RepoData, nameFilter, typeFilter
 			resource.TestCheckResourceAttr(dataSourceFullName,
 				"repository_list.0.name", repoData.Name),
 			resource.TestCheckResourceAttr(dataSourceFullName,
-				"repository_list.0.type", repoData.RepoType),
+				"repository_list.0.type", repoData.Type),
 			resource.TestCheckResourceAttr(dataSourceFullName,
 				"repository_list.0.host", repoData.Host),
 			resource.TestCheckResourceAttr(dataSourceFullName,
@@ -134,11 +134,11 @@ func testRepositoryDataSourceChecks(repoDatas []RepoData, nameFilter, typeFilter
 	return testFunction
 }
 
-func filterRepoDatas(repoDatas []RepoData, nameFilter, typeFilter string) []RepoData {
-	var filteredRepoDatas []RepoData
+func filterRepoDatas(repoDatas []RepoInfo, nameFilter, typeFilter string) []RepoInfo {
+	var filteredRepoDatas []RepoInfo
 	for _, repoData := range repoDatas {
 		if (nameFilter == "" || repoData.Name == nameFilter) &&
-			(typeFilter == "" || repoData.RepoType == typeFilter) {
+			(typeFilter == "" || repoData.Type == typeFilter) {
 			filteredRepoDatas = append(filteredRepoDatas, repoData)
 		}
 	}
