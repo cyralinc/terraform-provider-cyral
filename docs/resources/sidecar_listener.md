@@ -62,6 +62,7 @@ resource "cyral_sidecar_listener" "dynamodb_proxy" {
 
 ### Required
 
+- `network_address` (Block Set, Min: 1, Max: 1) The network address that the sidecar listens on. (see [below for nested schema](#nestedblock--network_address))
 - `repo_types` (List of String) List of repository types that the listener supports. Currently limited to one repo type from supported repo types:
   - `bigquery`
   - `cassandra`
@@ -85,13 +86,24 @@ resource "cyral_sidecar_listener" "dynamodb_proxy" {
 
 - `dynamodb_settings` (Block Set, Max: 1) DynamoDB settings. (see [below for nested schema](#nestedblock--dynamodb_settings))
 - `mysql_settings` (Block Set, Max: 1) MySQL settings represents the listener settings for a [`mysql`, `galera`, `mariadb`] data repository. (see [below for nested schema](#nestedblock--mysql_settings))
-- `network_address` (Block Set, Max: 1) The network address that the sidecar listens on. (see [below for nested schema](#nestedblock--network_address))
 - `s3_settings` (Block Set, Max: 1) S3 settings. (see [below for nested schema](#nestedblock--s3_settings))
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `listener_id` (String) ID of the listener that will be bound to the sidecar.
+
+<a id="nestedblock--network_address"></a>
+
+### Nested Schema for `network_address`
+
+Required:
+
+- `port` (Number) Port where the sidecar will listen for the given repository.
+
+Optional:
+
+- `host` (String) Host where the sidecar will listen for the given repository. Omit to listen on all interfaces.
 
 <a id="nestedblock--dynamodb_settings"></a>
 
@@ -107,20 +119,8 @@ Optional:
 
 Optional:
 
-- `character_set` (String) MySQL character set. Optional and only relevant for listeners of type `mysql`.
+- `character_set` (String) MySQL character set. Optional (and only relevant) for listeners of type `mysql`.
 - `db_version` (String) MySQL DB version. Required (and only relevant) for listeners of type `mysql`.
-
-<a id="nestedblock--network_address"></a>
-
-### Nested Schema for `network_address`
-
-Required:
-
-- `port` (Number) Port where the sidecar will listen for the given repository.
-
-Optional:
-
-- `host` (String) Host where the sidecar will listen for the given repository. Omit to listen on all interfaces.
 
 <a id="nestedblock--s3_settings"></a>
 

@@ -19,7 +19,6 @@ const (
 	NetworkAddressKey   = "network_address"
 	PortKey             = "port"
 	HostKey             = "host"
-	FileKey             = "file"
 	MySQLSettingsKey    = "mysql_settings"
 	DbVersionKey        = "db_version"
 	CharacterSetKey     = "character_set"
@@ -62,7 +61,7 @@ var ReadSidecarListenersConfig = ResourceOperationConfig{
 			d.Get(SidecarIdKey).(string),
 			d.Get(ListenerIdKey).(string))
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadSidecarListenersAPIResponse{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadSidecarListenerAPIResponse{} },
 }
 
 type ReadSidecarListenerAPIResponse struct {
@@ -77,7 +76,7 @@ func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	return d.Set(ListenerIdKey, c.ListenerId)
 }
 
-func (data ReadSidecarListenersAPIResponse) WriteToSchema(d *schema.ResourceData) error {
+func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	if data.ListenerConfig != nil {
 		_ = d.Set(ListenerIdKey, data.ListenerConfig.ListenerId)
 		_ = d.Set(RepoTypesKey, data.ListenerConfig.RepoTypesAsInterface())
@@ -106,16 +105,15 @@ func (l *SidecarListener) RepoTypesFromInterface(anInterface []interface{}) {
 	l.RepoTypes = repoTypes
 }
 func (l *SidecarListener) NetworkAddressAsInterface() []interface{} {
-	if l.NetworkAddress != nil {
-		result := []interface{}{
-			map[string]interface{}{
-				HostKey: l.NetworkAddress.Host,
-				PortKey: l.NetworkAddress.Port,
-			},
-		}
-		return result
+	if l.NetworkAddress == nil {
+		return nil
 	}
-	return nil
+	return []interface{}{
+		map[string]interface{}{
+			HostKey: l.NetworkAddress.Host,
+			PortKey: l.NetworkAddress.Port,
+		},
+	}
 }
 func (l *SidecarListener) NetworkAddressFromInterface(anInterface []interface{}) {
 	if len(anInterface) == 0 {
@@ -268,11 +266,10 @@ func resourceSidecarListener() *schema.Resource {
 				},
 			},
 			NetworkAddressKey: {
-				Description:  "The network address that the sidecar listens on.",
-				Type:         schema.TypeSet,
-				Optional:     true, // This field is required, due to ExactlyOneOf directive
-				ExactlyOneOf: []string{NetworkAddressKey},
-				MaxItems:     1,
+				Description: "The network address that the sidecar listens on.",
+				Type:        schema.TypeSet,
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						HostKey: {
@@ -293,7 +290,8 @@ func resourceSidecarListener() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
-				MaxItems: 1,
+				MaxItems:      1,
+				ConflictsWith: []string{S3SettingsKey, DynamoDbSettingsKey},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						DbVersionKey: {
@@ -315,7 +313,8 @@ func resourceSidecarListener() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
-				MaxItems: 1,
+				MaxItems:      1,
+				ConflictsWith: []string{MySQLSettingsKey, DynamoDbSettingsKey},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						ProxyModeKey: {
@@ -331,7 +330,8 @@ func resourceSidecarListener() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
-				MaxItems: 1,
+				MaxItems:      1,
+				ConflictsWith: []string{S3SettingsKey, MySQLSettingsKey},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						ProxyModeKey: {
