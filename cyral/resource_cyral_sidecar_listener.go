@@ -65,7 +65,7 @@ var ReadSidecarListenersConfig = ResourceOperationConfig{
 	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadSidecarListenersAPIResponse{} },
 }
 
-type ReadSidecarListenersAPIResponse struct {
+type ReadSidecarListenerAPIResponse struct {
 	ListenerConfig *SidecarListener `json:"listenerConfig"`
 }
 type CreateListenerAPIResponse struct {
