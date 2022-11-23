@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,41 +12,66 @@ const (
 	repositoryResourceName = "repository"
 )
 
-var initialRepoConfig RepoInfo = RepoInfo{
-	Name:   accTestName(repositoryResourceName, "repo"),
-	Host:   "mongo.local",
-	Port:   3333,
-	Type:   "mongodb",
-	Labels: []string{"rds", "us-east-2"},
-}
+var (
+	initialRepoConfig = RepoInfo{
+		Name:   accTestName(repositoryResourceName, "repo"),
+		Host:   "mongo.local",
+		Port:   3333,
+		Type:   "mongodb",
+		Labels: []string{"rds", "us-east-2"},
+	}
 
-var updatedRepoConfig RepoInfo = RepoInfo{
-	Name:   accTestName(repositoryResourceName, "repo-updated"),
-	Host:   "mongo-updated.local",
-	Port:   3334,
-	Type:   "mongodb",
-	Labels: []string{"rds", "us-east-1"},
-}
+	updatedRepoConfig = RepoInfo{
+		Name:   accTestName(repositoryResourceName, "repo-updated"),
+		Host:   "mongo-updated.local",
+		Port:   3334,
+		Type:   "mongodb",
+		Labels: []string{"rds", "us-east-1"},
+	}
 
-var emptyPropertiesRepoConfig RepoInfo = RepoInfo{
-	Name:       accTestName(repositoryResourceName, "repo-empty-properties"),
-	Host:       "mongo-cluster.local",
-	Port:       27017,
-	Type:       "mongodb",
-	Properties: &RepositoryProperties{},
-}
+	emptyConnDrainingConfig = RepoInfo{
+		Name: accTestName(repositoryResourceName, "repo-empty-conn-draining"),
+		Host: "mongo-cluster.local",
+		Port: 27017,
+		Type: "mongodb",
+		ConnParams: &ConnParams{
+			ConnDraining: &ConnDraining{},
+		},
+	}
 
-var replicaSetRepoConfig RepoInfo = RepoInfo{
-	Name:                accTestName(repositoryResourceName, "repo-replica-set"),
-	Host:                "mongo-cluster.local",
-	Port:                27017,
-	Type:                "mongodb",
-	MaxAllowedListeners: 2,
-	Properties: &RepositoryProperties{
-		MongoDBReplicaSetName: "replica-set-1",
-		MongoDBServerType:     mongodbReplicaSetServerType,
-	},
-}
+	connDrainingConfig = RepoInfo{
+		Name: accTestName(repositoryResourceName, "repo-with-conn-draining"),
+		Host: "mongo-cluster.local",
+		Port: 27017,
+		Type: "mongodb",
+		ConnParams: &ConnParams{
+			ConnDraining: &ConnDraining{
+				Auto:     true,
+				WaitTime: 20,
+			},
+		},
+	}
+
+	emptyPropertiesRepoConfig = RepoInfo{
+		Name:       accTestName(repositoryResourceName, "repo-empty-properties"),
+		Host:       "mongo-cluster.local",
+		Port:       27017,
+		Type:       "mongodb",
+		Properties: &RepositoryProperties{},
+	}
+
+	replicaSetRepoConfig = RepoInfo{
+		Name:                accTestName(repositoryResourceName, "repo-replica-set"),
+		Host:                "mongo-cluster.local",
+		Port:                27017,
+		Type:                "mongodb",
+		MaxAllowedListeners: 2,
+		Properties: &RepositoryProperties{
+			MongoDBReplicaSetName: "replica-set-1",
+			MongoDBServerType:     mongodbReplicaSetServerType,
+		},
+	}
+)
 
 func TestAccRepositoryResource(t *testing.T) {
 	testConfig, testFunc := setupRepositoryTest(
@@ -56,6 +82,10 @@ func TestAccRepositoryResource(t *testing.T) {
 		emptyPropertiesRepoConfig, "empty_properties_test")
 	testReplicaSetConfig, testReplicaSetFunc := setupRepositoryTest(
 		replicaSetRepoConfig, "replica_config_test")
+	testConnDrainingEmptyConfig, testConnDrainingEmptySetup := setupRepositoryTest(
+		emptyConnDrainingConfig, "conn_draining_empty_test")
+	testConnDrainingConfig, testConnDrainingSetup := setupRepositoryTest(
+		connDrainingConfig, "conn_draining_test")
 
 	// Should use name of the last resource created.
 	importTestResourceName := "cyral_repository.replica_config_test"
@@ -74,6 +104,14 @@ func TestAccRepositoryResource(t *testing.T) {
 			{
 				Config: testEmptyPropertiesConfig,
 				Check:  testEmptyPropertiesFunc,
+			},
+			{
+				Config: testConnDrainingEmptyConfig,
+				Check:  testConnDrainingEmptySetup,
+			},
+			{
+				Config: testConnDrainingConfig,
+				Check:  testConnDrainingSetup,
 			},
 			{
 				Config: testReplicaSetConfig,
@@ -106,6 +144,18 @@ func setupRepositoryTest(repoData RepoInfo, resName string) (string, resource.Te
 			"labels.#", fmt.Sprintf("%d", len(repoData.Labels))),
 	}
 
+	if repoData.ConnParams != nil {
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceFullName,
+				"connection_draining.0.auto",
+				strconv.FormatBool(repoData.ConnParams.ConnDraining.Auto)),
+
+			resource.TestCheckResourceAttr(resourceFullName,
+				"connection_draining.0.wait_time",
+				strconv.Itoa(int(repoData.ConnParams.ConnDraining.WaitTime))),
+		}...)
+	}
+
 	if repoData.IsReplicaSet() {
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(resourceFullName,
@@ -124,7 +174,17 @@ func setupRepositoryTest(repoData RepoInfo, resName string) (string, resource.Te
 }
 
 func formatRepoDataIntoConfig(data RepoInfo, resName string) string {
-	var propertiesStr string
+	var propertiesStr, connDraining string
+
+	if data.ConnParams != nil {
+		connDraining = fmt.Sprintf(`
+			connection_draining {
+				auto = %s
+				wait_time = %d
+			}`, strconv.FormatBool(data.ConnParams.ConnDraining.Auto),
+			data.ConnParams.ConnDraining.WaitTime,
+		)
+	}
 	if data.Properties != nil {
 		properties := data.Properties
 
@@ -150,7 +210,9 @@ func formatRepoDataIntoConfig(data RepoInfo, resName string) string {
 		name  = "%s"
 		labels = %s
 		%s
+		%s
 	}`, resName, data.Type, data.Host,
-		data.Port, data.Name, listToStr(data.Labels), propertiesStr)
+		data.Port, data.Name, listToStr(data.Labels),
+		propertiesStr, connDraining)
 	return config
 }
