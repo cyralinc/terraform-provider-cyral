@@ -119,6 +119,8 @@ func Provider() *schema.Provider {
 			"cyral_role_sso_groups":                  resourceRoleSSOGroups(),
 			"cyral_sidecar":                          resourceSidecar(),
 			"cyral_sidecar_credentials":              resourceSidecarCredentials(),
+			// The Sidecar Listener resource will be reenabled when the port-multiplexing
+			// feature is completed. Jira: https://cyralinc.atlassian.net/browse/ENG-9398
 			//"cyral_sidecar_listener":                 resourceSidecarListener(),
 		},
 		ConfigureContextFunc: providerConfigure,
