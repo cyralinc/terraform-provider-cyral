@@ -10,16 +10,25 @@ import (
 )
 
 const (
-	// Schema keys
-	RepoIDKey                = "id"
-	RepoTypeKey              = "type"
-	RepoNameKey              = "name"
-	RepoLabelsKey            = "labels"
-	RepoConnDrainingKey      = "connection_draining"
-	RepoConnDrainingAutoKey  = "auto"
-	RepoConnDrainingWaitTime = "wait_time"
+	// Schema keys.
+	RepoIDKey                     = "id"
+	RepoTypeKey                   = "type"
+	RepoNameKey                   = "name"
+	RepoLabelsKey                 = "labels"
+	RepoConnDrainingKey           = "connection_draining"
+	RepoConnDrainingAutoKey       = "auto"
+	RepoConnDrainingWaitTimeKey   = "wait_time"
+	RepoNodesKey                  = "repo_nodes"
+	RepoNodeNameKey               = "node_name"
+	RepoNodeDynamicKey            = "dynamic"
+	RepoMongoDBSettingsKey        = "mongo_db_settings"
+	RepoMongoDBReplicaSetNameKey  = "replica_set_name"
+	RepoMongoDBServerType         = "server_type"
+	RepoPreferredAccessGatewayKey = "preferred_access_gateway"
+	RepoSidecarIDKey              = "sidecar_id"
+	RepoBindingIDKey              = "binding_id"
 
-	// Deprecated schema keys
+	// Deprecated schema keys.
 	RepoHostKey              = "host"
 	RepoPortKey              = "port"
 	RepoPropertiesKey        = "properties"
@@ -52,6 +61,13 @@ func repositoryTypes() []string {
 		"s3",
 		"snowflake",
 		"sqlserver",
+	}
+}
+
+func mongoServerTypes() []string {
+	return []string{
+		"replicaset",
+		"standalone",
 	}
 }
 
@@ -148,8 +164,8 @@ func (r *RepoInfo) ConnDrainingAsInterface() []interface{} {
 	}
 
 	return []interface{}{map[string]interface{}{
-		RepoConnDrainingAutoKey:  r.ConnParams.ConnDraining.Auto,
-		RepoConnDrainingWaitTime: r.ConnParams.ConnDraining.WaitTime,
+		RepoConnDrainingAutoKey:     r.ConnParams.ConnDraining.Auto,
+		RepoConnDrainingWaitTimeKey: r.ConnParams.ConnDraining.WaitTime,
 	}}
 }
 
@@ -160,7 +176,7 @@ func (r *RepoInfo) ConnDrainingFromInterface(i []interface{}) {
 	r.ConnParams = &ConnParams{
 		ConnDraining: &ConnDraining{
 			Auto:     i[0].(map[string]interface{})[RepoConnDrainingAutoKey].(bool),
-			WaitTime: uint32(i[0].(map[string]interface{})[RepoConnDrainingWaitTime].(int)),
+			WaitTime: uint32(i[0].(map[string]interface{})[RepoConnDrainingWaitTimeKey].(int)),
 		},
 	}
 }
@@ -305,13 +321,13 @@ func resourceRepository() *schema.Resource {
 			RepoHostKey: {
 				Description: "Repository host name (ex: `somerepo.cyral.com`).",
 				Type:        schema.TypeString,
-				Required:    true,
+				Required:    false,
 				Deprecated:  fmt.Sprintf(deprecatedHostAndPortMessage, "host"),
 			},
 			RepoPortKey: {
 				Description: "Repository access port (ex: `3306`).",
 				Type:        schema.TypeInt,
-				Required:    true,
+				Required:    false,
 				Deprecated:  fmt.Sprintf(deprecatedHostAndPortMessage, "port"),
 			},
 			RepoNameKey: {
@@ -334,15 +350,83 @@ func resourceRepository() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						RepoConnDrainingAutoKey: {
-							Description: "Whether connections should be drained automatically after a listener is dead",
+							Description: "Whether connections should be drained automatically after a listener dies.",
 							Type:        schema.TypeBool,
 							Optional:    true,
 						},
-						RepoConnDrainingWaitTime: {
+						RepoConnDrainingWaitTimeKey: {
 							Description: "Seconds to wait to let connections drain before starting to kill all the connections, " +
 								"if auto is set to true.",
 							Type:     schema.TypeInt,
 							Optional: true,
+						},
+					},
+				},
+			},
+			RepoPreferredAccessGatewayKey: {
+				Description: "Preferred access gateway for this repository.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						RepoConnDrainingAutoKey: {
+							Description: "Whether connections should be drained automatically after a listener dies.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+						},
+						RepoConnDrainingWaitTimeKey: {
+							Description: "Seconds to wait to let connections drain before starting to kill all the connections, " +
+								"if auto is set to true.",
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			RepoNodesKey: {
+				Description: "List of nodes for this repository.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						RepoNodeNameKey: {
+							Description: "Name of the repo node.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoHostKey: {
+							Description: "Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoPortKey: {
+							Description: "Repository access port (ex: `3306`). Can be empty if node is dynamic.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+						},
+						RepoNodeDynamicKey: {
+							Description: "Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+						},
+					},
+				},
+			},
+			RepoMongoDBSettingsKey: {
+				Description: "Parameters related to MongoDB repositories.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						RepoMongoDBReplicaSetNameKey: {
+							Description: "Name of the replica set, if applicable.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoConnDrainingWaitTimeKey: {
+							Description: "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},
