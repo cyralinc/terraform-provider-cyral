@@ -63,23 +63,20 @@ tf_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
 # Find all cyral_repository_identity_maps and cyral_repository_local_accounts
 for resource in ${tf_state[@]}; do
-  tmp_out=$(echo $tf_json | jq "select(.address == \"$resource\")")
-  # Get repoID
-  repo_id=$(echo $tmp_out | jq -r ".values.repository_id")
   if [[ $resource == cyral_repository_identity_map.* ]]
   then
     # We will need to delete this identity map from the .tf file, store its name
     identity_maps_to_delete+=($resource)
-    # Get local account ID, identity_type and access_duration for the identity map.
-    values_arr=($(echo $tmp_out | jq -r ".values.repository_local_account_id, .values.identity_type, .values.access_duration"))
-    if [[ ${values_arr[2]} != $empty_access_duration ]] && [[ ${values_arr[1]} == "user" ]]; then
+    # Get repo ID, local account ID, identity_type and access_duration for the identity map.
+    values_arr=($(jq -r "select(.address == \"$resource\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_json))
+    if [[ ${values_arr[3]} != $empty_access_duration ]] && [[ ${values_arr[2]} == "user" ]]; then
         # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
         continue
     fi
     # Construct import ID for the access rule that was migrated from this identity map.
-    import_id="$repo_id/${values_arr[0]}"
+    import_id="${values_arr[0]}/${values_arr[1]}"
     # Remove [] from the resource as they are not supported and substitute [ for _
-    resource=$(echo $resource | sed 's/\[/_/g'| sed 's/\]//g')
+    resource=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource)
     # Construct name of the access rule that will be imported.
     import_name=cyral_repository_access_rules.${resource##"cyral_repository_identity_map."}
     # Save name of the new access rule, so that it can be added to the .tf file
@@ -93,11 +90,11 @@ for resource in ${tf_state[@]}; do
     # We will need to delete this local account from the .tf file, store its name
     local_accounts_to_delete+=($resource)
     # Get local account ID for the local account.
-    local_account_id=$(echo $tmp_out | jq -r ".values.id")
+    values_arr=($(jq -r "select(.address == \"$resource\") | .values.repository_id, .values.id"<<<$tf_json))
     # Construct import ID for the user account that was migrated from this local account.
-    import_id="$repo_id/$local_account_id"
+    import_id="${values_arr[0]}/${values_arr[1]}"
     # Remove [] from the resource as they are not supported and substitute [ for _
-    resource=$(echo $resource | sed 's/\[/_/g'| sed 's/\]//g')
+    resource=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource)
     # Construct name of the user account that will be imported.
     import_name=cyral_repository_user_account.${resource##"cyral_repository_local_account."}
     # Save name of the migrated user account, so that it can be added to the .tf file
@@ -127,7 +124,7 @@ fi
 echo; echo; echo;
 echo "Now its time to upgrade your Cyral Terraform Provider to version 3!"
 echo
-echo "Before we proceed, you will need to do the following:
+echo -e "Before we proceed, you will need to do the following:
     1.  Open your Terraform .tf configuration file.
     2.  Change the version number of the cyral provider in the required_providers
         section of your .tf configuration file to '~>3.0'. It should look like this:
@@ -169,11 +166,11 @@ echo "Importing the following cyral_repository_access_rules into your Terraform 
 printf '%s\n' "${access_rule_resource_names[@]}"
 echo
 
-for ((i = 0; i < ${#user_account_import_ids[@]}; i++));do
-    terraform import ${user_account_import_ids[$i]}
+for user_account_id in ${user_account_import_ids[@]};do
+    terraform import $user_account_id
 done
-for ((i = 0; i < ${#access_rule_import_ids[@]}; i++));do
-    terraform import ${access_rule_import_ids[$i]}
+for access_rule_id in ${access_rule_import_ids[@]};do
+    terraform import $access_rule_id
 done
 
 echo
@@ -184,19 +181,19 @@ echo "Removing the following cyral_repository_identity_maps:"
 printf '%s\n' "${identity_maps_to_delete[@]}"
 echo
 
-for ((i = 0; i < ${#local_accounts_to_delete[@]}; i++));do
-    terraform state rm ${local_accounts_to_delete[$i]}
+for local_account in ${local_accounts_to_delete[@]};do
+    terraform state rm $local_account
 done
 
-for ((i = 0; i < ${#identity_maps_to_delete[@]}; i++));do
-    terraform state rm ${identity_maps_to_delete[$i]}
+for identity_map in ${identity_maps_to_delete[@]};do
+    terraform state rm $identity_map
 done
 
-for ((i = 0; i < ${#user_account_resource_names[@]}; i++));do
-    terraform state show -no-color ${user_account_resource_names[$i]} | grep -v "   user_account_id" | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
+for user_account in ${user_account_resource_names[@]};do
+    terraform state show -no-color $user_account | grep -v "   user_account_id" | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
 done
-for ((i = 0; i < ${#access_rule_resource_names[@]}; i++));do
-    terraform state show -no-color ${access_rule_resource_names[$i]} | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
+for access_rule in ${access_rule_resource_names[@]};do
+    terraform state show -no-color $access_rule | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
 done
 
 mv cyral_migration_repository_access_rules_and_user_accounts.txt cyral_migration_repository_access_rules_and_user_accounts.tf
