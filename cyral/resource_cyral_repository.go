@@ -11,26 +11,17 @@ import (
 
 const (
 	// Schema keys.
-	RepoIDKey                     = "id"
-	RepoTypeKey                   = "type"
-	RepoNameKey                   = "name"
-	RepoLabelsKey                 = "labels"
-	RepoConnDrainingKey           = "connection_draining"
-	RepoConnDrainingAutoKey       = "auto"
-	RepoConnDrainingWaitTimeKey   = "wait_time"
-	RepoNodesKey                  = "repo_nodes"
-	RepoNodeNameKey               = "node_name"
-	RepoNodeDynamicKey            = "dynamic"
-	RepoMongoDBSettingsKey        = "mongo_db_settings"
-	RepoMongoDBReplicaSetNameKey  = "replica_set_name"
-	RepoMongoDBServerType         = "server_type"
-	RepoPreferredAccessGatewayKey = "preferred_access_gateway"
-	RepoSidecarIDKey              = "sidecar_id"
-	RepoBindingIDKey              = "binding_id"
+	RepoIDKey                   = "id"
+	RepoTypeKey                 = "type"
+	RepoNameKey                 = "name"
+	RepoLabelsKey               = "labels"
+	RepoConnDrainingKey         = "connection_draining"
+	RepoConnDrainingAutoKey     = "auto"
+	RepoConnDrainingWaitTimeKey = "wait_time"
+	RepoHostKey                 = "host"
+	RepoPortKey                 = "port"
 
 	// Deprecated schema keys.
-	RepoHostKey              = "host"
-	RepoPortKey              = "port"
 	RepoPropertiesKey        = "properties"
 	RepoMongoDBReplicaSetKey = "mongodb_replica_set"
 	RepoMaxNodesKey          = "max_nodes"
@@ -39,8 +30,8 @@ const (
 	// Values related to deprecrated fields.
 	mongodbRepoType                  = "mongodb"
 	mongodbReplicaSetServerType      = "replicaset"
-	deprecatedHostAndPortMessage     = "`%s` is deprecated. Use `repoNodes` instead, which support single as well as multi-node repo types."
-	deprecatedRepoProperitiesMessage = "`%s` is deprecated. Use `mongodb_settings` instead to set MongoDB properties."
+	deprecatedHostAndPortMessage     = "`%s` is deprecated. In version 4.X, use `repoNodes` instead, which support single as well as multi-node repo types."
+	deprecatedRepoProperitiesMessage = "`%s` is deprecated. In version 4.X, use `mongodb_settings` instead to set MongoDB properties."
 )
 
 func repositoryTypes() []string {
@@ -64,26 +55,16 @@ func repositoryTypes() []string {
 	}
 }
 
-func mongoServerTypes() []string {
-	return []string{
-		"replicaset",
-		"standalone",
-	}
-}
-
 type RepoInfo struct {
-	ID                       string                `json:"id"`
-	Name                     string                `json:"name"`
-	Type                     string                `json:"type"`
-	Host                     string                `json:"repoHost"`
-	Port                     uint32                `json:"repoPort"`
-	ConnParams               *ConnParams           `json:"connParams"`
-	Labels                   []string              `json:"labels"`
-	MaxAllowedListeners      uint32                `json:"maxAllowedListeners,omitempty"`
-	Properties               *RepositoryProperties `json:"properties,omitempty"`
-	RepoNodes                []*RepoNode           `json:"repoNodes,omitempty"`
-	MongoDbSettings          *MongoDbSettings      `json:"mongoDbSettings,omitempty"`
-	PreferredAccessGwBinding *BindingKey           `json:"preferredAccessGwBinding,omitempty"`
+	ID                  string                `json:"id"`
+	Name                string                `json:"name"`
+	Type                string                `json:"type"`
+	Host                string                `json:"repoHost"`
+	Port                uint32                `json:"repoPort"`
+	ConnParams          *ConnParams           `json:"connParams"`
+	Labels              []string              `json:"labels"`
+	MaxAllowedListeners uint32                `json:"maxAllowedListeners,omitempty"`
+	Properties          *RepositoryProperties `json:"properties,omitempty"`
 }
 
 type ConnParams struct {
@@ -99,23 +80,6 @@ type RepositoryProperties struct {
 	// Replica set
 	MongoDBReplicaSetName string `json:"mongodb-replicaset-name,omitempty"`
 	MongoDBServerType     string `json:"mongodb-server-type,omitempty"`
-}
-
-type MongoDbSettings struct {
-	ReplicaSetName string `json:"replicaSetName,omitempty"`
-	ServerType     string `json:"serverType,omitempty"`
-}
-
-type BindingKey struct {
-	SidecarID string `json:"sidecarId,omitempty"`
-	BindingID string `json:"bindingId,omitempty"`
-}
-
-type RepoNode struct {
-	Name    string `json:"name"`
-	Host    string `json:"host"`
-	Port    uint32 `json:"port"`
-	Dynamic bool   `json:"dynamic"`
 }
 
 type GetRepoByIDResponse struct {
@@ -321,13 +285,13 @@ func resourceRepository() *schema.Resource {
 			RepoHostKey: {
 				Description: "Repository host name (ex: `somerepo.cyral.com`).",
 				Type:        schema.TypeString,
-				Required:    false,
+				Required:    true,
 				Deprecated:  fmt.Sprintf(deprecatedHostAndPortMessage, "host"),
 			},
 			RepoPortKey: {
 				Description: "Repository access port (ex: `3306`).",
 				Type:        schema.TypeInt,
-				Required:    false,
+				Required:    true,
 				Deprecated:  fmt.Sprintf(deprecatedHostAndPortMessage, "port"),
 			},
 			RepoNameKey: {
@@ -359,74 +323,6 @@ func resourceRepository() *schema.Resource {
 								"if auto is set to true.",
 							Type:     schema.TypeInt,
 							Optional: true,
-						},
-					},
-				},
-			},
-			RepoPreferredAccessGatewayKey: {
-				Description: "Preferred access gateway for this repository.",
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						RepoConnDrainingAutoKey: {
-							Description: "Whether connections should be drained automatically after a listener dies.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-						},
-						RepoConnDrainingWaitTimeKey: {
-							Description: "Seconds to wait to let connections drain before starting to kill all the connections, " +
-								"if auto is set to true.",
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-					},
-				},
-			},
-			RepoNodesKey: {
-				Description: "List of nodes for this repository.",
-				Type:        schema.TypeList,
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						RepoNodeNameKey: {
-							Description: "Name of the repo node.",
-							Type:        schema.TypeString,
-							Optional:    true,
-						},
-						RepoHostKey: {
-							Description: "Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.",
-							Type:        schema.TypeString,
-							Optional:    true,
-						},
-						RepoPortKey: {
-							Description: "Repository access port (ex: `3306`). Can be empty if node is dynamic.",
-							Type:        schema.TypeInt,
-							Optional:    true,
-						},
-						RepoNodeDynamicKey: {
-							Description: "Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-						},
-					},
-				},
-			},
-			RepoMongoDBSettingsKey: {
-				Description: "Parameters related to MongoDB repositories.",
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						RepoMongoDBReplicaSetNameKey: {
-							Description: "Name of the replica set, if applicable.",
-							Type:        schema.TypeString,
-							Optional:    true,
-						},
-						RepoConnDrainingWaitTimeKey: {
-							Description: "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
-							Type:        schema.TypeString,
-							Optional:    true,
 						},
 					},
 				},
