@@ -172,12 +172,10 @@ func TestGetBindingPorts_MultiplePorts(t *testing.T) {
 			},
 		},
 	}
-	repo := RepoInfo{
-		MaxAllowedListeners: 3,
-	}
+	repo := RepoInfo{}
 	ports := getBindingPorts(binding, repo)
 
-	expectedPorts := []uint32{443, 457, 1234, 1235, 1236, 37017, 47017}
+	expectedPorts := []uint32{443, 457, 1234, 37017, 47017}
 
 	assert.ElementsMatch(t, expectedPorts, ports)
 }

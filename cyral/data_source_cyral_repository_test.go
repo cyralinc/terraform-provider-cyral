@@ -15,21 +15,24 @@ func repositoryDataSourceTestRepos() []RepoInfo {
 	return []RepoInfo{
 		{
 			Name:   accTestName(repositoryDataSourceName, "sqlserver-1"),
-			Host:   "localhost",
-			Port:   1433,
 			Type:   "sqlserver",
 			Labels: []string{"rds", "us-east-2"},
+			RepoNodes: []*RepoNode{
+				{
+					Host: "sql.local",
+					Port: 3333,
+				},
+			},
 		},
 		{
-			Name:                accTestName(repositoryDataSourceName, "mongodb-1"),
-			Host:                "localhost",
-			Port:                27017,
-			Type:                "mongodb",
-			Labels:              []string{"rds", "us-east-1"},
-			MaxAllowedListeners: 2,
-			Properties: &RepositoryProperties{
-				MongoDBReplicaSetName: "replica-set-1",
-				MongoDBServerType:     mongodbReplicaSetServerType,
+			Name:   accTestName(repositoryDataSourceName, "mongodb-1"),
+			Type:   "mongodb",
+			Labels: []string{"rds", "us-east-1"},
+			RepoNodes: []*RepoNode{
+				{
+					Host: "mongo.local",
+					Port: 27017,
+				},
 			},
 		},
 	}
@@ -74,7 +77,7 @@ func testRepositoryDataSourceConfig(repoDatas []RepoInfo, nameFilter, typeFilter
 	var config string
 	var dependsOn []string
 	for _, repoData := range repoDatas {
-		config += formatRepoDataIntoConfig(repoData, repoData.Name)
+		config += repoAsConfig(repoData, repoData.Name)
 		dependsOn = append(dependsOn, fmt.Sprintf("cyral_repository.%s", repoData.Name))
 	}
 	config += repositoryDataSourceConfig(nameFilter, typeFilter, dependsOn)
@@ -109,24 +112,9 @@ func testRepositoryDataSourceChecks(repoDatas []RepoInfo, nameFilter, typeFilter
 			resource.TestCheckResourceAttr(dataSourceFullName,
 				"repository_list.0.type", repoData.Type),
 			resource.TestCheckResourceAttr(dataSourceFullName,
-				"repository_list.0.host", repoData.Host),
-			resource.TestCheckResourceAttr(dataSourceFullName,
-				"repository_list.0.port", fmt.Sprintf("%d", repoData.Port)),
-			resource.TestCheckResourceAttr(dataSourceFullName,
 				"repository_list.0.labels.#", fmt.Sprintf("%d", len(repoData.Labels)),
 			),
 		}...)
-
-		if repoData.IsReplicaSet() {
-			checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-				resource.TestCheckResourceAttr(dataSourceFullName,
-					"repository_list.0.properties.0.mongodb_replica_set.0.max_nodes",
-					fmt.Sprintf("%d", repoData.MaxAllowedListeners)),
-				resource.TestCheckResourceAttr(dataSourceFullName,
-					"repository_list.0.properties.0.mongodb_replica_set.0.replica_set_id",
-					repoData.Properties.MongoDBReplicaSetName),
-			}...)
-		}
 	}
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)

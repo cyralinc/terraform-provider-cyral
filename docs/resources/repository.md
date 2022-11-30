@@ -18,41 +18,68 @@ This module provides the repository configuration options as shown in Cyral UI.
 ## Example Usage
 
 ```terraform
-### Single repository
+### Minimal Repository
 resource "cyral_repository" "some_resource_name" {
-    host = ""
-    port = 0
-    type = ""
-    name = ""
-}
+    type = "mongodb"
+    name = "some_repo_name"
 
-### Multiple repositories using a local variable
-locals {
-    repos = {
-        mymongodb = {
-            host = "mongodb.cyral.com"
-            port = 27017
-            type = "mongodb"
-        }
-        mymariadb = {
-            host = "mariadb.cyral.com"
-            port = 3310
-            type = "mariadb"
-        }
-        mypostgresql = {
-            host = "postgresql.cyral.com"
-            port = 5432
-            type = "postgresql"
-        }
+    repo_node {
+        name = "node-1"
+        host = "mongodb.cyral.com"
+        port = 27017
     }
 }
 
-resource "cyral_repository" "repositories" {
-    for_each = local.repos
-    name  = each.key
-    type  = each.value.type
-    host  = each.value.host
-    port  = each.value.port
+### Repository with Connection Draining, Preferred Access Gateway, and Labels
+resource "cyral_repository" "some_resource_name" {
+    type = "mongodb"
+    name = "some_repo_name"
+    labels = [ "single-node", "us-east-1" ]
+
+    repo_node {
+        name = "node-1"
+        host = "mongodb.cyral.com"
+        port = 0
+    }
+
+    connection_draining {
+      auto = true
+      wait_time = 30
+    }
+
+    preferred_access_gateway {
+      sidecar_id = "some-sidecar-id"
+      binding_id = "some-binding-id"
+    }
+}
+
+### Multi-Node MongoDB Repository with Replicaset
+resource "cyral_repository" "some_resource_name" {
+    type = "mongodb"
+    name = "some_repo_name"
+    labels = [ "multi-node", "us-east-2" ]
+
+    repo_node {
+        name = "node-1"
+        host = "mongodb-node1.cyral.com"
+        port = 27017
+    }
+
+    repo_node {
+        name = "node-2"
+        host = "mongodb-node2.cyral.com"
+        port = 27017
+    }
+
+    repo_node {
+        name = "node-3"
+        dynamic = true
+    }
+
+    mongodb_settings {
+      replica_set_name = "some-replica-set"
+      server_type = "replicaset"
+    }
 }
 ```
 
@@ -62,9 +89,7 @@ resource "cyral_repository" "repositories" {
 
 ### Required
 
-- `host` (String) Repository host name (ex: `somerepo.cyral.com`).
 - `name` (String) Repository name that will be used internally in the control plane (ex: `your_repo_name`).
-- `port` (Number) Repository access port (ex: `3306`).
 - `type` (String) Repository type. List of supported types:
   - `bigquery`
   - `cassandra`
@@ -85,26 +110,52 @@ resource "cyral_repository" "repositories" {
 
 ### Optional
 
+- `connection_draining` (Block Set) Parameters related to connection draining. (see [below for nested schema](#nestedblock--connection_draining))
 - `labels` (List of String) Labels enable you to categorize your repository.
-- `properties` (Block Set, Max: 1) Contains advanced repository configuration. (see [below for nested schema](#nestedblock--properties))
+- `mongodb_settings` (Block Set) Parameters related to MongoDB repositories. (see [below for nested schema](#nestedblock--mongodb_settings))
+- `preferred_access_gateway` (Block Set) Preferred access gateway for this repository. (see [below for nested schema](#nestedblock--preferred_access_gateway))
+- `repo_node` (Block List) List of nodes for this repository. (see [below for nested schema](#nestedblock--repo_node))
 
 ### Read-Only
 
 - `id` (String) ID of this resource in Cyral environment.
 
-<a id="nestedblock--properties"></a>
+<a id="nestedblock--connection_draining"></a>
 
-### Nested Schema for `properties`
+### Nested Schema for `connection_draining`
 
 Optional:
 
-- `mongodb_replica_set` (Block Set, Max: 1) Used to configure a MongoDB cluster. (see [below for nested schema](#nestedblock--properties--mongodb_replica_set))
+- `auto` (Boolean) Whether connections should be drained automatically after a listener dies.
+- `wait_time` (Number) Seconds to wait to let connections drain before starting to kill all the connections, if auto is set to true.
 
-<a id="nestedblock--properties--mongodb_replica_set"></a>
+<a id="nestedblock--mongodb_settings"></a>
 
-### Nested Schema for `properties.mongodb_replica_set`
+### Nested Schema for `mongodb_settings`
 
-Required:
+Optional:
 
-- `max_nodes` (Number) Maximum number of nodes of the replica set cluster.
-- `replica_set_id` (String) Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Portal page) that your users will need for connecting to the repository via Cyral.
+- `replica_set_name` (String) Name of the replica set, if applicable.
+- `server_type` (String) Type of the MongoDB server. Allowed values:
+  - `replicaset`
+  - `standalone`
+
+<a id="nestedblock--preferred_access_gateway"></a>
+
+### Nested Schema for `preferred_access_gateway`
+
+Optional:
+
+- `binding_id` (String) Binding ID of the preferred access gateway.
+- `sidecar_id` (String) Sidecar ID of the preferred access gateway.
+
+<a id="nestedblock--repo_node"></a>
+
+### Nested Schema for `repo_node`
+
+Optional:
+
+- `dynamic` (Boolean) Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.
+- `host` (String) Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.
+- `name` (String) Name of the repo node.
+- `port` (Number) Repository access port (ex: `3306`). Can be empty if node is dynamic.

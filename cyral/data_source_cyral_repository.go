@@ -11,6 +11,10 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
+const (
+	RepoListKey = "repository_list"
+)
+
 // GetReposSubResponse is different from GetRepoByIDResponse. For the by-id
 // reponse, we expect the ids to be embedded in the RepoInfo struct. For
 // GetReposSubResponse, the ids come outside of RepoInfo.
@@ -29,13 +33,11 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 		repoID := repo.ID
 		repoData := repo.Repo
 		argumentVals := map[string]interface{}{
-			"id":         repoID,
-			"name":       repoData.Name,
-			"type":       repoData.Type,
-			"host":       repoData.Host,
-			"port":       repoData.Port,
-			"labels":     repoData.Labels,
-			"properties": repoData.PropertiesAsInterface(),
+			RepoIDKey:     repoID,
+			RepoNameKey:   repoData.Name,
+			RepoTypeKey:   repoData.Type,
+			RepoLabelsKey: repoData.LabelsAsInterface(),
+			RepoNodesKey:  repoData.RepoNodesAsInterface(),
 		}
 		repoList = append(repoList, argumentVals)
 	}
@@ -72,49 +74,39 @@ func dataSourceRepository() *schema.Resource {
 		Description: "Retrieve and filter repositories.",
 		ReadContext: ReadResource(dataSourceRepositoryReadConfig()),
 		Schema: map[string]*schema.Schema{
-			"name": {
+			RepoNameKey: {
 				Description: "Filter the results by a regular expression (regex) that matches names of existing repositories.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"type": {
+			RepoTypeKey: {
 				Description:  "Filter the results by type of repository. List of supported types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(append(repositoryTypes(), ""), false),
 			},
-			"repository_list": {
+			RepoListKey: {
 				Description: "List of existing repositories satisfying given filter criteria.",
 				Computed:    true,
 				Type:        schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": {
+						RepoIDKey: {
 							Description: "ID of the repository in the Cyral environment.",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
-						"name": {
+						RepoNameKey: {
 							Description: "Repository name.",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
-						"type": {
+						RepoTypeKey: {
 							Description: "Repository type.",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
-						"host": {
-							Description: "Repository host name.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-						"port": {
-							Description: "Repository access port.",
-							Type:        schema.TypeInt,
-							Computed:    true,
-						},
-						"labels": {
+						RepoLabelsKey: {
 							Description: "Repository labels.",
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -122,30 +114,31 @@ func dataSourceRepository() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
-						"properties": {
-							Description: "Advanced repository configuration.",
-							Type:        schema.TypeSet,
-							Computed:    true,
+						RepoNodesKey: {
+							Description: "List of nodes for this repository.",
+							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"mongodb_replica_set": {
-										Description: "MongoDB replica set configuration.",
-										Type:        schema.TypeSet,
-										Computed:    true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"max_nodes": {
-													Description: "Maximum number of nodes of the replica set cluster.",
-													Type:        schema.TypeInt,
-													Computed:    true,
-												},
-												"replica_set_id": {
-													Description: "Identifier of the replica set cluster.",
-													Type:        schema.TypeString,
-													Computed:    true,
-												},
-											},
-										},
+									RepoNameKey: {
+										Description: "Name of the repo node.",
+										Type:        schema.TypeString,
+										Optional:    true,
+									},
+									RepoHostKey: {
+										Description: "Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.",
+										Type:        schema.TypeString,
+										Optional:    true,
+									},
+									RepoPortKey: {
+										Description: "Repository access port (ex: `3306`). Can be empty if node is dynamic.",
+										Type:        schema.TypeInt,
+										Optional:    true,
+									},
+									RepoNodeDynamicKey: {
+										Description: "Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.",
+										Type:        schema.TypeBool,
+										Optional:    true,
 									},
 								},
 							},

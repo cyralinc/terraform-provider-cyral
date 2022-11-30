@@ -46,27 +46,19 @@ Retrieve and filter repositories.
 
 Read-Only:
 
-- `host` (String)
 - `id` (String)
 - `labels` (List of String)
 - `name` (String)
-- `port` (Number)
-- `properties` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--properties))
+- `repo_node` (List of Object) (see [below for nested schema](#nestedobjatt--repository_list--repo_node))
 - `type` (String)
 
-<a id="nestedobjatt--repository_list--properties"></a>
+<a id="nestedobjatt--repository_list--repo_node"></a>
 
-### Nested Schema for `repository_list.properties`
-
-Read-Only:
-
-- `mongodb_replica_set` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--properties--mongodb_replica_set))
-
-<a id="nestedobjatt--repository_list--properties--mongodb_replica_set"></a>
-
-### Nested Schema for `repository_list.properties.mongodb_replica_set`
+### Nested Schema for `repository_list.repo_node`
 
 Read-Only:
 
-- `max_nodes` (Number)
-- `replica_set_id` (String)
+- `dynamic` (Boolean)
+- `host` (String)
+- `name` (String)
+- `port` (Number)

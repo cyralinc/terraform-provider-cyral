@@ -182,13 +182,6 @@ func getBindingPorts(
 		bindingPorts = append(bindingPorts, primaryPort)
 	}
 
-	// MaxAllowedListeners is currently used to generate a repo binding port range
-	// between primaryPort and (primaryPort+MaxAllowedListeners-1). Thats why we
-	// add (MaxAllowedListeners-1) more ports to the repo binding ports.
-	for i := uint32(1); i < repoInfo.MaxAllowedListeners; i++ {
-		bindingPorts = append(bindingPorts, primaryPort+i)
-	}
-
 	// TcpListeners, also referred as seedListeners, are used as extra data
 	// repo out routes, and can be used, for instance, for mongoDB replicasets
 	// and sharded clusters.
