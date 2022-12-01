@@ -11,9 +11,9 @@ This module provides the repository configuration options as shown in Cyral UI.
 
 ```terraform
 ### Minimal Repository
-resource "cyral_repository" "some_resource_name" {
+resource "cyral_repository" "minimal_repo" {
     type = "mongodb"
-    name = "some_repo_name"
+    name = "minimal_repo"
 
     repo_node {
         name = "node-1"
@@ -23,15 +23,15 @@ resource "cyral_repository" "some_resource_name" {
 }
 
 ### Repository with Connection Draining, Preferred Access Gateway, and Labels
-resource "cyral_repository" "some_resource_name" {
+resource "cyral_repository" "repo_with_conn_draining" {
     type = "mongodb"
-    name = "some_repo_name"
+    name = "repo_with_conn_draining"
     labels = [ "single-node", "us-east-1" ]
 
     repo_node {
         name = "node-1"
         host = "mongodb.cyral.com"
-        port = 0
+        port = 27017
     }
 
     connection_draining {
@@ -46,9 +46,9 @@ resource "cyral_repository" "some_resource_name" {
 }
 
 ### Multi-Node MongoDB Repository with Replicaset
-resource "cyral_repository" "some_resource_name" {
+resource "cyral_repository" "multi_node_mongo_repo" {
     type = "mongodb"
-    name = "some_repo_name"
+    name = "multi_node_mongo_repo"
     labels = [ "multi-node", "us-east-2" ]
 
     repo_node {
@@ -82,6 +82,7 @@ resource "cyral_repository" "some_resource_name" {
 ### Required
 
 - `name` (String) Repository name that will be used internally in the control plane (ex: `your_repo_name`).
+- `repo_node` (Block List, Min: 1) List of nodes for this repository. (see [below for nested schema](#nestedblock--repo_node))
 - `type` (String) Repository type. List of supported types:
   - `bigquery`
   - `cassandra`
@@ -106,11 +107,21 @@ resource "cyral_repository" "some_resource_name" {
 - `labels` (List of String) Labels enable you to categorize your repository.
 - `mongodb_settings` (Block Set) Parameters related to MongoDB repositories. (see [below for nested schema](#nestedblock--mongodb_settings))
 - `preferred_access_gateway` (Block Set) Preferred access gateway for this repository. (see [below for nested schema](#nestedblock--preferred_access_gateway))
-- `repo_node` (Block List) List of nodes for this repository. (see [below for nested schema](#nestedblock--repo_node))
 
 ### Read-Only
 
 - `id` (String) ID of this resource in Cyral environment.
+
+<a id="nestedblock--repo_node"></a>
+
+### Nested Schema for `repo_node`
+
+Optional:
+
+- `dynamic` (Boolean) Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.
+- `host` (String) Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.
+- `name` (String) Name of the repo node.
+- `port` (Number) Repository access port (ex: `3306`). Can be empty if node is dynamic.
 
 <a id="nestedblock--connection_draining"></a>
 
@@ -140,14 +151,3 @@ Optional:
 
 - `binding_id` (String) Binding ID of the preferred access gateway.
 - `sidecar_id` (String) Sidecar ID of the preferred access gateway.
-
-<a id="nestedblock--repo_node"></a>
-
-### Nested Schema for `repo_node`
-
-Optional:
-
-- `dynamic` (Boolean) Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.
-- `host` (String) Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.
-- `name` (String) Name of the repo node.
-- `port` (Number) Repository access port (ex: `3306`). Can be empty if node is dynamic.

@@ -331,12 +331,14 @@ func resourceRepository() *schema.Resource {
 				Description:  "Repository type. List of supported types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice(repositoryTypes(), false),
 			},
 			RepoNameKey: {
 				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`).",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
 			RepoLabelsKey: {
 				Description: "Labels enable you to categorize your repository.",
@@ -388,7 +390,7 @@ func resourceRepository() *schema.Resource {
 			RepoNodesKey: {
 				Description: "List of nodes for this repository.",
 				Type:        schema.TypeList,
-				Optional:    true,
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						RepoNameKey: {

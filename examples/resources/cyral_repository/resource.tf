@@ -1,7 +1,7 @@
 ### Minimal Repository
-resource "cyral_repository" "some_resource_name" {
+resource "cyral_repository" "minimal_repo" {
     type = "mongodb"
-    name = "some_repo_name"
+    name = "minimal_repo"
 
     repo_node {
         name = "node-1"
@@ -11,15 +11,15 @@ resource "cyral_repository" "some_resource_name" {
 }
 
 ### Repository with Connection Draining, Preferred Access Gateway, and Labels
-resource "cyral_repository" "some_resource_name" {
+resource "cyral_repository" "repo_with_conn_draining" {
     type = "mongodb"
-    name = "some_repo_name"
+    name = "repo_with_conn_draining"
     labels = [ "single-node", "us-east-1" ]
 
     repo_node {
         name = "node-1"
         host = "mongodb.cyral.com"
-        port = 0
+        port = 27017
     }
 
     connection_draining {
@@ -34,9 +34,9 @@ resource "cyral_repository" "some_resource_name" {
 }
 
 ### Multi-Node MongoDB Repository with Replicaset
-resource "cyral_repository" "some_resource_name" {
+resource "cyral_repository" "multi_node_mongo_repo" {
     type = "mongodb"
-    name = "some_repo_name"
+    name = "multi_node_mongo_repo"
     labels = [ "multi-node", "us-east-2" ]
 
     repo_node {
