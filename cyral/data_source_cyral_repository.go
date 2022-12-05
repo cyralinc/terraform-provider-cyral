@@ -33,9 +33,9 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 		repoID := repo.ID
 		repoData := repo.Repo
 		argumentVals := map[string]interface{}{
-			RepoIDKey:     repoID,
+			IDKey:         repoID,
 			RepoNameKey:   repoData.Name,
-			RepoTypeKey:   repoData.Type,
+			TypeKey:       repoData.Type,
 			RepoLabelsKey: repoData.LabelsAsInterface(),
 			RepoNodesKey:  repoData.RepoNodesAsInterface(),
 		}
@@ -79,7 +79,7 @@ func dataSourceRepository() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			RepoTypeKey: {
+			TypeKey: {
 				Description:  "Filter the results by type of repository. List of supported types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -91,7 +91,7 @@ func dataSourceRepository() *schema.Resource {
 				Type:        schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						RepoIDKey: {
+						IDKey: {
 							Description: "ID of the repository in the Cyral environment.",
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -101,7 +101,7 @@ func dataSourceRepository() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
-						RepoTypeKey: {
+						TypeKey: {
 							Description: "Repository type.",
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -125,12 +125,12 @@ func dataSourceRepository() *schema.Resource {
 										Type:        schema.TypeString,
 										Optional:    true,
 									},
-									RepoHostKey: {
+									HostKey: {
 										Description: "Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.",
 										Type:        schema.TypeString,
 										Optional:    true,
 									},
-									RepoPortKey: {
+									PortKey: {
 										Description: "Repository access port (ex: `3306`). Can be empty if node is dynamic.",
 										Type:        schema.TypeInt,
 										Optional:    true,

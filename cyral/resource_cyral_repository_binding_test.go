@@ -1,43 +1,129 @@
 package cyral
 
-// import (
-// 	"testing"
+import (
+	"fmt"
+	"log"
+	"strconv"
+	"testing"
 
-// 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-// )
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+)
 
-// const (
-// 	repositoryBindingResourceName = "sidecar-for-bindings"
+const (
+	repoBindingSidecarName = "sidecar-for-bindings-test"
+	repoBindingRepoName    = "repo-for-bindings-test"
+)
 
-// )
+var initialConfig = Binding{
+	Enabled: true,
+	ListenerBindings: []*ListenerBinding{
+		{
+			NodeIndex: 0,
+		},
+	},
+}
 
-// var initialConfig = BindingResource {
-// }
+var updatedConfig = Binding{
+	Enabled: false,
+	ListenerBindings: []*ListenerBinding{
+		{
+			NodeIndex: 0,
+		},
+	},
+}
 
-// var updatedConfig = BindingResource{
+func bindingRepoSidecarListenerConfig() string {
+	config := formatBasicRepositoryIntoConfig(
+		basicRepositoryResName,
+		accTestName(repoBindingRepoName, "repo"),
+		"mongodb",
+		"mongo.local",
+		27017,
+	)
+	config += formatBasicSidecarIntoConfig(
+		basicSidecarResName,
+		accTestName(repoBindingSidecarName, "sidecar"),
+		"docker",
+	)
 
-// }
+	config += formatBasicSidecarListenerIntoConfig(
+		basicListenerResName,
+		basicSidecarID,
+		"mongodb",
+		27017,
+	)
+	return config
+}
 
-// func repositoryBindingTestSidecarConfig() string {
-// 	return formatBasicSidecarIntoConfig(
-// 		basicSidecarResName,
-// 		accTestName(sidecarListenerTestSidecarResourceName, "sidecar"),
-// 		"docker",
-// 	)
-// }
+func TestAccRepositoryBindingResource(t *testing.T) {
+	intialTest := repositoryBindingTestStep("init", initialConfig)
+	updateTest := repositoryBindingTestStep("init", updatedConfig)
+	resource.ParallelTest(t, resource.TestCase{
+		ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			intialTest,
+			updateTest,
+		},
+	})
+}
 
-// func TestAccRepositoryBindingResource(t *testing.T) {
-// 	resource.ParallelTest(t, resource.TestCase{
-// 		ProviderFactories: providerFactories,
-// 		Steps: []resource.TestStep{
-// 		},
-// 	})
-// }
+func repositoryBindingTestStep(resName string, binding Binding) resource.TestStep {
+	config := bindingRepoSidecarListenerConfig() +
+		repoBindingConfig(resName, binding)
+	log.Printf("[DEBUG] Config: \n\n%s\n\n", config)
+	return resource.TestStep{
+		Config: config,
+		Check:  repoBindingCheck(resName, binding),
+	}
+}
 
-// func repositoryBindingTestStep(resName string, binding BindingResource) resource.TestStep {
-// 	return resource.TestStep{
-// 		Config: sidecarListenerSidecarConfig() +
-// 			setupSidecarListenerConfig(resName, listener),
-// 		Check: setupSidecarListenerCheck(resName, listener),
-// 	}
-// }
+func repoBindingCheck(resName string, binding Binding) resource.TestCheckFunc {
+	resFullName := fmt.Sprintf("cyral_repository_binding.%s", resName)
+	checkFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttrPair(
+			resFullName, SidecarIDKey,
+			fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id"),
+		resource.TestCheckResourceAttrPair(
+			resFullName, RepositoryIDKey,
+			fmt.Sprintf("cyral_repository.%s", basicRepositoryResName), "id"),
+		resource.TestCheckResourceAttr(resFullName,
+			BindingEnabledKey, strconv.FormatBool(binding.Enabled)),
+	}
+
+	for i, binding := range binding.ListenerBindings {
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttrPair(
+				resFullName, fmt.Sprintf("%s.%d.%s", ListenerBindingKey, i, ListenerIDKey),
+				fmt.Sprintf("cyral_sidecar_listener.%s", basicListenerResName),
+				ListenerIDKey),
+			resource.TestCheckResourceAttr(
+				resFullName,
+				fmt.Sprintf("%s.%d.%s", ListenerBindingKey, i, NodeIndexKey),
+				strconv.Itoa(int(binding.NodeIndex)),
+			),
+		}...)
+	}
+	return resource.ComposeTestCheckFunc(checkFuncs...)
+}
+
+func repoBindingConfig(resName string, binding Binding) string {
+	config := fmt.Sprintf(`
+	resource "cyral_repository_binding" "%s" {
+		sidecar_id  = %s
+		repository_id  = %s
+		enabled = %s`,
+		resName, basicSidecarID, basicRepositoryID,
+		strconv.FormatBool(binding.Enabled),
+	)
+
+	for _, binding := range binding.ListenerBindings {
+		config += fmt.Sprintf(`
+		listener_binding {
+			listener_id = %s
+			node_index = %d
+		}`, basicListenerID, binding.NodeIndex)
+	}
+	config += `
+	}`
+	return config
+}

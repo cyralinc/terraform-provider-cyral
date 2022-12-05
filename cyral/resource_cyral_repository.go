@@ -11,8 +11,6 @@ import (
 
 const (
 	// Schema keys.
-	RepoIDKey     = "id"
-	RepoTypeKey   = "type"
 	RepoNameKey   = "name"
 	RepoLabelsKey = "labels"
 	// Connection draining keys.
@@ -21,8 +19,6 @@ const (
 	RepoConnDrainingWaitTimeKey = "wait_time"
 	// Repo node keys.
 	RepoNodesKey       = "repo_node"
-	RepoHostKey        = "host"
-	RepoPortKey        = "port"
 	RepoNodeDynamicKey = "dynamic"
 	// Access gateway keys.
 	RepoPreferredAccessGatewayKey = "preferred_access_gateway"
@@ -110,7 +106,7 @@ func (res *GetRepoByIDResponse) WriteToSchema(d *schema.ResourceData) error {
 }
 
 func (res *RepoInfo) WriteToSchema(d *schema.ResourceData) error {
-	d.Set(RepoTypeKey, res.Type)
+	d.Set(TypeKey, res.Type)
 	d.Set(RepoNameKey, res.Name)
 	d.Set(RepoLabelsKey, res.LabelsAsInterface())
 	d.Set(RepoConnDrainingKey, res.ConnDrainingAsInterface())
@@ -123,7 +119,7 @@ func (res *RepoInfo) WriteToSchema(d *schema.ResourceData) error {
 func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 	r.ID = d.Id()
 	r.Name = d.Get(RepoNameKey).(string)
-	r.Type = d.Get(RepoTypeKey).(string)
+	r.Type = d.Get(TypeKey).(string)
 	r.LabelsFromInterface(d.Get(RepoLabelsKey).([]interface{}))
 	r.RepoNodesFromInterface(d.Get(RepoNodesKey).([]interface{}))
 	r.ConnDrainingFromInterface(d.Get(RepoConnDrainingKey).(*schema.Set).List())
@@ -203,8 +199,8 @@ func (r *RepoInfo) RepoNodesAsInterface() []interface{} {
 	for i, node := range r.RepoNodes {
 		repoNodes[i] = map[string]interface{}{
 			RepoNameKey:        node.Name,
-			RepoHostKey:        node.Host,
-			RepoPortKey:        node.Port,
+			HostKey:            node.Host,
+			PortKey:            node.Port,
 			RepoNodeDynamicKey: node.Dynamic,
 		}
 	}
@@ -220,8 +216,8 @@ func (r *RepoInfo) RepoNodesFromInterface(i []interface{}) {
 		nodeMap := nodeInterface.(map[string]interface{})
 		node := &RepoNode{
 			Name:    nodeMap[RepoNameKey].(string),
-			Host:    nodeMap[RepoHostKey].(string),
-			Port:    uint32(nodeMap[RepoPortKey].(int)),
+			Host:    nodeMap[HostKey].(string),
+			Port:    uint32(nodeMap[PortKey].(int)),
 			Dynamic: nodeMap[RepoNodeDynamicKey].(bool),
 		}
 		repoNodes[index] = node
@@ -322,12 +318,12 @@ func resourceRepository() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			RepoIDKey: {
+			IDKey: {
 				Description: "ID of this resource in Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
-			RepoTypeKey: {
+			TypeKey: {
 				Description:  "Repository type. List of supported types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Required:     true,
@@ -400,12 +396,12 @@ func resourceRepository() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
-						RepoHostKey: {
+						HostKey: {
 							Description: "Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
-						RepoPortKey: {
+						PortKey: {
 							Description: "Repository access port (ex: `3306`). Can be empty if node is dynamic.",
 							Type:        schema.TypeInt,
 							Optional:    true,
