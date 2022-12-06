@@ -352,6 +352,7 @@ func resourceRepository() *schema.Resource {
 				Description: "Parameters related to connection draining.",
 				Type:        schema.TypeSet,
 				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						RepoConnDrainingAutoKey: {
@@ -372,17 +373,18 @@ func resourceRepository() *schema.Resource {
 				Description: "Preferred access gateway for this repository.",
 				Type:        schema.TypeSet,
 				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						RepoSidecarIDKey: {
 							Description: "Sidecar ID of the preferred access gateway.",
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 						},
 						RepoBindingIDKey: {
 							Description: "Binding ID of the preferred access gateway.",
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 						},
 					},
 				},
@@ -428,9 +430,10 @@ func resourceRepository() *schema.Resource {
 							Optional:    true,
 						},
 						RepoMongoDBServerTypeKey: {
-							Description: "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
-							Type:        schema.TypeString,
-							Optional:    true,
+							Description:  "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice(mongoServerTypes(), false),
 						},
 					},
 				},

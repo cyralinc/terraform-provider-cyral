@@ -76,30 +76,6 @@ var (
 		},
 	}
 
-	accessGatewayEmptyConfig = RepoInfo{
-		Name: accTestName(repositoryResourceName, "repo-with-access-gateway-empty"),
-		Type: "mongodb",
-		ConnParams: &ConnParams{
-			ConnDraining: &ConnDraining{
-				Auto:     true,
-				WaitTime: 20,
-			},
-		},
-		RepoNodes: []*RepoNode{
-			{
-				Name: "node1",
-				Host: "mongo.local.node1",
-				Port: 27017,
-			},
-			{
-				Name: "node2",
-				Host: "mongo.local.node2",
-				Port: 27017,
-			},
-		},
-		PreferredAccessGwBinding: &BindingKey{},
-	}
-
 	// accessGatewayConfig = RepoInfo{
 	// 	Name: accTestName(repositoryResourceName, "repo-with-access-gateway"),
 	// 	Type: "mongodb",
@@ -171,8 +147,6 @@ func TestAccRepositoryResource(t *testing.T) {
 		emptyConnDrainingConfig, "conn_draining_empty_test")
 	connDraining := setupRepositoryTest(
 		connDrainingConfig, "conn_draining_test")
-	accessGatewayEmpty := setupRepositoryTest(
-		accessGatewayEmptyConfig, "access_gateway_empty_test")
 	// accessGateway := setupRepositoryTest(
 	// 	accessGatewayConfig, "access_gateway_test")
 
@@ -193,7 +167,6 @@ func TestAccRepositoryResource(t *testing.T) {
 			update,
 			connDrainingEmpty,
 			connDraining,
-			accessGatewayEmpty,
 			// accessGateway,
 			multiNode,
 			importTest,
