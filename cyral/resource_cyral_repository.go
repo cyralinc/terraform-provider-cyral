@@ -422,6 +422,7 @@ func resourceRepository() *schema.Resource {
 				Description: "Parameters related to MongoDB repositories.",
 				Type:        schema.TypeSet,
 				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						RepoMongoDBReplicaSetNameKey: {

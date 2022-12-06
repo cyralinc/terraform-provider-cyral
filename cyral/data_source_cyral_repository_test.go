@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -105,16 +106,61 @@ func testRepositoryDataSourceChecks(repoDatas []RepoInfo, nameFilter, typeFilter
 	var checkFuncs []resource.TestCheckFunc
 	filteredRepoDatas := filterRepoDatas(repoDatas, nameFilter, typeFilter)
 	if len(filteredRepoDatas) == 1 {
-		repoData := filteredRepoDatas[0]
+		repo := filteredRepoDatas[0]
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(dataSourceFullName,
-				"repository_list.0.name", repoData.Name),
+				"repository_list.0.name", repo.Name),
 			resource.TestCheckResourceAttr(dataSourceFullName,
-				"repository_list.0.type", repoData.Type),
+				"repository_list.0.type", repo.Type),
 			resource.TestCheckResourceAttr(dataSourceFullName,
-				"repository_list.0.labels.#", fmt.Sprintf("%d", len(repoData.Labels)),
+				"repository_list.0.labels.#", fmt.Sprintf("%d", len(repo.Labels)),
 			),
 		}...)
+
+		for i, label := range repo.Labels {
+			checkFuncs = append(checkFuncs,
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					fmt.Sprintf("repository_list.0.labels.%d", i), label))
+		}
+
+		for i, node := range repo.RepoNodes {
+			checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					fmt.Sprintf("repository_list.0.repo_node.%d.name", i), node.Name),
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					fmt.Sprintf("repository_list.0.repo_node.%d.host", i), node.Host),
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					fmt.Sprintf("repository_list.0.repo_node.%d.port", i),
+					strconv.Itoa(int(node.Port))),
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					fmt.Sprintf("repository_list.0.repo_node.%d.dynamic", i),
+					strconv.FormatBool(node.Dynamic)),
+			}...)
+		}
+
+		if repo.ConnParams != nil {
+			checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					"repository_list.0.connection_draining.0.auto",
+					strconv.FormatBool(repo.ConnParams.ConnDraining.Auto)),
+
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					"repository_list.0.connection_draining.0.wait_time",
+					strconv.Itoa(int(repo.ConnParams.ConnDraining.WaitTime))),
+			}...)
+		}
+
+		if repo.MongoDBSettings != nil {
+			checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					"repository_list.0.mongodb_settings.0.replica_set_name",
+					repo.MongoDBSettings.ReplicaSetName),
+
+				resource.TestCheckResourceAttr(dataSourceFullName,
+					"repository_list.0.connection_draining.0.server_type",
+					repo.MongoDBSettings.ServerType),
+			}...)
+		}
 	}
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)

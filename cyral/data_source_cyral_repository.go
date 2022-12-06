@@ -16,7 +16,7 @@ const (
 )
 
 // GetReposSubResponse is different from GetRepoByIDResponse. For the by-id
-// reponse, we expect the ids to be embedded in the RepoInfo struct. For
+// response, we expect the ids to be embedded in the RepoInfo struct. For
 // GetReposSubResponse, the ids come outside of RepoInfo.
 type GetReposSubResponse struct {
 	ID   string   `json:"id"`
@@ -30,14 +30,15 @@ type GetReposResponse struct {
 func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 	var repoList []interface{}
 	for _, repo := range resp.Repos {
-		repoID := repo.ID
-		repoData := repo.Repo
 		argumentVals := map[string]interface{}{
-			RepoIDKey:     repoID,
-			RepoNameKey:   repoData.Name,
-			RepoTypeKey:   repoData.Type,
-			RepoLabelsKey: repoData.LabelsAsInterface(),
-			RepoNodesKey:  repoData.RepoNodesAsInterface(),
+			RepoIDKey:                     repo.ID,
+			RepoNameKey:                   repo.Repo.Name,
+			RepoTypeKey:                   repo.Repo.Type,
+			RepoLabelsKey:                 repo.Repo.LabelsAsInterface(),
+			RepoConnDrainingKey:           repo.Repo.ConnDrainingAsInterface(),
+			RepoNodesKey:                  repo.Repo.RepoNodesAsInterface(),
+			RepoMongoDBSettingsKey:        repo.Repo.MongoDBSettingsAsInterface(),
+			RepoPreferredAccessGatewayKey: repo.Repo.AccessGatewayAsInterface(),
 		}
 		repoList = append(repoList, argumentVals)
 	}
@@ -114,31 +115,89 @@ func dataSourceRepository() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						RepoConnDrainingKey: {
+							Description: "Parameters related to connection draining.",
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									RepoConnDrainingAutoKey: {
+										Description: "Whether connections should be drained automatically after a listener dies.",
+										Type:        schema.TypeBool,
+										Computed:    true,
+									},
+									RepoConnDrainingWaitTimeKey: {
+										Description: "Seconds to wait to let connections drain before starting to kill all the connections, " +
+											"if auto is set to true.",
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
+						RepoPreferredAccessGatewayKey: {
+							Description: "Preferred access gateway for this repository.",
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									RepoSidecarIDKey: {
+										Description: "Sidecar ID of the preferred access gateway.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									RepoBindingIDKey: {
+										Description: "Binding ID of the preferred access gateway.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+								},
+							},
+						},
 						RepoNodesKey: {
 							Description: "List of nodes for this repository.",
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									RepoNameKey: {
 										Description: "Name of the repo node.",
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 									},
 									RepoHostKey: {
 										Description: "Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.",
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 									},
 									RepoPortKey: {
 										Description: "Repository access port (ex: `3306`). Can be empty if node is dynamic.",
 										Type:        schema.TypeInt,
-										Optional:    true,
+										Computed:    true,
 									},
 									RepoNodeDynamicKey: {
 										Description: "Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.",
 										Type:        schema.TypeBool,
-										Optional:    true,
+										Computed:    true,
+									},
+								},
+							},
+						},
+						RepoMongoDBSettingsKey: {
+							Description: "Parameters related to MongoDB repositories.",
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									RepoMongoDBReplicaSetNameKey: {
+										Description: "Name of the replica set, if applicable.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									RepoMongoDBServerTypeKey: {
+										Description: "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 								},
 							},

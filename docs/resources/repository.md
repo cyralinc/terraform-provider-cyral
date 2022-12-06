@@ -103,10 +103,10 @@ resource "cyral_repository" "multi_node_mongo_repo" {
 
 ### Optional
 
-- `connection_draining` (Block Set) Parameters related to connection draining. (see [below for nested schema](#nestedblock--connection_draining))
+- `connection_draining` (Block Set, Max: 1) Parameters related to connection draining. (see [below for nested schema](#nestedblock--connection_draining))
 - `labels` (List of String) Labels enable you to categorize your repository.
-- `mongodb_settings` (Block Set) Parameters related to MongoDB repositories. (see [below for nested schema](#nestedblock--mongodb_settings))
-- `preferred_access_gateway` (Block Set) Preferred access gateway for this repository. (see [below for nested schema](#nestedblock--preferred_access_gateway))
+- `mongodb_settings` (Block Set, Max: 1) Parameters related to MongoDB repositories. (see [below for nested schema](#nestedblock--mongodb_settings))
+- `preferred_access_gateway` (Block Set, Max: 1) Preferred access gateway for this repository. (see [below for nested schema](#nestedblock--preferred_access_gateway))
 
 ### Read-Only
 
@@ -147,7 +147,7 @@ Optional:
 
 ### Nested Schema for `preferred_access_gateway`
 
-Optional:
+Required:
 
 - `binding_id` (String) Binding ID of the preferred access gateway.
 - `sidecar_id` (String) Sidecar ID of the preferred access gateway.
