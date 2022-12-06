@@ -130,7 +130,7 @@ func testAccSidecarBoundPortsCheck_MultipleBindings() resource.TestCheckFunc {
 }
 
 func TestGetBindingPorts_NoPorts(t *testing.T) {
-	ports := getBindingPorts(BindingConfig{}, RepoData{})
+	ports := getBindingPorts(BindingConfig{}, RepoInfo{})
 
 	assert.Len(t, ports, 0)
 }
@@ -141,7 +141,7 @@ func TestGetBindingPorts_SinglePort(t *testing.T) {
 			Port: 1234,
 		},
 	}
-	ports := getBindingPorts(binding, RepoData{})
+	ports := getBindingPorts(binding, RepoInfo{})
 
 	expectedPorts := []uint32{1234}
 
@@ -172,12 +172,10 @@ func TestGetBindingPorts_MultiplePorts(t *testing.T) {
 			},
 		},
 	}
-	repo := RepoData{
-		MaxAllowedListeners: 3,
-	}
+	repo := RepoInfo{}
 	ports := getBindingPorts(binding, repo)
 
-	expectedPorts := []uint32{443, 457, 1234, 1235, 1236, 37017, 47017}
+	expectedPorts := []uint32{443, 457, 1234, 37017, 47017}
 
 	assert.ElementsMatch(t, expectedPorts, ports)
 }

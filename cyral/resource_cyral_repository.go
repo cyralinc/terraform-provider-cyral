@@ -1,21 +1,37 @@
 package cyral
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
-	mongodbRepoType             = "mongodb"
-	mongodbReplicaSetServerType = "replicaset"
+	// Schema keys.
+	RepoIDKey     = "id"
+	RepoTypeKey   = "type"
+	RepoNameKey   = "name"
+	RepoLabelsKey = "labels"
+	// Connection draining keys.
+	RepoConnDrainingKey         = "connection_draining"
+	RepoConnDrainingAutoKey     = "auto"
+	RepoConnDrainingWaitTimeKey = "wait_time"
+	// Repo node keys.
+	RepoNodesKey       = "repo_node"
+	RepoHostKey        = "host"
+	RepoPortKey        = "port"
+	RepoNodeDynamicKey = "dynamic"
+	// Access gateway keys.
+	RepoPreferredAccessGatewayKey = "preferred_access_gateway"
+	RepoSidecarIDKey              = "sidecar_id"
+	RepoBindingIDKey              = "binding_id"
+	// MongoDB settings keys.
+	RepoMongoDBSettingsKey       = "mongodb_settings"
+	RepoMongoDBReplicaSetNameKey = "replica_set_name"
+	RepoMongoDBServerTypeKey     = "server_type"
 )
 
 func repositoryTypes() []string {
@@ -39,63 +55,214 @@ func repositoryTypes() []string {
 	}
 }
 
-type GetRepoByIDResponse struct {
-	Repo RepoData `json:"repo"`
-}
-
-type RepoData struct {
-	ID                  string                `json:"id"`
-	RepoType            string                `json:"type"`
-	Name                string                `json:"name"`
-	Host                string                `json:"repoHost"`
-	Port                int                   `json:"repoPort"`
-	Labels              []string              `json:"labels"`
-	MaxAllowedListeners uint32                `json:"maxAllowedListeners,omitempty"`
-	Properties          *RepositoryProperties `json:"properties,omitempty"`
-}
-
-func (data *RepoData) WriteToSchema(d *schema.ResourceData) {
-	d.Set("type", data.RepoType)
-	d.Set("host", data.Host)
-	d.Set("port", data.Port)
-	d.Set("name", data.Name)
-	d.Set("labels", data.Labels)
-
-	if properties := data.PropertiesAsInterface(); properties != nil {
-		d.Set("properties", properties)
+func mongoServerTypes() []string {
+	return []string{
+		"replicaset",
+		"standalone",
 	}
 }
 
-func (data *RepoData) PropertiesAsInterface() []interface{} {
-	var properties []interface{}
-	if data.Properties != nil {
-		if data.IsReplicaSet() {
-			propertiesMap := make(map[string]interface{})
-			var rset []interface{}
-			rsetMap := make(map[string]interface{})
-			rsetMap["max_nodes"] = data.MaxAllowedListeners
-			rsetMap["replica_set_id"] = data.Properties.MongoDBReplicaSetName
-			rset = append(rset, rsetMap)
+type RepoInfo struct {
+	ID                       string           `json:"id"`
+	Name                     string           `json:"name"`
+	Type                     string           `json:"type"`
+	Host                     string           `json:"repoHost"`
+	Port                     uint32           `json:"repoPort"`
+	ConnParams               *ConnParams      `json:"connParams"`
+	Labels                   []string         `json:"labels"`
+	RepoNodes                []*RepoNode      `json:"repoNodes,omitempty"`
+	MongoDBSettings          *MongoDBSettings `json:"mongoDbSettings,omitempty"`
+	PreferredAccessGwBinding *BindingKey      `json:"preferredAccessGwBinding,omitempty"`
+}
 
-			propertiesMap["mongodb_replica_set"] = rset
-			properties = append(properties, propertiesMap)
+type ConnParams struct {
+	ConnDraining *ConnDraining `json:"connDraining"`
+}
+
+type ConnDraining struct {
+	Auto     bool   `json:"auto"`
+	WaitTime uint32 `json:"waitTime"`
+}
+
+type MongoDBSettings struct {
+	ReplicaSetName string `json:"replicaSetName,omitempty"`
+	ServerType     string `json:"serverType,omitempty"`
+}
+
+type BindingKey struct {
+	SidecarID string `json:"sidecarId,omitempty"`
+	BindingID string `json:"bindingId,omitempty"`
+}
+
+type RepoNode struct {
+	Name    string `json:"name"`
+	Host    string `json:"host"`
+	Port    uint32 `json:"port"`
+	Dynamic bool   `json:"dynamic"`
+}
+
+type GetRepoByIDResponse struct {
+	Repo RepoInfo `json:"repo"`
+}
+
+func (res *GetRepoByIDResponse) WriteToSchema(d *schema.ResourceData) error {
+	return res.Repo.WriteToSchema(d)
+}
+
+func (res *RepoInfo) WriteToSchema(d *schema.ResourceData) error {
+	d.Set(RepoTypeKey, res.Type)
+	d.Set(RepoNameKey, res.Name)
+	d.Set(RepoLabelsKey, res.LabelsAsInterface())
+	d.Set(RepoConnDrainingKey, res.ConnDrainingAsInterface())
+	d.Set(RepoNodesKey, res.RepoNodesAsInterface())
+	d.Set(RepoMongoDBSettingsKey, res.MongoDBSettingsAsInterface())
+	d.Set(RepoPreferredAccessGatewayKey, res.AccessGatewayAsInterface())
+	return nil
+}
+
+func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
+	r.ID = d.Id()
+	r.Name = d.Get(RepoNameKey).(string)
+	r.Type = d.Get(RepoTypeKey).(string)
+	r.LabelsFromInterface(d.Get(RepoLabelsKey).([]interface{}))
+	r.RepoNodesFromInterface(d.Get(RepoNodesKey).([]interface{}))
+	r.ConnDrainingFromInterface(d.Get(RepoConnDrainingKey).(*schema.Set).List())
+	r.AccessGatewayFromInterface(d.Get(RepoPreferredAccessGatewayKey).(*schema.Set).List())
+	r.MongoDBSettingsFromInterface(d.Get(RepoMongoDBSettingsKey).(*schema.Set).List())
+	return nil
+}
+
+func (r *RepoInfo) LabelsAsInterface() []interface{} {
+	if r.Labels == nil {
+		return nil
+	}
+	labels := make([]interface{}, len(r.Labels))
+	for i, label := range r.Labels {
+		labels[i] = label
+	}
+	return labels
+}
+
+func (r *RepoInfo) LabelsFromInterface(i []interface{}) {
+	labels := make([]string, len(i))
+	for index, v := range i {
+		labels[index] = v.(string)
+	}
+	r.Labels = labels
+}
+
+func (r *RepoInfo) ConnDrainingAsInterface() []interface{} {
+	if r.ConnParams == nil || r.ConnParams.ConnDraining == nil {
+		return nil
+	}
+
+	return []interface{}{map[string]interface{}{
+		RepoConnDrainingAutoKey:     r.ConnParams.ConnDraining.Auto,
+		RepoConnDrainingWaitTimeKey: r.ConnParams.ConnDraining.WaitTime,
+	}}
+}
+
+func (r *RepoInfo) ConnDrainingFromInterface(i []interface{}) {
+	if len(i) == 0 {
+		return
+	}
+	r.ConnParams = &ConnParams{
+		ConnDraining: &ConnDraining{
+			Auto:     i[0].(map[string]interface{})[RepoConnDrainingAutoKey].(bool),
+			WaitTime: uint32(i[0].(map[string]interface{})[RepoConnDrainingWaitTimeKey].(int)),
+		},
+	}
+}
+
+func (r *RepoInfo) AccessGatewayAsInterface() []interface{} {
+	if r.PreferredAccessGwBinding == nil {
+		return nil
+	}
+
+	return []interface{}{map[string]interface{}{
+		RepoBindingIDKey: r.PreferredAccessGwBinding.BindingID,
+		RepoSidecarIDKey: r.PreferredAccessGwBinding.SidecarID,
+	}}
+}
+
+func (r *RepoInfo) AccessGatewayFromInterface(i []interface{}) {
+	if len(i) == 0 {
+		return
+	}
+	r.PreferredAccessGwBinding = &BindingKey{
+		BindingID: i[0].(map[string]interface{})[RepoBindingIDKey].(string),
+		SidecarID: i[0].(map[string]interface{})[RepoSidecarIDKey].(string),
+	}
+}
+
+func (r *RepoInfo) RepoNodesAsInterface() []interface{} {
+	if r.RepoNodes == nil {
+		return nil
+	}
+	repoNodes := make([]interface{}, len(r.RepoNodes))
+	for i, node := range r.RepoNodes {
+		repoNodes[i] = map[string]interface{}{
+			RepoNameKey:        node.Name,
+			RepoHostKey:        node.Host,
+			RepoPortKey:        node.Port,
+			RepoNodeDynamicKey: node.Dynamic,
 		}
 	}
-
-	return properties
+	return repoNodes
 }
 
-func (data *RepoData) IsReplicaSet() bool {
-	return data.Properties != nil && data.Properties.MongoDBServerType == mongodbReplicaSetServerType
+func (r *RepoInfo) RepoNodesFromInterface(i []interface{}) {
+	if len(i) == 0 {
+		return
+	}
+	repoNodes := make([]*RepoNode, len(i))
+	for index, nodeInterface := range i {
+		nodeMap := nodeInterface.(map[string]interface{})
+		node := &RepoNode{
+			Name:    nodeMap[RepoNameKey].(string),
+			Host:    nodeMap[RepoHostKey].(string),
+			Port:    uint32(nodeMap[RepoPortKey].(int)),
+			Dynamic: nodeMap[RepoNodeDynamicKey].(bool),
+		}
+		repoNodes[index] = node
+	}
+	r.RepoNodes = repoNodes
 }
 
-// RepositoryProperties relates to the field "properties" of the v1/repos
-// API. All fields of this struct _must_ be of type string, to comply with the
-// API.
-type RepositoryProperties struct {
-	// Replica set
-	MongoDBReplicaSetName string `json:"mongodb-replicaset-name,omitempty"`
-	MongoDBServerType     string `json:"mongodb-server-type,omitempty"`
+func (r *RepoInfo) MongoDBSettingsAsInterface() []interface{} {
+	if r.MongoDBSettings == nil {
+		return nil
+	}
+
+	return []interface{}{map[string]interface{}{
+		RepoMongoDBReplicaSetNameKey: r.MongoDBSettings.ReplicaSetName,
+		RepoMongoDBServerTypeKey:     r.MongoDBSettings.ServerType,
+	}}
+}
+
+func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) {
+	if len(i) == 0 {
+		return
+	}
+	r.MongoDBSettings = &MongoDBSettings{
+		ReplicaSetName: i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string),
+		ServerType:     i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string),
+	}
+}
+
+var ReadRepositoryConfig = ResourceOperationConfig{
+	Name:       "RepositoryRead",
+	HttpMethod: http.MethodGet,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf(
+			"https://%s/v1/repos/%s",
+			c.ControlPlane,
+			d.Id(),
+		)
+	},
+	NewResponseData: func(_ *schema.ResourceData) ResponseData {
+		return &GetRepoByIDResponse{}
+	},
 }
 
 func resourceRepository() *schema.Resource {
@@ -103,39 +270,77 @@ func resourceRepository() *schema.Resource {
 		Description: "Manages [repositories](https://cyral.com/docs/manage-repositories/repo-track)." +
 			"\n\nSee also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config)." +
 			"\nThis module provides the repository configuration options as shown in Cyral UI.",
-		CreateContext: resourceRepositoryCreate,
-		ReadContext:   resourceRepositoryRead,
-		UpdateContext: resourceRepositoryUpdate,
-		DeleteContext: resourceRepositoryDelete,
+		CreateContext: CreateResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf(
+						"https://%s/v1/repos",
+						c.ControlPlane,
+					)
+				},
+				NewResourceData: func() ResourceData {
+					return &RepoInfo{}
+				},
+				NewResponseData: func(_ *schema.ResourceData) ResponseData {
+					return &IDBasedResponse{}
+				},
+			},
+			ReadRepositoryConfig,
+		),
+		ReadContext: ReadResource(ReadRepositoryConfig),
+		UpdateContext: UpdateResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf(
+						"https://%s/v1/repos/%s",
+						c.ControlPlane,
+						d.Id(),
+					)
+				},
+				NewResourceData: func() ResourceData {
+					return &RepoInfo{}
+				},
+			},
+			ReadRepositoryConfig,
+		),
+		DeleteContext: DeleteResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf(
+						"https://%s/v1/repos/%s",
+						c.ControlPlane,
+						d.Id(),
+					)
+				},
+			},
+		),
 
 		Schema: map[string]*schema.Schema{
-			"id": {
+			RepoIDKey: {
 				Description: "ID of this resource in Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
-			"type": {
+			RepoTypeKey: {
 				Description:  "Repository type. List of supported types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice(repositoryTypes(), false),
 			},
-			"host": {
-				Description: "Repository host name (ex: `somerepo.cyral.com`).",
-				Type:        schema.TypeString,
-				Required:    true,
-			},
-			"port": {
-				Description: "Repository access port (ex: `3306`).",
-				Type:        schema.TypeInt,
-				Required:    true,
-			},
-			"name": {
+			RepoNameKey: {
 				Description: "Repository name that will be used internally in the control plane (ex: `your_repo_name`).",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
-			"labels": {
+			RepoLabelsKey: {
 				Description: "Labels enable you to categorize your repository.",
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -143,34 +348,93 @@ func resourceRepository() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"properties": {
-				Description: "Contains advanced repository configuration.",
+			RepoConnDrainingKey: {
+				Description: "Parameters related to connection draining.",
 				Type:        schema.TypeSet,
 				Optional:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"mongodb_replica_set": {
-							Description: "Used to configure a MongoDB cluster.",
-							Type:        schema.TypeSet,
+						RepoConnDrainingAutoKey: {
+							Description: "Whether connections should be drained automatically after a listener dies.",
+							Type:        schema.TypeBool,
 							Optional:    true,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"max_nodes": {
-										Description:  "Maximum number of nodes of the replica set cluster.",
-										Type:         schema.TypeInt,
-										Required:     true,
-										ValidateFunc: validation.IntAtLeast(1),
-									},
-									"replica_set_id": {
-										Description:  "Identifier of the replica set cluster. Used to construct the URI command (available in Cyral's Access Portal page) that your users will need for connecting to the repository via Cyral.",
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: validation.StringIsNotEmpty,
-									},
-								},
-							},
+						},
+						RepoConnDrainingWaitTimeKey: {
+							Description: "Seconds to wait to let connections drain before starting to kill all the connections, " +
+								"if auto is set to true.",
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			RepoPreferredAccessGatewayKey: {
+				Description: "Preferred access gateway for this repository.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						RepoSidecarIDKey: {
+							Description: "Sidecar ID of the preferred access gateway.",
+							Type:        schema.TypeString,
+							Required:    true,
+						},
+						RepoBindingIDKey: {
+							Description: "Binding ID of the preferred access gateway.",
+							Type:        schema.TypeString,
+							Required:    true,
+						},
+					},
+				},
+			},
+			RepoNodesKey: {
+				Description: "List of nodes for this repository.",
+				Type:        schema.TypeList,
+				Required:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						RepoNameKey: {
+							Description: "Name of the repo node.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoHostKey: {
+							Description: "Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoPortKey: {
+							Description: "Repository access port (ex: `3306`). Can be empty if node is dynamic.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+						},
+						RepoNodeDynamicKey: {
+							Description: "Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+						},
+					},
+				},
+			},
+			RepoMongoDBSettingsKey: {
+				Description: "Parameters related to MongoDB repositories.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						RepoMongoDBReplicaSetNameKey: {
+							Description: "Name of the replica set, if applicable.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoMongoDBServerTypeKey: {
+							Description:  "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice(mongoServerTypes(), false),
 						},
 					},
 				},
@@ -180,139 +444,4 @@ func resourceRepository() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
-}
-
-func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryCreate")
-	c := m.(*client.Client)
-
-	resourceData, err := getRepoDataFromResource(c, d)
-	if err != nil {
-		return createError("Unable to create repository", fmt.Sprintf("%v", err))
-	}
-
-	url := fmt.Sprintf("https://%s/v1/repos", c.ControlPlane)
-
-	body, err := c.DoRequest(url, http.MethodPost, resourceData)
-	if err != nil {
-		return createError("Unable to create repository", fmt.Sprintf("%v", err))
-	}
-
-	response := IDBasedResponse{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
-
-	d.SetId(response.ID)
-
-	log.Printf("[DEBUG] End resourceRepositoryCreate")
-
-	return resourceRepositoryRead(ctx, d, m)
-}
-
-func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryRead")
-	c := m.(*client.Client)
-
-	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
-
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return createError(fmt.Sprintf("Unable to read repository. RepositoryID: %s",
-			d.Id()), fmt.Sprintf("%v", err))
-	}
-
-	response := GetRepoByIDResponse{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
-
-	response.Repo.WriteToSchema(d)
-
-	log.Printf("[DEBUG] End resourceRepositoryRead")
-
-	return diag.Diagnostics{}
-}
-
-func resourceRepositoryUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryUpdate")
-	c := m.(*client.Client)
-
-	resourceData, err := getRepoDataFromResource(c, d)
-	if err != nil {
-		return createError("Unable to update repository", fmt.Sprintf("%v", err))
-	}
-
-	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
-
-	if _, err = c.DoRequest(url, http.MethodPut, resourceData); err != nil {
-		return createError("Unable to update repository", fmt.Sprintf("%v", err))
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryUpdate")
-
-	return resourceRepositoryRead(ctx, d, m)
-}
-
-func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryDelete")
-	c := m.(*client.Client)
-
-	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, d.Id())
-
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
-		return createError("Unable to delete repository", fmt.Sprintf("%v", err))
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryDelete")
-
-	return diag.Diagnostics{}
-}
-
-func getRepoDataFromResource(c *client.Client, d *schema.ResourceData) (RepoData, error) {
-	repoData := RepoData{
-		ID:       d.Id(),
-		RepoType: d.Get("type").(string),
-		Host:     d.Get("host").(string),
-		Name:     d.Get("name").(string),
-		Port:     d.Get("port").(int),
-	}
-
-	labels := d.Get("labels").([]interface{})
-	repositoryDataLabels := make([]string, len(labels))
-	for i, label := range labels {
-		repositoryDataLabels[i] = (label).(string)
-	}
-	repoData.Labels = repositoryDataLabels
-
-	var maxAllowedListeners uint32
-	var properties *RepositoryProperties
-	if propertiesIface, ok := d.Get("properties").(*schema.Set); ok {
-		for _, propertiesMap := range propertiesIface.List() {
-			properties = new(RepositoryProperties)
-			propertiesMap := propertiesMap.(map[string]interface{})
-
-			// Replica set properties
-			if rsetIface, ok := propertiesMap["mongodb_replica_set"]; ok {
-				if repoData.RepoType != mongodbRepoType {
-					return RepoData{}, fmt.Errorf(
-						"replica sets are only supported for repository type '%s'",
-						mongodbRepoType)
-				}
-
-				for _, rsetMap := range rsetIface.(*schema.Set).List() {
-					rsetMap := rsetMap.(map[string]interface{})
-					maxAllowedListeners = uint32(rsetMap["max_nodes"].(int))
-					properties.MongoDBReplicaSetName = rsetMap["replica_set_id"].(string)
-				}
-				properties.MongoDBServerType = mongodbReplicaSetServerType
-			}
-		}
-	}
-	repoData.MaxAllowedListeners = maxAllowedListeners
-	repoData.Properties = properties
-
-	return repoData, nil
 }
