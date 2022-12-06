@@ -147,17 +147,17 @@ func getRepoBinding(
 	return bindingConfig, nil
 }
 
-func getRepoInfo(c *client.Client, repoID string) (RepoData, error) {
+func getRepoInfo(c *client.Client, repoID string) (RepoInfo, error) {
 	log.Printf("[DEBUG] Init getRepoInfo")
 	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repoID)
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
-		return RepoData{}, err
+		return RepoInfo{}, err
 	}
 
 	var repoResponse GetRepoByIDResponse
 	if err := json.Unmarshal(body, &repoResponse); err != nil {
-		return RepoData{}, err
+		return RepoInfo{}, err
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", repoResponse)
 	log.Printf("[DEBUG] End getRepoInfo")
@@ -171,7 +171,7 @@ func getRepoInfo(c *client.Client, repoID string) (RepoData, error) {
 // than one node, or S3 repos that support S3 Browser, etc.
 func getBindingPorts(
 	bindingConfig BindingConfig,
-	repoInfo RepoData,
+	repoInfo RepoInfo,
 ) []uint32 {
 	var bindingPorts []uint32
 
@@ -180,13 +180,6 @@ func getBindingPorts(
 	if bindingConfig.Listener != nil {
 		primaryPort = bindingConfig.Listener.Port
 		bindingPorts = append(bindingPorts, primaryPort)
-	}
-
-	// MaxAllowedListeners is currently used to generate a repo binding port range
-	// between primaryPort and (primaryPort+MaxAllowedListeners-1). Thats why we
-	// add (MaxAllowedListeners-1) more ports to the repo binding ports.
-	for i := uint32(1); i < repoInfo.MaxAllowedListeners; i++ {
-		bindingPorts = append(bindingPorts, primaryPort+i)
 	}
 
 	// TcpListeners, also referred as seedListeners, are used as extra data
