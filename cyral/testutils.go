@@ -73,8 +73,10 @@ func formatBasicRepositoryIntoConfig(resName, repoName, typ, host string, port i
 	resource "cyral_repository" "%s" {
 		name = "%s"
 		type = "%s"
-		host = "%s"
-		port = %d
+		repo_node {
+			host = "%s"
+			port = %d
+		}
 	}`, resName, repoName, typ, host, port)
 }
 
