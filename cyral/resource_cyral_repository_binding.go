@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	BindingEnabledKey   = "enabled"
-	ListenerBindingsKey = "listener_binding"
-	NodeIndexKey        = "node_index"
+	BindingEnabledKey  = "enabled"
+	ListenerBindingKey = "listener_binding"
+	NodeIndexKey       = "node_index"
 )
 
-type BindingResource struct {
+type Binding struct {
 	BindingID        string             `json:"id,omitempty"`
 	RepoId           string             `json:"repoId,omitempty"`
 	Enabled          bool               `json:"enabled,omitempty"`
@@ -27,8 +27,17 @@ type ListenerBinding struct {
 	NodeIndex  uint32 `json:"nodeIndex,omitempty"`
 }
 
+type CreateBindingRequest struct {
+	SidecarID string   `json:"sidecarId,omitempty"`
+	Binding   *Binding `json:"binding,omitempty"`
+}
+
 type CreateBindingResponse struct {
 	BindingID string `json:"bindingId,omitempty"`
+}
+
+type GetBindingResponse struct {
+	Binding *Binding `json:"binding,omitempty"`
 }
 
 func (r *CreateBindingResponse) WriteToSchema(d *schema.ResourceData) error {
@@ -41,22 +50,33 @@ func (r *CreateBindingResponse) WriteToSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-func (r *BindingResource) WriteToSchema(d *schema.ResourceData) error {
+func (r *GetBindingResponse) WriteToSchema(d *schema.ResourceData) error {
+	return r.Binding.WriteToSchema(d)
+}
+
+func (r *Binding) WriteToSchema(d *schema.ResourceData) error {
 	d.Set(BindingIDKey, r.BindingID)
 	d.Set(BindingEnabledKey, r.Enabled)
 	d.Set(RepositoryIDKey, r.RepoId)
-	d.Set(ListenerBindingsKey, r.ListenerBindingsAsInterface())
+	d.Set(ListenerBindingKey, r.ListenerBindingsAsInterface())
 	return nil
 }
 
-func (r *BindingResource) ReadFromSchema(d *schema.ResourceData) error {
+func (r *CreateBindingRequest) ReadFromSchema(d *schema.ResourceData) error {
+	r.SidecarID = d.Get(SidecarIDKey).(string)
+	r.Binding = &Binding{}
+	return r.Binding.ReadFromSchema(d)
+}
+
+func (r *Binding) ReadFromSchema(d *schema.ResourceData) error {
+	r.BindingID = d.Get(BindingIDKey).(string)
 	r.Enabled = d.Get(BindingEnabledKey).(bool)
 	r.RepoId = d.Get(RepositoryIDKey).(string)
-	r.ListenerBindingsFromInterface(d.Get(ListenerBindingsKey).([]interface{}))
+	r.ListenerBindingsFromInterface(d.Get(ListenerBindingKey).([]interface{}))
 	return nil
 }
 
-func (r *BindingResource) ListenerBindingsAsInterface() []interface{} {
+func (r *Binding) ListenerBindingsAsInterface() []interface{} {
 	if r.ListenerBindings == nil {
 		return nil
 	}
@@ -70,7 +90,7 @@ func (r *BindingResource) ListenerBindingsAsInterface() []interface{} {
 	return listenerBindings
 }
 
-func (r *BindingResource) ListenerBindingsFromInterface(i []interface{}) {
+func (r *Binding) ListenerBindingsFromInterface(i []interface{}) {
 	if len(i) == 0 {
 		return
 	}
@@ -95,7 +115,7 @@ var ReadRepositoryBindingConfig = ResourceOperationConfig{
 		)
 	},
 	NewResponseData: func(_ *schema.ResourceData) ResponseData {
-		return &BindingResource{}
+		return &GetBindingResponse{}
 	},
 }
 
@@ -113,12 +133,12 @@ func resourceRepositoryBinding() *schema.Resource {
 
 				},
 				NewResourceData: func() ResourceData {
-					return &BindingResource{}
+					return &CreateBindingRequest{}
 				},
 				NewResponseData: func(_ *schema.ResourceData) ResponseData {
 					return &CreateBindingResponse{}
 				},
-			}, ReadSidecarListenersConfig,
+			}, ReadRepositoryBindingConfig,
 		),
 		ReadContext: ReadResource(ReadRepositoryBindingConfig),
 		UpdateContext: UpdateResource(
@@ -134,9 +154,9 @@ func resourceRepositoryBinding() *schema.Resource {
 
 				},
 				NewResourceData: func() ResourceData {
-					return &BindingResource{}
+					return &CreateBindingRequest{}
 				},
-			}, ReadSidecarListenersConfig,
+			}, ReadRepositoryBindingConfig,
 		),
 		DeleteContext: DeleteResource(
 			ResourceOperationConfig{
@@ -154,11 +174,6 @@ func resourceRepositoryBinding() *schema.Resource {
 
 		SchemaVersion: 2,
 		Schema: map[string]*schema.Schema{
-			IDKey: {
-				Description: "Terraform ID of this resource. Follows syntax `{sidecar_id}/{binding_id}`",
-				Computed:    true,
-				Type:        schema.TypeString,
-			},
 			BindingIDKey: {
 				Description: "ID of the binding. Computed and assigned to binding at the time of creation.",
 				Computed:    true,
@@ -177,20 +192,20 @@ func resourceRepositoryBinding() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			BindingEnabledKey: {
-				Description: "Enable or disable all listener bindings associated with this binding.",
+				Description: "Enable or disable all listener bindings.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
 			},
-			ListenerBindingsKey: {
+			ListenerBindingKey: {
 				Description: "The configuration for listeners associated with the binding. At least one `listener_binding` is required.",
 				Type:        schema.TypeList,
-				MinItems:    1,
+				Required:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						ListenerIDKey: {
 							Description: "The sidecar listener that this binding is associated with.",
-							Optional:    true,
+							Required:    true,
 							Type:        schema.TypeString,
 						},
 
