@@ -57,12 +57,19 @@ func bindingRepoSidecarListenerConfig() string {
 
 func TestAccRepositoryBindingResource(t *testing.T) {
 	intialTest := repositoryBindingTestStep("init", initialConfig)
-	updateTest := repositoryBindingTestStep("init", updatedConfig)
+	updateTest := repositoryBindingTestStep("update", updatedConfig)
+	resourceToImport := fmt.Sprintf("cyral_repository_binding.%s", "update")
+	importTest := resource.TestStep{
+		ImportState:       true,
+		ImportStateVerify: true,
+		ResourceName:      resourceToImport,
+	}
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			intialTest,
 			updateTest,
+			importTest,
 		},
 	})
 }
