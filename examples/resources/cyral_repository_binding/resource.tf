@@ -1,3 +1,21 @@
+terraform {
+  required_providers {
+    cyral = {
+      source = "local/terraform/cyral"
+    }
+  }
+}
+
+provider "cyral" {
+    # Follow the instructions in the Cyral Terraform Provider page to set up the
+    # credentials: https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
+    client_id     = "sa/default/b06e0569-25b2-4ea1-a3a1-13e3d4a17d44"
+    client_secret = "_V12lHPvvElcUchgXQaBrTjlC2R1DeTyKdbpnS_MvnX-jiAa"
+
+    control_plane = "port-multiplex-v2.apdev.cyral.com"
+
+}
+
 resource "cyral_repository" "repo" {
   name = "tf-account-repo"
   type          = "mongodb"
