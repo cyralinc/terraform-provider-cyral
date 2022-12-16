@@ -32,11 +32,6 @@ type ListenerComponent struct {
 	Address *NetworkAddress `json:"address,omitempty"`
 }
 
-type ListComposeBindingsRequest struct {
-	PageSize  uint32 `json:"pageSize,omitempty"`
-	PageAfter string `json:"pageAfter,omitempty"`
-}
-
 func dataSourceSidecarBoundPorts() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieves all the ports of a given sidecar that are currently bound to repositories.",
@@ -106,13 +101,12 @@ func getComposedBindings(c *client.Client, sidecarID string) ([]*ComposedBinding
 	pageAfter := ""
 
 	for {
-		req := &ListComposeBindingsRequest{
-			PageSize:  uint32(pageSize),
-			PageAfter: pageAfter,
+		url := fmt.Sprintf("https://%s/v1/sidecars/%s/composedBindings/filter?pageSize=%d",
+			c.ControlPlane, sidecarID, pageSize)
+		if pageAfter != "" {
+			url = url + fmt.Sprintf("&pageAfter=%s", pageAfter)
 		}
-
-		url := fmt.Sprintf("https://%s/v1/sidecars/%s/composedBindings/filter", c.ControlPlane, sidecarID)
-		body, err := c.DoRequest(url, http.MethodPost, req)
+		body, err := c.DoRequest(url, http.MethodPost, nil)
 		if err != nil {
 			return nil, err
 		}
