@@ -14,28 +14,27 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type BindingConfig struct {
-	Enabled                           bool             `json:"enabled,omitempty"`
-	Listener                          *WrapperListener `json:"listener,omitempty"`
-	AdditionalListeners               []*TCPListener   `json:"additionalListeners,omitempty"`
-	TcpListeners                      *TCPListeners    `json:"tcpListeners,omitempty"`
-	IsSelectedIdentityProviderSidecar bool             `json:"isSelectedIdentityProviderSidecar,omitempty"`
+type ListComposeBindingsResponse struct {
+	ComposedBindings []*ComposedBinding `json:"composedBindings,omitempty"`
+	TotalCount       uint32             `json:"totalCount,omitempty"`
 }
 
-type WrapperListener struct {
-	File string `json:"file,omitempty"`
-	Host string `json:"host,omitempty"`
-	Port uint32 `json:"port,omitempty"`
+type ComposedBinding struct {
+	Binding   *BindingComponent    `json:"binding,omitempty"`
+	Listeners []*ListenerComponent `json:"listeners,omitempty"`
 }
 
-type TCPListener struct {
-	Disabled bool   `json:"disabled,omitempty"`
-	Host     string `json:"host,omitempty"`
-	Port     uint32 `json:"port,omitempty"`
+type BindingComponent struct {
+	Id string `json:"id,omitempty"`
 }
 
-type TCPListeners struct {
-	Listeners []*TCPListener `json:"listeners,omitempty"`
+type ListenerComponent struct {
+	Address *NetworkAddress `json:"address,omitempty"`
+}
+
+type ListComposeBindingsRequest struct {
+	PageSize  uint32 `json:"pageSize,omitempty"`
+	PageAfter string `json:"pageAfter,omitempty"`
 }
 
 func dataSourceSidecarBoundPorts() *schema.Resource {
@@ -76,25 +75,16 @@ func dataSourceSidecarBoundPortsRead(
 	var boundPorts []uint32
 
 	sidecarID := d.Get("sidecar_id").(string)
-	repoIDs, err := getRepoIDsBoundToSidecar(c, sidecarID)
+	composedBindings, err := getComposedBindings(c, sidecarID)
 	if err != nil {
 		return createError(fmt.Sprintf("Unable to retrieve repo IDs bound to sidecar. SidecarID: %s",
 			sidecarID), err.Error())
 	}
 
-	for _, repoID := range repoIDs {
-		bindingConfig, err := getRepoBinding(c, sidecarID, repoID)
-		if err != nil {
-			return createError(fmt.Sprintf("Unable to retrieve repository binding. SidecarID: %s, "+
-				"RepositoryID: %s", sidecarID, repoID), err.Error())
+	for _, composedBinding := range composedBindings {
+		for _, listener := range composedBinding.Listeners {
+			boundPorts = append(boundPorts, uint32(listener.Address.Port))
 		}
-		repoInfo, err := getRepoInfo(c, repoID)
-		if err != nil {
-			return createError(fmt.Sprintf("Unable to retrieve repository info. RepositoryID: %s",
-				repoID), err.Error())
-		}
-		bindingPorts := getBindingPorts(bindingConfig, repoInfo)
-		boundPorts = append(boundPorts, bindingPorts...)
 	}
 	// Sorts ports so that we can have a more organized and deterministic output.
 	sort.Slice(boundPorts, func(i, j int) bool { return boundPorts[i] < boundPorts[j] })
@@ -108,98 +98,38 @@ func dataSourceSidecarBoundPortsRead(
 	return diag.Diagnostics{}
 }
 
-func getRepoIDsBoundToSidecar(c *client.Client, sidecarID string) ([]string, error) {
-	log.Printf("[DEBUG] Init getRepoIDsBoundToSidecar")
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos", c.ControlPlane, sidecarID)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return nil, err
-	}
+func getComposedBindings(c *client.Client, sidecarID string) ([]*ComposedBinding, error) {
+	log.Printf("[DEBUG] Init getComposedBindings")
 
-	var repoIDs []string
-	if err := json.Unmarshal(body, &repoIDs); err != nil {
-		return nil, err
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", repoIDs)
-	log.Printf("[DEBUG] End getRepoIDsBoundToSidecar")
+	var composedBindings []*ComposedBinding
+	pageSize := 100
+	pageAfter := ""
 
-	return repoIDs, nil
-}
+	for {
+		req := &ListComposeBindingsRequest{
+			PageSize:  uint32(pageSize),
+			PageAfter: pageAfter,
+		}
 
-func getRepoBinding(
-	c *client.Client,
-	sidecarID, repoID string,
-) (BindingConfig, error) {
-	log.Printf("[DEBUG] Init getRepoBinding")
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane, sidecarID, repoID)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return BindingConfig{}, err
-	}
+		url := fmt.Sprintf("https://%s/v1/sidecars/%s/composedBindings/filter", c.ControlPlane, sidecarID)
+		body, err := c.DoRequest(url, http.MethodPost, req)
+		if err != nil {
+			return nil, err
+		}
 
-	var bindingConfig BindingConfig
-	if err := json.Unmarshal(body, &bindingConfig); err != nil {
-		return BindingConfig{}, err
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", bindingConfig)
-	log.Printf("[DEBUG] End getRepoBinding")
-
-	return bindingConfig, nil
-}
-
-func getRepoInfo(c *client.Client, repoID string) (RepoInfo, error) {
-	log.Printf("[DEBUG] Init getRepoInfo")
-	url := fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repoID)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return RepoInfo{}, err
-	}
-
-	var repoResponse GetRepoByIDResponse
-	if err := json.Unmarshal(body, &repoResponse); err != nil {
-		return RepoInfo{}, err
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", repoResponse)
-	log.Printf("[DEBUG] End getRepoInfo")
-
-	return repoResponse.Repo, nil
-}
-
-// getBindingPorts retrieves all the ports of a repo binding, based on the binding
-// config and the repo info attributes. This can be useful for repositories that have
-// more than one port bound to a sidecar, such as mongodb replicasets that have more
-// than one node, or S3 repos that support S3 Browser, etc.
-func getBindingPorts(
-	bindingConfig BindingConfig,
-	repoInfo RepoInfo,
-) []uint32 {
-	var bindingPorts []uint32
-
-	// primaryPort is the main port/listener that the sidecar will use for this binding
-	var primaryPort uint32
-	if bindingConfig.Listener != nil {
-		primaryPort = bindingConfig.Listener.Port
-		bindingPorts = append(bindingPorts, primaryPort)
-	}
-
-	// TcpListeners, also referred as seedListeners, are used as extra data
-	// repo out routes, and can be used, for instance, for mongoDB replicasets
-	// and sharded clusters.
-	if bindingConfig.TcpListeners != nil {
-		for _, seedListener := range bindingConfig.TcpListeners.Listeners {
-			if seedListener != nil {
-				bindingPorts = append(bindingPorts, seedListener.Port)
-			}
+		var resp ListComposeBindingsResponse
+		if err := json.Unmarshal(body, &resp); err != nil {
+			return nil, err
+		}
+		composedBindings = append(composedBindings, resp.ComposedBindings...)
+		if len(composedBindings) < int(resp.TotalCount) {
+			pageAfter = resp.ComposedBindings[len(resp.ComposedBindings)-1].Binding.Id
+		} else {
+			break
 		}
 	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", composedBindings)
+	log.Printf("[DEBUG] End getComposedBindings")
 
-	// AdditionalListeners is currently used to represent the additional ports of
-	// a repo binding, like S3 browser ports for S3 repositories.
-	for _, additionalListener := range bindingConfig.AdditionalListeners {
-		if additionalListener != nil {
-			bindingPorts = append(bindingPorts, additionalListener.Port)
-		}
-	}
-
-	return bindingPorts
+	return composedBindings, nil
 }
