@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -211,8 +210,6 @@ func formatSidecarDataIntoConfig(sidecarData SidecarData) string {
 		sidecarData.UserEndpoint,
 		certBundleConfig,
 		servicesConfig)
-
-	log.Printf("[DEBUG] Config:%s", config)
 
 	return config
 }

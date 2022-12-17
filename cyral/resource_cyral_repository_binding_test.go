@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"testing"
 
@@ -56,9 +55,9 @@ func bindingRepoSidecarListenerConfig() string {
 }
 
 func TestAccRepositoryBindingResource(t *testing.T) {
-	intialTest := repositoryBindingTestStep("init", initialConfig)
-	updateTest := repositoryBindingTestStep("update", updatedConfig)
-	resourceToImport := fmt.Sprintf("cyral_repository_binding.%s", "update")
+	intialTest := repositoryBindingTestStep("binding", initialConfig)
+	updateTest := repositoryBindingTestStep("binding", updatedConfig)
+	resourceToImport := fmt.Sprintf("cyral_repository_binding.%s", "binding")
 	importTest := resource.TestStep{
 		ImportState:       true,
 		ImportStateVerify: true,
@@ -77,7 +76,6 @@ func TestAccRepositoryBindingResource(t *testing.T) {
 func repositoryBindingTestStep(resName string, binding Binding) resource.TestStep {
 	config := bindingRepoSidecarListenerConfig() +
 		repoBindingConfig(resName, binding)
-	log.Printf("[DEBUG] Config: \n\n%s\n\n", config)
 	return resource.TestStep{
 		Config: config,
 		Check:  repoBindingCheck(resName, binding),
