@@ -2,7 +2,7 @@
 
 Manages [cyral repository to sidecar bindings](https://cyral.com/docs/sidecars/sidecar-assign-repo).
 
--> **NOTE** Import ID syntax is `{sidecar_id}/{repository_id}`.
+-> **NOTE** Import ID syntax is `{sidecar_id}/{binding_id}`.
 
 ## Example Usage
 

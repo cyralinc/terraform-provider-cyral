@@ -79,27 +79,57 @@ resource "cyral_sidecar_credentials" "sidecar_credentials" {
 resource "cyral_repository" "pg_repo" {
   name = "pg_repo"
   type = "postgresql"
-  host = "postgresql.mycompany.com"
-  port = 5432
+  repo_node {
+    host = "postgresql.mycompany.com"
+    port = 5432
+  }
+}
+
+resource "cyral_sidecar_listener" "pg_listener" {
+  sidecar_id = cyral_sidecar.main_sidecar.id
+  repo_types = ["postgresql"]
+  network_address {
+    host = "postgresql.mycompany.com"
+    port = 5432
+  }
 }
 
 resource "cyral_repository_binding" "pg_repo_binding" {
   repository_id = cyral_repository.pg_repo.id
   sidecar_id    = cyral_sidecar.main_sidecar.id
-  listener_port = 5432
+  enabled = true
+  listener_binding {
+    listener_id = cyral_sidecar_listener.pg_listener.listener_id
+    node_index = 0
+  }
 }
 
 resource "cyral_repository" "mysql_repo" {
   name = "mysql_repo"
   type = "mysql"
-  host = "mysql.mycompany.com"
-  port = 3306
+  repo_node {
+    host = "mysql.mycompany.com"
+    port = 3306
+  }
+}
+
+resource "cyral_sidecar_listener" "mysql_listener" {
+  sidecar_id = cyral_sidecar.main_sidecar.id
+  repo_types = ["mysql"]
+  network_address {
+    host = "mysql.mycompany.com"
+    port = 3306
+  }
 }
 
 resource "cyral_repository_binding" "mysql_repo_binding" {
   repository_id = cyral_repository.mysql_repo.id
   sidecar_id    = cyral_sidecar.main_sidecar.id
-  listener_port = 3306
+  enabled = true
+  listener_binding {
+    listener_id = cyral_sidecar_listener.mysql_listener.listener_id
+    node_index = 0
+  }
 }
 
 module "cyral_sidecar" {

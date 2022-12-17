@@ -122,7 +122,7 @@ func getComposedBindings(c *client.Client, sidecarID string) ([]*ComposedBinding
 			break
 		}
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", composedBindings)
+	log.Printf("[DEBUG] Response body (unmarshaled): %#v", composedBindings)
 	log.Printf("[DEBUG] End getComposedBindings")
 
 	return composedBindings, nil
