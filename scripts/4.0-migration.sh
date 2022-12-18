@@ -54,9 +54,9 @@ repo_resource_defs=()
 binding_resource_defs=()
 listener_resource_defs=()
 
-repo_full_resource_names=()
-binding_full_resource_names=()
-listener_full_resource_names=()
+repo_resource_names=()
+binding_resource_names=()
+listener_resource_names=()
 
 repos_to_delete=()
 bindings_to_delete=()
@@ -82,50 +82,50 @@ for resource_address in ${resources_to_migrate[@]}; do
     repo_resource_defs+=("resource \"cyral_repository\" \"${resource_address##"cyral_repository."}\" {}")
     # Store import resource address and repo ID, which will be the argument to terraform import.
     repo_import_args+=("${resource_address} ${repo_id}")
-    repo_resource_full_names+=("${resource_address}")
+    repo_resource_names+=("${resource_address}")
   elif [[ $resource_address == cyral_repository_binding.* ]]
   then
     # We will need to delete this sidecar binding from the .tf file, store its name
     bindings_to_delete+=($resource_address)
     # Get local account ID for the local account.
-    id_values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.binding_id, .values.repository_id, .values.sidecar_id, .values.listener_binding[0].listener_id"<<<$tf_state_json))
+    id_values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.binding_id, .values.sidecar_id, .values.listener_binding[0].listener_id"<<<$tf_state_json))
     # binding_id=id_values_arr[0]
-    # repo_id=id_values_arr[1]
-    # sidecar_id=id_values_arr[2]
-    # listener_id=id_values_arr[3]
+    # sidecar_id=id_values_arr[1]
+    # listener_id=id_values_arr[2]
     # Construct import ID for the repository binding that was migrated in CP.
-    binding_import_id="${values_arr[2]}/${values_arr[0]}"
+    binding_import_id="${values_arr[1]}/${values_arr[0]}"
     # Construct import ID for the listener that was created during CP migration.
-    binding_import_id="${values_arr[2]}/${values_arr[3]}"
+    listener_import_id="${values_arr[1]}/${values_arr[2]}"
     # Remove [] from the resource address and substitute [ for _
     binding_resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
-    # Save name of the migrated user account, so that it can be added to the .tf file
+    # Save empty resource definition for the binding, so that it can be added to the .tf file
     binding_resource_defs+=("resource \"cyral_repository_binding\" \"${resource_address##"cyral_repository_binding."}\" {}")
-    # Store import name and ID as a key value pair
+    # Save empty resource definition for the listener, so that it can be added to the .tf file
+    listener_resource_name="${resource_address##"cyral_repository_binding."}-listener"
+    listener_resource_defs+=("resource \"cyral_sidecar_listener\" \"${listener_resource_name}\" {}")
+    # Store import argument and name for binding
     binding_import_args+=("${resource_address} ${import_id}")
-    binding_full_resource_names+=("${resource_address}")
-
-
+    binding_resource_names+=("${resource_address}")
   fi
 done
 
-echo "Found ${#local_accounts_to_delete[@]} cyral_repository_local_accounts to migrate to cyral_repository_user_accounts."
-echo "Found ${#identity_maps_to_delete[@]} cyral_repository_identity_maps to migrate to cyral_repository_access_rules."
+echo "Found ${#repos_to_delete[@]} cyral_repository resources to migrate."
+echo "Found ${#bindings_to_delete[@]} cyral_repository_bindings resources to migrate."
 echo
 echo "The following file path was provided for CYRAL_TF_FILE_PATH: ${CYRAL_TF_FILE_PATH}"
 read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r
 if [[  $REPLY =~ ^[Yy]$ ]]
 then
     printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
-    printf '%s\n\n' "${user_account_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
-    printf '%s\n\n' "${access_rule_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${binding_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${repo_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
 else
     echo "Exiting..."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
 echo; echo; echo;
-echo "Now its time to upgrade your Cyral Terraform Provider to version 3!"
+echo "Now its time to upgrade your Cyral Terraform Provider to version 4!"
 echo
 echo -e "Before we proceed, you will need to do the following:
     1.  Open your Terraform .tf configuration file.
@@ -133,23 +133,23 @@ echo -e "Before we proceed, you will need to do the following:
         section of your .tf configuration file to '~>3.0'. It should look like this:
             cyral = {
                 source  = \"cyralinc/cyral\"
-                version = \"~>3.0\"
+                version = \"~>4.0\"
             }
     3. Ensure that new empty resource definitions were added to the end of
         your .tf file. The definitions will look like this:
-            User Account
-            resource \"cyral_repository_user_account\" \"<resource_name>\" {}
+            Repositories
+            resource \"cyral_repository\" \"<resource_name>\" {}
 
-            Access Rules
-            resource \"cyral_repository_access_rules\" \"<resource_name>\" {}
+            Respository Bindings
+            resource \"cyral_respository_binding\" \"<resource_name>\" {}
     ************************************************
     *                                              *
     *        ${red}IMPORTANT STEP PLEASE DONT SKIP${clear}       *
     *                                              *
     ************************************************
-    4.  Find all references to cyral_repository_identity_map and
-        cyral_repository_local_account in your .tf file and remove the
-        entire resource definition for each one."
+    4.  Find all references to cyral_repository and cyral_repository_binding
+        resources in your .tf file and remove the entire resource definition
+        for each one."
 echo
 read -p "Are you ready to upgrade Terraform? [N/y] " -n 1 -r
 echo    # move to a new line
@@ -162,7 +162,7 @@ fi
 terraform init -upgrade
 
 echo
-echo "Importing the following cyral_repository_user_accounts into your Terraform state:"
+echo "Importing the following cyral_repository into your Terraform state:"
 printf '%s\n' "${user_account_resource_names[@]}"
 echo
 echo "Importing the following cyral_repository_access_rules into your Terraform state:"
