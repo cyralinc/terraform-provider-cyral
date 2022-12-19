@@ -250,9 +250,9 @@ terraform fmt
 
 echo; echo; echo;
 echo "Now that the Terraform state is up-to-date, let's clean up your .tf file."
-echo "This script created a new .tf file containing the resources definitions for"
-echo "the cyral_repository, cyral_repository_binding, and cyral_sidecar_listener"
-echo "resources that were migrated into your Terraform state. The new .tf file is called:"
+echo "This script created a new .tf file containing the resources definitions"
+echo "for the cyral_repository_access_rules and cyral_repository_user_accounts"
+echo "that were migrated into your Terraform state. The new .tf file is called:"
 echo
 echo "cyral_migration_repository_access_rules_and_user_accounts.tf"
 echo
@@ -292,7 +292,7 @@ echo "  1.  Replace the contents of your .tf file ${CYRAL_TF_FILE_PATH} "
 echo "      with the contents of cyral_terraform_migration_backup_configuration.txt. "
 echo "  2.  Delete the following files that were created by the script: "
 echo "      - cyral_terraform_migration_backup_configuration.txt"
-echo "      - cyral_migration_repositories_bindings_listeners.tf"
+echo "      - cyral_migration_repository_access_rules_and_user_accounts.tf"
 echo
 read -p "Are you ready to revert to your pre-migration Terraform state? [N/y] " -n 1 -r
 echo    # move to a new line
