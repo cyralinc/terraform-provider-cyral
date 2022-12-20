@@ -2,6 +2,7 @@
 
 # Set the color variable
 red='\033[0;31m'
+green='\033[0;32m'
 # Clear the color after that
 clear='\033[0m'
 
@@ -21,7 +22,7 @@ then
     exit
 fi
 
-echo "Welcome to Cyral's Terraform Provider Version 4.0 Migration script!"
+echo -e "${green}Welcome to Cyral's Terraform Provider Version 4.0 Migration script!${clear}"
 echo
 echo \
 "This script will create new resource definitions for the
@@ -30,7 +31,7 @@ will be migrated. Additionally, cyral_sidecar listeners
 will be created, which are now required to bind sidecars to
 repositories."
 echo
-echo "Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file."
+echo -e "${green}Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file.${clear}"
 echo
 read -p "Are you ready to continue? [N/y] " -n 1 -r
 echo
@@ -49,19 +50,20 @@ cp ${CYRAL_TF_FILE_PATH} cyral_terraform_migration_backup_configuration.txt
 repo_import_args=()
 binding_import_args=()
 listener_import_args=()
+access_gateway_import_args=()
 
 repo_resource_defs=()
 binding_resource_defs=()
 listener_resource_defs=()
+access_gateway_resource_defs=()
 
 repo_resource_names=()
 binding_resource_names=()
 listener_resource_names=()
+access_gateway_resource_names=()
 
 repos_to_delete=()
 bindings_to_delete=()
-
-access_gateway_resources=()
 
 # Create array of repo and binding resource to migrate
 resources_to_migrate=($(terraform state list | grep "cyral_repository\|cyral_repository_binding"))
@@ -91,19 +93,21 @@ for resource_address in ${resources_to_migrate[@]}; do
     # We will need to delete this sidecar binding from the .tf file, store its name
     bindings_to_delete+=($resource_address)
     # Get ids required to import binding resource.
-    id_values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.sidecar_id, .values.repository_id, .values.sidecar_as_idp_access_gateway, .values.binding_id"<<<$tf_state_json))
+    id_values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.sidecar_id, .values.repository_id, .values.sidecar_as_idp_access_gateway"<<<$tf_state_json))
     # Construct import ID for the repository binding that was migrated in CP.
     import_id="${id_values_arr[0]}/${id_values_arr[1]}"
-    if [[ ${id_values_arr[2]} ]]
+    # If the binding is an access gateway, we will need to import it.
+    if [[ ${id_values_arr[2]} == true ]]
     then
-        access_gateway_resource_name=${resource_address##"cyral_repository_binding."}-access-gateway
-        access_gateway_resource="resource \"cyral_repository_access_gateway\" \"${access_gateway_resource_name}\" {
-            repository_id = ${id_values_arr[1]}
-            sidecar_id = ${id_values_arr[0]}
-            binding_id = ${id_values_arr[3]}
-        }"
-        echo ${access_gateway_resource}
-        access_gateway_resources+=("${access_gateway_resource}")
+        # Construct a name for the access gateway resource based on the binding resource name.
+        access_gateway_resource_name="${resource_address##"cyral_repository_binding."}_access_gateway"
+        # Contruct full resource name for the access gateway.
+        access_gateway_full_resource_name="cyral_repository_access_gateway.${access_gateway_resource_name}"
+        # Save empty resource definition for the access gateway, so that it can be added to the .tf file
+        access_gateway_resource_defs+=("resource \"cyral_repository_access_gateway\" \"${access_gateway_resource_name}\" {}")
+         # Store import argument and name for access gateway
+        access_gateway_import_args+=("${access_gateway_full_resource_name} ${id_values_arr[1]}")
+        access_gateway_resource_names+=(${access_gateway_full_resource_name})
     fi
     # Remove [] from the resource address and substitute [ for _
     binding_resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
@@ -118,13 +122,14 @@ done
 echo "Found ${#repos_to_delete[@]} cyral_repository resources to migrate."
 echo "Found ${#bindings_to_delete[@]} cyral_repository_bindings resources to migrate."
 echo
-echo "The following file path was provided for CYRAL_TF_FILE_PATH: ${CYRAL_TF_FILE_PATH}"
+echo -e "The following file path was provided for CYRAL_TF_FILE_PATH: ${green}${CYRAL_TF_FILE_PATH}${clear}"
 read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r
 if [[  $REPLY =~ ^[Yy]$ ]]
 then
     printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${binding_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${repo_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${access_gateway_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
 else
     echo "Exiting..."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
@@ -133,14 +138,14 @@ fi
 echo; echo; echo;
 echo "Now its time to upgrade your Cyral Terraform Provider to version 4!"
 echo
-echo -e "Before we proceed, you will need to do the following:
+echo -e "${green}Before we proceed, you will need to do the following${clear}:
     1.  Open your Terraform .tf configuration file.
     2.  Change the version number of the cyral provider in the required_providers
         section of your .tf configuration file to '~>4.0'. It should look like this:
-            cyral = {
+${green}    cyral = {
                 source  = \"cyralinc/cyral\"
                 version = \"~>4.0\"
-            }
+            }${clear}
     3. Ensure that new empty resource definitions were added to the end of
         your .tf file. The definitions will look like this:
             Repositories
@@ -187,8 +192,11 @@ echo
 echo "Importing the following cyral_repository into your Terraform state:"
 printf '%s\n' "${repo_resource_names[@]}"
 echo
-echo "Importing the following cyral_repository_access_rules into your Terraform state:"
+echo "Importing the following cyral_repository_bindings into your Terraform state:"
 printf '%s\n' "${binding_resource_names[@]}"
+echo
+echo "Importing the following cyral_repository_access_gateways into your Terraform state:"
+printf '%s\n' "${access_gateway_resource_names[@]}"
 echo
 
 for repo in "${repo_import_args[@]}";do
@@ -196,6 +204,9 @@ for repo in "${repo_import_args[@]}";do
 done
 for binding in "${binding_import_args[@]}";do
     terraform import $binding
+done
+for access_gateway in "${access_gateway_import_args[@]}";do
+    terraform import $access_gateway
 done
 
 # Only after we have imported the migrated bindings, we have access to the
@@ -225,16 +236,10 @@ done
 
 echo "Found ${#listener_resource_names[@]} cyral_sidecar_listener resources to import."
 echo
-echo "The following file path was provided for CYRAL_TF_FILE_PATH: ${CYRAL_TF_FILE_PATH}"
-read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r
-if [[  $REPLY =~ ^[Yy]$ ]]
-then
-    printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
-    printf '%s\n\n' "${listener_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
-else
-    echo "Exiting..."
-    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-fi
+echo -e "Appending empty resource definitions to the file: ${green}${CYRAL_TF_FILE_PATH}${clear}"
+
+printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
+printf '%s\n\n' "${listener_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
 
 echo "Importing the following cyral_sidecar_listeners into your Terraform state:"
 printf '%s\n' "${listener_resource_names[@]}"
@@ -258,8 +263,8 @@ done
 for listener in ${listener_resource_names[@]};do
     terraform state show -no-color $listener | grep -v "   listener_id" | grep -v "   id " >> cyral_migration_repositories_bindings_listeners.txt
 done
-for access_gateway in ${access_gateway_resources[@]};do
-    echo access_gateway >> cyral_migration_repositories_bindings_listeners.txt
+for access_gateway in ${access_gateway_resource_names[@]};do
+    terraform state show -no-color $access_gateway | grep -v "   id " >> cyral_migration_repositories_bindings_listeners.txt
 done
 
 mv cyral_migration_repositories_bindings_listeners.txt cyral_migration_repositories_bindings_listeners.tf

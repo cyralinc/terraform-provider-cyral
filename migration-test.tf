@@ -8,12 +8,12 @@ terraform {
 }
 
 provider "cyral" {
-    # Follow the instructions in the Cyral Terraform Provider page to set up the
-    # credentials: https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
-    client_id     = "sa/default/d4318383-bbeb-4704-a7a4-995e16774d55"
-    client_secret = "SZgzYFwnh8wiCpckHiQmMtZxR1qBYhf_BIVzsV1a5tW9DK44"
+  # Follow the instructions in the Cyral Terraform Provider page to set up the
+  # credentials: https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
+  client_id     = "sa/default/d4318383-bbeb-4704-a7a4-995e16774d55"
+  client_secret = "SZgzYFwnh8wiCpckHiQmMtZxR1qBYhf_BIVzsV1a5tW9DK44"
 
-    control_plane = "hbf1912-tfmigrate-a03-ctl.k8-sandbox.gcp.cyral.com"
+  control_plane = "hbf1912-tfmigrate-a03-ctl.k8-sandbox.gcp.cyral.com"
 
 }
 
@@ -23,7 +23,7 @@ resource "cyral_sidecar" "pg_sidecar" {
 }
 
 resource "cyral_sidecar_credentials" "sidecar_credentials" {
-    sidecar_id = cyral_sidecar.pg_sidecar.id
+  sidecar_id = cyral_sidecar.pg_sidecar.id
 }
 
 resource "cyral_repository" "pg_repo" {
@@ -34,9 +34,9 @@ resource "cyral_repository" "pg_repo" {
 }
 
 resource "cyral_repository_binding" "pg_repo_binding" {
-  repository_id = cyral_repository.pg_repo.id
-  sidecar_id    = cyral_sidecar.pg_sidecar.id
-  listener_port = 5432
+  repository_id                 = cyral_repository.pg_repo.id
+  sidecar_id                    = cyral_sidecar.pg_sidecar.id
+  listener_port                 = 5432
   sidecar_as_idp_access_gateway = true
 }
 
