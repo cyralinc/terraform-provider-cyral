@@ -80,7 +80,6 @@ Read-Only:
 - `labels` (List of String)
 - `mongodb_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--mongodb_settings))
 - `name` (String)
-- `preferred_access_gateway` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--preferred_access_gateway))
 - `repo_node` (List of Object) (see [below for nested schema](#nestedobjatt--repository_list--repo_node))
 - `type` (String)
 
@@ -101,15 +100,6 @@ Read-Only:
 
 - `replica_set_name` (String)
 - `server_type` (String)
-
-<a id="nestedobjatt--repository_list--preferred_access_gateway"></a>
-
-### Nested Schema for `repository_list.preferred_access_gateway`
-
-Read-Only:
-
-- `binding_id` (String)
-- `sidecar_id` (String)
 
 <a id="nestedobjatt--repository_list--repo_node"></a>
 
