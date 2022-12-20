@@ -1,0 +1,89 @@
+---
+page_title: "Cyral Terraform Provider V3 Migration Guide"
+---
+
+This guide will take you through the steps required to upgrade your Cyral Terraform provider
+to MAJOR version 4. The Terraform migration can be performed on any Cyral Terraform provider with
+version 3.x. If you are currently running version MAJOR version 2.x, and you would like to upgrade
+to version 4.x, please see the 2.X to 4.0 migration guide.
+The migration will be handled by an interactive Bash script.
+
+## Why Migration is Required
+
+Cyral Terraform Provider V4 Migration is required once a Cyral Control Plane (CP) has been upgraded to MAJOR version 4.
+Major version 4 introduces breaking changes to Cyral's repositories and repository bindings. It also
+introduces the concept of sidecar listeners, which are now seperate from repository bindings.
+The Terraform migration is needed to import these newly migrated resources into your Terraform state and
+configuration files.
+
+Version 3 of the Cyral Terraform provider no longer supports the following resources:
+
+- `cyral_repository_identity_map`
+- `cyral_repository_local_account`
+
+The resources above have been replaced by the following, respectively:
+
+- `cyral_repository_access_rules`
+- `cyral_repository_user_account`
+
+### When should the Cyral Terraform Provider V3 Migration be performed?
+
+The following steps should be taken to upgrade the Cyral CP and the Cyral Terraform provider:
+
+1. **Before upgrading the CP to V3**, please run `terraform apply` to ensure your Terraform state is up-to-date.
+
+2. Upgrade the Cyral CP to MAJOR version 3.
+
+3. Perform the Cyral Terraform Provider V3 Migration after upgrading the Cyral CP to MAJOR version 3.
+
+It is essential that the Cyral Terraform Provider V3 Migration is run **after** the CP has been upgraded.
+
+## Other breaking changes
+
+There are some breaking changes in version 3 which our Bash script does not
+automatically migrate. For a full list of breaking changes, please see Cyral
+Provider's
+[CHANGELOG](https://github.com/cyralinc/terraform-provider-cyral/blob/main/CHANGELOG.md).
+
+## Prerequisites
+
+The Cyral Terraform Provider V3 Migration requires the following tools:
+
+  * Terraform CLI. Download instructions can be found [here](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+
+  * JQ. Download instructions can be found [here](https://stedolan.github.io/jq/download/).
+
+The script will exit if either of these tools are not installed.
+
+## Notes
+
+1. This script requires permissions sufficient for creating files. Please ensure that the script has the required permissions before running it.
+
+2. This script will append empty resource definitions to the end of your .tf file. Apart from that, it will not modify your .tf file in any way.
+   Rather, it will ask you to manually bump the Cyral Provider version halfway through the script. It will also ask you to manually remove both
+   the empty resource definitions it appended to your .tf file, as well as all resource definitions for resources that are no longer supported.
+
+## Running the Script
+
+You can find the Cyral Terraform Provider V3 Migration script [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/3.0-migration.sh). This script creates a backup of your Terraform state before attempting to upgrade your Cyral Terraform provider and performing the migration. If migration fails, you will have the option to revert to the Terraform state that was present before running the script, so that you can try again.
+
+In order to run the script, please perform the following actions:
+
+1.  Download the script and copy it into the directory containing the Terraform module you wish to migrate.
+
+2.  Run the migration script (*make sure the script has the required permissions as mentioned*). Please read all instructions carefully while interacting with the script.
+
+3.  If migration failed, follow the prompts in the script to revert back to the previous state. Inspect the errors, and try again.
+
+## Troubleshooting
+
+If migration failed for one or two resources, do the following.
+
+1.  Revert to the previous state by following the prompts at the end of the migration script.
+2.  Manually remove the problematic resources from your .tf file, and copy them elsewhere.
+3.  Run the migration script again.
+4.  Once the script is finished, recreate the problematic resources using the new resource types.
+    *  If the resource was a `cyral_repository_local_account`, replace it with a `cyral_repository_user_account` resource.
+    *   If the resource was a `cyral_repository_identity_map`, replace it with a `cyral_repository_access_rules` resource.
+        Note: If the identity map had `identity_type=user` and some non-zero `access_duration`, then
+        *there is no need to recreate the resource*. Instead, use the Cyral UI to create an equivalent Approval.
