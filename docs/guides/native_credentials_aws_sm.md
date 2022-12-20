@@ -52,9 +52,11 @@ provider "aws" {
 
 resource "cyral_repository" "mongodb_repo" {
   type = "mongodb"
-  host = "mongodb.mycompany.com"
-  port = 27017
   name = "mymongodb"
+  repo_node {
+      host = "mongodb.mycompany.com"
+      port = 27017
+  }
 }
 
 resource "cyral_repository_user_account" "my_user_account" {

@@ -111,28 +111,6 @@ locals {
       registry_key = "" # see container_registry_key in the downloaded template
     }
   }
-
-  # Specify the maximum number of nodes you expect this cluster to
-  # have, taking into consideration future growth. This number must be
-  # at least equal to the number of nodes currently in your
-  # cluster. This number is used for port reservation in the
-  # sidecar. This is the value that will be used for the `max_nodes`
-  # argument of the `properties` block in the repository resource (see
-  # resource `mongodb_repo` below).
-  mongodb_max_nodes = 5
-
-  # See `mongodb_port_alloc_range_low` and
-  # `mongodb_port_alloc_range_high` in the cyral_sidecar module
-  # configuration.
-  mongodb_ports_low  = 27017
-  mongodb_ports_high = local.mongodb_ports_low + local.mongodb_max_nodes
-
-  # All ports that will be used by MongoDB. This range must span at
-  # least the `local.mongodb_max_nodes` number of ports. Note that the
-  # port number you pass as the second argument to this function is
-  # not included in the range. For example, to set port 27021 as your
-  # uppermost port number, the second argument must be 27022.
-  mongodb_ports = range(local.mongodb_ports_low, local.mongodb_ports_high)
 }
 
 resource "cyral_repository" "mongodb_repo" {
@@ -140,23 +118,34 @@ resource "cyral_repository" "mongodb_repo" {
   type = "mongodb"
 
   # Specify the address or hostname of the endpoint of one node in the
-  # MongoDB replica set. Cyral will automatically/dynamically identify
-  # the remaining nodes of the replication cluster.
-  host = "mycluster-shard-00-01.example.mongodb.net"
+  # MongoDB replica set. You can explictly specify the host and port of
+  # additional nodes, or you can mark nodes as 'dynamic' and Cyral will
+  # identify the remaining nodes of the replication cluster.
+  repo_node {
+    name = "node_1"
+    host = "mongodb-node1.cyral.com"
+    port = 27017
+  }
 
-  port = local.mongodb_ports_low
-  properties {
-    mongodb_replica_set {
-      max_nodes = local.mongodb_max_nodes
+  repo_node {
+    name = "node_2"
+    dynamic = true
+  }
 
+  repo_node {
+    name = "node_3"
+    dynamic = true
+  }
+
+  mongodb_settings {
       # Specify the replica set identifier, a string value that
       # identifies the MongoDB replica set cluster. To find your
       # replica set ID, see our article:
       #
       # * https://cyral.freshdesk.com/a/solutions/articles/44002241594
-      replica_set_id = "my-replica-set-id"
+      replica_set_name = "some-replica-set"
+      server_type = "replicaset"
     }
-  }
 }
 
 resource "cyral_repository_conf_auth" "mongodb_repo_auth_config" {
@@ -167,12 +156,51 @@ resource "cyral_repository_conf_auth" "mongodb_repo_auth_config" {
   repo_tls = "enable"
 }
 
+resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["mongodb"]
+  network_address {
+    host = "mongodb-node1.cyral.com"
+    port = 27017
+  }
+}
+
+resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["mongodb"]
+  network_address {
+    host = "mongodb-node1.cyral.com"
+    port = 27018
+  }
+}
+
+resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["mongodb"]
+  network_address {
+    host = "mongodb-node1.cyral.com"
+    port = 27019
+  }
+}
+
 resource "cyral_repository_binding" "mongodb_repo_binding" {
   repository_id                 = cyral_repository.mongodb_repo.id
   sidecar_id                    = cyral_sidecar.mongodb_sidecar.id
-  listener_port                 = local.mongodb_ports_low
-  sidecar_as_idp_access_gateway = true
+  enabled = true
+  listener_binding {
+    listener_id = cyral_sidecar_listener.mongodb_listener_node_1.listener_id
+    node_index = 0
+  }
+  listener_binding {
+    listener_id = cyral_sidecar_listener.mongodb_listener_node_2.listener_id
+    node_index = 1
+  }
+  listener_binding {
+    listener_id = cyral_sidecar_listener.mongodb_listener_node_3.listener_id
+    node_index = 2
+  }
 }
+
 
 resource "cyral_sidecar" "mongodb_sidecar" {
   name              = "MongoDBSidecar"

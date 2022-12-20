@@ -13,12 +13,8 @@ import (
 // create a constant block for schema keys
 
 const (
-	SidecarIdKey        = "sidecar_id"
-	ListenerIdKey       = "listener_id"
 	RepoTypesKey        = "repo_types"
 	NetworkAddressKey   = "network_address"
-	PortKey             = "port"
-	HostKey             = "host"
 	MySQLSettingsKey    = "mysql_settings"
 	DbVersionKey        = "db_version"
 	CharacterSetKey     = "character_set"
@@ -58,8 +54,8 @@ var ReadSidecarListenersConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 			c.ControlPlane,
-			d.Get(SidecarIdKey).(string),
-			d.Get(ListenerIdKey).(string))
+			d.Get(SidecarIDKey).(string),
+			d.Get(ListenerIDKey).(string))
 	},
 	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadSidecarListenerAPIResponse{} },
 }
@@ -72,13 +68,13 @@ type CreateListenerAPIResponse struct {
 }
 
 func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(marshalComposedID([]string{d.Get(SidecarIdKey).(string), c.ListenerId}, "/"))
-	return d.Set(ListenerIdKey, c.ListenerId)
+	d.SetId(marshalComposedID([]string{d.Get(SidecarIDKey).(string), c.ListenerId}, "/"))
+	return d.Set(ListenerIDKey, c.ListenerId)
 }
 
 func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	if data.ListenerConfig != nil {
-		_ = d.Set(ListenerIdKey, data.ListenerConfig.ListenerId)
+		_ = d.Set(ListenerIDKey, data.ListenerConfig.ListenerId)
 		_ = d.Set(RepoTypesKey, data.ListenerConfig.RepoTypesAsInterface())
 		_ = d.Set(NetworkAddressKey, data.ListenerConfig.NetworkAddressAsInterface())
 		_ = d.Set(S3SettingsKey, data.ListenerConfig.S3SettingsAsInterface())
@@ -183,8 +179,8 @@ type SidecarListenerResource struct {
 // ReadFromSchema populates the SidecarListenerResource from the schema
 func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 	s.ListenerConfig = SidecarListener{
-		SidecarId:  d.Get(SidecarIdKey).(string),
-		ListenerId: d.Get(ListenerIdKey).(string),
+		SidecarId:  d.Get(SidecarIDKey).(string),
+		ListenerId: d.Get(ListenerIDKey).(string),
 	}
 	s.ListenerConfig.RepoTypesFromInterface(d.Get(RepoTypesKey).([]interface{}))
 	s.ListenerConfig.NetworkAddressFromInterface(d.Get(NetworkAddressKey).(*schema.Set).List())
@@ -210,7 +206,7 @@ func resourceSidecarListener() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners",
 						c.ControlPlane,
-						d.Get(SidecarIdKey).(string))
+						d.Get(SidecarIDKey).(string))
 
 				},
 				NewResourceData: func() ResourceData { return &SidecarListenerResource{} },
@@ -225,8 +221,8 @@ func resourceSidecarListener() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 						c.ControlPlane,
-						d.Get(SidecarIdKey).(string),
-						d.Get(ListenerIdKey).(string))
+						d.Get(SidecarIDKey).(string),
+						d.Get(ListenerIDKey).(string))
 
 				},
 				NewResourceData: func() ResourceData { return &SidecarListenerResource{} },
@@ -239,19 +235,19 @@ func resourceSidecarListener() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 						c.ControlPlane,
-						d.Get(SidecarIdKey).(string),
-						d.Get(ListenerIdKey).(string))
+						d.Get(SidecarIDKey).(string),
+						d.Get(ListenerIDKey).(string))
 				},
 			},
 		),
 		Schema: map[string]*schema.Schema{
-			ListenerIdKey: {
+			ListenerIDKey: {
 				Description: "ID of the listener that will be bound to the sidecar.",
 				Type:        schema.TypeString,
 				ForceNew:    true,
 				Computed:    true,
 			},
-			SidecarIdKey: {
+			SidecarIDKey: {
 				Description: "ID of the sidecar that the listener will be bound to.",
 				Type:        schema.TypeString,
 				Required:    true,
@@ -354,8 +350,8 @@ func resourceSidecarListener() *schema.Resource {
 				if err != nil {
 					return nil, err
 				}
-				_ = d.Set(SidecarIdKey, ids[0])
-				_ = d.Set(ListenerIdKey, ids[1])
+				_ = d.Set(SidecarIDKey, ids[0])
+				_ = d.Set(ListenerIDKey, ids[1])
 				return []*schema.ResourceData{d}, nil
 			},
 		},
