@@ -2,10 +2,8 @@
 
 {{ .Description | trimspace }}
 
--> **NOTE** Import ID syntax is `{sidecar_id}/{binding_id}`.
-
 ## Example Usage
 
-{{ tffile "examples/resources/cyral_repository_binding/resource.tf" }}
+{{ tffile "examples/data-sources/cyral_sidecar_bound_ports/data-source.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}

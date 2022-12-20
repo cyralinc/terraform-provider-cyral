@@ -17,6 +17,8 @@ const (
 	basicRepositoryBindingResName = "test_repository_binding"
 	basicSidecarResName           = "test_sidecar"
 	basicSidecarID                = "cyral_sidecar.test_sidecar.id"
+	basicListenerResName          = "test_listener"
+	basicListenerID               = "cyral_sidecar_listener.test_listener.listener_id"
 	basicPolicyResName            = "test_policy"
 	basicPolicyID                 = "cyral_policy.test_policy.id"
 
@@ -80,13 +82,27 @@ func formatBasicRepositoryIntoConfig(resName, repoName, typ, host string, port i
 	}`, resName, repoName, typ, host, port)
 }
 
-func formatBasicRepositoryBindingIntoConfig(resName, sidecarID, repositoryID string, listenerPort int) string {
+func formatBasicRepositoryBindingIntoConfig(resName, sidecarID, repositoryID, listenerID string) string {
 	return fmt.Sprintf(`
 	resource "cyral_repository_binding" "%s" {
 		sidecar_id    = %s
 		repository_id = %s
-		listener_port = %d
-	}`, resName, sidecarID, repositoryID, listenerPort)
+		listener_binding {
+			listener_id = %s
+			node_index = 0
+		}
+	}`, resName, sidecarID, repositoryID, listenerID)
+}
+
+func formatBasicSidecarListenerIntoConfig(resName, sidecarID, repoType string, listenerPort int) string {
+	return fmt.Sprintf(`
+	resource "cyral_sidecar_listener" "%s" {
+		sidecar_id = %s
+		repo_types = ["%s"]
+		network_address {
+			port = %d
+		}
+	}`, resName, sidecarID, repoType, listenerPort)
 }
 
 func formatBasicSidecarIntoConfig(resName, sidecarName, deploymentMethod string) string {

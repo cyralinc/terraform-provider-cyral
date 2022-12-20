@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -70,6 +69,8 @@ func testAccSidecarBoundPortsCheck_NoBindings() resource.TestCheckFunc {
 func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 	var config string
 	config += dsourceSidecarBoundPortsSampleSidecarConfig()
+
+	// Repo 1
 	config += formatBasicRepositoryIntoConfig(
 		"repo_1",
 		accTestName(sidecarBoundPortsDataSourceName, "repo1"),
@@ -77,24 +78,77 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 		"mysql.com",
 		3306,
 	)
-	config += formatBasicRepositoryBindingIntoConfig(
-		"repo_binding_1",
+	config += formatBasicSidecarListenerIntoConfig(
+		"listener_1",
 		basicSidecarID,
-		"cyral_repository.repo_1.id",
+		"mysql",
 		3306,
 	)
+	config += formatBasicRepositoryBindingIntoConfig(
+		"binding_1",
+		basicSidecarID,
+		"cyral_repository.repo_1.id",
+		"cyral_sidecar_listener.listener_1.listener_id",
+	)
+	// Repo 2
 	config += formatBasicRepositoryIntoConfig(
 		"repo_2",
 		accTestName(sidecarBoundPortsDataSourceName, "repo2"),
 		"mongodb",
-		"mongodb.com",
+		"mongo.com",
+		27017,
+	)
+	config += formatBasicSidecarListenerIntoConfig(
+		"listener_2",
+		basicSidecarID,
+		"mongodb",
 		27017,
 	)
 	config += formatBasicRepositoryBindingIntoConfig(
-		"repo_binding_2",
+		"binding_2",
 		basicSidecarID,
 		"cyral_repository.repo_2.id",
-		27017,
+		"cyral_sidecar_listener.listener_2.listener_id",
+	)
+	// Repo 3
+	config += formatBasicRepositoryIntoConfig(
+		"repo_3",
+		accTestName(sidecarBoundPortsDataSourceName, "repo3"),
+		"oracle",
+		"oracle.com",
+		1234,
+	)
+	config += formatBasicSidecarListenerIntoConfig(
+		"listener_3",
+		basicSidecarID,
+		"oracle",
+		1234,
+	)
+	config += formatBasicRepositoryBindingIntoConfig(
+		"binding_3",
+		basicSidecarID,
+		"cyral_repository.repo_3.id",
+		"cyral_sidecar_listener.listener_3.listener_id",
+	)
+	// Repo 4
+	config += formatBasicRepositoryIntoConfig(
+		"repo_4",
+		accTestName(sidecarBoundPortsDataSourceName, "repo4"),
+		"s3",
+		"s3.com",
+		5678,
+	)
+	config += formatBasicSidecarListenerIntoConfig(
+		"listener_4",
+		basicSidecarID,
+		"s3",
+		5678,
+	)
+	config += formatBasicRepositoryBindingIntoConfig(
+		"binding_4",
+		basicSidecarID,
+		"cyral_repository.repo_4.id",
+		"cyral_sidecar_listener.listener_4.listener_id",
 	)
 	config += fmt.Sprintf(`
 	data "cyral_sidecar_bound_ports" "sidecar_bound_ports_1" {
@@ -103,8 +157,10 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 		// retrieve the bound ports before the bindings are created, which in
 		// this case would be zero ports.
 		depends_on = [
-			cyral_repository_binding.repo_binding_1,
-			cyral_repository_binding.repo_binding_2
+			cyral_repository_binding.binding_1,
+			cyral_repository_binding.binding_2,
+			cyral_repository_binding.binding_3,
+			cyral_repository_binding.binding_4
 		]
 		sidecar_id = %s
 	}`, basicSidecarID)
@@ -116,66 +172,23 @@ func testAccSidecarBoundPortsCheck_MultipleBindings() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(
 			"data.cyral_sidecar_bound_ports.sidecar_bound_ports_1",
-			"bound_ports.#", "2",
+			"bound_ports.#", "4",
 		),
 		resource.TestCheckResourceAttr(
 			"data.cyral_sidecar_bound_ports.sidecar_bound_ports_1",
-			"bound_ports.0", "3306",
+			"bound_ports.0", "1234",
 		),
 		resource.TestCheckResourceAttr(
 			"data.cyral_sidecar_bound_ports.sidecar_bound_ports_1",
-			"bound_ports.1", "27017",
+			"bound_ports.1", "3306",
+		),
+		resource.TestCheckResourceAttr(
+			"data.cyral_sidecar_bound_ports.sidecar_bound_ports_1",
+			"bound_ports.2", "5678",
+		),
+		resource.TestCheckResourceAttr(
+			"data.cyral_sidecar_bound_ports.sidecar_bound_ports_1",
+			"bound_ports.3", "27017",
 		),
 	)
-}
-
-func TestGetBindingPorts_NoPorts(t *testing.T) {
-	ports := getBindingPorts(BindingConfig{}, RepoInfo{})
-
-	assert.Len(t, ports, 0)
-}
-
-func TestGetBindingPorts_SinglePort(t *testing.T) {
-	binding := BindingConfig{
-		Listener: &WrapperListener{
-			Port: 1234,
-		},
-	}
-	ports := getBindingPorts(binding, RepoInfo{})
-
-	expectedPorts := []uint32{1234}
-
-	assert.Equal(t, expectedPorts, ports)
-}
-
-func TestGetBindingPorts_MultiplePorts(t *testing.T) {
-	binding := BindingConfig{
-		Listener: &WrapperListener{
-			Port: 1234,
-		},
-		TcpListeners: &TCPListeners{
-			Listeners: []*TCPListener{
-				{
-					Port: 47017,
-				},
-				{
-					Port: 37017,
-				},
-			},
-		},
-		AdditionalListeners: []*TCPListener{
-			{
-				Port: 457,
-			},
-			{
-				Port: 443,
-			},
-		},
-	}
-	repo := RepoInfo{}
-	ports := getBindingPorts(binding, repo)
-
-	expectedPorts := []uint32{443, 457, 1234, 37017, 47017}
-
-	assert.ElementsMatch(t, expectedPorts, ports)
 }
