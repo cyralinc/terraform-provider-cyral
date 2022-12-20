@@ -2,120 +2,222 @@ package cyral
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type RepoBindingData struct {
-	SidecarID                 string
-	RepositoryID              string
-	Enabled                   bool
-	SidecarAsIdPAccessGateway bool     `json:"isSelectedIdentityProviderSidecar,omitempty"`
-	Listener                  Listener `json:"listener"`
+const (
+	BindingEnabledKey  = "enabled"
+	ListenerBindingKey = "listener_binding"
+	NodeIndexKey       = "node_index"
+)
+
+type Binding struct {
+	BindingID        string             `json:"id,omitempty"`
+	RepoId           string             `json:"repoId,omitempty"`
+	Enabled          bool               `json:"enabled,omitempty"`
+	ListenerBindings []*ListenerBinding `json:"listenerBindings,omitempty"`
 }
 
-type Listener struct {
-	Host string `json:"host"`
-	Port int    `json:"port"`
+type ListenerBinding struct {
+	ListenerID string `json:"listenerId,omitempty"`
+	NodeIndex  uint32 `json:"nodeIndex,omitempty"`
 }
 
-func repositoryBindingResourceSchemaV0() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"enabled": {
-				Description: "Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-			},
-			"sidecar_id": {
-				Description: "ID of the sidecar that the repository(ies) will be bound to.",
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-			},
-			"repository_id": {
-				Description: "ID of the repository that will be bound to the sidecar.",
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-			},
-			"listener_port": {
-				Description: "Port in which the sidecar will listen for the given repository.",
-				Type:        schema.TypeInt,
-				Required:    true,
-			},
-			"listener_host": {
-				Description: "Address in which the sidecar will listen for the given repository. By default, the sidecar will listen in all interfaces.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "0.0.0.0",
-			},
-			"sidecar_as_idp_access_gateway": {
-				Description: "Indicates whether or not the sidecar in the binding configuration is selected as the Access Gateway for Identity Provider users connecting to the underlying data repository. Defaults to `false`.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-			},
-			"id": {
-				Description: "Computed ID for this resource (locally computed to be used in Terraform state).",
-				Computed:    true,
-				Type:        schema.TypeString,
-			},
-		},
+type CreateBindingRequest struct {
+	SidecarID string   `json:"sidecarId,omitempty"`
+	Binding   *Binding `json:"binding,omitempty"`
+}
+
+type CreateBindingResponse struct {
+	BindingID string `json:"bindingId,omitempty"`
+}
+
+type GetBindingResponse struct {
+	Binding *Binding `json:"binding,omitempty"`
+}
+
+func (r *CreateBindingResponse) WriteToSchema(d *schema.ResourceData) error {
+	d.Set(BindingIDKey, r.BindingID)
+	d.SetId(marshalComposedID(
+		[]string{
+			d.Get(SidecarIDKey).(string),
+			r.BindingID,
+		}, "/"))
+	return nil
+}
+
+func (r *GetBindingResponse) WriteToSchema(d *schema.ResourceData) error {
+	return r.Binding.WriteToSchema(d)
+}
+
+func (r *Binding) WriteToSchema(d *schema.ResourceData) error {
+	d.Set(BindingIDKey, r.BindingID)
+	d.Set(BindingEnabledKey, r.Enabled)
+	d.Set(RepositoryIDKey, r.RepoId)
+	d.Set(ListenerBindingKey, r.ListenerBindingsAsInterface())
+	return nil
+}
+
+func (r *CreateBindingRequest) ReadFromSchema(d *schema.ResourceData) error {
+	r.SidecarID = d.Get(SidecarIDKey).(string)
+	r.Binding = &Binding{}
+	return r.Binding.ReadFromSchema(d)
+}
+
+func (r *Binding) ReadFromSchema(d *schema.ResourceData) error {
+	r.BindingID = d.Get(BindingIDKey).(string)
+	r.Enabled = d.Get(BindingEnabledKey).(bool)
+	r.RepoId = d.Get(RepositoryIDKey).(string)
+	r.ListenerBindingsFromInterface(d.Get(ListenerBindingKey).([]interface{}))
+	return nil
+}
+
+func (r *Binding) ListenerBindingsAsInterface() []interface{} {
+	if r.ListenerBindings == nil {
+		return nil
 	}
+	listenerBindings := make([]interface{}, len(r.ListenerBindings))
+	for i, listenerBinding := range r.ListenerBindings {
+		listenerBindings[i] = map[string]interface{}{
+			ListenerIDKey: listenerBinding.ListenerID,
+			NodeIndexKey:  listenerBinding.NodeIndex,
+		}
+	}
+	return listenerBindings
 }
 
-// The upgrade from v0 to v1 of the repository binding resource consists simply
-// in changing the format of the `id` from `{sidecar_id}-{repository_id}` to
-// `{sidecar_id}/{repository_id}`.
-func upgradeRepositoryBindingV0(
-	_ context.Context,
-	rawState map[string]interface{},
-	meta interface{},
-) (map[string]interface{}, error) {
-	prevID := rawState["id"].(string)
-	prevSep := "-"
-	newSep := "/"
-	ids, err := unmarshalComposedID(prevID, prevSep, 2)
-	if err != nil {
-		// If we ignore this error, the ID will be inconsistent with
-		// what we expect in v1. We should not let that happen,
-		// therefore return error here.
-		return rawState, fmt.Errorf("unable to unmarshal composed ID: %w", err)
+func (r *Binding) ListenerBindingsFromInterface(i []interface{}) {
+	if len(i) == 0 {
+		return
 	}
-	sidecarID := ids[0]
-	repositoryID := ids[1]
-	rawState["id"] = marshalComposedID([]string{sidecarID, repositoryID}, newSep)
-	return rawState, nil
+	listenerBindings := make([]*ListenerBinding, len(i))
+	for index, listenerBinding := range i {
+		listenerBindings[index] = &ListenerBinding{
+			ListenerID: listenerBinding.(map[string]interface{})[ListenerIDKey].(string),
+			NodeIndex:  uint32(listenerBinding.(map[string]interface{})[NodeIndexKey].(int)),
+		}
+	}
+	r.ListenerBindings = listenerBindings
+}
+
+var ReadRepositoryBindingConfig = ResourceOperationConfig{
+	Name:       "RepositoryBindingResourceRead",
+	HttpMethod: http.MethodGet,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
+			c.ControlPlane,
+			d.Get(SidecarIDKey).(string),
+			d.Get(BindingIDKey).(string),
+		)
+	},
+	NewResponseData: func(_ *schema.ResourceData) ResponseData {
+		return &GetBindingResponse{}
+	},
 }
 
 func resourceRepositoryBinding() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [repositories to sidecars binding](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
-		CreateContext: resourceRepositoryBindingCreate,
-		ReadContext:   resourceRepositoryBindingRead,
-		UpdateContext: resourceRepositoryBindingUpdate,
-		DeleteContext: resourceRepositoryBindingDelete,
+		Description: "Manages [cyral repository to sidecar bindings](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
+		CreateContext: CreateResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryBindingResourceCreate",
+				HttpMethod: http.MethodPost,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings",
+						c.ControlPlane,
+						d.Get(SidecarIDKey).(string))
 
-		SchemaVersion: 1,
-		StateUpgraders: []schema.StateUpgrader{
-			{
-				Version: 0,
-				Type: repositoryBindingResourceSchemaV0().
-					CoreConfigSchema().ImpliedType(),
-				Upgrade: upgradeRepositoryBindingV0,
+				},
+				NewResourceData: func() ResourceData {
+					return &CreateBindingRequest{}
+				},
+				NewResponseData: func(_ *schema.ResourceData) ResponseData {
+					return &CreateBindingResponse{}
+				},
+			}, ReadRepositoryBindingConfig,
+		),
+		ReadContext: ReadResource(ReadRepositoryBindingConfig),
+		UpdateContext: UpdateResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryBindingResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
+						c.ControlPlane,
+						d.Get(SidecarIDKey).(string),
+						d.Get(BindingIDKey).(string),
+					)
+
+				},
+				NewResourceData: func() ResourceData {
+					return &CreateBindingRequest{}
+				},
+			}, ReadRepositoryBindingConfig,
+		),
+		DeleteContext: DeleteResource(
+			ResourceOperationConfig{
+				Name:       "RepositoryBindingResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
+						c.ControlPlane,
+						d.Get(SidecarIDKey).(string),
+						d.Get(BindingIDKey).(string),
+					)
+				},
+			},
+		),
+
+		SchemaVersion: 2,
+		Schema: map[string]*schema.Schema{
+			BindingIDKey: {
+				Description: "ID of the binding. Computed and assigned to binding at the time of creation.",
+				Computed:    true,
+				Type:        schema.TypeString,
+			},
+			SidecarIDKey: {
+				Description: "ID of the sidecar that will be bound to the given repository.",
+				Required:    true,
+				ForceNew:    true,
+				Type:        schema.TypeString,
+			},
+			RepositoryIDKey: {
+				Description: "ID of the repository that will be bound to the sidecar.",
+				Required:    true,
+				ForceNew:    true,
+				Type:        schema.TypeString,
+			},
+			BindingEnabledKey: {
+				Description: "Enable or disable all listener bindings.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+			},
+			ListenerBindingKey: {
+				Description: "The configuration for listeners associated with the binding. At least one `listener_binding` is required.",
+				Type:        schema.TypeList,
+				Required:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						ListenerIDKey: {
+							Description: "The sidecar listener that this binding is associated with.",
+							Required:    true,
+							Type:        schema.TypeString,
+						},
+
+						NodeIndexKey: {
+							Description: "The index of the repo node that this binding is associated with.",
+							Optional:    true,
+							Type:        schema.TypeInt,
+						},
+					},
+				},
 			},
 		},
-
-		Schema: repositoryBindingResourceSchemaV0().Schema,
-
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
@@ -126,126 +228,10 @@ func resourceRepositoryBinding() *schema.Resource {
 				if err != nil {
 					return nil, err
 				}
-				d.Set("sidecar_id", ids[0])
-				d.Set("repository_id", ids[1])
+				d.Set(SidecarIDKey, ids[0])
+				d.Set(BindingIDKey, ids[1])
 				return []*schema.ResourceData{d}, nil
 			},
 		},
 	}
-}
-
-func resourceRepositoryBindingCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryBindingCreate")
-	c := m.(*client.Client)
-
-	resourceData := getRepoBindingDataFromResource(d)
-
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
-		resourceData.SidecarID, resourceData.RepositoryID)
-
-	if _, err := c.DoRequest(url, http.MethodPut, resourceData); err != nil {
-		return createError("Unable to bind repository to sidecar", fmt.Sprintf("%v", err))
-	}
-
-	d.SetId(marshalComposedID([]string{
-		resourceData.SidecarID,
-		resourceData.RepositoryID},
-		"/"))
-
-	return resourceRepositoryBindingRead(ctx, d, m)
-}
-
-func resourceRepositoryBindingRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryBindingRead")
-	c := m.(*client.Client)
-
-	sidecarID := d.Get("sidecar_id").(string)
-	repositoryID := d.Get("repository_id").(string)
-
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane, sidecarID, repositoryID)
-
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return createError(fmt.Sprintf("Unable to read repository. SidecarID: %s, RepositoryID: %s",
-			sidecarID, repositoryID), fmt.Sprintf("%v", err))
-	}
-
-	response := RepoBindingData{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return createError(fmt.Sprintf("Unable to unmarshall JSON. SidecarID: %s, RepositoryID: %s",
-			sidecarID, repositoryID), fmt.Sprintf("%v", err))
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
-
-	d.Set("enabled", response.Enabled)
-	d.Set("sidecar_as_idp_access_gateway", response.SidecarAsIdPAccessGateway)
-	d.Set("listener_port", response.Listener.Port)
-	if host := response.Listener.Host; host != "" {
-		d.Set("listener_host", response.Listener.Host)
-	}
-	log.Printf("[DEBUG] End resourceRepositoryBindingRead")
-
-	return diag.Diagnostics{}
-}
-
-func resourceRepositoryBindingUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryBindingUpdate")
-	c := m.(*client.Client)
-
-	resourceData := getRepoBindingDataFromResource(d)
-
-	if err := updateRepositoryBinding(c, resourceData); err != nil {
-		return createError("Unable to update repository binding", fmt.Sprintf("%v", err))
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryBindingUpdate")
-
-	return resourceRepositoryBindingRead(ctx, d, m)
-}
-
-func resourceRepositoryBindingDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryBindingDelete")
-	c := m.(*client.Client)
-
-	// SidecarAsIdPAccessGateway is set to false to stop
-	// using the bound sidecar as the Access Gateway for Identity
-	// Provider users. This is needed so that the binding can
-	// be deleted, otherwise it will throw a validation error.
-	resourceData := getRepoBindingDataFromResource(d)
-	resourceData.SidecarAsIdPAccessGateway = false
-	if err := updateRepositoryBinding(c, resourceData); err != nil {
-		return createError("Unable to delete repository binding",
-			fmt.Sprintf("%v", err))
-	}
-
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
-		resourceData.SidecarID, resourceData.RepositoryID)
-
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
-		return createError("Unable to delete repository binding", fmt.Sprintf("%v", err))
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryBindingDelete")
-
-	return diag.Diagnostics{}
-}
-
-func getRepoBindingDataFromResource(d *schema.ResourceData) RepoBindingData {
-	return RepoBindingData{
-		Enabled:                   d.Get("enabled").(bool),
-		SidecarID:                 d.Get("sidecar_id").(string),
-		RepositoryID:              d.Get("repository_id").(string),
-		SidecarAsIdPAccessGateway: d.Get("sidecar_as_idp_access_gateway").(bool),
-		Listener: Listener{
-			Host: d.Get("listener_host").(string),
-			Port: d.Get("listener_port").(int),
-		},
-	}
-}
-
-func updateRepositoryBinding(c *client.Client, resourceData RepoBindingData) error {
-	url := fmt.Sprintf("https://%s/v1/sidecars/%s/repos/%s", c.ControlPlane,
-		resourceData.SidecarID, resourceData.RepositoryID)
-	_, err := c.DoRequest(url, http.MethodPut, resourceData)
-	return err
 }

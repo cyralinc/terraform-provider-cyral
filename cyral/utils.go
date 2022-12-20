@@ -10,6 +10,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+// Common keys.
+const (
+	IDKey           = "id"
+	HostKey         = "host"
+	PortKey         = "port"
+	TypeKey         = "type"
+	RepositoryIDKey = "repository_id"
+	BindingIDKey    = "binding_id"
+	SidecarIDKey    = "sidecar_id"
+	ListenerIDKey   = "listener_id"
+)
+
 func urlQuery(kv map[string]string) string {
 	queryStr := "?"
 	for k, v := range kv {

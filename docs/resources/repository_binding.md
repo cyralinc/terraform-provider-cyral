@@ -1,67 +1,44 @@
 # cyral_repository_binding (Resource)
 
-Manages [repositories to sidecars binding](https://cyral.com/docs/sidecars/sidecar-assign-repo).
+Manages [cyral repository to sidecar bindings](https://cyral.com/docs/sidecars/sidecar-assign-repo).
 
--> **NOTE** Import ID syntax is `{sidecar_id}/{repository_id}`.
+-> **NOTE** Import ID syntax is `{sidecar_id}/{binding_id}`.
 
 ## Example Usage
 
 ```terraform
-### Bind a single repository
-resource "cyral_repository_binding" "some_resource_name" {
-    enabled = true
-    repository_id = cyral_repository.SOME_REPOSITORY_RESOURCE_NAME.id
-    sidecar_id    = cyral_sidecar.SOME_SIDECAR_RESOURCE_NAME.id
-    listener_port = 0
-    listener_host = "0.0.0.0"
-    sidecar_as_idp_access_gateway = false
-}
-
-### Bind multiple repositories
-locals {
-  repos = {
-    mymongodb = {
-      host          = "mongodb.cyral.com"
-      port          = 27017
-      type          = "mongodb"
-      listener_port = 27117
-    }
-    mymariadb = {
-      host          = "mariadb.cyral.com"
-      port          = 3306
-      listener_port = 3310
-      type          = "mariadb"
-    }
-    mypostgresql = {
-      host          = "postgresql.cyral.com"
-      port          = 5436
-      listener_port = 5432
-      type          = "postgresql"
-    }
+resource "cyral_repository" "repo" {
+  name = "tf-account-repo"
+  type          = "mongodb"
+  repo_node {
+        name = "single-node-mongo"
+        host = "mongodb.cyral.com"
+        port = 27017
   }
 }
 
-resource "cyral_repository" "repositories" {
-  for_each = local.repos
-
-  name = each.key
-  type = each.value.type
-  host = each.value.host
-  port = each.value.port
+resource "cyral_sidecar" "sidecar" {
+  name = "tf-account-sidecar"
+  deployment_method = "docker"
 }
 
-resource "cyral_sidecar" "my_sidecar_name" {
-  name = "mysidecar"
-  tags = ["deploymentMethod:cloudFormation", "tag1"]
+resource "cyral_sidecar_listener" "listener" {
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["mongodb"]
+  network_address {
+    host          = "mongodb.cyral.com"
+    port          = 27017
+  }
 }
 
-resource "cyral_repository_binding" "repo_binding" {
-  for_each = local.repos
-
-  enabled       = true
-  repository_id = cyral_repository.repositories[each.key].id
-  listener_port = each.value.port
-  sidecar_id    = cyral_sidecar.my_sidecar_name.id
+resource "cyral_repository_binding" "binding" {
+  sidecar_id = cyral_sidecar.sidecar.id
+  repository_id = cyral_repository.repo.id
+  enabled = true
+  listener_binding {
+    listener_id = cyral_sidecar_listener.listener.listener_id
+    node_index = 0
+  }
 }
 ```
 
@@ -71,16 +48,27 @@ resource "cyral_repository_binding" "repo_binding" {
 
 ### Required
 
-- `listener_port` (Number) Port in which the sidecar will listen for the given repository.
+- `listener_binding` (Block List, Min: 1) The configuration for listeners associated with the binding. At least one `listener_binding` is required. (see [below for nested schema](#nestedblock--listener_binding))
 - `repository_id` (String) ID of the repository that will be bound to the sidecar.
-- `sidecar_id` (String) ID of the sidecar that the repository(ies) will be bound to.
+- `sidecar_id` (String) ID of the sidecar that will be bound to the given repository.
 
 ### Optional
 
-- `enabled` (Boolean) Enable|Disable the repository in the target sidecar. It is important to notice that the resource will always be created, but will remain inactive if set to `false`.
-- `listener_host` (String) Address in which the sidecar will listen for the given repository. By default, the sidecar will listen in all interfaces.
-- `sidecar_as_idp_access_gateway` (Boolean) Indicates whether or not the sidecar in the binding configuration is selected as the Access Gateway for Identity Provider users connecting to the underlying data repository. Defaults to `false`.
+- `enabled` (Boolean) Enable or disable all listener bindings.
 
 ### Read-Only
 
-- `id` (String) Computed ID for this resource (locally computed to be used in Terraform state).
+- `binding_id` (String) ID of the binding. Computed and assigned to binding at the time of creation.
+- `id` (String) The ID of this resource.
+
+<a id="nestedblock--listener_binding"></a>
+
+### Nested Schema for `listener_binding`
+
+Required:
+
+- `listener_id` (String) The sidecar listener that this binding is associated with.
+
+Optional:
+
+- `node_index` (Number) The index of the repo node that this binding is associated with.
