@@ -50,7 +50,7 @@ var ReadRepositoryAccessGatewayConfig = ResourceOperationConfig{
 
 func resourceRepositoryAccessGateway() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages the sidecar and binding set as the access gateway for cyral_repositories.",
+		Description: "Manages the sidecar and binding set as the access gateway for [cyral_repositories](./repositories.md).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "RepositoryAccessGatewayCreate",
@@ -103,7 +103,7 @@ func resourceRepositoryAccessGateway() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			RepositoryIDKey: {
 				Description: "ID of the repository the access gateway is associated with. This is also the" +
-					"import id for this resource.",
+					"import ID for this resource.",
 				Type:     schema.TypeString,
 				Required: true,
 			},
