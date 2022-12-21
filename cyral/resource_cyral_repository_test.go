@@ -12,14 +12,6 @@ const (
 	repositoryResourceName = "repository"
 )
 
-// func repositoryTestSidecarConfig() string {
-// 	return formatBasicSidecarIntoConfig(
-// 		basicSidecarResName,
-// 		accTestName(repositoryBindingResourceName, "repo-test-sidecar"),
-// 		"docker",
-// 	)
-// }
-
 var (
 	initialRepoConfig = RepoInfo{
 		Name:   accTestName(repositoryResourceName, "repo"),
@@ -76,32 +68,6 @@ var (
 		},
 	}
 
-	// accessGatewayConfig = RepoInfo{
-	// 	Name: accTestName(repositoryResourceName, "repo-with-access-gateway"),
-	// 	Type: "mongodb",
-	// 	ConnParams: &ConnParams{
-	// 		ConnDraining: &ConnDraining{
-	// 			Auto:     true,
-	// 			WaitTime: 20,
-	// 		},
-	// 	},
-	// 	RepoNodes: []*RepoNode{
-	// 		{
-	// 			Name: "node1",
-	// 			Host: "mongo.local.node1",
-	// 			Port: 27017,
-	// 		},
-	// 		{
-	// 			Name: "node2",
-	// 			Host: "mongo.local.node2",
-	// 			Port: 27017,
-	// 		},
-	// 	},
-	// 	PreferredAccessGwBinding: &BindingKey{
-	// 		BindingID: "some-binding-id",
-	// 	},
-	// }
-
 	mixedMultipleNodesConfig = RepoInfo{
 		Name: accTestName(repositoryResourceName, "repo-mixed-multi-node"),
 		Type: "mongodb",
@@ -147,8 +113,6 @@ func TestAccRepositoryResource(t *testing.T) {
 		emptyConnDrainingConfig, "conn_draining_empty_test")
 	connDraining := setupRepositoryTest(
 		connDrainingConfig, "conn_draining_test")
-	// accessGateway := setupRepositoryTest(
-	// 	accessGatewayConfig, "access_gateway_test")
 
 	multiNode := setupRepositoryTest(
 		mixedMultipleNodesConfig, "multi_node_test")
@@ -167,7 +131,6 @@ func TestAccRepositoryResource(t *testing.T) {
 			update,
 			connDrainingEmpty,
 			connDraining,
-			// accessGateway,
 			multiNode,
 			importTest,
 		},
@@ -238,17 +201,6 @@ func repoCheckFuctions(repo RepoInfo, resName string) resource.TestCheckFunc {
 		}...)
 	}
 
-	// if repo.PreferredAccessGwBinding != nil {
-	// 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-	// 		resource.TestCheckResourceAttrPair(
-	// 			resourceFullName, "preferred_access_gateway.0.sidecar_id",
-	// 			fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id"),
-	// 		resource.TestCheckResourceAttr(resourceFullName,
-	// 			"preferred_access_gateway.0.binding_id",
-	// 			repo.PreferredAccessGwBinding.BindingID),
-	// 	}...)
-	// }
-
 	return resource.ComposeTestCheckFunc(checkFuncs...)
 }
 
@@ -287,21 +239,6 @@ func repoAsConfig(repo RepoInfo, resName string) string {
 			serverType,
 		)
 	}
-
-	// if repo.PreferredAccessGwBinding != nil {
-	// 	bindingID := "null"
-	// 	if repo.PreferredAccessGwBinding.BindingID != "" {
-	// 		bindingID = fmt.Sprintf(
-	// 			`"%s"`, repo.PreferredAccessGwBinding.BindingID)
-	// 	}
-	// 	config += fmt.Sprintf(`
-	// 	preferred_access_gateway {
-	// 		sidecar_id = %s
-	// 		binding_id = %s
-	// 	}`, basicSidecarID,
-	// 		bindingID,
-	// 	)
-	// }
 
 	for _, node := range repo.RepoNodes {
 		name, host := "null", "null"

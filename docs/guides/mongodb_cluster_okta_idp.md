@@ -110,6 +110,28 @@ locals {
       username     = "" # see container_registry_username in the downloaded template
       registry_key = "" # see container_registry_key in the downloaded template
     }
+
+    # Specify the maximum number of nodes you expect this cluster to
+    # have, taking into consideration future growth. This number must be
+    # at least equal to the number of nodes currently in your
+    # cluster. This number is used for port reservation in the
+    # sidecar. This is the value that will be used for the `max_nodes`
+    # argument of the `properties` block in the repository resource (see
+    # resource `mongodb_repo` below).
+    mongodb_max_nodes = 3
+
+    # See `mongodb_port_alloc_range_low` and
+    # `mongodb_port_alloc_range_high` in the cyral_sidecar module
+    # configuration.
+    mongodb_ports_low  = 27017
+    mongodb_ports_high = local.mongodb_ports_low + local.mongodb_max_nodes
+
+    # All ports that will be used by MongoDB. This range must span at
+    # least the `local.mongodb_max_nodes` number of ports. Note that the
+    # port number you pass as the second argument to this function is
+    # not included in the range. For example, to set port 27021 as your
+    # uppermost port number, the second argument must be 27022.
+    mongodb_ports = range(local.mongodb_ports_low, local.mongodb_ports_high)
   }
 }
 
@@ -117,16 +139,20 @@ resource "cyral_repository" "mongodb_repo" {
   name = "mongodb_repo"
   type = "mongodb"
 
-  # Specify the address or hostname of the endpoint of one node in the
-  # MongoDB replica set. You can explictly specify the host and port of
-  # additional nodes, or you can mark nodes as 'dynamic' and Cyral will
-  # identify the remaining nodes of the replication cluster.
+  # Specify the address or hostname of the endpoint of at least one node
+  # in the MongoDB replica set. You can explictly specify the host and
+  # port of additional nodes, or you can mark nodes as 'dynamic' and Cyral
+  # will identify the remaining nodes of the replication cluster.
   repo_node {
     name = "node_1"
     host = "mongodb-node1.cyral.com"
     port = 27017
   }
 
+  # You can explictly specify the host and port of additional nodes,
+  # or you can mark nodes as 'dynamic' and Cyral will identify the
+  # remaining nodes of the replication cluster. However, you will
+  # still have to explictly define listeners for each node's port.
   repo_node {
     name = "node_2"
     dynamic = true
@@ -156,6 +182,7 @@ resource "cyral_repository_conf_auth" "mongodb_repo_auth_config" {
   repo_tls = "enable"
 }
 
+# Create listeners for each MongoDB repo node.
 resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mongodb"]
@@ -165,7 +192,7 @@ resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
   }
 }
 
-resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
+resource "cyral_sidecar_listener" "mongodb_listener_node_2" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mongodb"]
   network_address {
@@ -174,7 +201,7 @@ resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
   }
 }
 
-resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
+resource "cyral_sidecar_listener" "mongodb_listener_node_3" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mongodb"]
   network_address {
@@ -183,6 +210,7 @@ resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
   }
 }
 
+# Bind the sidecar listeners to the repository.
 resource "cyral_repository_binding" "mongodb_repo_binding" {
   repository_id                 = cyral_repository.mongodb_repo.id
   sidecar_id                    = cyral_sidecar.mongodb_sidecar.id
@@ -199,6 +227,13 @@ resource "cyral_repository_binding" "mongodb_repo_binding" {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_3.listener_id
     node_index = 2
   }
+}
+
+# Set the access gateway for the repository.
+resource "cyral_repository_access_gateway" "mongodb_access_gateway" {
+		repository_id  = cyral_repository.mongodb_repo.id
+		sidecar_id  = cyral_sidecar.mongodb_sidecar.id
+		binding_id = cyral_repository_binding.mongodb_repo_binding.binding_id
 }
 
 

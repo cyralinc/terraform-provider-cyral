@@ -24,10 +24,6 @@ const (
 	RepoHostKey        = "host"
 	RepoPortKey        = "port"
 	RepoNodeDynamicKey = "dynamic"
-	// Access gateway keys.
-	RepoPreferredAccessGatewayKey = "preferred_access_gateway"
-	RepoSidecarIDKey              = "sidecar_id"
-	RepoBindingIDKey              = "binding_id"
 	// MongoDB settings keys.
 	RepoMongoDBSettingsKey       = "mongodb_settings"
 	RepoMongoDBReplicaSetNameKey = "replica_set_name"
@@ -61,16 +57,15 @@ func mongoServerTypes() []string {
 }
 
 type RepoInfo struct {
-	ID                       string           `json:"id"`
-	Name                     string           `json:"name"`
-	Type                     string           `json:"type"`
-	Host                     string           `json:"repoHost"`
-	Port                     uint32           `json:"repoPort"`
-	ConnParams               *ConnParams      `json:"connParams"`
-	Labels                   []string         `json:"labels"`
-	RepoNodes                []*RepoNode      `json:"repoNodes,omitempty"`
-	MongoDBSettings          *MongoDBSettings `json:"mongoDbSettings,omitempty"`
-	PreferredAccessGwBinding *BindingKey      `json:"preferredAccessGwBinding,omitempty"`
+	ID              string           `json:"id"`
+	Name            string           `json:"name"`
+	Type            string           `json:"type"`
+	Host            string           `json:"repoHost"`
+	Port            uint32           `json:"repoPort"`
+	ConnParams      *ConnParams      `json:"connParams"`
+	Labels          []string         `json:"labels"`
+	RepoNodes       []*RepoNode      `json:"repoNodes,omitempty"`
+	MongoDBSettings *MongoDBSettings `json:"mongoDbSettings,omitempty"`
 }
 
 type ConnParams struct {
@@ -85,11 +80,6 @@ type ConnDraining struct {
 type MongoDBSettings struct {
 	ReplicaSetName string `json:"replicaSetName,omitempty"`
 	ServerType     string `json:"serverType,omitempty"`
-}
-
-type BindingKey struct {
-	SidecarID string `json:"sidecarId,omitempty"`
-	BindingID string `json:"bindingId,omitempty"`
 }
 
 type RepoNode struct {
@@ -114,7 +104,6 @@ func (res *RepoInfo) WriteToSchema(d *schema.ResourceData) error {
 	d.Set(RepoConnDrainingKey, res.ConnDrainingAsInterface())
 	d.Set(RepoNodesKey, res.RepoNodesAsInterface())
 	d.Set(RepoMongoDBSettingsKey, res.MongoDBSettingsAsInterface())
-	d.Set(RepoPreferredAccessGatewayKey, res.AccessGatewayAsInterface())
 	return nil
 }
 
@@ -125,7 +114,6 @@ func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 	r.LabelsFromInterface(d.Get(RepoLabelsKey).([]interface{}))
 	r.RepoNodesFromInterface(d.Get(RepoNodesKey).([]interface{}))
 	r.ConnDrainingFromInterface(d.Get(RepoConnDrainingKey).(*schema.Set).List())
-	r.AccessGatewayFromInterface(d.Get(RepoPreferredAccessGatewayKey).(*schema.Set).List())
 	r.MongoDBSettingsFromInterface(d.Get(RepoMongoDBSettingsKey).(*schema.Set).List())
 	return nil
 }
@@ -169,27 +157,6 @@ func (r *RepoInfo) ConnDrainingFromInterface(i []interface{}) {
 			Auto:     i[0].(map[string]interface{})[RepoConnDrainingAutoKey].(bool),
 			WaitTime: uint32(i[0].(map[string]interface{})[RepoConnDrainingWaitTimeKey].(int)),
 		},
-	}
-}
-
-func (r *RepoInfo) AccessGatewayAsInterface() []interface{} {
-	if r.PreferredAccessGwBinding == nil {
-		return nil
-	}
-
-	return []interface{}{map[string]interface{}{
-		RepoBindingIDKey: r.PreferredAccessGwBinding.BindingID,
-		RepoSidecarIDKey: r.PreferredAccessGwBinding.SidecarID,
-	}}
-}
-
-func (r *RepoInfo) AccessGatewayFromInterface(i []interface{}) {
-	if len(i) == 0 {
-		return
-	}
-	r.PreferredAccessGwBinding = &BindingKey{
-		BindingID: i[0].(map[string]interface{})[RepoBindingIDKey].(string),
-		SidecarID: i[0].(map[string]interface{})[RepoSidecarIDKey].(string),
 	}
 }
 
@@ -363,26 +330,6 @@ func resourceRepository() *schema.Resource {
 								"if auto is set to true.",
 							Type:     schema.TypeInt,
 							Optional: true,
-						},
-					},
-				},
-			},
-			RepoPreferredAccessGatewayKey: {
-				Description: "Preferred access gateway for this repository.",
-				Type:        schema.TypeSet,
-				Optional:    true,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						RepoSidecarIDKey: {
-							Description: "Sidecar ID of the preferred access gateway.",
-							Type:        schema.TypeString,
-							Required:    true,
-						},
-						RepoBindingIDKey: {
-							Description: "Binding ID of the preferred access gateway.",
-							Type:        schema.TypeString,
-							Required:    true,
 						},
 					},
 				},

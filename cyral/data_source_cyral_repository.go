@@ -31,14 +31,13 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 	var repoList []interface{}
 	for _, repo := range resp.Repos {
 		argumentVals := map[string]interface{}{
-			RepoIDKey:                     repo.ID,
-			RepoNameKey:                   repo.Repo.Name,
-			RepoTypeKey:                   repo.Repo.Type,
-			RepoLabelsKey:                 repo.Repo.LabelsAsInterface(),
-			RepoConnDrainingKey:           repo.Repo.ConnDrainingAsInterface(),
-			RepoNodesKey:                  repo.Repo.RepoNodesAsInterface(),
-			RepoMongoDBSettingsKey:        repo.Repo.MongoDBSettingsAsInterface(),
-			RepoPreferredAccessGatewayKey: repo.Repo.AccessGatewayAsInterface(),
+			RepoIDKey:              repo.ID,
+			RepoNameKey:            repo.Repo.Name,
+			RepoTypeKey:            repo.Repo.Type,
+			RepoLabelsKey:          repo.Repo.LabelsAsInterface(),
+			RepoConnDrainingKey:    repo.Repo.ConnDrainingAsInterface(),
+			RepoNodesKey:           repo.Repo.RepoNodesAsInterface(),
+			RepoMongoDBSettingsKey: repo.Repo.MongoDBSettingsAsInterface(),
 		}
 		repoList = append(repoList, argumentVals)
 	}
@@ -131,25 +130,6 @@ func dataSourceRepository() *schema.Resource {
 											"if auto is set to true.",
 										Type:     schema.TypeInt,
 										Computed: true,
-									},
-								},
-							},
-						},
-						RepoPreferredAccessGatewayKey: {
-							Description: "Preferred access gateway for this repository.",
-							Type:        schema.TypeSet,
-							Computed:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									RepoSidecarIDKey: {
-										Description: "Sidecar ID of the preferred access gateway.",
-										Type:        schema.TypeString,
-										Computed:    true,
-									},
-									RepoBindingIDKey: {
-										Description: "Binding ID of the preferred access gateway.",
-										Type:        schema.TypeString,
-										Computed:    true,
 									},
 								},
 							},

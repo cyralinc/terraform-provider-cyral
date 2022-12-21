@@ -10,7 +10,7 @@ resource "cyral_repository" "minimal_repo" {
     }
 }
 
-### Repository with Connection Draining, Preferred Access Gateway, and Labels
+### Repository with Connection Draining and Labels
 resource "cyral_repository" "repo_with_conn_draining" {
     type = "mongodb"
     name = "repo_with_conn_draining"
@@ -25,11 +25,6 @@ resource "cyral_repository" "repo_with_conn_draining" {
     connection_draining {
       auto = true
       wait_time = 30
-    }
-
-    preferred_access_gateway {
-      sidecar_id = "some-sidecar-id"
-      binding_id = "some-binding-id"
     }
 }
 
