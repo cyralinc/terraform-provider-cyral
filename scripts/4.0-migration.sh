@@ -153,6 +153,9 @@ ${green}    cyral = {
 
             Respository Bindings
             resource \"cyral_respository_binding\" \"<resource_name>\" {}
+
+            Respository Access Gateways
+            resource \"cyral_respository_access_gateway\" \"<resource_name>\" {}
     ************************************************
     *                                              *
     *        ${red}IMPORTANT STEP PLEASE DONT SKIP${clear}       *
@@ -273,8 +276,8 @@ terraform fmt
 echo; echo; echo;
 echo "Now that the Terraform state is up-to-date, let's clean up your .tf file."
 echo "This script created a new .tf file containing the resources definitions"
-echo "for the cyral_repository_access_rules and cyral_repository_user_accounts"
-echo "that were migrated into your Terraform state. The new .tf file is called:"
+echo "for the news resources that were migrated into your Terraform state."
+echo "The new .tf files is called:"
 echo
 echo "cyral_migration_repositories_bindings_listeners.tf"
 echo
@@ -282,10 +285,10 @@ echo
 echo "It is finally time to remove the empty resources from your .tf files."
 echo "Please perform the following actions: "
 echo
-echo "  1.  Remove the empty resource definitions for the "
-echo "      cyral_repository, cyral_repository_binding and"
-echo "      cyral_sidecar_listener resources that were added"
-echo "      to the end of your .tf file, which is named:"
+echo "  1.  Remove the empty resource definitions for the cyral_repository"
+echo "      cyral_repository_binding, cyral_sidecar_listener, and "
+echo "      cyral_repository_access_gateway resources that were added to the"
+echo "      the end of your .tf file, which is named:"
 echo "      ${CYRAL_TF_FILE_PATH}"
 echo
 echo
