@@ -22,7 +22,7 @@ resource "cyral_repository" "minimal_repo" {
     }
 }
 
-### Repository with Connection Draining, Preferred Access Gateway, and Labels
+### Repository with Connection Draining and Labels
 resource "cyral_repository" "repo_with_conn_draining" {
     type = "mongodb"
     name = "repo_with_conn_draining"
@@ -37,11 +37,6 @@ resource "cyral_repository" "repo_with_conn_draining" {
     connection_draining {
       auto = true
       wait_time = 30
-    }
-
-    preferred_access_gateway {
-      sidecar_id = "some-sidecar-id"
-      binding_id = "some-binding-id"
     }
 }
 
@@ -106,7 +101,6 @@ resource "cyral_repository" "multi_node_mongo_repo" {
 - `connection_draining` (Block Set, Max: 1) Parameters related to connection draining. (see [below for nested schema](#nestedblock--connection_draining))
 - `labels` (List of String) Labels enable you to categorize your repository.
 - `mongodb_settings` (Block Set, Max: 1) Parameters related to MongoDB repositories. (see [below for nested schema](#nestedblock--mongodb_settings))
-- `preferred_access_gateway` (Block Set, Max: 1) Preferred access gateway for this repository. (see [below for nested schema](#nestedblock--preferred_access_gateway))
 
 ### Read-Only
 
@@ -142,12 +136,3 @@ Optional:
 - `server_type` (String) Type of the MongoDB server. Allowed values:
   - `replicaset`
   - `standalone`
-
-<a id="nestedblock--preferred_access_gateway"></a>
-
-### Nested Schema for `preferred_access_gateway`
-
-Required:
-
-- `binding_id` (String) Binding ID of the preferred access gateway.
-- `sidecar_id` (String) Sidecar ID of the preferred access gateway.
