@@ -41,41 +41,42 @@ then
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
 fi
 echo
-echo "Searching for cyral_repository and cyral_repository_binding resources to migrate..."
+echo "Searching for resources to migrate..."
 echo
 
 terraform state pull > terraform.tfstate.cyral.migration.backup
 cp ${CYRAL_TF_FILE_PATH} cyral_terraform_migration_backup_configuration.txt
 
-user_account_import_ids=()
-access_rule_import_ids=()
-
-user_account_resource_defs=()
-access_rule_resource_defs=()
-
-user_account_resource_names=()
-access_rule_resource_names=()
-
-local_accounts_to_delete=()
-identity_maps_to_delete=()
-
 empty_access_duration="$(printf '%s' '[]')"
 
+# Arguments for terraform import command
+user_account_import_args=()
+access_rule_import_args=()
 repo_import_args=()
 binding_import_args=()
 listener_import_args=()
 access_gateway_import_args=()
 
+# Empty resource definitions for resources to be imported
+user_account_resource_defs=()
+access_rule_resource_defs=()
 repo_resource_defs=()
 binding_resource_defs=()
 listener_resource_defs=()
 access_gateway_resource_defs=()
 
+# New full resource names
+user_account_resource_names=()
+access_rule_resource_names=()
 repo_resource_names=()
 binding_resource_names=()
 listener_resource_names=()
 access_gateway_resource_names=()
 
+
+# Original full resource names for removing from tf state
+local_accounts_to_delete=()
+identity_maps_to_delete=()
 repos_to_delete=()
 bindings_to_delete=()
 
@@ -131,7 +132,7 @@ for resource_address in ${resources_to_migrate[@]}; do
         # We will need to delete this identity map from the .tf file, store its name
         identity_maps_to_delete+=($resource_address)
         # Get repo ID, local account ID, identity_type and access_duration for the identity map.
-        values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_json))
+        values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_state_json))
         if [[ ${values_arr[3]} != $empty_access_duration ]] && [[ ${values_arr[2]} == "user" ]]; then
             # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
             continue
@@ -146,13 +147,13 @@ for resource_address in ${resources_to_migrate[@]}; do
         access_rule_resource_defs+=("resource \"cyral_repository_access_rules\" \"${resource_address##"cyral_repository_identity_map."}\" {}")
         # Store import name and ID as a key value pair
         import_kv_pair="${import_name} ${import_id}"
-        access_rule_import_ids+=("${import_kv_pair}")
+        access_rule_import_args+=("${import_kv_pair}")
         access_rule_resource_names+=("${import_name}")
     elif [[ $resource_address == cyral_repository_local_account.* ]]; then
         # We will need to delete this local account from the .tf file, store its name
         local_accounts_to_delete+=($resource_address)
         # Get local account ID for the local account.
-        values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.id"<<<$tf_json))
+        values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.id"<<<$tf_state_json))
         # Construct import ID for the user account that was migrated from this local account.
         import_id="${values_arr[0]}/${values_arr[1]}"
         # Remove [] from the resource as they are not supported and substitute [ for _
@@ -163,7 +164,7 @@ for resource_address in ${resources_to_migrate[@]}; do
         user_account_resource_defs+=("resource \"cyral_repository_user_account\" \"${resource_address##"cyral_repository_local_account."}\" {}")
         # Store import name and ID as a key value pair
         import_kv_pair="${import_name} ${import_id}"
-        user_account_import_ids+=("${import_kv_pair}")
+        user_account_import_args+=("${import_kv_pair}")
         user_account_resource_names+=("${import_name}")
     fi
 done
@@ -173,7 +174,7 @@ echo "Found ${#bindings_to_delete[@]} cyral_repository_bindings resources to mig
 echo "Found ${#local_accounts_to_delete[@]} cyral_repository_local_accounts to migrate to cyral_repository_user_accounts."
 echo "Found ${#identity_maps_to_delete[@]} cyral_repository_identity_maps to migrate to cyral_repository_access_rules."
 echo
-echo -e "The following file path was provided for CYRAL_TF_FILE_PATH: ${green}${CYRAL_TF_FILE_PATH}${clear}"
+echo -e "${green}The following file path was provided for CYRAL_TF_FILE_PATH: ${CYRAL_TF_FILE_PATH}${clear}"
 read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r
 if [[  $REPLY =~ ^[Yy]$ ]]
 then
@@ -291,10 +292,10 @@ done
 for access_gateway in "${access_gateway_import_args[@]}";do
     terraform import $access_gateway
 done
-for user_account_id in "${user_account_import_ids[@]}";do
+for user_account_id in "${user_account_import_args[@]}";do
     terraform import $user_account_id
 done
-for access_rule_id in "${access_rule_import_ids[@]}";do
+for access_rule_id in "${access_rule_import_args[@]}";do
     terraform import $access_rule_id
 done
 
@@ -380,20 +381,20 @@ echo
 echo "It is finally time to remove the empty resources from your .tf files."
 echo "Please perform the following actions: "
 echo
-echo "  1.  ${green}Remove the empty resource definitions that were "
-echo "      added to the end of your .tf file, which is named:"
-echo "      ${CYRAL_TF_FILE_PATH}${clear}"
+echo -e "  1.  ${green}Remove the empty resource definitions that were
+              added to the end of your .tf file, which is named:
+              ${CYRAL_TF_FILE_PATH}${clear}"
 echo
 echo
-echo "When you are done, run the following command:"
-echo "${green}terraform plan${clear}"
+echo -e "When you are done, run the following command:
+        ${green}terraform plan${clear}"
 echo
 echo
-echo "${green}If migration was successful, you should see the following message:"
-echo "No changes. Your infrastructure matches the configuration.${clear}"
+echo -e "${green}If migration was successful, you should see the following message:
+         No changes. Your infrastructure matches the configuration.${clear}"
 echo
-echo "${red}If migration was not successful, you have the option to revert to your"
-echo "previous Terraform state and try again.${clear}"
+echo -e "${red}If migration was not successful, you have the option to revert to your
+         previous Terraform state and try again.${clear}"
 echo
 read -p "Would you revert to your previous state and try the migration again? [N/y] " -n 1 -r
 echo    # move to a new line
@@ -406,7 +407,7 @@ fi
 echo "Your previous .tf file was copied before the migration was ran. It is called "
 echo "cyral_terraform_migration_backup_configuration.txt"
 echo
-echo "Please perform the following action before proceding:"
+echo -e "${green}Please perform the following action before proceding:${clear}"
 echo "  1.  Replace the contents of your .tf file ${CYRAL_TF_FILE_PATH} "
 echo "      with the contents of cyral_terraform_migration_backup_configuration.txt. "
 echo "  2.  Delete the following files that were created by the script: "
