@@ -20,8 +20,6 @@ const (
 
 func repositoryTypes() []string {
 	return []string{
-		"bigquery",
-		"cassandra",
 		"denodo",
 		"dremio",
 		"dynamodb",

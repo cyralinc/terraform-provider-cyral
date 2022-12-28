@@ -18,8 +18,6 @@ Retrieve and filter repositories.
 
 - `name` (String) Filter the results by a regular expression (regex) that matches names of existing repositories.
 - `type` (String) Filter the results by type of repository. List of supported types:
-  - `bigquery`
-  - `cassandra`
   - `denodo`
   - `dremio`
   - `dynamodb`
