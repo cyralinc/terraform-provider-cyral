@@ -66,8 +66,6 @@ resource "cyral_repository" "repositories" {
 - `name` (String) Repository name that will be used internally in the control plane (ex: `your_repo_name`).
 - `port` (Number) Repository access port (ex: `3306`).
 - `type` (String) Repository type. List of supported types:
-  - `bigquery`
-  - `cassandra`
   - `denodo`
   - `dremio`
   - `dynamodb`
