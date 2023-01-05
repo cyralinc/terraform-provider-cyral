@@ -28,6 +28,7 @@ const (
 	RepoMongoDBSettingsKey       = "mongodb_settings"
 	RepoMongoDBReplicaSetNameKey = "replica_set_name"
 	RepoMongoDBServerTypeKey     = "server_type"
+	RepoMongoDBSRVRecordName     = "srv_record_name"
 )
 
 const (
@@ -69,12 +70,14 @@ func repositoryTypes() []string {
 const (
 	ReplicaSet = "replicaset"
 	Standalone = "standalone"
+	Sharded    = "sharded"
 )
 
 func mongoServerTypes() []string {
 	return []string{
 		ReplicaSet,
 		Standalone,
+		Sharded,
 	}
 }
 
@@ -102,6 +105,7 @@ type ConnDraining struct {
 type MongoDBSettings struct {
 	ReplicaSetName string `json:"replicaSetName,omitempty"`
 	ServerType     string `json:"serverType,omitempty"`
+	SRVRecordName  string `json:"srvRecordName,omitempty"`
 }
 
 type RepoNode struct {
@@ -229,6 +233,7 @@ func (r *RepoInfo) MongoDBSettingsAsInterface() []interface{} {
 	return []interface{}{map[string]interface{}{
 		RepoMongoDBReplicaSetNameKey: r.MongoDBSettings.ReplicaSetName,
 		RepoMongoDBServerTypeKey:     r.MongoDBSettings.ServerType,
+		RepoMongoDBSRVRecordName:     r.MongoDBSettings.SRVRecordName,
 	}}
 }
 
@@ -249,6 +254,7 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 	r.MongoDBSettings = &MongoDBSettings{
 		ReplicaSetName: i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string),
 		ServerType:     i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string),
+		SRVRecordName:  i[0].(map[string]interface{})[RepoMongoDBSRVRecordName].(string),
 	}
 	return nil
 }
@@ -418,6 +424,11 @@ func resourceRepository() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice(mongoServerTypes(), false),
+						},
+						RepoMongoDBSRVRecordName: {
+							Description: "Name of a DNS SRV record which contains cluster topology details",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},

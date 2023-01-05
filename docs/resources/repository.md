@@ -140,8 +140,10 @@ Required:
 
 - `server_type` (String) Type of the MongoDB server. Allowed values:
   - `replicaset`
+  - `sharded`
   - `standalone`
 
 Optional:
 
 - `replica_set_name` (String) Name of the replica set, if applicable.
+- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details
