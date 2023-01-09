@@ -78,10 +78,6 @@ Read-Only:
 - `labels` (List of String)
 - `mongodb_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--mongodb_settings))
 - `name` (String)
-<<<<<<< HEAD
-=======
-- `preferred_access_gateway` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--preferred_access_gateway))
->>>>>>> 8257393 (ENG-9399: Port-multiplexing Cyral Repository Changes (#326))
 - `repo_node` (List of Object) (see [below for nested schema](#nestedobjatt--repository_list--repo_node))
 - `type` (String)
 

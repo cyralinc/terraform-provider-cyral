@@ -72,8 +72,6 @@ resource "cyral_sidecar_listener" "listener" {
 
 - `network_address` (Block Set, Min: 1, Max: 1) The network address that the sidecar listens on. (see [below for nested schema](#nestedblock--network_address))
 - `repo_types` (List of String) List of repository types that the listener supports. Currently limited to one repo type from supported repo types:
-  - `bigquery`
-  - `cassandra`
   - `denodo`
   - `dremio`
   - `dynamodb`
