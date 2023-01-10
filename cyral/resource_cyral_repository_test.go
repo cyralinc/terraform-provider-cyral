@@ -101,6 +101,10 @@ var (
 				Dynamic: true,
 			},
 		},
+		MongoDBSettings: &MongoDBSettings{
+			ReplicaSetName: "some-replica-set",
+			ServerType:     "replicaset",
+		},
 	}
 )
 
@@ -196,7 +200,7 @@ func repoCheckFuctions(repo RepoInfo, resName string) resource.TestCheckFunc {
 				repo.MongoDBSettings.ReplicaSetName),
 
 			resource.TestCheckResourceAttr(resourceFullName,
-				"connection_draining.0.server_type",
+				"mongodb_settings.0.server_type",
 				repo.MongoDBSettings.ServerType),
 		}...)
 	}
