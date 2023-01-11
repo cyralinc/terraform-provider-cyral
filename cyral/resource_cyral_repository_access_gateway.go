@@ -102,7 +102,7 @@ func resourceRepositoryAccessGateway() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			RepositoryIDKey: {
-				Description: "ID of the repository the access gateway is associated with. This is also the" +
+				Description: "ID of the repository the access gateway is associated with. This is also the " +
 					"import ID for this resource.",
 				Type:     schema.TypeString,
 				Required: true,
