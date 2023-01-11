@@ -120,9 +120,6 @@ locals {
     # resource `mongodb_repo` below).
     mongodb_max_nodes = 3
 
-    # See `mongodb_port_alloc_range_low` and
-    # `mongodb_port_alloc_range_high` in the cyral_sidecar module
-    # configuration.
     mongodb_ports_low  = 27017
     mongodb_ports_high = local.mongodb_ports_low + local.mongodb_max_nodes
 
@@ -268,21 +265,6 @@ module "cyral_sidecar" {
   # to other types of repositories, make sure to allocate additional
   # ports for them.
   sidecar_ports = local.mongodb_ports
-
-  # Lower and upper limit values for the port allocation range
-  # reserved for MongoDB. This range must correspond to the range of
-  # ports declared in sidecar_ports that will be used for MongoDB. If
-  # you assign to sidecar_ports the consecutive ports 27017, 27018 and
-  # 27019 for MongoDB utilization, it means that the corresponding
-  # mongodb_port_alloc_range_low is 27017 and
-  # mongodb_port_alloc_range_high is 27019. If you want to use a range
-  # of 10 ports for MongoDB, then you need to add all consecutive
-  # ports to sidecar_ports (ex: 27017, 27018, 27019, 27020, 27021,
-  # 27022, 27023, 27024, 27025, 27026) and define
-  # mongodb_port_alloc_range_low = 27017 and
-  # mongodb_port_alloc_range_high = 27026.
-  mongodb_port_alloc_range_low  = local.mongodb_ports_low
-  mongodb_port_alloc_range_high = local.mongodb_ports_high
 
   instance_type   = local.sidecar.instance_type
   log_integration = local.sidecar.log_integration

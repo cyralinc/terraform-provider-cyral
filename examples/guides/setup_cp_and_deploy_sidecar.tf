@@ -151,9 +151,6 @@ module "cyral_sidecar" {
 
   sidecar_ports = [cyral_repository.pg_repo.port, cyral_repository.mysql_repo.port]
 
-  mongodb_port_alloc_range_low  = 0
-  mongodb_port_alloc_range_high = 0
-
   instance_type   = local.sidecar.instance_type
   log_integration = local.sidecar.log_integration
   vpc_id          = local.sidecar.vpc_id
