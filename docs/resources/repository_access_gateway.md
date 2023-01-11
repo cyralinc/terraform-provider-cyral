@@ -60,7 +60,7 @@ resource "cyral_repository_access_gateway" "access_gateway" {
 ### Required
 
 - `binding_id` (String) ID of the binding that will be set as the access gatway for the given repository.
-- `repository_id` (String) ID of the repository the access gateway is associated with. This is also theimport ID for this resource.
+- `repository_id` (String) ID of the repository the access gateway is associated with. This is also the import ID for this resource.
 - `sidecar_id` (String) ID of the sidecar that will be set as the access gatway for the given repository.
 
 ### Read-Only
