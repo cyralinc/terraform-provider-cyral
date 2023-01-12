@@ -120,7 +120,7 @@ for resource_address in ${resources_to_migrate[@]}; do
 done
 
 echo "Found ${#repos_to_delete[@]} cyral_repository resources to migrate."
-echo "Found ${#bindings_to_delete[@]} cyral_repository_bindings resources to migrate."
+echo "Found ${#bindings_to_delete[@]} cyral_repository_binding resources to migrate."
 echo
 echo -e "The following file path was provided for CYRAL_TF_FILE_PATH: ${green}${CYRAL_TF_FILE_PATH}${clear}"
 read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r
