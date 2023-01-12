@@ -161,9 +161,10 @@ ${green}    cyral = {
     *        ${red}IMPORTANT STEP PLEASE DONT SKIP${clear}       *
     *                                              *
     ************************************************
-    4.  Find all references to cyral_repository and cyral_repository_binding
+    4.  Find all non-empty references to cyral_repository and cyral_repository_binding
         resources in your .tf file and remove the entire resource definition
-        for each one."
+        for each one. Please leave the empty resource definitions that were added by
+        this script."
 echo
 read -p "Are you ready to upgrade Terraform? [N/y] " -n 1 -r
 echo    # move to a new line
