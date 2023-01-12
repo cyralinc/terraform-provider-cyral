@@ -4,21 +4,21 @@ page_title: "Cyral Terraform Provider V3 Migration Guide"
 
 This guide will take you through the steps required to upgrade your Cyral Terraform provider
 to MAJOR version 4. The Terraform migration can be performed on any Cyral Terraform provider with
-version 2.x or 3.x.
+version `2.x` or `3.x`.
 The migration will be handled by an interactive Bash script.
 
 ## Why Migration is Required
 
 Cyral Terraform Provider V4 Migration is required once a Cyral Control Plane (CP) has been upgraded to MAJOR version 4.
 Major version 4 introduces breaking changes to Cyral's repositories and repository bindings. It also
-introduces the concept of sidecar listeners, which are now seperate from repository bindings.
+introduces the concept of sidecar listeners, which are now separate from repository bindings.
 The Terraform migration is needed to import these newly migrated resources into your Terraform state and
 configuration files.
 
 ## Data sources
 
-The cyral_repository data source output contains breaking changes. Please note that  you have any output blocks configured
-for cyral_repository data sources, you will need to rewrite them after migration is completed.
+The `cyral_repository` data source output contains breaking changes. Please note that if you have any output blocks configured
+for `cyral_repository` data sources, you will need to rewrite them after migration is completed.
 
 ### Migrating from 3.X to 4.0
 
@@ -28,11 +28,14 @@ The following steps should be taken to upgrade the Cyral CP and the Cyral Terraf
 
 2. Upgrade the Cyral CP to MAJOR version 4.
 
-3. Remove all cyral_repository data source output blocks. If you have any output blocks configured
-for cyral_repository data sources, you will need to rewrite them based on the new schema after
+3. Remove all `cyral_repository` data source output blocks. If you have any output blocks configured
+for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
 migration is completed.
 
-4. Perform the Cyral Terraform Provider V4 Migration after upgrading the Cyral CP to MAJOR version 3.
+4. Run the Cyral Terraform Provider [V4 Migration Script](..scripts/4.0-migration.sh) after upgrading
+the Cyral CP to MAJOR version 4.
+
+~> **WARNING** It is essential that the Cyral Terraform Provider V4 Migration is run **after** the CP has been upgraded.
 
 It is essential that the Cyral Terraform Provider V4 Migration is run **after** the CP has been upgraded.
 
@@ -44,17 +47,20 @@ The following steps should be taken to upgrade the Cyral CP and the Cyral Terraf
 
 2. Upgrade the Cyral CP to MAJOR version 4.
 
-3. Remove all cyral_repository data source output blocks. If you have any output blocks configured
-for cyral_repository data sources, you will need to rewrite them based on the new schema after
+3. Remove all `cyral_repository` data source output blocks. If you have any output blocks configured
+for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
 migration is completed.
 
-4. Run the Cyral Terraform Provider V2.X-V4 Migration Script after upgrading the Cyral CP to MAJOR version 4.
+4. Run the Cyral Terraform Provider [V2-V4 Migration Script](..scripts/2.X-4.0-migration.sh) after upgrading
+the Cyral CP to MAJOR version 4.
+
+~> **WARNING** It is essential that the Cyral Terraform Provider V2-V4 Migration is run **after** the CP has been upgraded.
 
 It is essential that the Cyral Terraform Provider V4 Migration is run **after** the CP has been upgraded.
 
 ## Prerequisites
 
-The Cyral Terraform Provider V3 Migration requires the following tools:
+The Cyral Terraform Provider V4 Migration requires the following tools:
 
   * Terraform CLI. Download instructions can be found [here](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
