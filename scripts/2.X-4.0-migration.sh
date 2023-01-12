@@ -80,7 +80,7 @@ identity_maps_to_delete=()
 repos_to_delete=()
 bindings_to_delete=()
 
-# Create array of repo and binding resource to migrate
+# Create array of repo, binding, local account and identity map resources to migrate
 resources_to_migrate=($(terraform state list | grep "cyral_repository\|cyral_repository_binding\|cyral_repository_local_account\|cyral_repository_identity_map"))
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
