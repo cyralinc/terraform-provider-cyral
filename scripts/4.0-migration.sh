@@ -193,13 +193,13 @@ for binding in ${bindings_to_delete[@]};do
 done
 
 echo
-echo "Importing the following cyral_repository into your Terraform state:"
+echo "Importing the following cyral_repository resources into your Terraform state:"
 printf '%s\n' "${repo_resource_names[@]}"
 echo
-echo "Importing the following cyral_repository_bindings into your Terraform state:"
+echo "Importing the following cyral_repository_binding resource into your Terraform state:"
 printf '%s\n' "${binding_resource_names[@]}"
 echo
-echo "Importing the following cyral_repository_access_gateways into your Terraform state:"
+echo "Importing the following cyral_repository_access_gateway resources into your Terraform state:"
 printf '%s\n' "${access_gateway_resource_names[@]}"
 echo
 
@@ -224,18 +224,29 @@ migrated_bindings=($(terraform state list | grep "cyral_repository_binding"))
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
-for binding in ${migrated_bindings[@]}; do
-  # Get ids required to import listener resource.
-  id_values_arr=($(jq -r "select(.address == \"$binding\") | .values.sidecar_id, .values.listener_binding[0].listener_id"<<<$tf_state_json))
-  # Construct import ID for the listener that was created during CP migration.
-  import_id="${id_values_arr[0]}/${id_values_arr[1]}"
-  # Save empty resource definition for the listener, so that it can be added to the .tf file
-  listener_resource_name=${binding##"cyral_repository_binding."}_listener
-  listener_resource_defs+=("resource \"cyral_sidecar_listener\" \"${listener_resource_name}\" {}")
-  # Store import argument and name for listener
-  listener_resource_full_name="cyral_sidecar_listener.${listener_resource_name}"
-  listener_import_args+=("${listener_resource_full_name} ${import_id}")
-  listener_resource_names+=("${listener_resource_full_name}")
+for binding in "${migrated_bindings[@]}"; do
+    # Get ids required to import listener resource.
+    binding_name=${binding##"cyral_repository_binding."}
+    binding_json=$(jq -r "select(.address == \"cyral_repository_binding.${binding_name}\")"<<<"$tf_state_json")
+    sidecar_id=$(jq -r ".values.sidecar_id"<<<"$binding_json")
+    listener_ids=$(jq -r ".values.listener_binding[] | .listener_id"<<<"$binding_json")
+
+    SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
+    IFS=$'\n'      # Change IFS to newline char
+    listener_ids=($listener_ids) # split the `listener_ids` string into an array
+    IFS=$SAVEIFS   # Restore original IFS
+
+    for i in "${!listener_ids[@]}"; do
+        # Construct import ID for the listener that was created during CP migration.
+        import_id="${sidecar_id}/${listener_ids[$i]}"
+        # Save empty resource definition for the listener, so that it can be added to the .tf file
+        listener_resource_name=${binding_name}_listener_${i}
+        listener_resource_defs+=("resource \"cyral_sidecar_listener\" \"${listener_resource_name}\" {}")
+        # Store import argument and name for listener
+        listener_resource_full_name="cyral_sidecar_listener.${listener_resource_name}"
+        listener_import_args+=("${listener_resource_full_name} ${import_id}")
+        listener_resource_names+=("${listener_resource_full_name}")
+    done
 done
 
 echo "Found ${#listener_resource_names[@]} cyral_sidecar_listener resources to import."
