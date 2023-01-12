@@ -70,7 +70,7 @@ resources_to_migrate=($(terraform state list | grep "cyral_repository\|cyral_rep
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
-# Find all cyral_repository and cyral_repository_local_accounts
+# Find all cyral_repository and cyral_repository_binding
 for resource_address in ${resources_to_migrate[@]}; do
   if [[ $resource_address == cyral_repository.* ]]
   then
