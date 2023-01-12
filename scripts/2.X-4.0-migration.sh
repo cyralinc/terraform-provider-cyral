@@ -85,7 +85,7 @@ resources_to_migrate=($(terraform state list | grep "cyral_repository\|cyral_rep
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
-# Find all cyral_repository and cyral_repository_local_accounts
+# Find all cyral_repository, cyral_repository_binding, cyral_repository_identity_map and cyral_repository_local_account
 for resource_address in ${resources_to_migrate[@]}; do
     if [[ $resource_address == cyral_repository.* ]];then
         # We will need to delete this repo from the .tf file, so we
