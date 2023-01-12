@@ -224,7 +224,7 @@ migrated_bindings=($(terraform state list | grep "cyral_repository_binding"))
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
 for binding in ${migrated_bindings[@]}; do
-  # Get ids required to import listner resource.
+  # Get ids required to import listener resource.
   id_values_arr=($(jq -r "select(.address == \"$binding\") | .values.sidecar_id, .values.listener_binding[0].listener_id"<<<$tf_state_json))
   # Construct import ID for the listener that was created during CP migration.
   import_id="${id_values_arr[0]}/${id_values_arr[1]}"
