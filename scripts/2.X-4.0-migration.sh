@@ -244,7 +244,7 @@ echo
 echo "Removing the following cyral_sidecar_binding resources from your tf state:"
 printf '%s\n' "${bindings_to_delete[@]}"
 echo
-echo "Removing the following cyral_repository_local_accounts:"
+echo "Removing the following cyral_repository_local_account resources from your tf state:"
 printf '%s\n' "${local_accounts_to_delete[@]}"
 echo
 echo "Removing the following cyral_repository_identity_map resources from your tf state:"
