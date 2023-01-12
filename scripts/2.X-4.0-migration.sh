@@ -170,7 +170,7 @@ for resource_address in ${resources_to_migrate[@]}; do
 done
 
 echo "Found ${#repos_to_delete[@]} cyral_repository resources to migrate."
-echo "Found ${#bindings_to_delete[@]} cyral_repository_bindings resources to migrate."
+echo "Found ${#bindings_to_delete[@]} cyral_repository_binding resources to migrate."
 echo "Found ${#local_accounts_to_delete[@]} cyral_repository_local_accounts to migrate to cyral_repository_user_accounts."
 echo "Found ${#identity_maps_to_delete[@]} cyral_repository_identity_maps to migrate to cyral_repository_access_rules."
 echo
