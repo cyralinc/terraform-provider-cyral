@@ -27,7 +27,7 @@ echo
 echo \
 "This script will create new resource definitions for the
 cyral_repository and cyral_repository_binding resource that
-will be migrated. Additionally, cyral_sidecar listeners
+will be migrated. Additionally, cyral_sidecar_listener resources
 will be created, which are now required to bind sidecars to
 repositories."
 echo
