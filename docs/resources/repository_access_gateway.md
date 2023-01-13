@@ -1,6 +1,6 @@
 # cyral_repository_access_gateway (Resource)
 
-Manages the sidecar and binding set as the access gateway for cyral_repositories.
+Manages the sidecar and binding set as the access gateway for [cyral_repositories](./repositories.md).
 
 -> **NOTE** Import ID syntax is `{repository_id}`.
 
@@ -60,7 +60,7 @@ resource "cyral_repository_access_gateway" "access_gateway" {
 ### Required
 
 - `binding_id` (String) ID of the binding that will be set as the access gatway for the given repository.
-- `repository_id` (String) ID of the repository the access gateway is associated with. This is also theimport id for this resource.
+- `repository_id` (String) ID of the repository the access gateway is associated with. This is also the import ID for this resource.
 - `sidecar_id` (String) ID of the sidecar that will be set as the access gatway for the given repository.
 
 ### Read-Only
