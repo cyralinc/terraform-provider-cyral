@@ -105,6 +105,7 @@ func resourceRepositoryAccessGateway() *schema.Resource {
 				Description: "ID of the repository the access gateway is associated with. This is also the " +
 					"import ID for this resource.",
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Required: true,
 			},
 			SidecarIDKey: {
@@ -115,6 +116,7 @@ func resourceRepositoryAccessGateway() *schema.Resource {
 			BindingIDKey: {
 				Description: "ID of the binding that will be set as the access gatway for the given repository.",
 				Type:        schema.TypeString,
+				ForceNew:    true,
 				Required:    true,
 			},
 		},
