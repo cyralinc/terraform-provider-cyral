@@ -109,15 +109,17 @@ func resourceRepositoryAccessGateway() *schema.Resource {
 				Required: true,
 			},
 			SidecarIDKey: {
-				Description: "ID of the sidecar that will be set as the access gatway for the given repository.",
+				Description: "ID of the sidecar that will be set as the access gateway for the given repository.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			BindingIDKey: {
-				Description: "ID of the binding that will be set as the access gatway for the given repository.",
-				Type:        schema.TypeString,
-				ForceNew:    true,
-				Required:    true,
+				Description: "ID of the binding that will be set as the access gateway for the given repository.  " +
+					"Note that modifications to this field will result in terraform replacing the given " +
+					"access gateway resource, since the access gateway must be deleted before binding. ",
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Required: true,
 			},
 		},
 		Importer: &schema.ResourceImporter{
