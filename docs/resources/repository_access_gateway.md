@@ -59,9 +59,9 @@ resource "cyral_repository_access_gateway" "access_gateway" {
 
 ### Required
 
-- `binding_id` (String) ID of the binding that will be set as the access gatway for the given repository.
+- `binding_id` (String) ID of the binding that will be set as the access gateway for the given repository. Note that modifications to this field will result in terraform replacing the given access gateway resource, since the access gateway must be deleted before binding.
 - `repository_id` (String) ID of the repository the access gateway is associated with. This is also the import ID for this resource.
-- `sidecar_id` (String) ID of the sidecar that will be set as the access gatway for the given repository.
+- `sidecar_id` (String) ID of the sidecar that will be set as the access gateway for the given repository.
 
 ### Read-Only
 
