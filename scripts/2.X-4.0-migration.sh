@@ -81,7 +81,7 @@ repos_to_delete=()
 bindings_to_delete=()
 
 # Create array of repo, binding, local account and identity map resources to migrate
-resources_to_migrate=($(terraform state list | grep "cyral_repository\|cyral_repository_binding\|cyral_repository_local_account\|cyral_repository_identity_map"))
+resources_to_migrate=($(terraform state list | grep "cyral_repository\.\|cyral_repository_binding\|cyral_repository_local_account\|cyral_repository_identity_map"))
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
@@ -91,11 +91,13 @@ for resource_address in ${resources_to_migrate[@]}; do
         # We will need to delete this repo from the .tf file, so we
         # store the full resource address.
         repos_to_delete+=($resource_address)
+	# Escape the double quotes so we find it using jq
+	resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
         # Get repo ID. This will be used to import the updated repo.
         repo_id=($(jq -r "select(.address == \"$resource_address\") | .values.id"<<<$tf_state_json))
-        # Remove [] from the resource address and substitute [ for _
-        # E.g. cyral_repository.repo[0] -> cyral_repository.repo_0
-        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
+        # Remove [] and \" from the resource address and substitute [ for _
+        # E.g. cyral_repository.repo[\"0\"] -> cyral_repository.repo_0
+        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
         # Save an empty resource definition for a new repo, so that
         # it can be added to the .tf file.
         repo_resource_defs+=("resource \"cyral_repository\" \"${resource_address##"cyral_repository."}\" {}")
@@ -105,10 +107,14 @@ for resource_address in ${resources_to_migrate[@]}; do
     elif [[ $resource_address == cyral_repository_binding.* ]]; then
         # We will need to delete this sidecar binding from the .tf file, store its name
         bindings_to_delete+=($resource_address)
+	# Escape the double quotes so we find it using jq
+	resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
         # Get ids required to import binding resource.
         id_values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.sidecar_id, .values.repository_id, .values.sidecar_as_idp_access_gateway"<<<$tf_state_json))
         # Construct import ID for the repository binding that was migrated in CP.
         import_id="${id_values_arr[0]}/${id_values_arr[1]}"
+	# Remove [] and \" from the resource address
+        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
         # If the binding is an access gateway, we will need to import it.
         if [[ ${id_values_arr[2]} == true ]]; then
             # Construct a name for the access gateway resource based on the binding resource name.
@@ -117,12 +123,10 @@ for resource_address in ${resources_to_migrate[@]}; do
             access_gateway_full_resource_name="cyral_repository_access_gateway.${access_gateway_resource_name}"
             # Save empty resource definition for the access gateway, so that it can be added to the .tf file
             access_gateway_resource_defs+=("resource \"cyral_repository_access_gateway\" \"${access_gateway_resource_name}\" {}")
-                # Store import argument and name for access gateway
+            # Store import argument and name for access gateway
             access_gateway_import_args+=("${access_gateway_full_resource_name} ${id_values_arr[1]}")
             access_gateway_resource_names+=(${access_gateway_full_resource_name})
         fi
-        # Remove [] from the resource address and substitute [ for _
-        binding_resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
         # Save empty resource definition for the binding, so that it can be added to the .tf file
         binding_resource_defs+=("resource \"cyral_repository_binding\" \"${resource_address##"cyral_repository_binding."}\" {}")
         # Store import argument and name for binding
@@ -131,6 +135,8 @@ for resource_address in ${resources_to_migrate[@]}; do
     elif [[ $resource_address == cyral_repository_identity_map.* ]]; then
         # We will need to delete this identity map from the .tf file, store its name
         identity_maps_to_delete+=($resource_address)
+	# Escape the double quotes so we find it using jq
+	resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
         # Get repo ID, local account ID, identity_type and access_duration for the identity map.
         values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_state_json))
         if [[ ${values_arr[3]} != $empty_access_duration ]] && [[ ${values_arr[2]} == "user" ]]; then
@@ -139,8 +145,8 @@ for resource_address in ${resources_to_migrate[@]}; do
         fi
         # Construct import ID for the access rule that was migrated from this identity map.
         import_id="${values_arr[0]}/${values_arr[1]}"
-        # Remove [] from the resource as they are not supported and substitute [ for _
-        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
+        # Remove [] and \" from the resource as they are not supported and substitute [ for _
+        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
         # Construct name of the access rule that will be imported.
         import_name=cyral_repository_access_rules.${resource_address##"cyral_repository_identity_map."}
         # Save name of the new access rule, so that it can be added to the .tf file
@@ -152,12 +158,14 @@ for resource_address in ${resources_to_migrate[@]}; do
     elif [[ $resource_address == cyral_repository_local_account.* ]]; then
         # We will need to delete this local account from the .tf file, store its name
         local_accounts_to_delete+=($resource_address)
+	# Escape the double quotes so we find it using jq
+	resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
         # Get local account ID for the local account.
         values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.id"<<<$tf_state_json))
         # Construct import ID for the user account that was migrated from this local account.
         import_id="${values_arr[0]}/${values_arr[1]}"
-        # Remove [] from the resource as they are not supported and substitute [ for _
-        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
+        # Remove [] and \" from the resource as they are not supported and substitute [ for _
+        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
         # Construct name of the user account that will be imported.
         import_name=cyral_repository_user_account.${resource_address##"cyral_repository_local_account."}
         # Save name of the migrated user account, so that it can be added to the .tf file
@@ -237,35 +245,17 @@ fi
 
 terraform init -upgrade
 
-echo
-echo "Removing the following cyral_repository resources from your tf state:"
-printf '%s\n' "${repos_to_delete[@]}"
-echo
-echo "Removing the following cyral_sidecar_binding resources from your tf state:"
-printf '%s\n' "${bindings_to_delete[@]}"
-echo
-echo "Removing the following cyral_repository_local_account resources from your tf state:"
-printf '%s\n' "${local_accounts_to_delete[@]}"
-echo
-echo "Removing the following cyral_repository_identity_map resources from your tf state:"
-printf '%s\n' "${identity_maps_to_delete[@]}"
-echo
+repos="[$(IFS=" "; echo "${repos_to_delete[*]}")]"
+terraform state rm ${repos:1:${#repos}-2}
 
-for repo in ${repos_to_delete[@]};do
-  terraform state rm $repo
-done
+bindings="[$(IFS=" "; echo "${bindings_to_delete[*]}")]"
+terraform state rm ${bindings:1:${#bindings}-2}
 
-for binding in ${bindings_to_delete[@]};do
-  terraform state rm $binding
-done
+local_accounts="[$(IFS=" "; echo "${local_accounts_to_delete[*]}")]"
+terraform state rm ${local_accounts:1:${#local_accounts}-2}
 
-for local_account in ${local_accounts_to_delete[@]};do
-    terraform state rm $local_account
-done
-
-for identity_map in ${identity_maps_to_delete[@]};do
-    terraform state rm $identity_map
-done
+identity_maps="[$(IFS=" "; echo "${identity_maps_to_delete[*]}")]"
+terraform state rm ${identity_maps:1:${#identity_maps}-2}
 
 echo
 echo "Importing the following cyral_repository resources into your Terraform state:"

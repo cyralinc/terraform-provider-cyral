@@ -66,7 +66,7 @@ repos_to_delete=()
 bindings_to_delete=()
 
 # Create array of repo and binding resource to migrate
-resources_to_migrate=($(terraform state list | grep "cyral_repository\|cyral_repository_binding"))
+resources_to_migrate=($(terraform state list | grep "cyral_repository\.\|cyral_repository_binding"))
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
@@ -77,11 +77,13 @@ for resource_address in ${resources_to_migrate[@]}; do
     # We will need to delete this repo from the .tf file, so we
     # store the full resource address.
     repos_to_delete+=($resource_address)
+    # Escape the double quotes so we find it using jq
+    resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
     # Get repo ID. This will be used to import the updated repo.
     repo_id=($(jq -r "select(.address == \"$resource_address\") | .values.id"<<<$tf_state_json))
-    # Remove [] from the resource address and substitute [ for _
-    # E.g. cyral_repository.repo[0] -> cyral_repository.repo_0
-    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
+    # Remove [] and \" from the resource address and substitute [ for _
+    # E.g. cyral_repository.repo[\"0\"] -> cyral_repository.repo_0
+    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
     # Save an empty resource definition for a new repo, so that
     # it can be added to the .tf file.
     repo_resource_defs+=("resource \"cyral_repository\" \"${resource_address##"cyral_repository."}\" {}")
@@ -92,10 +94,14 @@ for resource_address in ${resources_to_migrate[@]}; do
   then
     # We will need to delete this sidecar binding from the .tf file, store its name
     bindings_to_delete+=($resource_address)
+    # Escape the double quotes so we find it using jq
+    resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
     # Get ids required to import binding resource.
     id_values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.sidecar_id, .values.repository_id, .values.sidecar_as_idp_access_gateway"<<<$tf_state_json))
     # Construct import ID for the repository binding that was migrated in CP.
     import_id="${id_values_arr[0]}/${id_values_arr[1]}"
+    # Remove [] and \" from the resource address
+    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
     # If the binding is an access gateway, we will need to import it.
     if [[ ${id_values_arr[2]} == true ]]
     then
@@ -109,8 +115,6 @@ for resource_address in ${resources_to_migrate[@]}; do
         access_gateway_import_args+=("${access_gateway_full_resource_name} ${id_values_arr[1]}")
         access_gateway_resource_names+=(${access_gateway_full_resource_name})
     fi
-    # Remove [] from the resource address and substitute [ for _
-    binding_resource_address=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource_address)
     # Save empty resource definition for the binding, so that it can be added to the .tf file
     binding_resource_defs+=("resource \"cyral_repository_binding\" \"${resource_address##"cyral_repository_binding."}\" {}")
     # Store import argument and name for binding
@@ -176,21 +180,11 @@ fi
 
 terraform init -upgrade
 
-echo
-echo "Removing the following cyral_repository resources from your tf state:"
-printf '%s\n' "${repos_to_delete[@]}"
-echo
-echo "Removing the following cyral_sidecar_binding resources from your tf state:"
-printf '%s\n' "${bindings_to_delete[@]}"
-echo
+repos="[$(IFS=" "; echo "${repos_to_delete[*]}")]"
+terraform state rm ${repos:1:${#repos}-2}
 
-for repo in ${repos_to_delete[@]};do
-  terraform state rm $repo
-done
-
-for binding in ${bindings_to_delete[@]};do
-  terraform state rm $binding
-done
+bindings="[$(IFS=" "; echo "${bindings_to_delete[*]}")]"
+terraform state rm ${bindings:1:${#bindings}-2}
 
 echo
 echo "Importing the following cyral_repository resources into your Terraform state:"
