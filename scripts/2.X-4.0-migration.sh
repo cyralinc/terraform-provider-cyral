@@ -32,16 +32,16 @@ will be created, which are now required to bind sidecars to
 repositories."
 echo
 echo -e "${green}Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file.${clear}"
-echo
-read -p "Are you ready to continue? [N/y] " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]
+if [ -z "$CYRAL_TF_FILE_PATH" ]
 then
+    echo -e "${red}CYRAL_TF_FILE_PATH has not been set. Please set it and run the script again.${clear}"
     echo "Exiting..."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+else
+    echo -e "CYRAL_TF_FILE_PATH is set to ${green}'$CYRAL_TF_FILE_PATH'${clear}"
 fi
 echo
-echo "Searching for resources to migrate..."
+echo "Searching for cyral_repository and cyral_repository_binding resources to migrate..."
 echo
 
 terraform state pull > terraform.tfstate.cyral.migration.backup
@@ -340,6 +340,17 @@ echo
 for listener in "${listener_import_args[@]}";do
     terraform import $listener
 done
+
+# If the user is using a for loop to create cyral_repository_conf_auth resources,
+# they need to replace their previous reference to repository resource names
+# with the renamed resources (in the case that resource names might have changed).
+# This line ensures that a local variable is created containing all of the
+# cyral_repository resource names, to reference.
+repos_list=$(printf ", %s" "${repo_ids[@]}")
+repos_list="[${repos_list:2}]"
+echo "locals {
+    cyral_repository_resource_names=${repos_list}
+}" >> cyral_migration_repositories_bindings_listeners.txt
 
 # Once resources have been imported, we need to replace the empty resource definitions
 # (which are required to exist prior to import), with resource definitions containing

@@ -32,13 +32,13 @@ will be created, which are now required to bind sidecars to
 repositories."
 echo
 echo -e "${green}Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file.${clear}"
-echo
-read -p "Are you ready to continue? [N/y] " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]
+if [ -z "$CYRAL_TF_FILE_PATH" ]
 then
+    echo -e "${red}CYRAL_TF_FILE_PATH has not been set. Please set it and run the script again.${clear}"
     echo "Exiting..."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+else
+    echo -e "CYRAL_TF_FILE_PATH is set to ${green}'$CYRAL_TF_FILE_PATH'${clear}"
 fi
 echo
 echo "Searching for cyral_repository and cyral_repository_binding resources to migrate..."
@@ -65,6 +65,8 @@ access_gateway_resource_names=()
 repos_to_delete=()
 bindings_to_delete=()
 
+repo_ids=()
+
 # Create array of repo and binding resource to migrate
 resources_to_migrate=($(terraform state list | grep "cyral_repository\.\|cyral_repository_binding"))
 # Store terraform state JSON representation
@@ -81,6 +83,7 @@ for resource_address in ${resources_to_migrate[@]}; do
     resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
     # Get repo ID. This will be used to import the updated repo.
     repo_id=($(jq -r "select(.address == \"$resource_address\") | .values.id"<<<$tf_state_json))
+    repo_ids+=("\"${repo_id}\"")
     # Remove [] and \" from the resource address and substitute [ for _
     # E.g. cyral_repository.repo[\"0\"] -> cyral_repository.repo_0
     resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
@@ -126,7 +129,6 @@ done
 echo "Found ${#repos_to_delete[@]} cyral_repository resources to migrate."
 echo "Found ${#bindings_to_delete[@]} cyral_repository_binding resources to migrate."
 echo
-echo -e "The following file path was provided for CYRAL_TF_FILE_PATH: ${green}${CYRAL_TF_FILE_PATH}${clear}"
 read -p "Would you like this script to append these lines to the .tf file ${CYRAL_TF_FILE_PATH}? [N/y] " -n 1 -r
 if [[  $REPLY =~ ^[Yy]$ ]]
 then
@@ -257,6 +259,17 @@ echo
 for listener in "${listener_import_args[@]}";do
     terraform import $listener
 done
+
+# If the user is using a for loop to create cyral_repository_conf_auth resources,
+# they need to replace their previous reference to repository resource names
+# with the renamed resources (in the case that resource names might have changed).
+# This line ensures that a local variable is created containing all of the
+# cyral_repository resource names, to reference.
+repos_list=$(printf ", %s" "${repo_ids[@]}")
+repos_list="[${repos_list:2}]"
+echo "locals {
+    cyral_repository_resource_names=${repos_list}
+}" >> cyral_migration_repositories_bindings_listeners.txt
 
 # Once resources have been imported, we need to replace the empty resource definitions
 # (which are required to exist prior to import), with resource definitions containing
