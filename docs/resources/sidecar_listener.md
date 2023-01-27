@@ -26,7 +26,6 @@ resource "cyral_sidecar_listener" "listener" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mysql"]
   network_address {
-    host = "0.0.0.0"
     port = 3306
   }
 
@@ -106,7 +105,7 @@ Required:
 
 Optional:
 
-- `host` (String) Host where the sidecar will listen for the given repository, in the case where the sidecar is deployed on a host with multiple network interfaces. Omit to listen on all network interfaces.
+- `host` (String) Host where the sidecar will listen for the given repository, in the case where the sidecar is deployed on a host with multiple network interfaces. If omitted, the sidecar will assume the default "0.0.0.0" and listen on all network interfaces.
 
 <a id="nestedblock--dynamodb_settings"></a>
 

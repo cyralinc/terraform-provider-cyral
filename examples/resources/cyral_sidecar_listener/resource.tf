@@ -17,7 +17,6 @@ resource "cyral_sidecar_listener" "listener" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mysql"]
   network_address {
-    host = "0.0.0.0"
     port = 3306
   }
 
