@@ -1,3 +1,46 @@
+## 4.0.0 (January 27, 2023)
+
+Minimum required Control Plane version: `v4.0.0`.
+
+Resources incompatible with Control Planes `v3.x`:
+`cyral_repository` and `cyral_repository_binding`.
+
+New resources:
+`cyral_sidecar_listener` and `cyral_repository_access_gateway`.
+
+Removed resource arguments:
+
+- `cyral_repository.host` -- use `cyral_repository.repo_node.host` instead.
+- `cyral_repository.port` -- use `cyral_repository.repo_node.port` instead.
+- `cyral_repository.properties.mongodb_replica_set.max_nodes` -- this parameter is no
+  longer used and is inferred from the number of `repo_node` blocks declared in
+  `cyral_repository`.
+- `cyral_repository.properties.mongodb_replica_set.replica_set_id` -- use
+  `cyral_repository.mongodb_settings.replica_set_name` instead.
+- `cyral_repository_binding.listener_host` -- use `cyral_sidecar_listener.network_address.host` instead.
+- `cyral_repository_binding.listener_port` -- use `cyral_sidecar_listener.network_address.port` instead.
+- `cyral_repository_binding.sidecar_as_idp_access_gateway` -- use `cyral_repository_access_gateway` instead.
+
+### Features:
+
+- **New resource: Listeners API**: [#281](https://github.com/cyralinc/terraform-provider-cyral/pull/281).
+- **Access Gateway Binding Resource**: [#331](https://github.com/cyralinc/terraform-provider-cyral/pull/331).
+
+### Backwards compatibility breaks:
+
+- **Port-multiplexing Cyral Repository Changes**: [#326](https://github.com/cyralinc/terraform-provider-cyral/pull/326).
+- **Repository Binding Resource Changes**: [#329](https://github.com/cyralinc/terraform-provider-cyral/pull/329).
+
+### Bug fixes:
+
+- **Improved migration script runtime by using less pipes**: [#324](https://github.com/cyralinc/terraform-provider-cyral/pull/324).
+- **clean up supported repos**: [#332](https://github.com/cyralinc/terraform-provider-cyral/pull/332).
+- **Adding Force New Directives to Access Gateway resource**: [#340](https://github.com/cyralinc/terraform-provider-cyral/pull/340).
+
+### Documentation fixes:
+
+- **Remove references to deprecated fields mongodb_port_alloc_range_low/high**: [#339](https://github.com/cyralinc/terraform-provider-cyral/pull/339).
+
 ## 3.0.4 (November 18, 2022)
 
 Minimum required Control Plane version: `v3.0.0`.
