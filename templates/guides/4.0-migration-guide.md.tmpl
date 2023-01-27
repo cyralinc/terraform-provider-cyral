@@ -9,16 +9,95 @@ The migration will be handled by an interactive Bash script.
 
 ## Why Migration is Required
 
-Cyral Terraform Provider V4 Migration is required once a Cyral Control Plane (CP) has been upgraded to MAJOR version 4.
-Major version 4 introduces breaking changes to Cyral's repositories and repository bindings. It also
-introduces the concept of sidecar listeners, which are now separate from repository bindings.
-The Terraform migration is needed to import these newly migrated resources into your Terraform state and
-configuration files.
+Cyral Terraform Provider V4 Migration is required when upgrading a Cyral Control Plane (CP) to MAJOR version 4. Major version 4 introduces breaking changes to Cyral's repositories and repository bindings. It also introduces the concept of sidecar listeners and access gateways, which are now separate from repository bindings.
+
+When the Cyral CP is upgraded to major version 4, the CP will automatically migrate these objects from the old
+data model to the new data model, and create sidecar listener and access gatways appropriately. However, if you
+are using Terraform to manage these resources, attempting to run `terraform plan` after the CP has been upgraded
+will fail, due to breaking API changes and corresponding changes in the schema definitions for the resources.
+
+In order to update your Cyral Terraform Provider V4, we have provided scripts that will remove all
+cyral_repository and cyral_repository_binding resources from your Terraform state, and then import the newly
+migrated versions from the Cyral CP. These scripts ensure that all resources are imported properly into your
+Terraform state and configuration files.
+
+### Resource Changes
+
+Cyral Terraform Provider V4 introduces breaking changes to `cyral_repository` and `cyral_repository_binding` resources. The new schema defintions can be found here:
+  *  [cyral_repository](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository)
+  *   [cyral_repository_binding](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding)
+
+Cyral Terraform Provider V4 introduces [Smart Ports](https://cyral-docs-v2.netlify.app/docs/v4.0/sidecars/sidecar-bind-repo#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar. This feature allows you to define multiple listener configurations for a single sidecar, with a new resource called a `cyral_sidecar_listener`. In addition, the field `sidecar_as_idp_access_gateway` of a `cyral_repository_binding` has moved to a
+new resource, called a `cyral_repository_access_gateway`.
+
+Please see the example below of how resource definitions for `cyral_repository` and `cyral_repository_binding` resources would be rewritten upon upgrading to Cyral Terraform Provider V4.
+
+Before upgrading to Cyral Terraform Provider V4, a configuration for the resources listed above would look something
+like this:
+
+    ```
+    resource "cyral_repository" "mongo_repo" {
+        name = "mongo-repo"
+        host = "mongodb.cyral.com"
+        port = 27017
+        type = "mongodb"
+    }
+    resource "cyral_repository_binding" "mongo_binding" {
+        enabled = true
+        repository_id = cyral_repository.mongo_repo.id
+        sidecar_id    = cyral_sidecar.sidecar.id
+        listener_port = 27017
+        listener_host = "mongodb.cyral.com"
+        sidecar_as_idp_access_gateway = true
+    }
+    ```
+
+After upgrade, the resource definitions above would be rewritten as follows:
+
+    ```
+    resource "cyral_repository" "mongo_repo" {
+        name = "mongo-repo"
+        type = "mongodb"
+        repo_node {
+          host = "mongodb.cyral.com"
+          port = 27017
+        }
+    }
+
+    resource "cyral_repository_binding" "binding" {
+      sidecar_id = cyral_sidecar.sidecar.id
+      repository_id = cyral_repository.mongo_repo.id
+      enabled = true
+      listener_binding {
+        listener_id = cyral_sidecar_listener.listener.listener_id
+        node_index = 0
+      }
+    }
+
+    resource "cyral_sidecar_listener" "listener" {
+      sidecar_id = cyral_sidecar.sidecar.id
+      repo_types = ["mongodb"]
+      network_address {
+        port          = 27017
+      }
+    }
+
+    resource "cyral_repository_access_gateway" "access_gateway" {
+        repository_id  = cyral_repository.mongo_repo.id
+        sidecar_id  = cyral_sidecar.sidecar.id
+        binding_id = cyral_repository_binding.binding.binding_id
+    }
+    ```
 
 ## Data sources
 
 The `cyral_repository` data source output contains breaking changes. Please note that if you have any output blocks configured
 for `cyral_repository` data sources, you will need to rewrite them after migration is completed.
+
+## Migrating to Cyral Terraform Provider to 4.0
+
+The following sections contain step-by-step instructions on how to migrate the Cyral Terraform Provider
+to version 4.0.
 
 ### Migrating from 3.X to 4.0
 
@@ -57,6 +136,8 @@ the Cyral CP to MAJOR version 4.
 ## Prerequisites
 
 The Cyral Terraform Provider V4 Migration requires the following tools:
+
+  * Bash Version 4 or higher. Please ensure that your $BASH_VERSION environment variable is set correctly.
 
   * Terraform CLI. Download instructions can be found [here](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 

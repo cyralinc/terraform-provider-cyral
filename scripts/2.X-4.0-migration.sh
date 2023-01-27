@@ -6,6 +6,14 @@ green='\033[0;32m'
 # Clear the color after that
 clear='\033[0m'
 
+if [ ${BASH_VERSION:0:1} \< 4 ]
+then
+    echo "Bash version 4 or higher is required by this script."
+    echo "Please install the latest bash version and ensure your"
+    echo "BASH_VERSION environmental variable is set correctly."
+    exit
+fi
+
 if ! command -v terraform &> /dev/null
 then
     echo "The Terraform CLI must be installed for this script to run."
@@ -32,13 +40,13 @@ will be created, which are now required to bind sidecars to
 repositories."
 echo
 echo -e "${green}Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file.${clear}"
-echo
-read -p "Are you ready to continue? [N/y] " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]
+if [ -z "$CYRAL_TF_FILE_PATH" ]
 then
+    echo -e "${red}CYRAL_TF_FILE_PATH has not been set. Please set it and run the script again.${clear}"
     echo "Exiting..."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+else
+    echo -e "CYRAL_TF_FILE_PATH is set to ${green}'$CYRAL_TF_FILE_PATH'${clear}"
 fi
 echo
 echo "Searching for resources to migrate..."
@@ -68,10 +76,12 @@ access_gateway_resource_defs=()
 # New full resource names
 user_account_resource_names=()
 access_rule_resource_names=()
-repo_resource_names=()
-binding_resource_names=()
-listener_resource_names=()
 access_gateway_resource_names=()
+
+declare -A repo_resource_id_to_name_map
+declare -A binding_resource_id_to_name_map
+declare -A listener_resource_id_to_name_map
+declare -A sidecar_resource_id_to_name_map
 
 
 # Original full resource names for removing from tf state

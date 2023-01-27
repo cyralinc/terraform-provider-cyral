@@ -17,7 +17,6 @@ resource "cyral_sidecar_listener" "listener" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mongodb"]
   network_address {
-    host          = "mongodb.cyral.com"
     port          = 27017
   }
 }
