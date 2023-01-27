@@ -184,7 +184,7 @@ for resource_address in ${resources_to_migrate[@]}; do
         # Store import name and ID as a key value pair
         import_kv_pair="${import_name} ${import_id}"
         user_account_import_args+=("${import_kv_pair}")
-        user_account_id_to_name_map[${values_arr[1]}]=${resource_address}
+        user_account_resource_id_to_name_map[${values_arr[1]}]=${import_name}
     elif [[ $resource_address == cyral_sidecar.* ]]
     then
         # Get sidecar ID.
@@ -285,7 +285,7 @@ echo "Importing the following cyral_repository_access_gateway resources into you
 printf '%s\n' "${access_gateway_resource_names[@]}"
 echo
 echo "Importing the following cyral_repository_user_account resources into your Terraform state:"
-printf '%s\n' "${user_account_id_to_name_map[@]}"
+printf '%s\n' "${user_account_resource_id_to_name_map[@]}"
 echo
 echo "Importing the following cyral_repository_access_rule resources into your Terraform state:"
 printf '%s\n' "${access_rule_resource_names[@]}"
@@ -380,7 +380,7 @@ for access_gateway in ${access_gateway_resource_names[@]};do
     terraform state show -no-color $access_gateway | grep -v "   id " >> cyral_migration_repositories_bindings_listeners.txt
 done
 
-for user_account in ${user_account_id_to_name_map[@]};do
+for user_account in ${user_account_resource_id_to_name_map[@]};do
     terraform state show -no-color $user_account | grep -v "   user_account_id" | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
 done
 for access_rule in ${access_rule_resource_names[@]};do
@@ -405,8 +405,8 @@ for sidecar_id in ${!sidecar_resource_id_to_name_map[@]};do
     sed -i.bak "s/[[:space:]]*sidecar_id[[:space:]]*=[[:space:]]*\"${sidecar_id}\"/   sidecar_id = ${sidecar_resource_id_to_name_map[${sidecar_id}]}.id/g" cyral_migration_repositories_bindings_listeners.txt
 done
 
-for user_account_id in ${!user_account_id_to_name_map[@]};do
-    sed -i.bak "s/[[:space:]]*user_account_id[[:space:]]*=[[:space:]]*\"${user_account_id}\"/   user_account_id = ${user_account_id_to_name_map[${user_account_id}]}.id/g" cyral_migration_repository_access_rules_and_user_accounts.txt
+for user_account_id in ${!user_account_resource_id_to_name_map[@]};do
+    sed -i.bak "s/[[:space:]]*user_account_id[[:space:]]*=[[:space:]]*\"${user_account_id}\"/   user_account_id = ${user_account_resource_id_to_name_map[${user_account_id}]}.user_account_id/g" cyral_migration_repository_access_rules_and_user_accounts.txt
 done
 
 mv cyral_migration_repositories_bindings_listeners.txt cyral_migration_repositories_bindings_listeners.tf
