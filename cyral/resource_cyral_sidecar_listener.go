@@ -269,7 +269,7 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						HostKey: {
-							Description: "Host where the sidecar will listen for the given repository. Omit to listen on all interfaces.",
+							Description: "Host where the sidecar will listen for the given repository, in case the sidecar is deployed on a host with multiple network interfaces. Omit to listen on all network interfaces.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
