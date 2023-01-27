@@ -8,59 +8,55 @@ Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
 
 ```terraform
 resource "cyral_sidecar" "sidecar" {
-  name = "tf-account-sidecar"
+  name              = "sidecar"
   deployment_method = "docker"
 }
 
 # Plain listener
 resource "cyral_sidecar_listener" "listener" {
-    sidecar_id = cyral_sidecar.sidecar.id
-    repo_types = ["mongodb"]
-    network_address {
-        host          = "mongodb.cyral.com"
-        port          = 27017
-    }
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["mongodb"]
+  network_address {
+    port = 27017
+  }
 }
 
 # Listener with MySQL Settings
 resource "cyral_sidecar_listener" "listener" {
-    sidecar_id = cyral_sidecar.sidecar.id
-    repo_types = ["mysql"]
-    network_address {
-        host          = "mysql.cyral.com"
-        port          = 443
-    }
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["mysql"]
+  network_address {
+    port = 3306
+  }
 
-    mysql_settings {
-        db_version = "3.4.0"
-        character_set = "ujis_japanese_ci"
-    }
+  mysql_settings {
+    db_version    = "3.4.0"
+    character_set = "ujis_japanese_ci"
+  }
 }
 
 # Listener with S3 Settings
 resource "cyral_sidecar_listener" "listener" {
-    sidecar_id = cyral_sidecar.sidecar.id
-    repo_types = ["s3"]
-    network_address {
-        host          = "s3.cyral.com"
-        port          = 8002
-    }
-    s3_settings {
-        proxy_mode = true
-    }
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["s3"]
+  network_address {
+    port = 443
+  }
+  s3_settings {
+    proxy_mode = true
+  }
 }
 
 # Listener with DynamoDB Settings
 resource "cyral_sidecar_listener" "listener" {
-    sidecar_id = cyral_sidecar.sidecar.id
-    repo_types = ["dynamodb"]
-    network_address {
-        host          = "dynamodb.cyral.com"
-        port          = 1234
-    }
-    dynamodb_settings {
-        proxy_mode = true
-    }
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["dynamodb"]
+  network_address {
+    port = 8000
+  }
+  dynamodb_settings {
+    proxy_mode = true
+  }
 }
 ```
 
@@ -109,7 +105,7 @@ Required:
 
 Optional:
 
-- `host` (String) Host where the sidecar will listen for the given repository. Omit to listen on all interfaces.
+- `host` (String) Host where the sidecar will listen for the given repository, in the case where the sidecar is deployed on a host with multiple network interfaces. If omitted, the sidecar will assume the default "0.0.0.0" and listen on all network interfaces.
 
 <a id="nestedblock--dynamodb_settings"></a>
 
