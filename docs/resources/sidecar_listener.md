@@ -106,7 +106,7 @@ Required:
 
 Optional:
 
-- `host` (String) Host where the sidecar will listen for the given repository, in case the sidecar is deployed on a host with multiple network interfaces. Omit to listen on all network interfaces.
+- `host` (String) Host where the sidecar will listen for the given repository, in the case where the sidecar is deployed on a host with multiple network interfaces. Omit to listen on all network interfaces.
 
 <a id="nestedblock--dynamodb_settings"></a>
 
