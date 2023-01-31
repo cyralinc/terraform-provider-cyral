@@ -1,7 +1,6 @@
 package cyral
 
 import (
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -36,6 +35,14 @@ type Key struct {
 	Category Category `json:"category,omitempty"`
 }
 
+func (pi *PolicyInstance) TagsAsInterface() []interface{} {
+	var tagIfaces []interface{}
+	for _, tag := range pi.Tags {
+		tagIfaces = append(tagIfaces, tag)
+	}
+	return tagIfaces
+}
+
 type PolicyInstance struct {
 	Name        string      `json:"name,omitempty"`
 	Description string      `json:"description,omitempty"`
@@ -50,8 +57,8 @@ type PolicyInstance struct {
 
 // used for 'data' in requests
 type PolicyInstanceDataRequest struct {
-	Instance *PolicyInstance      `json:"policyInstance,omitempty"`
-	Duration *durationpb.Duration `json:"duration,omitempty"`
+	Instance *PolicyInstance `json:"policyInstance,omitempty"`
+	Duration string          `json:"duration,omitempty"`
 }
 
 type ListPolicyInstancePartial struct {

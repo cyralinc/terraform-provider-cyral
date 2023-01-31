@@ -7,7 +7,6 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -43,7 +42,7 @@ func (r *InsertPolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) err
 		created.Timestamp = &timestamppb.Timestamp{Seconds: timestamp}
 	}
 
-	duration := d.Get("duration").(int64)
+	duration := d.Get("duration").(string)
 
 	r.Category = d.Get("category").(Category)
 	r.Data = PolicyInstanceDataRequest{
@@ -57,93 +56,83 @@ func (r *InsertPolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) err
 			LastUpdated: lastUpdated,
 			Created:     created,
 		},
-		Duration: &durationpb.Duration{Seconds: duration},
+		Duration: duration,
 	}
 	return nil
 }
 
 func (r *UpdatePolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) error {
-	r.AccessGateway = &AccessGateway{
-		BindingId: d.Get(BindingIDKey).(string),
-		SidecarId: d.Get(SidecarIDKey).(string),
+	scope := &Scope{}
+	for _, scopeObj := range d.Get("scope").([]interface{}) {
+		scopeMap := scopeObj.(map[string]interface{})
+		repoIds := scopeMap["repo_ids"]
+		for _, repoId := range repoIds.([]interface{}) {
+			scope.RepoIds = append(scope.RepoIds, repoId.(string))
+		}
+	}
+
+	lastUpdated := &ChangeInfo{}
+	for _, lastUpdatedObj := range d.Get("last_updated").([]interface{}) {
+		lastUpdatedMap := lastUpdatedObj.(map[string]interface{})
+		actor := lastUpdatedMap["actor"].(string)
+		actorType := lastUpdatedMap["actor_type"].(int32)
+		timestamp := lastUpdatedMap["timestamp"].(int64)
+		lastUpdated.Actor = actor
+		lastUpdated.ActorType = ChangeInfo_ActorType(actorType)
+		lastUpdated.Timestamp = &timestamppb.Timestamp{Seconds: timestamp}
+	}
+
+	created := &ChangeInfo{}
+	for _, createdObj := range d.Get("created").([]interface{}) {
+		createdMap := createdObj.(map[string]interface{})
+		actor := createdMap["actor"].(string)
+		actorType := createdMap["actor_type"].(int32)
+		timestamp := createdMap["timestamp"].(int64)
+		created.Actor = actor
+		created.ActorType = ChangeInfo_ActorType(actorType)
+		created.Timestamp = &timestamppb.Timestamp{Seconds: timestamp}
+	}
+
+	duration := d.Get("duration").(string)
+
+	r.Data = PolicyInstanceDataRequest{
+		Instance: &PolicyInstance{
+			Name:        d.Get("name").(string),
+			Description: d.Get("description").(string),
+			TemplateId:  d.Get("template_id").(string),
+			Parameters:  d.Get("parameters").(string),
+			Enabled:     d.Get("enabled").(bool),
+			Scope:       scope,
+			LastUpdated: lastUpdated,
+			Created:     created,
+		},
+		Duration: duration,
 	}
 	return nil
 }
 
 func (r *DeletePolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) error {
-	r.AccessGateway = &AccessGateway{
-		BindingId: d.Get(BindingIDKey).(string),
-		SidecarId: d.Get(SidecarIDKey).(string),
-	}
+	r.Key.Id = d.Get("regopolicy_id").(string)
+	r.Key.Category = d.Get("category").(Category)
 	return nil
 }
 
 func (r *ReadPolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) error {
-	r.AccessGateway = &AccessGateway{
-		BindingId: d.Get(BindingIDKey).(string),
-		SidecarId: d.Get(SidecarIDKey).(string),
-	}
+	r.Key.Id = d.Get("regopolicy_id").(string)
+	r.Key.Category = d.Get("category").(Category)
 	return nil
 }
 
 func (r *InsertPolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(d.Get(RepositoryIDKey).(string))
-	d.Set("name", r.instance.Name)
-	d.Set("description", r.instance.Description)
-	d.Set("template_id", r.instance.TemplateId)
-	d.Set("parameters", r.instance.Parameters)
-	d.Set("enabled", r.instance.Enabled)
-	repoIds := r.instance.Scope.RepoIds
-	scope := map[string]interface{}{
-		"repo_ids": repoIds,
-	}
-	d.Set("scope", scope)
-	d.Set("tags", r.instance.Tags)
-	lastUpdated := map[string]interface{}{
-		"actor":      r.instance.LastUpdated.Actor,
-		"actor_type": r.instance.LastUpdated.ActorType,
-		"timestamp":  r.instance.LastUpdated.Timestamp,
-	}
-	d.Set("last_updated", lastUpdated)
-	created := map[string]interface{}{
-		"actor":      r.instance.Created.Actor,
-		"actor_type": r.instance.Created.ActorType,
-		"timestamp":  r.instance.Created.Timestamp,
-	}
-	d.Set("created", created)
-	return nil
-}
-
-func (r *UpdatePolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(d.Get(RepositoryIDKey).(string))
-	d.Set("name", r.instance.Name)
-	d.Set("description", r.instance.Description)
-	d.Set("template_id", r.instance.TemplateId)
-	d.Set("parameters", r.instance.Parameters)
-	d.Set("enabled", r.instance.Enabled)
-	repoIds := r.instance.Scope.RepoIds
-	scope := map[string]interface{}{
-		"repo_ids": repoIds,
-	}
-	d.Set("scope", scope)
-	d.Set("tags", r.instance.Tags)
-	lastUpdated := map[string]interface{}{
-		"actor":      r.instance.LastUpdated.Actor,
-		"actor_type": r.instance.LastUpdated.ActorType,
-		"timestamp":  r.instance.LastUpdated.Timestamp,
-	}
-	d.Set("last_updated", lastUpdated)
-	created := map[string]interface{}{
-		"actor":      r.instance.Created.Actor,
-		"actor_type": r.instance.Created.ActorType,
-		"timestamp":  r.instance.Created.Timestamp,
-	}
-	d.Set("created", created)
+	regoPolicyId := r.Key.Id
+	regoPolicyCategory := r.Key.Category
+	d.SetId(regoPolicyId + "/" + string(regoPolicyCategory))
+	d.Set("regopolicy_id", regoPolicyId)
+	d.Set("category", regoPolicyCategory)
 	return nil
 }
 
 func (r *DeletePolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(d.Get(RepositoryIDKey).(string))
 	d.Set("name", r.instance.Name)
 	d.Set("description", r.instance.Description)
 	d.Set("template_id", r.instance.TemplateId)
@@ -171,7 +160,6 @@ func (r *DeletePolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) err
 }
 
 func (r *ReadPolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(d.Get(RepositoryIDKey).(string))
 	d.Set("name", r.instance.Name)
 	d.Set("description", r.instance.Description)
 	d.Set("template_id", r.instance.TemplateId)
@@ -222,7 +210,7 @@ func resourceRegopolicyInstance() *schema.Resource {
 				HttpMethod: http.MethodPost,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					category := d.Get("category").(string)
-					return fmt.Sprintf("https://%s/v1/regopolicies/instances/%s/", c.ControlPlane, category)
+					return fmt.Sprintf("https://%s/v1/regopolicies/instances/%s", c.ControlPlane, category)
 				},
 				// payload to pass
 				NewResourceData: func() ResourceData {
@@ -230,12 +218,7 @@ func resourceRegopolicyInstance() *schema.Resource {
 				},
 				// return from API
 				NewResponseData: func(d *schema.ResourceData) ResponseData {
-					nameFilter := d.Get("name").(string)
-					if nameFilter == "" {
-						return &GetDataLabelsResponse{}
-					} else {
-						return &GetDataLabelResponse{}
-					}
+					return &InsertPolicyInstanceResponse{}
 				},
 			},
 			// reading to update terraform values
@@ -249,20 +232,12 @@ func resourceRegopolicyInstance() *schema.Resource {
 				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					category := d.Get("category").(string)
-					return fmt.Sprintf("https://%s/v1/regopolicies/instances/%s/", c.ControlPlane, category)
+					id := d.Get("regopolicy_id").(string)
+					return fmt.Sprintf("https://%s/v1/regopolicies/instances/%s/%s", c.ControlPlane, category, id)
 				},
 				// payload to pass
 				NewResourceData: func() ResourceData {
-
-				},
-				// return from API
-				NewResponseData: func(d *schema.ResourceData) ResponseData {
-					nameFilter := d.Get("name").(string)
-					if nameFilter == "" {
-						return &GetDataLabelsResponse{}
-					} else {
-						return &GetDataLabelResponse{}
-					}
+					return &UpdatePolicyInstanceRequest{}
 				},
 			},
 			// reading to update terraform values
@@ -281,34 +256,34 @@ func resourceRegopolicyInstance() *schema.Resource {
 		),
 		Schema: map[string]*schema.Schema{
 			"regopolicy_id": {
-				Description: "ID of the repository the access gateway is associated with. This is also the " +
-					"import ID for this resource.",
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Description: "ID for the policy instance.",
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Required:    true,
 			},
 			"category": {
-				Description: "ID of the sidecar that will be set as the access gateway for the given repository.",
+				Description: "Category of the policy instance.",
 				Type:        schema.TypeString,
+				ForceNew:    true,
 				Required:    true,
 			},
 			"name": {
-				Description: "ID of the sidecar that will be set as the access gateway for the given repository.",
+				Description: "Name of the policy instance.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"description": {
-				Description: "ID of the sidecar that will be set as the access gateway for the given repository.",
+				Description: "Description for the policy instance.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"template_id": {
-				Description: "ID of the sidecar that will be set as the access gateway for the given repository.",
+				Description: "Template Id on which the instance was based",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"parameters": {
-				Description: "ID of the sidecar that will be set as the access gateway for the given repository.",
+				Description: "Parameters for the policy instance (matches the template parameter schema)",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
@@ -320,7 +295,6 @@ func resourceRegopolicyInstance() *schema.Resource {
 			"scope": {
 				Description: "Object that defines the scope of the policy, i.e. where it is applicable",
 				Type:        schema.TypeSet,
-				Computed:    true,
 				MaxItems:    1,
 				Required:    true,
 				Elem: &schema.Resource{
@@ -328,7 +302,6 @@ func resourceRegopolicyInstance() *schema.Resource {
 						"repo_ids": {
 							Description: "List of repo ids where the policy is applicable",
 							Type:        schema.TypeList,
-							Computed:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -339,13 +312,12 @@ func resourceRegopolicyInstance() *schema.Resource {
 			"tags": {
 				Description: "Tags used to categorize policy instance.",
 				Type:        schema.TypeList,
-				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"last_updated": {
-				Description: "Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. Currently, only `PREDEFINED` labels have classification rules.",
+				Description: "Object that defines the actor and the time when the instance last update happened.",
 				Type:        schema.TypeSet,
 				Computed:    true,
 				MaxItems:    1,
@@ -370,7 +342,7 @@ func resourceRegopolicyInstance() *schema.Resource {
 				},
 			},
 			"created": {
-				Description: "Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. Currently, only `PREDEFINED` labels have classification rules.",
+				Description: "Object that defines the actor and the time when the instance creation happened.",
 				Type:        schema.TypeSet,
 				Computed:    true,
 				Elem: &schema.Resource{
