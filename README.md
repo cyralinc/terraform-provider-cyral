@@ -8,15 +8,13 @@ Our provider uses the same naming conventions and organization as stated in Terr
 
 Full and comprehensive documentation for this provider is available on the [provider documentation index](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs).
 
-### Change Log
+### Version history and compatibility
 
-The [Change Log](CHANGELOG.md) keeps track of features, bug fixes and Control Plane compatibility of this provider.
+Please refer to our [Change Log](CHANGELOG.md) to learn about our version history, its features, bug fixes and Control Plane compatibility.
 
 ### Guides
 
-See below a list of guides that can be used to deploy some predefined scenarios:
-
-- [Add native repository credentials to AWS Secrets Manager](./docs/guides/native_credentials_aws_sm.md)
+See [in our official documentation](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs) a list of guides that can be used to deploy some predefined scenarios and reference for similar use-cases.
 
 ## Building, Documenting and Testing
 
