@@ -6,7 +6,7 @@ Our provider uses the same naming conventions and organization as stated in Terr
 
 ## Documentation
 
-Full and comprehensive documentation for this provider is available on the [provider documentation index](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs).
+Full and comprehensive documentation for this provider with detailed description of its resources and guides are available in the [user documentation index](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs).
 
 ### Version history and compatibility
 
