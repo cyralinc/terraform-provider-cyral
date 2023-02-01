@@ -1,3 +1,18 @@
+## 4.0.1 (February 1, 2023)
+
+Minimum required Control Plane version: `v4.0.0`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Documentation fixes:
+
+- **Fix typo in version name**: [#348](https://github.com/cyralinc/terraform-provider-cyral/pull/#348).
+- **Improve documentation**: [#349](https://github.com/cyralinc/terraform-provider-cyral/pull/#349).
+
+### Other:
+
+- **Update release workflow**: [#347](https://github.com/cyralinc/terraform-provider-cyral/pull/#347).
+
 ## 4.0.0 (January 27, 2023)
 
 Minimum required Control Plane version: `v4.0.0`.
@@ -45,7 +60,7 @@ Removed resource arguments:
 
 Minimum required Control Plane version: `v3.0.0`.
 
-See the list of incompatible resources with Control Planes `v2.x` and Terraform `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
+See the list of incompatible resources with Control Planes `v2.x` and provider `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
 
 ### Bug fixes:
 
@@ -55,7 +70,7 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 Minimum required Control Plane version: `v3.0.0`.
 
-See the list of incompatible resources with Control Planes `v2.x` and Terraform `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
+See the list of incompatible resources with Control Planes `v2.x` and provider `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
 
 ### Bug fixes:
 
@@ -66,7 +81,7 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 Minimum required Control Plane version: `v3.0.0`.
 
-See the list of incompatible resources with Control Planes `v2.x` and Terraform `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
+See the list of incompatible resources with Control Planes `v2.x` and provider `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
 
 ### Bug fixes:
 
@@ -85,7 +100,7 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 Minimum required Control Plane version: `v3.0.0`.
 
-See the list of incompatible resources with Control Planes `v2.x` and Terraform `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
+See the list of incompatible resources with Control Planes `v2.x` and provider `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
 
 ### Features:
 
