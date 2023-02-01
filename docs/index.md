@@ -76,7 +76,7 @@ the old one.
 
 ### Required
 
-- `control_plane` (String) Control plane host and API port (ex: `some-cp.cyral.com:8000`)
+- `control_plane` (String) Control plane host and API port (ex: `tenant.app.cyral.com`)
 
 ### Optional
 

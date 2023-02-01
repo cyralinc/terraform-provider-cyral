@@ -52,7 +52,7 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc(EnvVarClientSecret, nil),
 			},
 			"control_plane": {
-				Description: "Control plane host and API port (ex: `some-cp.cyral.com:8000`)",
+				Description: "Control plane host and API port (ex: `tenant.app.cyral.com`)",
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc(EnvVarCPURL, nil),
