@@ -6,19 +6,13 @@ Our provider uses the same naming conventions and organization as stated in Terr
 
 ## Documentation
 
-Full and comprehensive documentation for this provider is available on the [provider documentation index](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs).
+Full and comprehensive documentation for this provider with detailed description of its **resources**, **data sources** and **usage guides** are available in the [user documentation index](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs).
 
-### Change Log
+## Version history and compatibility
 
-The [Change Log](CHANGELOG.md) keeps track of features, bug fixes and Control Plane compatibility of this provider.
+Please refer to our [Change Log](CHANGELOG.md) to learn about our version history, its features, bug fixes and Control Plane compatibility.
 
-### Guides
-
-See below a list of guides that can be used to deploy some predefined scenarios:
-
-- [Add native repository credentials to AWS Secrets Manager](./docs/guides/native_credentials_aws_sm.md)
-
-## Building, Documenting and Testing
+## Building, Documenting and Testing this Project
 
 ### Build Instructions
 
@@ -73,9 +67,8 @@ The test framework requires basic configuration before it can be executed as fol
 1. Set the configuration environment variables:
 
 ```bash
-# Set the control plane DNS name and port (for old control plane,
-# set to "mycp.cyral.com:8000"):
-export CYRAL_TF_CONTROL_PLANE=mycp.cyral.com
+# Set the control plane DNS name and port:
+export CYRAL_TF_CONTROL_PLANE=tenant.app.cyral.com
 
 # Set client and secret ID:
 export CYRAL_TF_CLIENT_ID=?
@@ -106,12 +99,12 @@ pre-commit install
 
 ### Running Project Built Locally
 
-#### Terraform v0.12
+#### Terraform 0.12
 
 Copy the desired binary file created in directory `out` (see [Build Instructions](#build-instructions)) to the root folder containing those `.tf` files that will be used to handle Cyral Terraform provider resources.
 
 Run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
 
-#### Terraform v0.13+
+#### Terraform 0.13+
 
 Build the project using steps in [Build Instructions](#build-instructions), then proceed normally with `terraform init` and `terraform apply` commands.
