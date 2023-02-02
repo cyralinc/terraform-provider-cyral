@@ -27,7 +27,7 @@ Cyral Terraform Provider V4 introduces breaking changes to `cyral_repository` an
   *  [cyral_repository](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository)
   *   [cyral_repository_binding](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding)
 
-Cyral Terraform Provider V4 introduces [Smart Ports](https://cyral-docs-v2.netlify.app/docs/v4.0/sidecars/sidecar-bind-repo#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar. This feature allows you to define multiple listener configurations for a single sidecar, with a new resource called a `cyral_sidecar_listener`. In addition, the field `sidecar_as_idp_access_gateway` of a `cyral_repository_binding` has moved to a
+Cyral Terraform Provider V4 introduces [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar. This feature allows you to define multiple listener configurations for a single sidecar, with a new resource called a `cyral_sidecar_listener`. In addition, the field `sidecar_as_idp_access_gateway` of a `cyral_repository_binding` has moved to a
 new resource, called a `cyral_repository_access_gateway`.
 
 Please see the example below of how resource definitions for `cyral_repository` and `cyral_repository_binding` resources would be rewritten upon upgrading to Cyral Terraform Provider V4.
@@ -110,7 +110,7 @@ The following steps should be taken to upgrade the Cyral CP and the Cyral Terraf
 for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
 migration is completed.
 
-4. Run the Cyral Terraform Provider [V4 Migration Script](..scripts/4.0-migration.sh) after upgrading
+4. Run the Cyral Terraform Provider [V4 Migration Script](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/4.0-migration.sh) after upgrading
 the Cyral CP to MAJOR version 4.
 
 ~> **WARNING** It is essential that the Cyral Terraform Provider V4 Migration is run **after** the CP has been upgraded.
@@ -127,7 +127,7 @@ The following steps should be taken to upgrade the Cyral CP and the Cyral Terraf
 for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
 migration is completed.
 
-4. Run the Cyral Terraform Provider [V2-V4 Migration Script](..scripts/2.X-4.0-migration.sh) after upgrading
+4. Run the Cyral Terraform Provider [V2-V4 Migration Script](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/2.X-4.0-migration.sh) after upgrading
 the Cyral CP to MAJOR version 4.
 
 ~> **WARNING** It is essential that the Cyral Terraform Provider V2-V4 Migration is run **after** the CP has been upgraded.
