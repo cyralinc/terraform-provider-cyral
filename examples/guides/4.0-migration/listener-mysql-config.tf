@@ -4,8 +4,8 @@ resource "cyral_sidecar_listener" "sidecar_all_listeners" {
   sidecar_id = cyral_sidecar.sidecar.id
 
   network_address {
-    host          = "0.0.0.0"
-    port          = each.value.port
+    host = "0.0.0.0"
+    port = each.value.port
   }
 
   dynamic "mysql_settings" {
