@@ -42,61 +42,11 @@ Please see the example below of how resource definitions for `cyral_repository` 
 
 Before upgrading to Cyral Terraform Provider V4, a configuration to bind a repository to a sidecar resource `cyral_sidecar.sidecar` that exposes a MongoDB instance that lives in port `27017` in the sidecar port `27020` would look something like this:
 
-    ```hcl
-    resource "cyral_repository" "mongo_repo" {
-      name = "mongo-repo"
-      host = "mongodb.cyral.com"
-      port = 27017  # This is the port in the database host
-      type = "mongodb"
-    }
-
-    resource "cyral_repository_binding" "mongo_binding" {
-      enabled                       = true
-      repository_id                 = cyral_repository.mongo_repo.id
-      sidecar_id                    = cyral_sidecar.sidecar.id
-      listener_port                 = 27020  # This is the port the sidecar will expose
-                                             # for users/applications connecting to the
-                                             # database.
-      sidecar_as_idp_access_gateway = true
-    }
-    ```
+{{ tffile "examples/guides/4.0-migration/example-resources-before-v4.tf" }}
 
 After upgrade, the resource definitions above would be rewritten as follows:
 
-    ```hcl
-    resource "cyral_repository" "mongo_repo" {
-      name = "mongo-repo"
-      type = "mongodb"
-      repo_node {
-        host = "mongodb.cyral.com"
-        port = 27017
-      }
-    }
-
-    resource "cyral_repository_binding" "binding" {
-      sidecar_id    = cyral_sidecar.sidecar.id
-      repository_id = cyral_repository.mongo_repo.id
-      enabled       = true
-      listener_binding {
-        listener_id = cyral_sidecar_listener.listener.listener_id
-        node_index  = 0
-      }
-    }
-
-    resource "cyral_sidecar_listener" "listener" {
-      sidecar_id = cyral_sidecar.sidecar.id
-      repo_types = ["mongodb"]
-      network_address {
-        port = 27020
-      }
-    }
-
-    resource "cyral_repository_access_gateway" "access_gateway" {
-      repository_id = cyral_repository.mongo_repo.id
-      sidecar_id    = cyral_sidecar.sidecar.id
-      binding_id    = cyral_repository_binding.binding.binding_id
-    }
-    ```
+{{ tffile "examples/guides/4.0-migration/example-resources-v4.tf" }}
 
 ### Data source Changes
 
@@ -190,38 +140,38 @@ state.
 ### `cyral_repository`
 #### General Configuration
 
-{{ tffile "examples/guides/4.0-migration-repo-general-config.tf" }}
+{{ tffile "examples/guides/4.0-migration/repo-general-config.tf" }}
 
 ### MongoDB Configuration
 
-{{ tffile "examples/guides/4.0-migration-repo-mongodb-config.tf" }}
+{{ tffile "examples/guides/4.0-migration/repo-mongodb-config.tf" }}
 
 ### `cyral_sidecar_listener`
 Define a local variable to map the different repo type and port combinations, similar to the following:
 
-{{ tffile "examples/guides/4.0-migration-repo-type-port-mapping.tf" }}
+{{ tffile "examples/guides/4.0-migration/repo-type-port-mapping.tf" }}
 
 Then define the `cyral_sidecar_listener` resources using a for_each that iterates over the local variables:
 
 #### MySQL, MariaDB and Galera Configuration
 
-{{ tffile "examples/guides/4.0-migration-listener-mysql-config.tf" }}
+{{ tffile "examples/guides/4.0-migration/listener-mysql-config.tf" }}
 
 #### DynamoDB Configuration
 
-{{ tffile "examples/guides/4.0-migration-listener-dynamodb-config.tf" }}
+{{ tffile "examples/guides/4.0-migration/listener-dynamodb-config.tf" }}
 
 #### S3 Configuration
 
-{{ tffile "examples/guides/4.0-migration-listener-s3-config.tf" }}
+{{ tffile "examples/guides/4.0-migration/listener-s3-config.tf" }}
 
 ### `cyral_repository_binding`
 
-{{ tffile "examples/guides/4.0-migration-binding-config.tf" }}
+{{ tffile "examples/guides/4.0-migration/binding-config.tf" }}
 
 ### `cyral_repository_access_gateway`
 
-{{ tffile "examples/guides/4.0-migration-access-gateway-config.tf" }}
+{{ tffile "examples/guides/4.0-migration/access-gateway-config.tf" }}
 
 ## Troubleshooting
 
