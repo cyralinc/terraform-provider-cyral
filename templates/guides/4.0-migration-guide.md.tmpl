@@ -23,37 +23,47 @@ Terraform state and configuration files.
 
 ### Resource Changes
 
-Cyral Terraform Provider V4 introduces breaking changes to `cyral_repository` and `cyral_repository_binding` resources. The new schema defintions can be found here:
-  *  [cyral_repository](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository)
-  *   [cyral_repository_binding](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding)
+Cyral Terraform Provider V4 introduces [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar.
 
-Cyral Terraform Provider V4 introduces [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar. This feature allows you to define multiple listener configurations for a single sidecar, with a new resource called a `cyral_sidecar_listener`. In addition, the field `sidecar_as_idp_access_gateway` of a `cyral_repository_binding` has moved to a
-new resource, called a `cyral_repository_access_gateway`.
+With the introduction of [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), it is now possible to define multiple listener configurations for a single sidecar. This feature required some breaking changes to the schema of [`cyral_repository`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository) and [`cyral_repository_binding`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding) while also adding new resources. Here is the summary of the changes:
+
+  * New resources named [`cyral_sidecar_listener`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/sidecar_listener) and [`cyral_repository_access_gateway`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_access_gateway) were introduced.
+  * Argument `cyral_repository.host` was moved to `cyral_repository.repo_node.host`.
+  * Argument `cyral_repository.port` was moved to `cyral_repository.repo_node.port`.
+  * Argument `cyral_repository.properties.mongodb_replica_set.max_nodes` was removed. The argument is no
+  longer used and is automatically inferred from the number of `repo_node` blocks declared in
+  `cyral_repository`.
+  * Argument `cyral_repository.properties.mongodb_replica_set.replica_set_id` was moved to `cyral_repository.mongodb_settings.replica_set_name`.
+  * Argument `cyral_repository_binding.listener_host` was moved to `cyral_sidecar_listener.network_address.host`.
+  * Argument `cyral_repository_binding.listener_port` was moved to `cyral_sidecar_listener.network_address.port`.
+  * Argument `cyral_repository_binding.sidecar_as_idp_access_gateway` was moved to the resource [`cyral_repository_access_gateway`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_access_gateway). Please check the resource documentation.
 
 Please see the example below of how resource definitions for `cyral_repository` and `cyral_repository_binding` resources would be rewritten upon upgrading to Cyral Terraform Provider V4.
 
-Before upgrading to Cyral Terraform Provider V4, a configuration for the resources listed above would look something
-like this:
+Before upgrading to Cyral Terraform Provider V4, a configuration to bind a repository to a sidecar resource `cyral_sidecar.sidecar` that exposes a MongoDB instance that lives in port `27017` in the sidecar port `27020` would look something like this:
 
-    ```
+    ```hcl
     resource "cyral_repository" "mongo_repo" {
       name = "mongo-repo"
       host = "mongodb.cyral.com"
-      port = 27017
+      port = 27017  # This is the port in the database host
       type = "mongodb"
     }
+
     resource "cyral_repository_binding" "mongo_binding" {
       enabled                       = true
       repository_id                 = cyral_repository.mongo_repo.id
       sidecar_id                    = cyral_sidecar.sidecar.id
-      listener_port                 = 27017
+      listener_port                 = 27020  # This is the port the sidecar will expose
+                                             # for users/applications connecting to the
+                                             # database.
       sidecar_as_idp_access_gateway = true
     }
     ```
 
 After upgrade, the resource definitions above would be rewritten as follows:
 
-    ```
+    ```hcl
     resource "cyral_repository" "mongo_repo" {
       name = "mongo-repo"
       type = "mongodb"
@@ -77,7 +87,7 @@ After upgrade, the resource definitions above would be rewritten as follows:
       sidecar_id = cyral_sidecar.sidecar.id
       repo_types = ["mongodb"]
       network_address {
-        port = 27017
+        port = 27020
       }
     }
 
@@ -88,10 +98,10 @@ After upgrade, the resource definitions above would be rewritten as follows:
     }
     ```
 
-## Data sources
+### Data source Changes
 
 The `cyral_repository` data source output contains breaking changes. The new schema can be found [here](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/data-sources/repository). Please note that if you have any output blocks configured
-for `cyral_repository` data sources, you will need to rewrite them after migration is completed.
+for `cyral_repository` data sources, **you will need to rewrite them after migration is completed**.
 
 ## Migrating to Cyral Terraform Provider to 4.0
 
