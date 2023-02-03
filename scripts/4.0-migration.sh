@@ -30,6 +30,16 @@ then
     exit
 fi
 
+if [[ -z $CYRAL_TF_CONTROL_PLANE || -z $CYRAL_TF_CLIENT_ID || -z $CYRAL_TF_CLIENT_SECRET ]];
+then
+    echo "All of the following Control Plane configuration environment"
+    echo "variables must be set:" 
+    echo "- CYRAL_TF_CONTROL_PLANE"
+    echo "- CYRAL_TF_CLIENT_ID"
+    echo "- CYRAL_TF_CLIENT_SECRET"
+    exit
+fi
+
 echo -e "${green}Welcome to Cyral's Terraform Provider Version 4.0 Migration script!${clear}"
 echo
 echo \
@@ -63,11 +73,11 @@ listener_import_args=()
 repo_resource_defs=()
 binding_resource_defs=()
 access_gateway_resource_defs=()
-listener_resource_defs=()
 
 declare -A repo_resource_foreach_defs_map
 declare -A binding_resource_foreach_defs_map
 declare -A access_gateway_resource_foreach_defs_map
+declare -A listener_resource_foreach_defs_map
 
 declare -A repo_resource_id_to_address_map
 declare -A binding_resource_id_to_address_map
@@ -270,6 +280,10 @@ migrated_bindings=($(terraform state list | grep "cyral_repository_binding"))
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
+declare -A sidecar_resource_id_to_listener_ids_map
+
+NEW_LINE=$'\n'
+
 for binding in "${migrated_bindings[@]}"; do
     # Get ids required to import listener resource.
     binding_resource_address=${binding##"cyral_repository_binding."}
@@ -278,36 +292,56 @@ for binding in "${migrated_bindings[@]}"; do
     binding_json=$(jq -r "select(.address == \"cyral_repository_binding.${escaped_binding_resource_address}\")"<<<"$tf_state_json")
     sidecar_id=$(jq -r ".values.sidecar_id"<<<"$binding_json")
     listener_ids=$(jq -r ".values.listener_binding[] | .listener_id"<<<"$binding_json")
+    current_listener_ids=${sidecar_resource_id_to_listener_ids_map[$sidecar_id]}
+    # Concat listener ids using a line break separator
+    sidecar_resource_id_to_listener_ids_map[$sidecar_id]="$current_listener_ids${NEW_LINE}$listener_ids"
+done
 
-    # Get repo port and type so that we can create the listener resource name.
-    # Since we have a listener for each repo type and port combination, the name
-    # should follow the format ${sidecar_resource_name}_listener_${repo_type}_${repo_port}
-    repo_id=$(jq -r ".values.repository_id"<<<"$binding_json")
-    repo_resource_address=${repo_resource_id_to_address_map[${repo_id}]}
-    escaped_repo_resource_address=$(sed -e 's/\"/\\"/g'<<<$repo_resource_address)
-    repo_json=$(jq -r "select(.address == \"${escaped_repo_resource_address}\")"<<<"$tf_state_json")
-    repo_type=$(jq -r ".values.type"<<<"$repo_json")
-    # repo_port TODO: find a way to associate the port to the listener name
-
+for sidecar_id in ${!sidecar_resource_id_to_listener_ids_map[@]}; do
+    listener_ids=${sidecar_resource_id_to_listener_ids_map[$sidecar_id]}
     SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
-    IFS=$'\n'      # Change IFS to newline char
+    IFS=$NEW_LINE  # Change IFS to newline char
     listener_ids=($listener_ids) # split the `listener_ids` string into an array
     IFS=$SAVEIFS   # Restore original IFS
 
+    # Get sidecar listeners so that we can create the listener resource name.
+    # Since we have a listener for each repo type and port combination, the name
+    # should follow the format ${sidecar_resource_name}_listener_${type}_${port}
+    access_token=$(
+        curl --location --request POST \
+        "https://${CYRAL_TF_CONTROL_PLANE}/v1/users/oidc/token" \
+        --header "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "grant_type=client_credentials" \
+        --data-urlencode "clientId=${CYRAL_TF_CLIENT_ID}" \
+        --data-urlencode "clientSecret=${CYRAL_TF_CLIENT_SECRET}" | jq -r '.access_token'
+    )
+    sidecar_listeners_json=$(
+        curl --location --request GET \
+        "https://${CYRAL_TF_CONTROL_PLANE}/v1/sidecars/${sidecar_id}/listeners" \
+        --header "Authorization: Bearer ${access_token}"
+    )
+
     sidecar_resource_address=${sidecar_resource_id_to_address_map[${sidecar_id}]}
     sidecar_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${sidecar_resource_address##"cyral_sidecar."})
+    # Save empty resource definition for all the sidecar listeners, so that it can be added to the .tf file
+    all_listeners_resource_name="${sidecar_resource_name}_all_listeners"
+    listener_resource_foreach_defs_map[all_listeners_resource_name]="resource \"cyral_sidecar_listener\" \"${all_listeners_resource_name}\" {}"  
 
     for i in "${!listener_ids[@]}"; do
         # Check to ensure that listener name & resource has not already been stored
         if ! [[ -v listener_resource_id_to_address_map[${listener_ids[$i]}] ]]
         then
+            listener_json=$(
+                jq -r ".listenerConfigs[] | select(.id == \"${listener_ids[$i]}\")" \
+                <<<"$sidecar_listeners_json"
+            )
+            read listener_type listener_port  < <(
+                echo $(jq -r ".repoTypes[0], .address.port"<<<"$listener_json")
+            )
             # Construct import ID for the listener that was created during CP migration.
-            import_id="${sidecar_id}/${listener_ids[$i]}"
-            # Save empty resource definition for the listener, so that it can be added to the .tf file
-            listener_resource_name=${sidecar_resource_name}_listener_${repo_type}_${i}
-            listener_resource_defs+=("resource \"cyral_sidecar_listener\" \"${listener_resource_name}\" {}")
+            import_id="${sidecar_id}/${listener_ids[$i]}"          
             # Store import argument and name for listener
-            listener_resource_address="cyral_sidecar_listener.${listener_resource_name}"
+            listener_resource_address="cyral_sidecar_listener.${all_listeners_resource_name}[\"${listener_type}_${listener_port}\"]"
             listener_import_args+=("${listener_resource_address} ${import_id}")
             listener_resource_id_to_address_map[${listener_ids[$i]}]=${listener_resource_address}
         fi
@@ -319,7 +353,7 @@ echo
 echo -e "Appending empty resource definitions to the file: ${green}${CYRAL_TF_FILE_PATH}${clear}"
 
 printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
-printf '%s\n\n' "${listener_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+printf '%s\n\n' "${listener_resource_foreach_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
 
 echo "Importing the following cyral_sidecar_listeners into your Terraform state:"
 printf '%s\n' "${listener_resource_id_to_address_map[@]}"
@@ -350,6 +384,9 @@ done
 for access_gateway_key in ${!access_gateway_resource_foreach_defs_map[@]};do
     echo ${access_gateway_resource_foreach_defs_map[$access_gateway_key]%%"}"}$'\n\tfor_each={}\n}' >> ${MIGRATED_RESOURCES_CONFIG_FILE}.txt
 done
+for listener_key in ${!listener_resource_foreach_defs_map[@]};do
+    echo ${listener_resource_foreach_defs_map[$listener_key]%%"}"}$'\n\tfor_each={}\n}' >> ${MIGRATED_RESOURCES_CONFIG_FILE}.txt
+done
 
 for repo in ${repo_resource_id_to_address_map[@]};do
     if [[ "$repo" != $foreach_regex ]]; then # Skip if its a resource defined using a for_each
@@ -365,9 +402,6 @@ for access_gateway in ${access_gateway_resource_addresses[@]};do
     if [[ "$access_gateway" != $foreach_regex ]]; then # Skip if its a resource defined using a for_each
         terraform state show -no-color $access_gateway | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE}.txt
     fi
-done
-for listener in ${listener_resource_id_to_address_map[@]};do
-    terraform state show -no-color $listener | grep -v "   listener_id" | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE}.txt
 done
 
 # Replace resource IDs with full resource names.
