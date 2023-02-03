@@ -142,6 +142,8 @@ The Cyral Terraform Provider V4 Migration requires the following tools:
 
   * JQ. Download instructions can be found [here](https://stedolan.github.io/jq/download/).
 
+  * Set Control Plane configuration environment variables: `CYRAL_TF_CONTROL_PLANE`, `CYRAL_TF_CLIENT_ID`, `CYRAL_TF_CLIENT_SECRET`.
+
 The script will exit if either of these tools are not installed.
 
 ## Notes
@@ -171,6 +173,45 @@ In order to run the script, please perform the following actions:
 2.  Run the migration script (*make sure the script has the required permissions as mentioned*). Please read all instructions carefully while interacting with the script.
 
 3.  If migration failed, follow the prompts in the script to revert back to the previous state. Inspect the errors, and try again.
+
+## Configuring resources defined with `for_each`
+Using `terraform state list` might be helpfull to understand all the resources that are present in your terraform
+state.
+### `cyral_repository`
+#### General Configuration
+
+{{ tffile "examples/guides/4.0-migration-repo-general-config.tf" }}
+
+### MongoDB Configuration
+
+{{ tffile "examples/guides/4.0-migration-repo-mongodb-config.tf" }}
+
+### `cyral_sidecar_listener`
+Define a local variable to map the different repo type and port combinations, similar to the following:
+
+{{ tffile "examples/guides/4.0-migration-repo-type-port-mapping.tf" }}
+
+Then define the `cyral_sidecar_listener` resources using a for_each that iterates over the local variables:
+
+#### MySQL, MariaDB and Galera Configuration
+
+{{ tffile "examples/guides/4.0-migration-listener-mysql-config.tf" }}
+
+#### DynamoDB Configuration
+
+{{ tffile "examples/guides/4.0-migration-listener-dynamodb-config.tf" }}
+
+#### S3 Configuration
+
+{{ tffile "examples/guides/4.0-migration-listener-s3-config.tf" }}
+
+### `cyral_repository_binding`
+
+{{ tffile "examples/guides/4.0-migration-binding-config.tf" }}
+
+### `cyral_repository_access_gateway`
+
+{{ tffile "examples/guides/4.0-migration-access-gateway-config.tf" }}
 
 ## Troubleshooting
 

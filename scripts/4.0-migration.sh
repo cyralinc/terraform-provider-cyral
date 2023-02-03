@@ -33,7 +33,7 @@ fi
 if [[ -z $CYRAL_TF_CONTROL_PLANE || -z $CYRAL_TF_CLIENT_ID || -z $CYRAL_TF_CLIENT_SECRET ]];
 then
     echo "All of the following Control Plane configuration environment"
-    echo "variables must be set:" 
+    echo "variables must be set:"
     echo "- CYRAL_TF_CONTROL_PLANE"
     echo "- CYRAL_TF_CLIENT_ID"
     echo "- CYRAL_TF_CLIENT_SECRET"
@@ -89,8 +89,8 @@ access_gateway_resource_addresses=()
 repos_to_delete=()
 bindings_to_delete=()
 
-# Regex to determine if a resource was defined using a 
-# for_each in the terraform configuration. 
+# Regex to determine if a resource was defined using a
+# for_each in the terraform configuration.
 # (E.g.: cyral_repository.all_repos["mysql"])
 foreach_regex=*"[\""*
 
@@ -111,7 +111,7 @@ for resource_address in ${resources_to_migrate[@]}; do
     # Get repo ID. This will be used to import the updated repo.
     repo_id=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.id"<<<$tf_state_json))
     # Save an empty resource definition for a new repo, so that
-    # it can be added to the .tf file. We also check if this 
+    # it can be added to the .tf file. We also check if this
     # resource was defined using a for_each (E.g.: cyral_repository.all_repos["mysql"]).
     if [[ "$resource_address" == $foreach_regex ]]; then # If the resource was defined using a for_each
         resource_name=$(sed -e 's/\[[^][]*\]//'<<<${resource_address##"cyral_repository."})
@@ -325,7 +325,7 @@ for sidecar_id in ${!sidecar_resource_id_to_listener_ids_map[@]}; do
     sidecar_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${sidecar_resource_address##"cyral_sidecar."})
     # Save empty resource definition for all the sidecar listeners, so that it can be added to the .tf file
     all_listeners_resource_name="${sidecar_resource_name}_all_listeners"
-    listener_resource_foreach_defs_map[all_listeners_resource_name]="resource \"cyral_sidecar_listener\" \"${all_listeners_resource_name}\" {}"  
+    listener_resource_foreach_defs_map[all_listeners_resource_name]="resource \"cyral_sidecar_listener\" \"${all_listeners_resource_name}\" {}"
 
     for i in "${!listener_ids[@]}"; do
         # Check to ensure that listener name & resource has not already been stored
@@ -339,7 +339,7 @@ for sidecar_id in ${!sidecar_resource_id_to_listener_ids_map[@]}; do
                 echo $(jq -r ".repoTypes[0], .address.port"<<<"$listener_json")
             )
             # Construct import ID for the listener that was created during CP migration.
-            import_id="${sidecar_id}/${listener_ids[$i]}"          
+            import_id="${sidecar_id}/${listener_ids[$i]}"
             # Store import argument and name for listener
             listener_resource_address="cyral_sidecar_listener.${all_listeners_resource_name}[\"${listener_type}_${listener_port}\"]"
             listener_import_args+=("${listener_resource_address} ${import_id}")
