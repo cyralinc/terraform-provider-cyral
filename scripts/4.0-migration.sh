@@ -215,7 +215,7 @@ echo; echo; echo;
 echo "Now its time to upgrade your Cyral Terraform Provider to version 4!"
 echo
 echo -e "${green}Before we proceed, you will need to do the following${clear}:
-    1.  Open your Terraform .tf configuration file and change the version number of 
+    1.  Open your Terraform .tf configuration file and change the version number of
         the Cyral provider in the required_providers section of your .tf configuration
         file to '~>4.0'. It should look like this:
 ${green}    cyral = {
