@@ -155,19 +155,24 @@ If migration failed for one or two resources, do the following.
 4.  Once the script is finished, recreate the problematic resources using the new resource schema.
 
 
-## Configuring resources defined with `for_each`
+## Configuring resources defined with `for_each` or `count`
 
 This section should be used if you have `for_each` or `count` loops on your existing resources affected by the migration.
 The script will refer to this section when the execution is finished and then you can perform the manual changes
-on your code to adapt to the new resource schemas. The following sections describes the updates that needs to be
+on your code to adapt to the new resource schemas.
+
+The following sections describes the updates that needs to be
 performed in each resource: [`cyral_repository`](#cyral_repository), [`cyral_sidecar_listener`](#cyral_sidecar_listener),
 [`cyral_repository_binding`](#cyral_repository_binding) and [`cyral_repository_access_gateway`](#cyral_repository_access_gateway).
+
+All the examples use `for_each` loops, but can be easily adapted if you are using `count` instead.
 
 Should you need any help understanding all the resources persisted on your state in order to perform the changes,
 use the command `terraform state list`.
 
 ### `cyral_repository`
 #### General Configuration
+Use this example if you configuring a repository different than MongoDB.
 
 {{ tffile "examples/guides/4.0-migration/repo-general-config.tf" }}
 
