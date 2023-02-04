@@ -44,10 +44,10 @@ echo -e "${green}Welcome to Cyral's Terraform Provider Version 4.0 Migration scr
 echo
 echo \
 "This script will create new resource definitions for the
-cyral_repository and cyral_repository_binding resource that
-will be migrated. Additionally, cyral_sidecar_listener resources
-will be created, which are now required to bind sidecars to
-repositories."
+cyral_repository, cyral_repository_binding resources that 
+will be migrated. Additionally, cyral_repository_access_gateway 
+and cyral_sidecar_listener resources will be created, which are 
+now required to bind sidecars to repositories."
 echo
 echo -e "${green}Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file.${clear}"
 if [ -z "$CYRAL_TF_FILE_PATH" ]
@@ -469,8 +469,8 @@ echo "      cyral_repository_binding, cyral_repository_access_gateway and"
 echo "      cyral_sidecar_listener resources that were added to the"
 echo "      the end of your .tf file, which is named:"
 echo "      ${CYRAL_TF_FILE_PATH}"
-echo "  2.  Find all the resources defined with a for_each/count in the file"
-echo "      '${MIGRATED_RESOURCES_CONFIG_FILE}.tf'"
+echo "  2.  Find all the resources - if any - defined with a for_each/count"
+echo "      in the file '${MIGRATED_RESOURCES_CONFIG_FILE}.tf'"
 echo "      and finish configuring them according to their new schema."
 echo "      Please refer to the migration guide to find examples on "
 echo "      how to configure these resources."

@@ -30,14 +30,24 @@ then
     exit
 fi
 
+if [[ -z $CYRAL_TF_CONTROL_PLANE || -z $CYRAL_TF_CLIENT_ID || -z $CYRAL_TF_CLIENT_SECRET ]];	
+then	
+    echo "All of the following Control Plane configuration environment"	
+    echo "variables must be set:"	
+    echo "- CYRAL_TF_CONTROL_PLANE"	
+    echo "- CYRAL_TF_CLIENT_ID"	
+    echo "- CYRAL_TF_CLIENT_SECRET"	
+    exit	
+fi
+
 echo -e "${green}Welcome to Cyral's Terraform Provider Version 4.0 Migration script!${clear}"
 echo
 echo \
 "This script will create new resource definitions for the
-cyral_repository and cyral_repository_binding resource that
-will be migrated. Additionally, cyral_sidecar_listener resources
-will be created, which are now required to bind sidecars to
-repositories."
+cyral_repository, cyral_repository_binding, cyral_repository_user_accounts,
+cyral_repository_access_rules resources that will be migrated. Additionally,
+cyral_repository_access_gateway and cyral_sidecar_listener resources will be 
+created, which are now required to bind sidecars to repositories."
 echo
 echo -e "${green}Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file.${clear}"
 if [ -z "$CYRAL_TF_FILE_PATH" ]
@@ -62,34 +72,48 @@ user_account_import_args=()
 access_rule_import_args=()
 repo_import_args=()
 binding_import_args=()
-listener_import_args=()
 access_gateway_import_args=()
+listener_import_args=()
 
 # Empty resource definitions for resources to be imported
 user_account_resource_defs=()
 access_rule_resource_defs=()
 repo_resource_defs=()
 binding_resource_defs=()
-listener_resource_defs=()
 access_gateway_resource_defs=()
 
+declare -A user_account_resource_loop_defs_map
+declare -A access_rule_resource_loop_defs_map
+declare -A repo_resource_loop_defs_map	
+declare -A binding_resource_loop_defs_map	
+declare -A access_gateway_resource_loop_defs_map	
+declare -A listener_resource_foreach_defs_map
+
 # New full resource names
-user_account_resource_names=()
-access_rule_resource_names=()
-access_gateway_resource_names=()
+access_rule_resource_addresses=()
+access_gateway_resource_addresses=()
 
-declare -A repo_resource_id_to_name_map
-declare -A binding_resource_id_to_name_map
-declare -A listener_resource_id_to_name_map
-declare -A sidecar_resource_id_to_name_map
-declare -A user_account_resource_id_to_name_map
-
+declare -A user_account_resource_id_to_address_map
+declare -A repo_resource_id_to_address_map	
+declare -A binding_resource_id_to_address_map	
+declare -A listener_resource_id_to_address_map	
+declare -A sidecar_resource_id_to_address_map
 
 # Original full resource names for removing from tf state
 local_accounts_to_delete=()
 identity_maps_to_delete=()
 repos_to_delete=()
 bindings_to_delete=()
+
+# Regex to determine if a resource was defined using a	
+# loop (for_each/count) in the terraform configuration.	
+# (E.g.: cyral_repository.all_repos["mysql"],	
+#  cyral_repository.all_repos[0])	
+loop_regex=*"["*	
+# Regex to determine if a resource was defined using a	
+# for_each in the terraform configuration.	
+# (E.g.: cyral_repository.all_repos["mysql"])	
+foreach_regex=*"[\""*
 
 # Create array of repo, binding, local account and identity map resources to migrate
 resources_to_migrate=($(terraform state list | grep "cyral_repository\.\|cyral_repository_binding\.\|cyral_repository_local_account\.\|cyral_repository_identity_map\.\|cyral_sidecar\."))
@@ -98,99 +122,147 @@ tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
 # Find all cyral_repository, cyral_repository_binding, cyral_repository_identity_map and cyral_repository_local_account
 for resource_address in ${resources_to_migrate[@]}; do
-    if [[ $resource_address == cyral_repository.* ]];then
-        # We will need to delete this repo from the .tf file, so we
-        # store the full resource address.
-        repos_to_delete+=($resource_address)
-	    # Escape the double quotes so we find it using jq
-	    resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
-        # Get repo ID. This will be used to import the updated repo.
-        repo_id=($(jq -r "select(.address == \"$resource_address\") | .values.id"<<<$tf_state_json))
-        # Remove [] and \" from the resource address and substitute [ for _
-        # E.g. cyral_repository.repo[\"0\"] -> cyral_repository.repo_0
-        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
-        # Save an empty resource definition for a new repo, so that
-        # it can be added to the .tf file.
-        repo_resource_defs+=("resource \"cyral_repository\" \"${resource_address##"cyral_repository."}\" {}")
-        # Store import resource address and repo ID, which will be the argument to terraform import.
-        repo_import_args+=("${resource_address} ${repo_id}")
-        repo_resource_id_to_name_map[${repo_id}]=${resource_address}
-    elif [[ $resource_address == cyral_repository_binding.* ]]; then
+    if [[ $resource_address == cyral_repository.* ]]	
+    then	
+        # We will need to delete this repo from the .tf file, so we	
+        # store the full resource address.	
+        repos_to_delete+=($resource_address)	
+        # Escape the double quotes so we find it using jq	
+        escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)	
+        # Get repo ID. This will be used to import the updated repo.	
+        repo_id=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.id"<<<$tf_state_json))	
+        # Store import resource address and repo ID, which will be the argument to terraform import.	
+        repo_import_args+=("$resource_address $repo_id")	
+        repo_resource_id_to_address_map[${repo_id}]=${resource_address}	
+        # Get resource name and remove possible brackets (E.g.: ["mysql], [0], etc)	
+        resource_name=$(sed -e 's/\[[^][]*\]//'<<<${resource_address##"cyral_repository."})	
+        # Create resource definition to be used during import	
+        resource_definition="resource \"cyral_repository\" \"${resource_name}\" {}"	
+        # Save an empty resource definition for a new repo, so that	
+        # it can be added to the .tf file. We also check if this	
+        # resource was defined using a loop (E.g.: cyral_repository.all_repos["mysql"]).	
+        if [[ "$resource_address" == $loop_regex ]]; then # If the resource was defined using a loop	
+            repo_resource_loop_defs_map[$resource_name]=$resource_definition	
+        else # If its a normal resource definition	
+            repo_resource_defs+=("$resource_definition")	
+        fi
+    elif [[ $resource_address == cyral_repository_binding.* ]]
+    then
         # We will need to delete this sidecar binding from the .tf file, store its name
         bindings_to_delete+=($resource_address)
-	    # Escape the double quotes so we find it using jq
-	    resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
+        # Escape the double quotes so we find it using jq
+        escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
         # Get ids required to import binding resource.
-        id_values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.sidecar_id, .values.repository_id, .values.sidecar_as_idp_access_gateway"<<<$tf_state_json))
+        id_values_array=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.sidecar_id, .values.repository_id, .values.sidecar_as_idp_access_gateway"<<<$tf_state_json))
         # Construct import ID for the repository binding that was migrated in CP.
-        import_id="${id_values_arr[0]}/${id_values_arr[1]}"
-	    # Remove [] and \" from the resource address
-        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
-        # If the binding is an access gateway, we will need to import it.
-        if [[ ${id_values_arr[2]} == true ]]; then
-            # Construct a name for the access gateway resource based on the binding resource name.
-            access_gateway_resource_name="${resource_address##"cyral_repository_binding."}_access_gateway"
-            # Contruct full resource name for the access gateway.
-            access_gateway_full_resource_name="cyral_repository_access_gateway.${access_gateway_resource_name}"
-            # Save empty resource definition for the access gateway, so that it can be added to the .tf file
-            access_gateway_resource_defs+=("resource \"cyral_repository_access_gateway\" \"${access_gateway_resource_name}\" {}")
-            # Store import argument and name for access gateway
-            access_gateway_import_args+=("${access_gateway_full_resource_name} ${id_values_arr[1]}")
-            access_gateway_resource_names+=(${access_gateway_full_resource_name})
-        fi
-        # Save empty resource definition for the binding, so that it can be added to the .tf file
-        binding_resource_defs+=("resource \"cyral_repository_binding\" \"${resource_address##"cyral_repository_binding."}\" {}")
+        import_id="${id_values_array[0]}/${id_values_array[1]}"
         # Store import argument and name for binding
-        binding_import_args+=("${resource_address} ${import_id}")
-        binding_resource_id_to_name_map[${id_values_arr[1]}]=${resource_address}
+        binding_import_args+=("$resource_address $import_id")
+        binding_resource_id_to_address_map[${id_values_array[1]}]=${resource_address}
+        # Get resource name and remove possible brackets (E.g.: ["mysql], [0], etc)
+        binding_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${resource_address##"cyral_repository_binding."})
+        # Create resource definition to be used during import
+        binding_resource_definition="resource \"cyral_repository_binding\" \"${binding_resource_name}\" {}"
+        if [[ "$resource_address" == $loop_regex ]]; then  # If the resource was defined using a loop
+            # Save empty resource definition for the binding, so that it can be added to the .tf file
+            binding_resource_loop_defs_map[$binding_resource_name]=$binding_resource_definition
+            # If the binding is an access gateway, we will need to import it.
+            if [[ ${id_values_array[2]} == true ]]
+            then
+                # Construct a name for the access gateway resource based on the binding resource name.
+                access_gateway_resource_name="${binding_resource_name}_access_gateways"
+                # Extract the binding key. For 'cyral_repository_binding.all_bindings["binding_0"]'
+                # the binding key would be binding_0, for example.
+                binding_key=$(echo $resource_address | awk -F '[\\[\\]]' '{print $2}')
+                # Contruct full resource address for the access gateway.
+                access_gateway_resource_address="cyral_repository_access_gateway.${access_gateway_resource_name}[$binding_key]"
+                # Store import argument and address for access gateway
+                access_gateway_import_args+=("$access_gateway_resource_address ${id_values_array[1]}")
+                access_gateway_resource_addresses+=(${access_gateway_resource_address})
+                # Save empty resource definition for the access gateway, so that it can be added to the .tf file
+                access_gateway_resource_loop_defs_map[$access_gateway_resource_name]="resource \"cyral_repository_access_gateway\" \"${access_gateway_resource_name}\" {}"
+            fi
+        else # If its a normal resource definition
+            # Save empty resource definition for the binding, so that it can be added to the .tf file
+            binding_resource_defs+=("$binding_resource_definition")
+            # If the binding is an access gateway, we will need to import it.
+            if [[ ${id_values_array[2]} == true ]]
+            then
+                # Construct a name for the access gateway resource based on the binding resource name.
+                access_gateway_resource_name="${binding_resource_name}_access_gateway"
+                # Contruct full resource name for the access gateway.
+                access_gateway_resource_address="cyral_repository_access_gateway.${access_gateway_resource_name}"
+                # Store import argument and name for access gateway
+                access_gateway_import_args+=("$access_gateway_resource_address ${id_values_array[1]}")
+                access_gateway_resource_addresses+=(${access_gateway_resource_address})
+                # Save empty resource definition for the access gateway, so that it can be added to the .tf file
+                access_gateway_resource_defs+="resource \"cyral_repository_access_gateway\" \"${access_gateway_resource_name}\" {}"
+            fi
+        fi
     elif [[ $resource_address == cyral_repository_identity_map.* ]]; then
         # We will need to delete this identity map from the .tf file, store its name
         identity_maps_to_delete+=($resource_address)
 	    # Escape the double quotes so we find it using jq
-	    resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
+	    escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
         # Get repo ID, local account ID, identity_type and access_duration for the identity map.
-        values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_state_json))
+        values_arr=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_state_json))
         if [[ ${values_arr[3]} != $empty_access_duration ]] && [[ ${values_arr[2]} == "user" ]]; then
             # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
             continue
         fi
         # Construct import ID for the access rule that was migrated from this identity map.
         import_id="${values_arr[0]}/${values_arr[1]}"
-        # Remove [] and \" from the resource as they are not supported and substitute [ for _
-        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
         # Construct name of the access rule that will be imported.
-        import_name=cyral_repository_access_rules.${resource_address##"cyral_repository_identity_map."}
-        # Save name of the new access rule, so that it can be added to the .tf file
-        access_rule_resource_defs+=("resource \"cyral_repository_access_rules\" \"${resource_address##"cyral_repository_identity_map."}\" {}")
+        access_rule_resource_address=cyral_repository_access_rules.${resource_address##"cyral_repository_identity_map."}
         # Store import name and ID as a key value pair
-        import_kv_pair="${import_name} ${import_id}"
+        import_kv_pair="${access_rule_resource_address} ${import_id}"
         access_rule_import_args+=("${import_kv_pair}")
-        access_rule_resource_names+=("${import_name}")
+        access_rule_resource_addresses+=("${access_rule_resource_address}")
+        # Get resource name and remove possible brackets (E.g.: ["mysql], [0], etc)
+        access_rule_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${access_rule_resource_address##"cyral_repository_access_rules."})
+        # Create resource definition to be used during import
+        resource_definition="resource \"cyral_repository_access_rules\" \"${access_rule_resource_name}\" {}"
+        # Save an empty definition for the resource, so that
+        # it can be added to the .tf file. We also check if this
+        # resource was defined using a loop (E.g.: cyral_repository.all_repos["mysql"]).
+        if [[ "$resource_address" == $loop_regex ]]; then # If the resource was defined using a loop
+            access_rule_resource_loop_defs_map[$access_rule_resource_name]=$resource_definition
+        else # If its a normal resource definition
+            access_rule_resource_defs+=("$resource_definition")
+        fi
     elif [[ $resource_address == cyral_repository_local_account.* ]]; then
         # We will need to delete this local account from the .tf file, store its name
         local_accounts_to_delete+=($resource_address)
 	    # Escape the double quotes so we find it using jq
-	    resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
+	    escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
         # Get local account ID for the local account.
-        values_arr=($(jq -r "select(.address == \"$resource_address\") | .values.repository_id, .values.id"<<<$tf_state_json))
+        values_arr=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.repository_id, .values.id"<<<$tf_state_json))
         # Construct import ID for the user account that was migrated from this local account.
         import_id="${values_arr[0]}/${values_arr[1]}"
-        # Remove [] and \" from the resource as they are not supported and substitute [ for _
-        resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$resource_address)
         # Construct name of the user account that will be imported.
-        import_name=cyral_repository_user_account.${resource_address##"cyral_repository_local_account."}
-        # Save name of the migrated user account, so that it can be added to the .tf file
-        user_account_resource_defs+=("resource \"cyral_repository_user_account\" \"${resource_address##"cyral_repository_local_account."}\" {}")
+        user_account_resource_address=cyral_repository_user_account.${resource_address##"cyral_repository_local_account."}
         # Store import name and ID as a key value pair
-        import_kv_pair="${import_name} ${import_id}"
+        import_kv_pair="${user_account_resource_address} ${import_id}"
         user_account_import_args+=("${import_kv_pair}")
-        user_account_resource_id_to_name_map[${values_arr[1]}]=${import_name}
+        user_account_resource_id_to_address_map[${values_arr[1]}]=${user_account_resource_address}
+        # Get resource name and remove possible brackets (E.g.: ["mysql], [0], etc)
+        user_account_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${user_account_resource_address##"cyral_repository_user_account."})
+        # Create resource definition to be used during import
+        resource_definition="resource \"cyral_repository_user_account\" \"${user_account_resource_name}\" {}"
+        # Save an empty definition for the resource, so that
+        # it can be added to the .tf file. We also check if this
+        # resource was defined using a loop (E.g.: cyral_repository.all_repos["mysql"]).
+        if [[ "$resource_address" == $loop_regex ]]; then # If the resource was defined using a loop
+            user_account_resource_loop_defs_map[$user_account_resource_name]=$resource_definition
+        else # If its a normal resource definition
+            user_account_resource_defs+=("$resource_definition")
+        fi
     elif [[ $resource_address == cyral_sidecar.* ]]
     then
         # Get sidecar ID.
         sidecar_id=($(jq -r "select(.address == \"$resource_address\") | .values.id"<<<$tf_state_json))
         # Store full resource name with ID. We need this to replace references to the sidecar id with the sidecar resource's full resource name.
-        sidecar_resource_id_to_name_map[${sidecar_id}]=${resource_address}
+        sidecar_resource_id_to_address_map[${sidecar_id}]=${resource_address}
     fi
 done
 
@@ -204,8 +276,13 @@ read -p "Would you like this script to append these lines to the .tf file ${CYRA
 if [[  $REPLY =~ ^[Yy]$ ]]
 then
     printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
-    printf '%s\n\n' "${binding_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${repo_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}	
+    printf '%s\n\n' "${binding_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}	
+    printf '%s\n\n' "${access_gateway_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${user_account_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${access_rule_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${repo_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${binding_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${access_gateway_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${user_account_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${access_rule_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
@@ -218,14 +295,14 @@ echo; echo; echo;
 echo "Now its time to upgrade your Cyral Terraform Provider to version 4!"
 echo
 echo -e "${green}Before we proceed, you will need to do the following${clear}:
-    1.  Open your Terraform .tf configuration file.
-    2.  Change the version number of the cyral provider in the required_providers
-        section of your .tf configuration file to '~>4.0'. It should look like this:
+    1.  Open your Terraform .tf configuration file and change the version number of
+        the Cyral provider in the required_providers section of your .tf configuration 
+        file to '~>4.0'. It should look like this:
 ${green}    cyral = {
                 source  = \"cyralinc/cyral\"
                 version = \"~>4.0\"
             }${clear}
-    3. Ensure that new empty resource definitions were added to the end of
+    2. Ensure that new empty resource definitions were added to the end of
         your .tf file. The definitions will look like this:
             Repositories
             resource \"cyral_repository\" \"<resource_name>\" {}
@@ -246,7 +323,7 @@ ${green}    cyral = {
     *        ${red}IMPORTANT STEP PLEASE DONT SKIP${clear}       *
     *                                              *
     ************************************************
-    4.  Find all non-empty references to cyral_repository, cyral_repository_binding,
+    3.  Find all non-empty references to cyral_repository, cyral_repository_binding,
         cyral_repository_identity_map, and cyral_repository_local_account resources
         in your .tf file and remove the entire resource definition
         for each one. Please leave the empty resource definitions that were added by
@@ -276,19 +353,19 @@ terraform state rm ${identity_maps:1:${#identity_maps}-2}
 
 echo
 echo "Importing the following cyral_repository resources into your Terraform state:"
-printf '%s\n' "${repo_resource_id_to_name_map[@]}"
+printf '%s\n' "${repo_resource_id_to_address_map[@]}"
 echo
 echo "Importing the following cyral_repository_binding resources into your Terraform state:"
-printf '%s\n' "${binding_resource_id_to_name_map[@]}"
+printf '%s\n' "${binding_resource_id_to_address_map[@]}"
 echo
 echo "Importing the following cyral_repository_access_gateway resources into your Terraform state:"
-printf '%s\n' "${access_gateway_resource_names[@]}"
+printf '%s\n' "${access_gateway_resource_addresses[@]}"
 echo
 echo "Importing the following cyral_repository_user_account resources into your Terraform state:"
-printf '%s\n' "${user_account_resource_id_to_name_map[@]}"
+printf '%s\n' "${user_account_resource_id_to_address_map[@]}"
 echo
 echo "Importing the following cyral_repository_access_rule resources into your Terraform state:"
-printf '%s\n' "${access_rule_resource_names[@]}"
+printf '%s\n' "${access_rule_resource_addresses[@]}"
 echo
 
 for repo in "${repo_import_args[@]}";do
@@ -318,44 +395,81 @@ migrated_bindings=($(terraform state list | grep "cyral_repository_binding"))
 # Store terraform state JSON representation
 tf_state_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
+declare -A sidecar_resource_id_to_listener_ids_map
+
+NEW_LINE=$'\n'
+
 for binding in "${migrated_bindings[@]}"; do
-    # Get ids required to import listener resource.
-    binding_name=${binding##"cyral_repository_binding."}
-    binding_json=$(jq -r "select(.address == \"cyral_repository_binding.${binding_name}\")"<<<"$tf_state_json")
+    # Escape the double quotes so we find it using jq
+    escaped_binding_resource_address=$(sed -e 's/\"/\\"/g'<<<$binding)
+    binding_json=$(jq -r "select(.address == \"${escaped_binding_resource_address}\")"<<<"$tf_state_json")
     sidecar_id=$(jq -r ".values.sidecar_id"<<<"$binding_json")
     listener_ids=$(jq -r ".values.listener_binding[] | .listener_id"<<<"$binding_json")
+    current_listener_ids=${sidecar_resource_id_to_listener_ids_map[$sidecar_id]}
+    # Concat listener ids using a line break separator
+    sidecar_resource_id_to_listener_ids_map[$sidecar_id]="$current_listener_ids${NEW_LINE}$listener_ids"
+done
 
+for sidecar_id in ${!sidecar_resource_id_to_listener_ids_map[@]}; do
+    listener_ids=${sidecar_resource_id_to_listener_ids_map[$sidecar_id]}
     SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
-    IFS=$'\n'      # Change IFS to newline char
+    IFS=$NEW_LINE  # Change IFS to newline char
     listener_ids=($listener_ids) # split the `listener_ids` string into an array
     IFS=$SAVEIFS   # Restore original IFS
 
+    # Get sidecar listeners so that we can create the listener resource name.
+    # Since listeners are associated to a repo type and port combination, the name
+    # should follow the format ${sidecar_resource_name}_listener_${type}_${port}
+    access_token=$(
+        curl --location --request POST \
+        "https://${CYRAL_TF_CONTROL_PLANE}/v1/users/oidc/token" \
+        --header "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "grant_type=client_credentials" \
+        --data-urlencode "clientId=${CYRAL_TF_CLIENT_ID}" \
+        --data-urlencode "clientSecret=${CYRAL_TF_CLIENT_SECRET}" | jq -r '.access_token'
+    )
+    sidecar_listeners_json=$(
+        curl --location --request GET \
+        "https://${CYRAL_TF_CONTROL_PLANE}/v1/sidecars/${sidecar_id}/listeners" \
+        --header "Authorization: Bearer ${access_token}"
+    )
+
+    sidecar_resource_address=${sidecar_resource_id_to_address_map[${sidecar_id}]}
+    sidecar_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${sidecar_resource_address##"cyral_sidecar."})
+    # Save empty resource definition for all the sidecar listeners, so that it can be added to the .tf file
+    listeners_resource_name="${sidecar_resource_name}_listeners"
+    listener_resource_foreach_defs_map[$listeners_resource_name]="resource \"cyral_sidecar_listener\" \"${listeners_resource_name}\" {}"
+
     for i in "${!listener_ids[@]}"; do
         # Check to ensure that listener name & resource has not already been stored
-        if ! [[ -v listener_resource_id_to_name_map[${listener_ids[$i]}] ]]
+        if ! [[ -v listener_resource_id_to_address_map[${listener_ids[$i]}] ]]
         then
+            listener_json=$(
+                jq -r ".listenerConfigs[] | select(.id == \"${listener_ids[$i]}\")" \
+                <<<"$sidecar_listeners_json"
+            )
+            read listener_type listener_port  < <(
+                echo $(jq -r ".repoTypes[0], .address.port"<<<"$listener_json")
+            )
             # Construct import ID for the listener that was created during CP migration.
             import_id="${sidecar_id}/${listener_ids[$i]}"
-            # Save empty resource definition for the listener, so that it can be added to the .tf file
-            listener_resource_name=${binding_name}_listener_${i}
-            listener_resource_defs+=("resource \"cyral_sidecar_listener\" \"${listener_resource_name}\" {}")
             # Store import argument and name for listener
-            listener_resource_full_name="cyral_sidecar_listener.${listener_resource_name}"
-            listener_import_args+=("${listener_resource_full_name} ${import_id}")
-            listener_resource_id_to_name_map[${listener_ids[$i]}]=${listener_resource_full_name}
+            listener_resource_address="cyral_sidecar_listener.${listeners_resource_name}[\"${listener_type}_${listener_port}\"]"
+            listener_import_args+=("${listener_resource_address} ${import_id}")
+            listener_resource_id_to_address_map[${listener_ids[$i]}]=${listener_resource_address}
         fi
     done
 done
 
-echo "Found ${#listener_resource_id_to_name_map[@]} cyral_sidecar_listener resources to import."
+echo "Found ${#listener_resource_id_to_address_map[@]} cyral_sidecar_listener resources to import."
 echo
 echo -e "Appending empty resource definitions to the file: ${green}${CYRAL_TF_FILE_PATH}${clear}"
 
 printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
-printf '%s\n\n' "${listener_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+printf '%s\n\n' "${listener_resource_foreach_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
 
 echo "Importing the following cyral_sidecar_listeners into your Terraform state:"
-printf '%s\n' "${listener_resource_id_to_name_map[@]}"
+printf '%s\n' "${listener_resource_id_to_address_map[@]}"
 echo
 
 for listener in "${listener_import_args[@]}";do
@@ -367,71 +481,136 @@ done
 # the correct values. We do this by printing the resource definition from the terraform
 # state, then remove any computed values. Finally, we append the new resource definitions
 # to a seperate .tf file, containing all of the resources that were migrated.
-for binding in ${binding_resource_id_to_name_map[@]};do
-    terraform state show -no-color $binding | grep -v "   binding_id" | grep -v "   id " >> cyral_migration_repositories_bindings_listeners.txt
+# OBS: For resources defined using a loop, we just append an empty resource definition	
+# since its expected that users will have to configure the resources manually based	
+# on their specific terraform configuration.
+
+MIGRATED_RESOURCES_CONFIG_FILE_3_0="migrated_repository_access_rules_and_user_accounts"
+MIGRATED_RESOURCES_CONFIG_FILE_4_0="migrated_repositories_bindings_access_gateways_listeners"
+
+# Write loop resources definitions
+for repo_resource_name in ${!repo_resource_loop_defs_map[@]};do
+    resource_address=($(terraform state list | grep "cyral_repository.${repo_resource_name}" | head -1))
+    if [[ "$resource_address" == $foreach_regex ]]; then # If its a for_each definition
+        loop_definition="for_each={}"
+    else # If its a count definition
+        loop_definition="count=length()"
+    fi
+    echo ${repo_resource_loop_defs_map[$repo_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
 done
-for repo in ${repo_resource_id_to_name_map[@]};do
-    terraform state show -no-color $repo | grep -v "   id " >> cyral_migration_repositories_bindings_listeners.txt
+for binding_resource_name in ${!binding_resource_loop_defs_map[@]};do
+    resource_address=($(terraform state list | grep "cyral_repository_binding.${binding_resource_name}" | head -1))
+    if [[ "$resource_address" == $foreach_regex ]]; then # If its a for_each definition
+        loop_definition="for_each={}"
+    else # If its a count definition
+        loop_definition="count=length()"
+    fi
+    echo ${binding_resource_loop_defs_map[$binding_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
 done
-for listener in ${listener_resource_id_to_name_map[@]};do
-    terraform state show -no-color $listener | grep -v "   listener_id" | grep -v "   id " >> cyral_migration_repositories_bindings_listeners.txt
+for access_gateway_resource_name in ${!access_gateway_resource_loop_defs_map[@]};do
+    resource_address=($(terraform state list | grep "cyral_repository_access_gateway.${access_gateway_resource_name}" | head -1))
+    if [[ "$resource_address" == $foreach_regex ]]; then # If its a for_each definition
+        loop_definition="for_each={}"
+    else # If its a count definition
+        loop_definition="count=length()"
+    fi
+    echo ${access_gateway_resource_loop_defs_map[$access_gateway_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
 done
-for access_gateway in ${access_gateway_resource_names[@]};do
-    terraform state show -no-color $access_gateway | grep -v "   id " >> cyral_migration_repositories_bindings_listeners.txt
+for listener_key in ${!listener_resource_foreach_defs_map[@]};do
+    echo ${listener_resource_foreach_defs_map[$listener_key]%%"}"}$'\n\tfor_each={}\n}' >> ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+done
+for user_account_resource_name in ${!user_account_resource_loop_defs_map[@]};do
+    resource_address=($(terraform state list | grep "cyral_repository_user_account.${user_account_resource_name}" | head -1))
+    if [[ "$resource_address" == $foreach_regex ]]; then # If its a for_each definition
+        loop_definition="for_each={}"
+    else # If its a count definition
+        loop_definition="count=length()"
+    fi
+    echo ${user_account_resource_loop_defs_map[$user_account_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
+done
+for access_rule_resource_name in ${!access_rule_resource_loop_defs_map[@]};do
+    resource_address=($(terraform state list | grep "cyral_repository_access_rule.${access_rule_resource_name}" | head -1))
+    if [[ "$resource_address" == $foreach_regex ]]; then # If its a for_each definition
+        loop_definition="for_each={}"
+    else # If its a count definition
+        loop_definition="count=length()"
+    fi
+    echo ${access_rule_resource_loop_defs_map[$access_rule_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
 done
 
-for user_account in ${user_account_resource_id_to_name_map[@]};do
-    terraform state show -no-color $user_account | grep -v "   user_account_id" | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
+for repo in ${repo_resource_id_to_address_map[@]};do
+    if [[ "$repo" != $loop_regex ]]; then # Skip if its a resource defined using a loop
+        terraform state show -no-color $repo | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+    fi
 done
-for access_rule in ${access_rule_resource_names[@]};do
-    terraform state show -no-color $access_rule | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
+for binding in ${binding_resource_id_to_address_map[@]};do
+    if [[ "$binding" != $loop_regex ]]; then # # Skip if its a resource defined using a loop
+        terraform state show -no-color $binding | grep -v "   binding_id" | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+    fi
+done
+for access_gateway in ${access_gateway_resource_addresses[@]};do
+    if [[ "$access_gateway" != $loop_regex ]]; then # Skip if its a resource defined using a loop
+        terraform state show -no-color $access_gateway | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+    fi
+done
+for user_account in ${user_account_resource_id_to_address_map[@]};do
+    if [[ "$user_account" != $loop_regex ]]; then # Skip if its a resource defined using a loop
+        terraform state show -no-color $user_account | grep -v "   user_account_id" | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
+    fi
+done
+for access_rule in ${access_rule_resource_addresses[@]};do
+    if [[ "$access_rule" != $loop_regex ]]; then # Skip if its a resource defined using a loop
+        terraform state show -no-color $access_rule | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
+    fi
 done
 
 # Replace resource IDs with full resource names.
-for binding_id in ${!binding_resource_id_to_name_map[@]};do
-    sed -i.bak "s/[[:space:]]*binding_id[[:space:]]*=[[:space:]]*\"${binding_id}\"/   binding_id = ${binding_resource_id_to_name_map[${binding_id}]}.binding_id/g" cyral_migration_repositories_bindings_listeners.txt
+for repo_id in ${!repo_resource_id_to_address_map[@]};do
+    sed -i.bak "s/[[:space:]]*repository_id[[:space:]]*=[[:space:]]*\"${repo_id}\"/   repository_id = ${repo_resource_id_to_address_map[${repo_id}]}.id/g" ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+    sed -i.bak "s/[[:space:]]*repository_id[[:space:]]*=[[:space:]]*\"${repo_id}\"/   repository_id = ${repo_resource_id_to_address_map[${repo_id}]}.id/g" ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
+done
+for binding_id in ${!binding_resource_id_to_address_map[@]};do
+    sed -i.bak "s/[[:space:]]*binding_id[[:space:]]*=[[:space:]]*\"${binding_id}\"/   binding_id = ${binding_resource_id_to_address_map[${binding_id}]}.binding_id/g" ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+done
+for listener_id in ${!listener_resource_id_to_address_map[@]};do
+    sed -i.bak "s/[[:space:]]*listener_id[[:space:]]*=[[:space:]]*\"${listener_id}\"/   listener_id = ${listener_resource_id_to_address_map[${listener_id}]}.listener_id/g" ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+done
+for sidecar_id in ${!sidecar_resource_id_to_address_map[@]};do
+    sed -i.bak "s/[[:space:]]*sidecar_id[[:space:]]*=[[:space:]]*\"${sidecar_id}\"/   sidecar_id = ${sidecar_resource_id_to_address_map[${sidecar_id}]}.id/g" ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt
+done
+for user_account_id in ${!user_account_resource_id_to_address_map[@]};do
+    sed -i.bak "s/[[:space:]]*user_account_id[[:space:]]*=[[:space:]]*\"${user_account_id}\"/   user_account_id = ${user_account_resource_id_to_address_map[${user_account_id}]}.user_account_id/g" ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
 done
 
-for repo_id in ${!repo_resource_id_to_name_map[@]};do
-    sed -i.bak "s/[[:space:]]*repository_id[[:space:]]*=[[:space:]]*\"${repo_id}\"/   repository_id = ${repo_resource_id_to_name_map[${repo_id}]}.id/g" cyral_migration_repositories_bindings_listeners.txt
-    sed -i.bak "s/[[:space:]]*repository_id[[:space:]]*=[[:space:]]*\"${repo_id}\"/   repository_id = ${repo_resource_id_to_name_map[${repo_id}]}.id/g" cyral_migration_repository_access_rules_and_user_accounts.txt
-done
-
-for listener_id in ${!listener_resource_id_to_name_map[@]};do
-    sed -i.bak "s/[[:space:]]*listener_id[[:space:]]*=[[:space:]]*\"${listener_id}\"/   listener_id = ${listener_resource_id_to_name_map[${listener_id}]}.listener_id/g" cyral_migration_repositories_bindings_listeners.txt
-done
-
-for sidecar_id in ${!sidecar_resource_id_to_name_map[@]};do
-    sed -i.bak "s/[[:space:]]*sidecar_id[[:space:]]*=[[:space:]]*\"${sidecar_id}\"/   sidecar_id = ${sidecar_resource_id_to_name_map[${sidecar_id}]}.id/g" cyral_migration_repositories_bindings_listeners.txt
-done
-
-for user_account_id in ${!user_account_resource_id_to_name_map[@]};do
-    sed -i.bak "s/[[:space:]]*user_account_id[[:space:]]*=[[:space:]]*\"${user_account_id}\"/   user_account_id = ${user_account_resource_id_to_name_map[${user_account_id}]}.user_account_id/g" cyral_migration_repository_access_rules_and_user_accounts.txt
-done
-
-mv cyral_migration_repositories_bindings_listeners.txt cyral_migration_repositories_bindings_listeners.tf
-mv cyral_migration_repository_access_rules_and_user_accounts.txt cyral_migration_repository_access_rules_and_user_accounts.tf
-rm cyral_migration_repositories_bindings_listeners.txt.bak
-rm cyral_migration_repository_access_rules_and_user_accounts.txt.bak
+mv ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.tf
+mv ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.tf
+rm ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.txt.bak
+rm ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt.bak
 terraform fmt
 
 echo; echo; echo;
 echo "Now that the Terraform state is up-to-date, let's clean up your .tf file."
 echo "This script created two new .tf files containing the resources definitions"
-echo "for the news resources that were migrated into your Terraform state."
+echo "for the new resources that were migrated into your Terraform state."
 echo "The new .tf files are called:"
 echo
-echo "cyral_migration_repositories_bindings_listeners.tf"
-echo "cyral_migration_repository_access_rules_and_user_accounts.tf"
+echo "${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.tf"
+echo "${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.tf"
 echo
 echo
-echo "It is finally time to remove the empty resources from your .tf files."
+echo "It is finally time to remove the empty resources from your .tf files"
+echo "and finish configuring the remaining resources."
 echo "Please perform the following actions: "
 echo
-echo -e "  1.  ${green}Remove the empty resource definitions that were
+echo -e "  1. Remove the empty resource definitions that were
               added to the end of your .tf file, which is named:
-              ${CYRAL_TF_FILE_PATH}${clear}"
-echo
+              ${green}${CYRAL_TF_FILE_PATH}${clear}"
+echo -e "  2.  Find all the resources - if any - defined with a for_each/count
+               in the files '${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.tf'
+               and ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.tf and
+               finish configuring them according to their new schema.
+               Please refer to the migration guide to find examples on 
+               how to configure these resources."
 echo
 echo -e "When you are done, run the following command:
         ${green}terraform plan${clear}"
@@ -459,8 +638,8 @@ echo "  1.  Replace the contents of your .tf file ${CYRAL_TF_FILE_PATH} "
 echo "      with the contents of cyral_terraform_migration_backup_configuration.txt. "
 echo "  2.  Delete the following files that were created by the script: "
 echo "      - cyral_terraform_migration_backup_configuration.txt"
-echo "      - cyral_migration_repositories_bindings_listeners.tf"
-echo "      - cyral_migration_repository_access_rules_and_user_accounts.tf"
+echo "      - ${MIGRATED_RESOURCES_CONFIG_FILE_4_0}.tf"
+echo "      - ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.tf"
 echo
 read -p "Are you ready to revert to your pre-migration Terraform state? [N/y] " -n 1 -r
 echo    # move to a new line
