@@ -22,7 +22,7 @@ terraform {
   required_providers {
     cyral = {
       source  = "cyralinc/cyral"
-      version = "~> 3.0"
+      version = "~> 4.0"
     }
     okta = {
       source = "okta/okta"
@@ -161,14 +161,14 @@ resource "cyral_repository" "mongodb_repo" {
   }
 
   mongodb_settings {
-      # Specify the replica set identifier, a string value that
-      # identifies the MongoDB replica set cluster. To find your
-      # replica set ID, see our article:
-      #
-      # * https://cyral.freshdesk.com/a/solutions/articles/44002241594
-      replica_set_name = "some-replica-set"
-      server_type = "replicaset"
-    }
+    # Specify the replica set identifier, a string value that
+    # identifies the MongoDB replica set cluster. To find your
+    # replica set ID, see our article:
+    #
+    # * https://cyral.freshdesk.com/a/solutions/articles/44002241594
+    replica_set_name = "some-replica-set"
+    server_type = "replicaset"
+  }
 }
 
 resource "cyral_repository_conf_auth" "mongodb_repo_auth_config" {
@@ -228,9 +228,9 @@ resource "cyral_repository_binding" "mongodb_repo_binding" {
 
 # Set the access gateway for the repository.
 resource "cyral_repository_access_gateway" "mongodb_access_gateway" {
-		repository_id  = cyral_repository.mongodb_repo.id
-		sidecar_id  = cyral_sidecar.mongodb_sidecar.id
-		binding_id = cyral_repository_binding.mongodb_repo_binding.binding_id
+  repository_id  = cyral_repository.mongodb_repo.id
+  sidecar_id  = cyral_sidecar.mongodb_sidecar.id
+  binding_id = cyral_repository_binding.mongodb_repo_binding.binding_id
 }
 
 
