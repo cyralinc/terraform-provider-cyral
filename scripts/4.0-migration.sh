@@ -44,9 +44,9 @@ echo -e "${green}Welcome to Cyral's Terraform Provider Version 4.0 Migration scr
 echo
 echo \
 "This script will create new resource definitions for the
-cyral_repository, cyral_repository_binding resources that 
-will be migrated. Additionally, cyral_repository_access_gateway 
-and cyral_sidecar_listener resources will be created, which are 
+cyral_repository, cyral_repository_binding resources that
+will be migrated. Additionally, cyral_repository_access_gateway
+and cyral_sidecar_listener resources will be created, which are
 now required to bind sidecars to repositories."
 echo
 echo -e "${green}Please set CYRAL_TF_FILE_PATH equal to the file path of your .tf file.${clear}"
