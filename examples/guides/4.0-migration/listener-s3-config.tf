@@ -4,15 +4,14 @@ resource "cyral_sidecar_listener" "sidecar_all_listeners" {
   sidecar_id = cyral_sidecar.sidecar.id
 
   network_address {
-    host          = "0.0.0.0"
-    port          = each.value.port
+    host = "0.0.0.0"
+    port = each.value.port
   }
 
-  dynamic "mysql_settings" {
-    for_each = each.value.type == "mysql" ? [""] : []
+  dynamic "s3_settings" {
+    for_each = each.value.type == "s3" ? [""] : []
     content {
-      character_set = ""
-      db_version = ""
+      proxy_mode = true
     }
   }
 }

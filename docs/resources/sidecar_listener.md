@@ -122,7 +122,7 @@ Optional:
 Optional:
 
 - `character_set` (String) MySQL character set. Optional (and only relevant) for listeners of type `mysql`.
-- `db_version` (String) MySQL DB version. Required (and only relevant) for listeners of type `mysql`.
+- `db_version` (String) MySQL advertised DB version. Required (and only relevant) for listeners of type `mysql`.
 
 <a id="nestedblock--s3_settings"></a>
 

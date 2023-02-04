@@ -1,5 +1,5 @@
 ---
-page_title: "Cyral Terraform Provider V4 Migration Guide"
+page_title: "Cyral Terraform Provider v4 Migration Guide"
 ---
 
 This guide will take you through the steps required to upgrade your Cyral Terraform provider
@@ -7,161 +7,141 @@ to MAJOR version 4. The Terraform migration can be performed on any Cyral Terraf
 version `2.x` or `3.x`.
 The migration will be handled by an interactive Bash script.
 
-## Why Migration is Required
+# Why Migration is Required
 
-Cyral Terraform Provider V4 Migration is required when upgrading a Cyral Control Plane (CP) to MAJOR version 4. Major version 4 introduces breaking changes to Cyral's repositories and repository bindings. It also introduces the concept of sidecar listeners and access gateways, which are now separate from repository bindings.
+Cyral Terraform Provider v4 Migration is required when upgrading a Cyral Control Plane (CP) to MAJOR version 4. Major version 4 introduces breaking changes to Cyral's repositories and repository bindings. It also introduces the concept of sidecar listeners and access gateways, which are now separate from repository bindings.
 
 When the Cyral CP is upgraded to major version 4, the CP will automatically migrate these objects from the old
 data model to the new data model, and create sidecar listener and access gateways appropriately. However, if you
 are using Terraform to manage these resources, attempting to run `terraform plan` after the CP has been upgraded
 will fail, due to breaking API changes and corresponding changes in the schema definitions for the resources.
 
-In order to update your Cyral Terraform Provider V4, we have provided scripts that will remove all
+In order to update your Cyral Terraform Provider v4, we have provided scripts that will remove all
 `cyral_repository` and `cyral_repository_binding` resources from your Terraform state, and then import the newly
 migrated versions from the Cyral CP. These scripts ensure that all resources are imported properly into your
 Terraform state and configuration files.
 
-### Resource Changes
+## Resource changes
 
-Cyral Terraform Provider V4 introduces breaking changes to `cyral_repository` and `cyral_repository_binding` resources. The new schema defintions can be found here:
-  *  [cyral_repository](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository)
-  *   [cyral_repository_binding](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding)
+Cyral Terraform Provider v4 introduces [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar.
 
-Cyral Terraform Provider V4 introduces [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar. This feature allows you to define multiple listener configurations for a single sidecar, with a new resource called a `cyral_sidecar_listener`. In addition, the field `sidecar_as_idp_access_gateway` of a `cyral_repository_binding` has moved to a
-new resource, called a `cyral_repository_access_gateway`.
+With the introduction of [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), it is now possible to define multiple listener configurations for a single sidecar. This feature required some breaking changes to the schema of [`cyral_repository`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository) and [`cyral_repository_binding`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding) while also adding new resources. Here is the summary of the changes:
 
-Please see the example below of how resource definitions for `cyral_repository` and `cyral_repository_binding` resources would be rewritten upon upgrading to Cyral Terraform Provider V4.
+  * New resources named [`cyral_sidecar_listener`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/sidecar_listener) and [`cyral_repository_access_gateway`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_access_gateway) were introduced.
+  * Argument `cyral_repository.host` was moved to `cyral_repository.repo_node.host`.
+  * Argument `cyral_repository.port` was moved to `cyral_repository.repo_node.port`.
+  * Argument `cyral_repository.properties.mongodb_replica_set.max_nodes` was removed. The argument is no
+  longer used and is automatically inferred from the number of `repo_node` blocks declared in
+  `cyral_repository`.
+  * Argument `cyral_repository.properties.mongodb_replica_set.replica_set_id` was moved to `cyral_repository.mongodb_settings.replica_set_name`.
+  * Argument `cyral_repository_binding.listener_host` was moved to `cyral_sidecar_listener.network_address.host`.
+  * Argument `cyral_repository_binding.listener_port` was moved to `cyral_sidecar_listener.network_address.port`.
+  * Argument `cyral_repository_binding.sidecar_as_idp_access_gateway` was moved to the resource [`cyral_repository_access_gateway`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_access_gateway). Please check the resource documentation.
 
-Before upgrading to Cyral Terraform Provider V4, a configuration for the resources listed above would look something
-like this:
+Please see the example below of how resource definitions for `cyral_repository` and `cyral_repository_binding` resources would be rewritten upon upgrading to Cyral Terraform Provider v4.
 
-    ```
-    resource "cyral_repository" "mongo_repo" {
-      name = "mongo-repo"
-      host = "mongodb.cyral.com"
-      port = 27017
-      type = "mongodb"
-    }
-    resource "cyral_repository_binding" "mongo_binding" {
-      enabled                       = true
-      repository_id                 = cyral_repository.mongo_repo.id
-      sidecar_id                    = cyral_sidecar.sidecar.id
-      listener_port                 = 27017
-      sidecar_as_idp_access_gateway = true
-    }
-    ```
+In the previous version of the provider, binding a MongoDB repository accessible on port `27017` to a sidecar `cyral_sidecar.sidecar` using port `27020` would look like the following:
 
-After upgrade, the resource definitions above would be rewritten as follows:
+{{ tffile "examples/guides/4.0-migration/example-resources-before-v4.tf" }}
 
-    ```
-    resource "cyral_repository" "mongo_repo" {
-      name = "mongo-repo"
-      type = "mongodb"
-      repo_node {
-        host = "mongodb.cyral.com"
-        port = 27017
-      }
-    }
+In the v4 of this provider the resource definitions above would be rewritten as follows:
 
-    resource "cyral_repository_binding" "binding" {
-      sidecar_id    = cyral_sidecar.sidecar.id
-      repository_id = cyral_repository.mongo_repo.id
-      enabled       = true
-      listener_binding {
-        listener_id = cyral_sidecar_listener.listener.listener_id
-        node_index  = 0
-      }
-    }
+{{ tffile "examples/guides/4.0-migration/example-resources-v4.tf" }}
 
-    resource "cyral_sidecar_listener" "listener" {
-      sidecar_id = cyral_sidecar.sidecar.id
-      repo_types = ["mongodb"]
-      network_address {
-        port = 27017
-      }
-    }
-
-    resource "cyral_repository_access_gateway" "access_gateway" {
-      repository_id = cyral_repository.mongo_repo.id
-      sidecar_id    = cyral_sidecar.sidecar.id
-      binding_id    = cyral_repository_binding.binding.binding_id
-    }
-    ```
-
-## Data sources
+## Data source changes
 
 The `cyral_repository` data source output contains breaking changes. The new schema can be found [here](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/data-sources/repository). Please note that if you have any output blocks configured
-for `cyral_repository` data sources, you will need to rewrite them after migration is completed.
+for `cyral_repository` data sources, **you will need to rewrite them after migration is completed**.
 
-## Migrating to Cyral Terraform Provider to 4.0
+----
+
+# Migrating to Cyral Terraform provider 4.0
 
 The following sections contain step-by-step instructions on how to migrate the Cyral Terraform Provider
-to version 4.0.
+to version 4.0 using a migration script created to facilitate the process. This script will import the
+new and existing resource to your local state allowing you to migrate your Terraform code without
+having to rebuild the configuration and minimizing the manual effort to update to v4.
 
-### Migrating from 3.X to 4.0
+We prepared an example of what a repository configuration looked like in v3 and how it looks in v4.
+You can find the v3 example [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/examples/guides/3.x-config-example.tf)
+and its equivalent in v4 [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/examples/guides/4.0-config-example.tf).
 
-The following steps should be taken to upgrade the Cyral CP and the Cyral Terraform provider:
-
-1. **Before upgrading the CP to V4**, please run `terraform apply` to ensure your Terraform state is up-to-date.
-
-2. Upgrade the Cyral CP to MAJOR version 4.
-
-3. Remove all `cyral_repository` data source output blocks. If you have any output blocks configured
-for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
-migration is completed.
-
-4. Run the Cyral Terraform Provider [V4 Migration Script](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/4.0-migration.sh) after upgrading
-the Cyral CP to MAJOR version 4.
-
-~> **WARNING** It is essential that the Cyral Terraform Provider V4 Migration is run **after** the CP has been upgraded.
-
-### Migrating from 2.X to 4.0
-
-The following steps should be taken to upgrade the Cyral CP and the Cyral Terraform provider:
-
-1. **Before upgrading the CP to V4**, please run `terraform apply` to ensure your Terraform state is up-to-date.
-
-2. Upgrade the Cyral CP to MAJOR version 4.
-
-3. Remove all `cyral_repository` data source output blocks. If you have any output blocks configured
-for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
-migration is completed.
-
-4. Run the Cyral Terraform Provider [V2-V4 Migration Script](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/2.X-4.0-migration.sh) after upgrading
-the Cyral CP to MAJOR version 4.
-
-~> **WARNING** It is essential that the Cyral Terraform Provider V2-V4 Migration is run **after** the CP has been upgraded.
+If you are migrating directly from v2, refer also to the [Cyral Terraform Provider v3 Migration Guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/3.0-migration-guide)
+for information on the provider changes from v2 to v3.
 
 ## Prerequisites
 
-The Cyral Terraform Provider V4 Migration requires the following tools:
+The migration script requires the following tools:
 
-  * Bash Version 4 or higher. The script will check your $BASH_VERSION environment variable, and exit if it is not set to a version 4.0 or higher.
+  * Bash Version 4 or higher. The script will check your `$BASH_VERSION` environment variable, and exit if it is not set to a version 4.0 or higher.
 
   * Terraform CLI. Download instructions can be found [here](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
   * JQ. Download instructions can be found [here](https://stedolan.github.io/jq/download/).
 
-  * Set Control Plane configuration environment variables: `CYRAL_TF_CONTROL_PLANE`, `CYRAL_TF_CLIENT_ID`, `CYRAL_TF_CLIENT_SECRET`.
+  * Access configuration to your Cyral Control Plane set to the following environment variables before running the script:
+    * `CYRAL_TF_CONTROL_PLANE` (`[tenant].app.cyral.com`)
+    * `CYRAL_TF_CLIENT_ID`
+    * `CYRAL_TF_CLIENT_SECRET`.
 
-The script will exit if either of these tools are not installed.
+The script will exit if either of these tools are not installed or the environment variables are not set.
 
-## Notes
+### Notes
 
-1. This script requires permissions sufficient for creating files. Please ensure that the script has the required permissions before running it.
+1. The script requires permissions sufficient for creating files. Please ensure that the script has the required permissions before running it.
 
-2. This script will append empty resource definitions to the end of your .tf file. Apart from that, it will not modify the resource definitions
-   currently in your .tf file in any way. However, it will ask you to manually bump the Cyral Provider version halfway through the script.
-   It will also ask you to manually remove both the empty resource definitions it appended to your .tf file, as well as all resource definitions
+2. The script will **append** empty resource definitions to the end of your `.tf` file. Apart from that, it will not modify the resource definitions
+   currently in your `.tf` file in any way. However, it will ask you to manually bump the Cyral Provider version halfway through the script.
+   It will also ask you to manually remove both the empty resource definitions it appended to your `.tf` file, as well as all resource definitions
    for resources that are no longer supported.
 
 3. Please carefully read all of the prompts that appear throughout the script.
 
-## Running the Script
+----
 
-Cyral Terraform Provider **V3 to V4 Migration** script can be found [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/4.0-migration.sh).
+## Migrating from 3.x to 4.0
 
-Cyral Terraform Provider **V2 to V4 Migration** script can be found [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/2.X-4.0-migration.sh).
+The following steps should be taken to upgrade the Cyral CP and the Cyral Terraform provider:
+
+1. **Before upgrading the CP to v4**, please run `terraform apply` to ensure your Terraform state is up-to-date.
+
+2. Upgrade the Cyral CP to MAJOR version 4 (contact our Customer Success team to schedule it).
+
+3. Remove all `cyral_repository` data source output blocks. If you have any output blocks configured
+for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
+migration is completed.
+
+4. Run the Cyral Terraform Provider [v4 Migration Script](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/4.0-migration.sh) after upgrading
+the Cyral CP to MAJOR version 4. Refer to the [Running the migration script](#running-the-migration-script) section of this page for more information.
+
+~> **WARNING** It is essential that the Cyral Terraform Provider v4 Migration is run **after** the CP has been upgraded.
+
+----
+
+## Migrating from 2.x to 4.0
+
+The following steps should be taken to upgrade the Cyral CP and the Cyral Terraform provider:
+
+1. **Before upgrading the CP to v4**, please run `terraform apply` to ensure your Terraform state is up-to-date.
+
+2. Upgrade the Cyral CP to MAJOR version 4 (contact our Customer Success team to schedule it).
+
+3. Remove all `cyral_repository` data source output blocks. If you have any output blocks configured
+for `cyral_repository` data sources, you will need to rewrite them based on the new schema after
+migration is completed.
+
+4. Run the Cyral Terraform Provider [v2-v4 Migration Script](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/2.X-4.0-migration.sh) after upgrading
+the Cyral CP to MAJOR version 4. Refer to the [Running the migration script](#running-the-migration-script) section of this page for more information.
+
+~> **WARNING** It is essential that the Cyral Terraform Provider v2-v4 Migration is run **after** the CP has been upgraded.
+
+----
+
+## Running the migration script
+
+Find the instructions for [Migrating from 3.x to 4.0](#migrating-from-3x-to-40) or [Migrating from 2.x to 4.0](#migrating-from-2x-to-40)
+accordingly to your needs. The migration script from **v3 to v4** can found [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/4.0-migration.sh)
+and from **v2 to v4** can be found [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/2.X-4.0-migration.sh).
 
 These scripts will create a backup of your Terraform state before attempting to upgrade your Cyral Terraform provider and performing the migration.
 If migration fails, you will have the option to revert to the Terraform state that was present before running the script, so that you can try again.
@@ -170,50 +150,11 @@ In order to run the script, please perform the following actions:
 
 1.  Download the script and copy it into the directory containing the Terraform module you wish to migrate.
 
-2.  Run the migration script (*make sure the script has the required permissions as mentioned*). Please read all instructions carefully while interacting with the script.
+2.  Run the migration script (*make sure the script has the required permissions as mentioned in the [requirements section](#requirements)). Please read all instructions carefully while interacting with the script.
 
 3.  If migration failed, follow the prompts in the script to revert back to the previous state. Inspect the errors, and try again.
 
-## Configuring resources defined with `for_each`
-Using `terraform state list` might be helpfull to understand all the resources that are present in your terraform
-state.
-### `cyral_repository`
-#### General Configuration
-
-{{ tffile "examples/guides/4.0-migration-repo-general-config.tf" }}
-
-### MongoDB Configuration
-
-{{ tffile "examples/guides/4.0-migration-repo-mongodb-config.tf" }}
-
-### `cyral_sidecar_listener`
-Define a local variable to map the different repo type and port combinations, similar to the following:
-
-{{ tffile "examples/guides/4.0-migration-repo-type-port-mapping.tf" }}
-
-Then define the `cyral_sidecar_listener` resources using a for_each that iterates over the local variables:
-
-#### MySQL, MariaDB and Galera Configuration
-
-{{ tffile "examples/guides/4.0-migration-listener-mysql-config.tf" }}
-
-#### DynamoDB Configuration
-
-{{ tffile "examples/guides/4.0-migration-listener-dynamodb-config.tf" }}
-
-#### S3 Configuration
-
-{{ tffile "examples/guides/4.0-migration-listener-s3-config.tf" }}
-
-### `cyral_repository_binding`
-
-{{ tffile "examples/guides/4.0-migration-binding-config.tf" }}
-
-### `cyral_repository_access_gateway`
-
-{{ tffile "examples/guides/4.0-migration-access-gateway-config.tf" }}
-
-## Troubleshooting
+### Troubleshooting
 
 If migration failed for one or two resources, do the following.
 
@@ -221,3 +162,55 @@ If migration failed for one or two resources, do the following.
 2.  Manually remove the problematic resources from your .tf file, and copy them elsewhere.
 3.  Run the migration script again.
 4.  Once the script is finished, recreate the problematic resources using the new resource schema.
+
+## Configuring resources defined with `for_each` or `count`
+
+This section should be used if you have `for_each` or `count` loops on your existing resources affected by the migration.
+The script will refer to this section when the execution is finished and then you can perform the manual changes
+on your code to adapt to the new resource schemas.
+
+The following sections describes the updates that needs to be
+performed in each resource: [`cyral_repository`](#cyral_repository), [`cyral_sidecar_listener`](#cyral_sidecar_listener),
+[`cyral_repository_binding`](#cyral_repository_binding) and [`cyral_repository_access_gateway`](#cyral_repository_access_gateway).
+
+All the examples use `for_each` loops, but can be easily adapted if you are using `count` instead.
+
+Should you need any help understanding all the resources persisted on your state in order to perform the changes,
+use the command `terraform state list`.
+
+### `cyral_repository`
+#### General Configuration
+Use this example if you configuring a repository different than MongoDB.
+
+{{ tffile "examples/guides/4.0-migration/repo-general-config.tf" }}
+
+#### MongoDB Configuration
+
+{{ tffile "examples/guides/4.0-migration/repo-mongodb-config.tf" }}
+
+### `cyral_sidecar_listener`
+Define a local variable to map the different repo type and port combinations, similar to the following:
+
+{{ tffile "examples/guides/4.0-migration/repo-type-port-mapping.tf" }}
+
+Then define the `cyral_sidecar_listener` resources using a for_each that iterates over the local variables:
+
+#### MySQL, MariaDB and Galera Configuration
+
+{{ tffile "examples/guides/4.0-migration/listener-mysql-config.tf" }}
+
+#### DynamoDB Configuration
+
+{{ tffile "examples/guides/4.0-migration/listener-dynamodb-config.tf" }}
+
+#### S3 Configuration
+
+{{ tffile "examples/guides/4.0-migration/listener-s3-config.tf" }}
+
+### `cyral_repository_binding`
+
+{{ tffile "examples/guides/4.0-migration/binding-config.tf" }}
+
+### `cyral_repository_access_gateway`
+
+{{ tffile "examples/guides/4.0-migration/access-gateway-config.tf" }}
