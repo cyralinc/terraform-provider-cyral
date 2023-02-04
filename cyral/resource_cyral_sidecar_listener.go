@@ -292,7 +292,7 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						DbVersionKey: {
-							Description: "MySQL DB version. Required (and only relevant) for listeners of type `mysql`.",
+							Description: "MySQL advertised DB version. Required (and only relevant) for listeners of type `mysql`.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},

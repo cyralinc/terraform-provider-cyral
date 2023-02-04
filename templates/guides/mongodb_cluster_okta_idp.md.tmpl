@@ -17,11 +17,11 @@ don't need to be followed strictly.
 
 Set required provider versions:
 
-{{ tffile "examples/guides/mongodb_cluster_okta_idp_versions.tf" }}
+{{ tffile "examples/guides/mongodb_cluster/okta_idp_versions.tf" }}
 
 Configure the providers:
 
-{{ tffile "examples/guides/mongodb_cluster_okta_idp_providers.tf" }}
+{{ tffile "examples/guides/mongodb_cluster/okta_idp_providers.tf" }}
 
 ## Configure Sidecar and MongoDB repository
 
@@ -30,20 +30,20 @@ and replace argument values according to your needs. The `template` mentioned in
 the comments is the sidecar Terraform deployment template for AWS you may download from
 the Cyral control plane or see [in the public repository](https://github.com/cyralinc/terraform-cyral-sidecar-aws).
 
-{{ tffile "examples/guides/mongodb_cluster_okta_idp_sidecar.tf" }}
+{{ tffile "examples/guides/mongodb_cluster/okta_idp_sidecar.tf" }}
 
 ## Configure a user account with the database credentials
 
 Put the following in `user_account.tf`.
 
-{{ tffile "examples/guides/mongodb_cluster_okta_idp_user_account.tf" }}
+{{ tffile "examples/guides/mongodb_cluster/okta_idp_user_account.tf" }}
 
 ## Configure Okta IdP
 
 Finally, configure the Okta integration with the Cyral control plane. Put the
 code in the file `integration.tf`.
 
-{{ tffile "examples/guides/mongodb_cluster_okta_idp_integration.tf" }}
+{{ tffile "examples/guides/mongodb_cluster/okta_idp_integration.tf" }}
 
 ## Testing
 
