@@ -40,11 +40,11 @@ With the introduction of [Smart Ports](https://cyral.com/docs/v4.0/sidecars/side
 
 Please see the example below of how resource definitions for `cyral_repository` and `cyral_repository_binding` resources would be rewritten upon upgrading to Cyral Terraform Provider v4.
 
-Before upgrading to Cyral Terraform Provider v4, a configuration to bind a repository to a sidecar resource `cyral_sidecar.sidecar` that exposes a MongoDB instance that lives in port `27017` in the sidecar port `27020` would look something like this:
+In the previous version of the provider, binding a MongoDB repository accessible on port `27017` to a sidecar `cyral_sidecar.sidecar` using port `27020` would look like the following:
 
 {{ tffile "examples/guides/4.0-migration/example-resources-before-v4.tf" }}
 
-After upgrade the resource definitions above would be rewritten as follows:
+In the v4 of this provider the resource definitions above would be rewritten as follows:
 
 {{ tffile "examples/guides/4.0-migration/example-resources-v4.tf" }}
 
@@ -65,6 +65,9 @@ having to rebuild the configuration and minimizing the manual effort to update t
 We prepared an example of what a repository configuration looked like in v3 and how it looks in v4.
 You can find the v3 example [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/examples/guides/3.x-config-example.tf)
 and its equivalent in v4 [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/examples/guides/4.0-config-example.tf).
+
+If you are migrating directly from v2, refer also to the [Cyral Terraform Provider v3 Migration Guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/3.0-migration-guide)
+for information on the provider changes from v2 to v3.
 
 ## Prerequisites
 
