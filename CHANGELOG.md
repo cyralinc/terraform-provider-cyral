@@ -1,3 +1,13 @@
+## 4.0.2 (February 3, 2023)
+
+Minimum required Control Plane version: `v4.0.0`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Bug fixes:
+
+- **Update 4.0 migration guide to properly handle for_each resource definitions**: [#350](https://github.com/cyralinc/terraform-provider-cyral/pull/#350).
+
 ## 4.0.1 (February 1, 2023)
 
 Minimum required Control Plane version: `v4.0.0`.
