@@ -69,7 +69,7 @@ empty_access_duration="$(printf '%s' '[]')"
 
 # Arguments for terraform import command
 user_account_import_args=()
-access_rule_import_args=()
+declare -A access_rules_resource_id_to_import_args_map=()
 repo_import_args=()
 binding_import_args=()
 access_gateway_import_args=()
@@ -77,22 +77,22 @@ listener_import_args=()
 
 # Empty resource definitions for resources to be imported
 user_account_resource_defs=()
-access_rule_resource_defs=()
+declare -A access_rules_resource_id_to_defs_map=()
 repo_resource_defs=()
 binding_resource_defs=()
 access_gateway_resource_defs=()
 
 declare -A user_account_resource_loop_defs_map
-declare -A access_rule_resource_loop_defs_map
+declare -A access_rules_resource_name_to_loop_defs_map
 declare -A repo_resource_loop_defs_map
 declare -A binding_resource_loop_defs_map
 declare -A access_gateway_resource_loop_defs_map
 declare -A listener_resource_foreach_defs_map
 
 # New full resource names
-access_rule_resource_addresses=()
 access_gateway_resource_addresses=()
 
+declare -A access_rules_resource_id_to_address_map=()
 declare -A user_account_resource_id_to_address_map
 declare -A repo_resource_id_to_address_map
 declare -A binding_resource_id_to_address_map
@@ -155,9 +155,9 @@ for resource_address in ${resources_to_migrate[@]}; do
         # Get ids required to import binding resource.
         id_values_array=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.sidecar_id, .values.repository_id, .values.sidecar_as_idp_access_gateway"<<<$tf_state_json))
         # Construct import ID for the repository binding that was migrated in CP.
-        import_id="${id_values_array[0]}/${id_values_array[1]}"
+        resource_id="${id_values_array[0]}/${id_values_array[1]}"
         # Store import argument and name for binding
-        binding_import_args+=("$resource_address $import_id")
+        binding_import_args+=("$resource_address $resource_id")
         binding_resource_id_to_address_map[${id_values_array[1]}]=${resource_address}
         # Get resource name and remove possible brackets (E.g.: ["mysql], [0], etc)
         binding_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${resource_address##"cyral_repository_binding."})
@@ -210,25 +210,25 @@ for resource_address in ${resources_to_migrate[@]}; do
             # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
             continue
         fi
-        # Construct import ID for the access rule that was migrated from this identity map.
-        import_id="${values_arr[0]}/${values_arr[1]}"
         # Construct name of the access rule that will be imported.
-        access_rule_resource_address=cyral_repository_access_rules.${resource_address##"cyral_repository_identity_map."}
+        access_rules_resource_address=cyral_repository_access_rules.${resource_address##"cyral_repository_identity_map."}
+        # Construct import ID for the access rule that was migrated from this identity map.
+        resource_id="${values_arr[0]}/${values_arr[1]}"
+        access_rules_resource_id_to_address_map[${resource_id}]="${access_rules_resource_address}"
         # Store import name and ID as a key value pair
-        import_kv_pair="${access_rule_resource_address} ${import_id}"
-        access_rule_import_args+=("${import_kv_pair}")
-        access_rule_resource_addresses+=("${access_rule_resource_address}")
+        import_args="${access_rules_resource_address} ${resource_id}"
+        access_rules_resource_id_to_import_args_map[${resource_id}]="${import_args}"
         # Get resource name and remove possible brackets (E.g.: ["mysql], [0], etc)
-        access_rule_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${access_rule_resource_address##"cyral_repository_access_rules."})
+        access_rules_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${access_rules_resource_address##"cyral_repository_access_rules."})
         # Create resource definition to be used during import
-        resource_definition="resource \"cyral_repository_access_rules\" \"${access_rule_resource_name}\" {}"
+        resource_definition="resource \"cyral_repository_access_rules\" \"${access_rules_resource_name}\" {}"
         # Save an empty definition for the resource, so that
         # it can be added to the .tf file. We also check if this
         # resource was defined using a loop (E.g.: cyral_repository.all_repos["mysql"]).
         if [[ "$resource_address" == $loop_regex ]]; then # If the resource was defined using a loop
-            access_rule_resource_loop_defs_map[$access_rule_resource_name]=$resource_definition
+            access_rules_resource_name_to_loop_defs_map[${access_rules_resource_name}]=$resource_definition
         else # If its a normal resource definition
-            access_rule_resource_defs+=("$resource_definition")
+            access_rules_resource_id_to_defs_map[${resource_id}]=$resource_definition
         fi
     elif [[ $resource_address == cyral_repository_local_account.* ]]; then
         # We will need to delete this local account from the .tf file, store its name
@@ -238,12 +238,12 @@ for resource_address in ${resources_to_migrate[@]}; do
         # Get local account ID for the local account.
         values_arr=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.repository_id, .values.id"<<<$tf_state_json))
         # Construct import ID for the user account that was migrated from this local account.
-        import_id="${values_arr[0]}/${values_arr[1]}"
+        resource_id="${values_arr[0]}/${values_arr[1]}"
         # Construct name of the user account that will be imported.
         user_account_resource_address=cyral_repository_user_account.${resource_address##"cyral_repository_local_account."}
         # Store import name and ID as a key value pair
-        import_kv_pair="${user_account_resource_address} ${import_id}"
-        user_account_import_args+=("${import_kv_pair}")
+        import_args="${user_account_resource_address} ${resource_id}"
+        user_account_import_args+=("${import_args}")
         user_account_resource_id_to_address_map[${values_arr[1]}]=${user_account_resource_address}
         # Get resource name and remove possible brackets (E.g.: ["mysql], [0], etc)
         user_account_resource_name=$(sed -e 's/\[[^][]*\]//'<<<${user_account_resource_address##"cyral_repository_user_account."})
@@ -280,12 +280,12 @@ then
     printf '%s\n\n' "${binding_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${access_gateway_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${user_account_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
-    printf '%s\n\n' "${access_rule_resource_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${access_rules_resource_name_to_loop_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${repo_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${binding_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${access_gateway_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${user_account_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
-    printf '%s\n\n' "${access_rule_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${access_rules_resource_id_to_defs_map[@]}" >> ${CYRAL_TF_FILE_PATH}
 else
     echo "Exiting..."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
@@ -365,7 +365,7 @@ echo "Importing the following cyral_repository_user_account resources into your 
 printf '%s\n' "${user_account_resource_id_to_address_map[@]}"
 echo
 echo "Importing the following cyral_repository_access_rule resources into your Terraform state:"
-printf '%s\n' "${access_rule_resource_addresses[@]}"
+printf '%s\n' "${access_rules_resource_id_to_address_map[@]}"
 echo
 
 for repo in "${repo_import_args[@]}";do
@@ -377,11 +377,11 @@ done
 for access_gateway in "${access_gateway_import_args[@]}";do
     terraform import $access_gateway
 done
-for user_account_id in "${user_account_import_args[@]}";do
-    terraform import $user_account_id
+for user_account in "${user_account_import_args[@]}";do
+    terraform import $user_account
 done
-for access_rule_id in "${access_rule_import_args[@]}";do
-    terraform import $access_rule_id
+for access_rule in "${access_rules_resource_id_to_import_args_map[@]}";do
+    terraform import $access_rule
 done
 
 # Only after we have imported the migrated bindings, we have access to the
@@ -452,10 +452,10 @@ for sidecar_id in ${!sidecar_resource_id_to_listener_ids_map[@]}; do
                 echo $(jq -r ".repoTypes[0], .address.port"<<<"$listener_json")
             )
             # Construct import ID for the listener that was created during CP migration.
-            import_id="${sidecar_id}/${listener_ids[$i]}"
+            resource_id="${sidecar_id}/${listener_ids[$i]}"
             # Store import argument and name for listener
             listener_resource_address="cyral_sidecar_listener.${listeners_resource_name}[\"${listener_type}_${listener_port}\"]"
-            listener_import_args+=("${listener_resource_address} ${import_id}")
+            listener_import_args+=("${listener_resource_address} ${resource_id}")
             listener_resource_id_to_address_map[${listener_ids[$i]}]=${listener_resource_address}
         fi
     done
@@ -528,14 +528,14 @@ for user_account_resource_name in ${!user_account_resource_loop_defs_map[@]};do
     fi
     echo ${user_account_resource_loop_defs_map[$user_account_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
 done
-for access_rule_resource_name in ${!access_rule_resource_loop_defs_map[@]};do
-    resource_address=($(terraform state list | grep "cyral_repository_access_rule.${access_rule_resource_name}" | head -1))
+for access_rules_resource_name in ${!access_rules_resource_name_to_loop_defs_map[@]};do
+    resource_address=($(terraform state list | grep "cyral_repository_access_rules.${access_rules_resource_name}" | head -1))
     if [[ "$resource_address" == $foreach_regex ]]; then # If its a for_each definition
         loop_definition="for_each={}"
     else # If its a count definition
         loop_definition="count=length()"
     fi
-    echo ${access_rule_resource_loop_defs_map[$access_rule_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
+    echo ${access_rules_resource_name_to_loop_defs_map[$access_rules_resource_name]%%"}"}$'\n\t'${loop_definition}$'\n}\n' >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
 done
 
 for repo in ${repo_resource_id_to_address_map[@]};do
@@ -558,7 +558,7 @@ for user_account in ${user_account_resource_id_to_address_map[@]};do
         terraform state show -no-color $user_account | grep -v "   user_account_id" | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
     fi
 done
-for access_rule in ${access_rule_resource_addresses[@]};do
+for access_rule in ${access_rules_resource_id_to_address_map[@]};do
     if [[ "$access_rule" != $loop_regex ]]; then # Skip if its a resource defined using a loop
         terraform state show -no-color $access_rule | grep -v "   id " >> ${MIGRATED_RESOURCES_CONFIG_FILE_3_0}.txt
     fi

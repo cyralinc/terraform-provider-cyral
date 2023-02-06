@@ -76,15 +76,15 @@ for resource_address in ${tf_state[@]}; do
     # We will need to delete this identity map from the .tf file, store its name
     identity_maps_to_delete+=($resource_address)
     # Escape the double quotes so we find it using jq
-    quoted_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
+    escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
     # Get repo ID, local account ID, identity_type and access_duration for the identity map.
-    values_arr=($(jq -r "select(.address == \"$quoted_resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_json))
+    values_arr=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_json))
     if [[ ${values_arr[3]} != $empty_access_duration ]] && [[ ${values_arr[2]} == "user" ]]; then
         # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
         continue
     fi
     # Remove [] and \" from the resource as they are not supported and substitute [ for _
-    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$quoted_resource_address)
+    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$escaped_resource_address)
     # Construct name of the access rule that will be imported.
     access_rules_resouce_name=${resource_address##"cyral_repository_identity_map."}
     access_rules_resouce_address=cyral_repository_access_rules.${access_rules_resouce_name}
@@ -101,13 +101,13 @@ for resource_address in ${tf_state[@]}; do
     # We will need to delete this local account from the .tf file, store its name
     local_accounts_to_delete+=($resource_address)
     # Escape the double quotes so we find it using jq
-    quoted_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
+    escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
     # Get local account ID for the local account.
-    values_arr=($(jq -r "select(.address == \"$quoted_resource_address\") | .values.repository_id, .values.id"<<<$tf_json))
+    values_arr=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.repository_id, .values.id"<<<$tf_json))
     # Construct import ID for the user account that was migrated from this local account.
     resource_id="${values_arr[0]}/${values_arr[1]}"
     # Remove [] and \" from the resource as they are not supported and substitute [ for _
-    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$quoted_resource_address)
+    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$escaped_resource_address)
     # Construct name of the user account that will be imported.
     user_account_resource_name=${resource_address##"cyral_repository_local_account."}
     user_account_resource_address=cyral_repository_user_account.${user_account_resource_name}
