@@ -6,12 +6,12 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 ### Bug fixes:
 
-- **Fix identity map issues on 3.0-migration script**: [#353](https://github.com/cyralinc/terraform-provider-cyral/pull/#353).
-- **Removed mentions of cassandra and bigquery as they are not supported as repo types**: [#332](https://github.com/cyralinc/terraform-provider-cyral/pull/#332).
+- **Fix identity map issues on 3.0-migration script**: [#353](https://github.com/cyralinc/terraform-provider-cyral/pull/353).
+- **Removed mentions of cassandra and bigquery as they are not supported as repo types**: [#332](https://github.com/cyralinc/terraform-provider-cyral/pull/332).
 
 ### Improvements:
 
-- **Improved migration script runtime by using less pipes**: [#324](https://github.com/cyralinc/terraform-provider-cyral/pull/#324).
+- **Improved migration script runtime by using less pipes**: [#324](https://github.com/cyralinc/terraform-provider-cyral/pull/324).
 
 ## 3.0.4 (November 18, 2022)
 
@@ -21,7 +21,7 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 ### Bug fixes:
 
-- **Modified the script to call terraform show less**: [#320](https://github.com/cyralinc/terraform-provider-cyral/pull/#320).
+- **Modified the script to call terraform show less**: [#320](https://github.com/cyralinc/terraform-provider-cyral/pull/320).
 
 ## 3.0.3 (November 14, 2022)
 
@@ -31,8 +31,8 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 ### Bug fixes:
 
-- **Deprecate & Update Cyral Permissions in for Cyral Roles**: [#313](https://github.com/cyralinc/terraform-provider-cyral/pull/#313).
-- **Fix sidecar resource nil properties issue**: [#317](https://github.com/cyralinc/terraform-provider-cyral/pull/#317).
+- **Deprecate & Update Cyral Permissions in for Cyral Roles**: [#313](https://github.com/cyralinc/terraform-provider-cyral/pull/313).
+- **Fix sidecar resource nil properties issue**: [#317](https://github.com/cyralinc/terraform-provider-cyral/pull/317).
 
 ## 3.0.2 (November 7, 2022)
 
@@ -42,16 +42,16 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 ### Bug fixes:
 
-- **Remove rewrite_on_violation, add enable_dataset_rewrites**: [#308](https://github.com/cyralinc/terraform-provider-cyral/pull/#308).
-- **Add support for linux sidecar deployment**: [#311](https://github.com/cyralinc/terraform-provider-cyral/pull/#311).
+- **Remove rewrite_on_violation, add enable_dataset_rewrites**: [#308](https://github.com/cyralinc/terraform-provider-cyral/pull/308).
+- **Add support for linux sidecar deployment**: [#311](https://github.com/cyralinc/terraform-provider-cyral/pull/311).
 
 ### Documentation fixes:
 
-- **Fix typo edit in migration script**: [#307](https://github.com/cyralinc/terraform-provider-cyral/pull/#307).
+- **Fix typo edit in migration script**: [#307](https://github.com/cyralinc/terraform-provider-cyral/pull/307).
 
 ### Security fixes:
 
-- **Bump github.com/stretchr/testify from 1.8.0 to 1.8.1**: [#306](https://github.com/cyralinc/terraform-provider-cyral/pull/#306).
+- **Bump github.com/stretchr/testify from 1.8.0 to 1.8.1**: [#306](https://github.com/cyralinc/terraform-provider-cyral/pull/306).
 
 ## 3.0.1 (October 18, 2022)
 
@@ -134,7 +134,7 @@ Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter
 ### Improvements:
 
 - **Refactor acceptance tests**: [#267](https://github.com/cyralinc/terraform-provider-cyral/pull/267).
-- **Explain setting max value of port range**: [#277](https://github.com/cyralinc/terraform-provider-cyral/pull/#277).
+- **Explain setting max value of port range**: [#277](https://github.com/cyralinc/terraform-provider-cyral/pull/277).
 
 ## 2.8.0 (August 5, 2022)
 
