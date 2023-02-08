@@ -6,7 +6,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ### Bug fixes:
 
-- **Update migration scripts with identity map fix and update guides**: [#352](https://github.com/cyralinc/terraform-provider-cyral/pull/#352).
+- **Update migration scripts with identity map fix and update guides**: [#352](https://github.com/cyralinc/terraform-provider-cyral/pull/352).
 
 ## 4.0.2 (February 3, 2023)
 
@@ -16,7 +16,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ### Bug fixes:
 
-- **Update 4.0 migration guide to properly handle for_each resource definitions**: [#350](https://github.com/cyralinc/terraform-provider-cyral/pull/#350).
+- **Update 4.0 migration guide to properly handle for_each resource definitions**: [#350](https://github.com/cyralinc/terraform-provider-cyral/pull/350).
 
 ## 4.0.1 (February 1, 2023)
 
@@ -26,12 +26,12 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ### Documentation fixes:
 
-- **Fix typo in version name**: [#348](https://github.com/cyralinc/terraform-provider-cyral/pull/#348).
-- **Improve documentation**: [#349](https://github.com/cyralinc/terraform-provider-cyral/pull/#349).
+- **Fix typo in version name**: [#348](https://github.com/cyralinc/terraform-provider-cyral/pull/348).
+- **Improve documentation**: [#349](https://github.com/cyralinc/terraform-provider-cyral/pull/349).
 
 ### Other:
 
-- **Update release workflow**: [#347](https://github.com/cyralinc/terraform-provider-cyral/pull/#347).
+- **Update release workflow**: [#347](https://github.com/cyralinc/terraform-provider-cyral/pull/347).
 
 ## 4.0.0 (January 27, 2023)
 
@@ -84,8 +84,8 @@ See the list of incompatible resources with Control Planes `v2.x` and Terraform 
 
 ### Bug fixes:
 
-- **Fix identity map issues on 3.0-migration script**: [#353](https://github.com/cyralinc/terraform-provider-cyral/pull/#353).
-- **Removed mentions of cassandra and bigquery as they are not supported as repo types**: [#332](https://github.com/cyralinc/terraform-provider-cyral/pull/#332).
+- **Fix identity map issues on 3.0-migration script**: [#353](https://github.com/cyralinc/terraform-provider-cyral/pull/353).
+- **Removed mentions of cassandra and bigquery as they are not supported as repo types**: [#332](https://github.com/cyralinc/terraform-provider-cyral/pull/332).
 
 ### Improvements:
 
