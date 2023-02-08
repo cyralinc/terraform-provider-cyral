@@ -1,9 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Set the color variable
 red='\033[0;31m'
 # Clear the color after that
 clear='\033[0m'
+
+if [ ${BASH_VERSION:0:1} \< 4 ]
+then
+    echo "Bash version 4 or higher is required by this script."
+    echo "Please install the latest bash version and ensure your"
+    echo "BASH_VERSION environmental variable is set correctly."
+    exit
+fi
 
 if ! command -v terraform &> /dev/null
 then
@@ -43,14 +51,14 @@ echo
 terraform state pull > terraform.tfstate.cyral.migration.backup
 cp ${CYRAL_TF_FILE_PATH} cyral_terraform_migration_backup_configuration.txt
 
-user_account_import_ids=()
-access_rule_import_ids=()
+user_account_import_args=()
+declare -A access_rules_resource_id_to_import_args=()
 
 user_account_resource_defs=()
-access_rule_resource_defs=()
+declare -A access_rules_resource_id_to_defs=()
 
-user_account_resource_names=()
-access_rule_resource_names=()
+user_account_resource_addresses=()
+declare -A access_rules_resouce_id_to_address=()
 
 local_accounts_to_delete=()
 identity_maps_to_delete=()
@@ -62,47 +70,53 @@ tf_state=($(terraform state list | grep "cyral_repository_local_account\|cyral_r
 tf_json=$(terraform show -json | jq ".values.root_module.resources[]")
 
 # Find all cyral_repository_identity_maps and cyral_repository_local_accounts
-for resource in ${tf_state[@]}; do
-  if [[ $resource == cyral_repository_identity_map.* ]]
+for resource_address in ${tf_state[@]}; do
+  if [[ $resource_address == cyral_repository_identity_map.* ]]
   then
     # We will need to delete this identity map from the .tf file, store its name
-    identity_maps_to_delete+=($resource)
+    identity_maps_to_delete+=($resource_address)
+    # Escape the double quotes so we find it using jq
+    escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
     # Get repo ID, local account ID, identity_type and access_duration for the identity map.
-    values_arr=($(jq -r "select(.address == \"$resource\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_json))
+    values_arr=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.repository_id, .values.repository_local_account_id, .values.identity_type, .values.access_duration"<<<$tf_json))
     if [[ ${values_arr[3]} != $empty_access_duration ]] && [[ ${values_arr[2]} == "user" ]]; then
         # Identity map was migrated to be an approval, which is not managed through terraform-- do nothing.
         continue
     fi
-    # Construct import ID for the access rule that was migrated from this identity map.
-    import_id="${values_arr[0]}/${values_arr[1]}"
-    # Remove [] from the resource as they are not supported and substitute [ for _
-    resource=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource)
+    # Remove [] and \" from the resource as they are not supported and substitute [ for _
+    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$escaped_resource_address)
     # Construct name of the access rule that will be imported.
-    import_name=cyral_repository_access_rules.${resource##"cyral_repository_identity_map."}
-    # Save name of the new access rule, so that it can be added to the .tf file
-    access_rule_resource_defs+=("resource \"cyral_repository_access_rules\" \"${resource##"cyral_repository_identity_map."}\" {}")
+    access_rules_resouce_name=${resource_address##"cyral_repository_identity_map."}
+    access_rules_resouce_address=cyral_repository_access_rules.${access_rules_resouce_name}
+    # Construct import ID for the access rule that was migrated from this identity map.
+    resource_id="${values_arr[0]}/${values_arr[1]}"
     # Store import name and ID as a key value pair
-    import_kv_pair="${import_name} ${import_id}"
-    access_rule_import_ids+=("${import_kv_pair}")
-    access_rule_resource_names+=("${import_name}")
-  elif [[ $resource == cyral_repository_local_account.* ]]
+    import_args="${access_rules_resouce_address} ${resource_id}"
+    access_rules_resource_id_to_import_args[${resource_id}]="${import_args}"
+    # Save name of the new access rule, so that it can be added to the .tf file
+    access_rules_resource_id_to_defs[${resource_id}]="resource \"cyral_repository_access_rules\" \"${access_rules_resouce_name}\" {}"
+    access_rules_resouce_id_to_address[${resource_id}]="${access_rules_resouce_address}"
+  elif [[ $resource_address == cyral_repository_local_account.* ]]
   then
     # We will need to delete this local account from the .tf file, store its name
-    local_accounts_to_delete+=($resource)
+    local_accounts_to_delete+=($resource_address)
+    # Escape the double quotes so we find it using jq
+    escaped_resource_address=$(sed -e 's/\"/\\"/g'<<<$resource_address)
     # Get local account ID for the local account.
-    values_arr=($(jq -r "select(.address == \"$resource\") | .values.repository_id, .values.id"<<<$tf_json))
+    values_arr=($(jq -r "select(.address == \"$escaped_resource_address\") | .values.repository_id, .values.id"<<<$tf_json))
     # Construct import ID for the user account that was migrated from this local account.
-    import_id="${values_arr[0]}/${values_arr[1]}"
-    # Remove [] from the resource as they are not supported and substitute [ for _
-    resource=$(sed -e 's/[]]//g;s/[[]/_/g'<<<$resource)
+    resource_id="${values_arr[0]}/${values_arr[1]}"
+    # Remove [] and \" from the resource as they are not supported and substitute [ for _
+    resource_address=$(sed -e 's/[]]//g;s/[[]/_/g;s/\\"//g'<<<$escaped_resource_address)
     # Construct name of the user account that will be imported.
-    import_name=cyral_repository_user_account.${resource##"cyral_repository_local_account."}
+    user_account_resource_name=${resource_address##"cyral_repository_local_account."}
+    user_account_resource_address=cyral_repository_user_account.${user_account_resource_name}
     # Save name of the migrated user account, so that it can be added to the .tf file
-    user_account_resource_defs+=("resource \"cyral_repository_user_account\" \"${resource##"cyral_repository_local_account."}\" {}")
+    user_account_resource_defs+=("resource \"cyral_repository_user_account\" \"${user_account_resource_name}\" {}")
     # Store import name and ID as a key value pair
-    import_kv_pair="${import_name} ${import_id}"
-    user_account_import_ids+=("${import_kv_pair}")
-    user_account_resource_names+=("${import_name}")
+    import_args="${user_account_resource_address} ${resource_id}"
+    user_account_import_args+=("${import_args}")
+    user_account_resource_addresses+=("${user_account_resource_address}")
   fi
 done
 
@@ -115,7 +129,7 @@ if [[  $REPLY =~ ^[Yy]$ ]]
 then
     printf '\n\n' >> ${CYRAL_TF_FILE_PATH}
     printf '%s\n\n' "${user_account_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
-    printf '%s\n\n' "${access_rule_resource_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
+    printf '%s\n\n' "${access_rules_resource_id_to_defs[@]}" >> ${CYRAL_TF_FILE_PATH}
 else
     echo "Exiting..."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
@@ -160,16 +174,16 @@ terraform init -upgrade
 
 echo
 echo "Importing the following cyral_repository_user_accounts into your Terraform state:"
-printf '%s\n' "${user_account_resource_names[@]}"
+printf '%s\n' "${user_account_resource_addresses[@]}"
 echo
 echo "Importing the following cyral_repository_access_rules into your Terraform state:"
-printf '%s\n' "${access_rule_resource_names[@]}"
+printf '%s\n' "${access_rules_resouce_id_to_address[@]}"
 echo
 
-for user_account_id in ${user_account_import_ids[@]};do
+for user_account_id in "${user_account_import_args[@]}";do
     terraform import $user_account_id
 done
-for access_rule_id in ${access_rule_import_ids[@]};do
+for access_rule_id in "${access_rules_resource_id_to_import_args[@]}";do
     terraform import $access_rule_id
 done
 
@@ -189,10 +203,10 @@ for identity_map in ${identity_maps_to_delete[@]};do
     terraform state rm $identity_map
 done
 
-for user_account in ${user_account_resource_names[@]};do
+for user_account in ${user_account_resource_addresses[@]};do
     terraform state show -no-color $user_account | grep -v "   user_account_id" | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
 done
-for access_rule in ${access_rule_resource_names[@]};do
+for access_rule in ${access_rules_resouce_id_to_address[@]};do
     terraform state show -no-color $access_rule | grep -v "   id " >> cyral_migration_repository_access_rules_and_user_accounts.txt
 done
 

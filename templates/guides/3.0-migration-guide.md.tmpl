@@ -1,5 +1,5 @@
 ---
-page_title: "Cyral Terraform Provider V3 Migration Guide"
+page_title: "Cyral Terraform Provider v3 Migration Guide"
 ---
 
 This guide will take you through the steps required to upgrade your Cyral Terraform provider
@@ -9,7 +9,7 @@ The migration will be handled by an interactive Bash script.
 
 ## Why Migration is Required
 
-Cyral Terraform Provider V3 Migration is required once a Cyral Control Plane (CP) has been upgraded to MAJOR version 3. During the process of upgrading the Cyral CP, Cyral's Identity Maps and Repo Accounts
+Cyral Terraform Provider v3 Migration is required once a Cyral Control Plane (CP) has been upgraded to MAJOR version 3. During the process of upgrading the Cyral CP, Cyral's Identity Maps and Repo Accounts
 are migrated to new objects, called Access Rules and User Accounts respectively. The Terraform migration is
 needed to import these newly migrated resources into your Terraform state and configuration files.
 
@@ -23,17 +23,19 @@ The resources above have been replaced by the following, respectively:
 - `cyral_repository_access_rules`
 - `cyral_repository_user_account`
 
-### When should the Cyral Terraform Provider V3 Migration be performed?
+-> **NOTE** On version 3, all the `cyral_repository_identity_map` resources associated to a given pair of `cyral_repository` and `cyral_repository_local_account` are now grouped into a single `cyral_repository_access_rules` resource with multiple `rule` arguments, respective to each correspondent identity map.
+
+### When should the Cyral Terraform Provider v3 Migration be performed?
 
 The following steps should be taken to upgrade the Cyral CP and the Cyral Terraform provider:
 
-1. **Before upgrading the CP to V3**, please run `terraform apply` to ensure your Terraform state is up-to-date.
+1. **Before upgrading the CP to v3**, please run `terraform apply` to ensure your Terraform state is up-to-date.
 
 2. Upgrade the Cyral CP to MAJOR version 3.
 
-3. Perform the Cyral Terraform Provider V3 Migration after upgrading the Cyral CP to MAJOR version 3.
+3. Perform the Cyral Terraform Provider v3 Migration after upgrading the Cyral CP to MAJOR version 3.
 
-It is essential that the Cyral Terraform Provider V3 Migration is run **after** the CP has been upgraded.
+It is essential that the Cyral Terraform Provider v3 Migration is run **after** the CP has been upgraded.
 
 ## Other breaking changes
 
@@ -44,7 +46,9 @@ Provider's
 
 ## Prerequisites
 
-The Cyral Terraform Provider V3 Migration requires the following tools:
+The Cyral Terraform Provider v3 Migration requires the following tools:
+
+  * Bash Version 4 or higher. The script will check your `$BASH_VERSION` environment variable, and exit if it is not set to a version 4.0 or higher.
 
   * Terraform CLI. Download instructions can be found [here](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
@@ -62,7 +66,7 @@ The script will exit if either of these tools are not installed.
 
 ## Running the Script
 
-You can find the Cyral Terraform Provider V3 Migration script [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/3.0-migration.sh). This script creates a backup of your Terraform state before attempting to upgrade your Cyral Terraform provider and performing the migration. If migration fails, you will have the option to revert to the Terraform state that was present before running the script, so that you can try again.
+You can find the Cyral Terraform Provider v3 Migration script [here](https://github.com/cyralinc/terraform-provider-cyral/tree/main/scripts/3.0-migration.sh). This script creates a backup of your Terraform state before attempting to upgrade your Cyral Terraform provider and performing the migration. If migration fails, you will have the option to revert to the Terraform state that was present before running the script, so that you can try again.
 
 In order to run the script, please perform the following actions:
 
