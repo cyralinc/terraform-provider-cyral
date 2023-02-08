@@ -1,3 +1,18 @@
+## 3.0.5 (February 8, 2023)
+
+Minimum required Control Plane version: `v3.0.0`.
+
+See the list of incompatible resources with Control Planes `v2.x` and Terraform `v2.x` in the [`3.0.0`](#300-october-5-2022) release documentation.
+
+### Bug fixes:
+
+- **Fix identity map issues on 3.0-migration script**: [#353](https://github.com/cyralinc/terraform-provider-cyral/pull/#353).
+- **Removed mentions of cassandra and bigquery as they are not supported as repo types**: [#332](https://github.com/cyralinc/terraform-provider-cyral/pull/#332).
+
+### Improvements:
+
+- **Improved migration script runtime by using less pipes**: [#324](https://github.com/cyralinc/terraform-provider-cyral/pull/#324).
+
 ## 3.0.4 (November 18, 2022)
 
 Minimum required Control Plane version: `v3.0.0`.
