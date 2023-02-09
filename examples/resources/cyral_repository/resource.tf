@@ -8,6 +8,10 @@ resource "cyral_repository" "minimal_repo" {
         host = "mongodb.cyral.com"
         port = 27017
     }
+
+    mongodb_settings {
+      server_type = "standalone"
+    }
 }
 
 ### Repository with Connection Draining and Labels
@@ -25,6 +29,10 @@ resource "cyral_repository" "repo_with_conn_draining" {
     connection_draining {
       auto = true
       wait_time = 30
+    }
+
+    mongodb_settings {
+      server_type = "standalone"
     }
 }
 

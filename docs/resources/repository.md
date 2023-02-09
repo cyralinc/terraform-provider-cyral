@@ -20,6 +20,10 @@ resource "cyral_repository" "minimal_repo" {
         host = "mongodb.cyral.com"
         port = 27017
     }
+
+    mongodb_settings {
+      server_type = "standalone"
+    }
 }
 
 ### Repository with Connection Draining and Labels
@@ -37,6 +41,10 @@ resource "cyral_repository" "repo_with_conn_draining" {
     connection_draining {
       auto = true
       wait_time = 30
+    }
+
+    mongodb_settings {
+      server_type = "standalone"
     }
 }
 
@@ -128,9 +136,12 @@ Optional:
 
 ### Nested Schema for `mongodb_settings`
 
-Optional:
+Required:
 
-- `replica_set_name` (String) Name of the replica set, if applicable.
 - `server_type` (String) Type of the MongoDB server. Allowed values:
   - `replicaset`
   - `standalone`
+
+Optional:
+
+- `replica_set_name` (String) Name of the replica set, if applicable.

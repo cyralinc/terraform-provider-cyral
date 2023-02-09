@@ -30,29 +30,51 @@ const (
 	RepoMongoDBServerTypeKey     = "server_type"
 )
 
+const (
+	Denodo          = "denodo"
+	Dremio          = "dremio"
+	DynamoDB        = "dynamodb"
+	DynamoDBStreams = "dynamodbstreams"
+	Galera          = "galera"
+	MariaDB         = "mariadb"
+	MongoDB         = "mongodb"
+	MySQL           = "mysql"
+	Oracle          = "oracle"
+	PostgreSQL      = "postgresql"
+	Redshift        = "redshift"
+	S3              = "s3"
+	Snowflake       = "snowflake"
+	SQLServer       = "sqlserver"
+)
+
 func repositoryTypes() []string {
 	return []string{
-		"denodo",
-		"dremio",
-		"dynamodb",
-		"dynamodbstreams",
-		"galera",
-		"mariadb",
-		"mongodb",
-		"mysql",
-		"oracle",
-		"postgresql",
-		"redshift",
-		"s3",
-		"snowflake",
-		"sqlserver",
+		Denodo,
+		Dremio,
+		DynamoDB,
+		DynamoDBStreams,
+		Galera,
+		MariaDB,
+		MongoDB,
+		MySQL,
+		Oracle,
+		PostgreSQL,
+		Redshift,
+		S3,
+		Snowflake,
+		SQLServer,
 	}
 }
 
+const (
+	ReplicaSet = "replicaset"
+	Standalone = "standalone"
+)
+
 func mongoServerTypes() []string {
 	return []string{
-		"replicaset",
-		"standalone",
+		ReplicaSet,
+		Standalone,
 	}
 }
 
@@ -114,7 +136,11 @@ func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 	r.LabelsFromInterface(d.Get(RepoLabelsKey).([]interface{}))
 	r.RepoNodesFromInterface(d.Get(RepoNodesKey).([]interface{}))
 	r.ConnDrainingFromInterface(d.Get(RepoConnDrainingKey).(*schema.Set).List())
-	r.MongoDBSettingsFromInterface(d.Get(RepoMongoDBSettingsKey).(*schema.Set).List())
+	var mongoDBSettings = d.Get(RepoMongoDBSettingsKey).(*schema.Set).List()
+	if r.Type == MongoDB && (mongoDBSettings == nil || len(mongoDBSettings) == 0) {
+		return fmt.Errorf("block '%s' is mandatory when 'type=%s'", RepoMongoDBSettingsKey, MongoDB)
+	}
+	r.MongoDBSettingsFromInterface(mongoDBSettings)
 	return nil
 }
 
@@ -378,7 +404,7 @@ func resourceRepository() *schema.Resource {
 						RepoMongoDBServerTypeKey: {
 							Description:  "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
 							Type:         schema.TypeString,
-							Optional:     true,
+							Required:     true,
 							ValidateFunc: validation.StringInSlice(mongoServerTypes(), false),
 						},
 					},

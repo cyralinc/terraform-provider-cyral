@@ -18,8 +18,8 @@ const (
 
 func repositoryTypesNetworkShield() []string {
 	return []string{
-		"sqlserver",
-		"oracle",
+		SQLServer,
+		Oracle,
 	}
 }
 

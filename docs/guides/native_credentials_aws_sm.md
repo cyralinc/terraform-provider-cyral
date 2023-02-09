@@ -54,8 +54,11 @@ resource "cyral_repository" "mongodb_repo" {
   type = "mongodb"
   name = "mymongodb"
   repo_node {
-      host = "mongodb.mycompany.com"
-      port = 27017
+    host = "mongodb.mycompany.com"
+    port = 27017
+  }
+  mongodb_settings {
+    server_type = "standalone"
   }
 }
 
