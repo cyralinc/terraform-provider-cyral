@@ -138,7 +138,9 @@ func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 	r.ConnDrainingFromInterface(d.Get(RepoConnDrainingKey).(*schema.Set).List())
 	var mongoDBSettings = d.Get(RepoMongoDBSettingsKey).(*schema.Set).List()
 	if r.Type == MongoDB && (mongoDBSettings == nil || len(mongoDBSettings) == 0) {
-		return fmt.Errorf("block '%s' is mandatory when 'type=%s'", RepoMongoDBSettingsKey, MongoDB)
+		return fmt.Errorf("'%s' block is mandatory when 'type=%s'", RepoMongoDBSettingsKey, MongoDB)
+	} else if r.Type != MongoDB && len(mongoDBSettings) > 0 {
+		return fmt.Errorf("'%s' block is only allowed when 'type=%s'", RepoMongoDBSettingsKey, MongoDB)
 	}
 	r.MongoDBSettingsFromInterface(mongoDBSettings)
 	return nil
