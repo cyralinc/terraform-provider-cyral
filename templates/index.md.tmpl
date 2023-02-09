@@ -16,7 +16,7 @@ Terraform guidelines for [writing custom providers](https://www.terraform.io/doc
 
 ## Version history and compatibility
 
-Please refer to our [Change Log](CHANGELOG.md) to learn about our version
+Please refer to our [Change Log](https://github.com/cyralinc/terraform-provider-cyral/blob/main/CHANGELOG.md) to learn about our version
 history, its features, bug fixes and Control Plane compatibility.
 
 ## How to use this provider
