@@ -1,3 +1,17 @@
+## 4.0.4 (February 9, 2023)
+
+Minimum required Control Plane version: `v4.0.0`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Bug fixes:
+
+- **Make mongodb_settings mandatory if cyral_repository.type = mongodb**: [#355](https://github.com/cyralinc/terraform-provider-cyral/pull/355).
+
+### Documentation fixes:
+
+- **Fix broken link and update docs**: [#354](https://github.com/cyralinc/terraform-provider-cyral/pull/354).
+
 ## 4.0.3 (February 8, 2023)
 
 Minimum required Control Plane version: `v4.0.0`.
