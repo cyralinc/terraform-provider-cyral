@@ -30,29 +30,51 @@ const (
 	RepoMongoDBServerTypeKey     = "server_type"
 )
 
+const (
+	Denodo          = "denodo"
+	Dremio          = "dremio"
+	DynamoDB        = "dynamodb"
+	DynamoDBStreams = "dynamodbstreams"
+	Galera          = "galera"
+	MariaDB         = "mariadb"
+	MongoDB         = "mongodb"
+	MySQL           = "mysql"
+	Oracle          = "oracle"
+	PostgreSQL      = "postgresql"
+	Redshift        = "redshift"
+	S3              = "s3"
+	Snowflake       = "snowflake"
+	SQLServer       = "sqlserver"
+)
+
 func repositoryTypes() []string {
 	return []string{
-		"denodo",
-		"dremio",
-		"dynamodb",
-		"dynamodbstreams",
-		"galera",
-		"mariadb",
-		"mongodb",
-		"mysql",
-		"oracle",
-		"postgresql",
-		"redshift",
-		"s3",
-		"snowflake",
-		"sqlserver",
+		Denodo,
+		Dremio,
+		DynamoDB,
+		DynamoDBStreams,
+		Galera,
+		MariaDB,
+		MongoDB,
+		MySQL,
+		Oracle,
+		PostgreSQL,
+		Redshift,
+		S3,
+		Snowflake,
+		SQLServer,
 	}
 }
 
+const (
+	ReplicaSet = "replicaset"
+	Standalone = "standalone"
+)
+
 func mongoServerTypes() []string {
 	return []string{
-		"replicaset",
-		"standalone",
+		ReplicaSet,
+		Standalone,
 	}
 }
 
@@ -114,8 +136,13 @@ func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 	r.LabelsFromInterface(d.Get(RepoLabelsKey).([]interface{}))
 	r.RepoNodesFromInterface(d.Get(RepoNodesKey).([]interface{}))
 	r.ConnDrainingFromInterface(d.Get(RepoConnDrainingKey).(*schema.Set).List())
-	r.MongoDBSettingsFromInterface(d.Get(RepoMongoDBSettingsKey).(*schema.Set).List())
-	return nil
+	var mongoDBSettings = d.Get(RepoMongoDBSettingsKey).(*schema.Set).List()
+	if r.Type == MongoDB && (mongoDBSettings == nil || len(mongoDBSettings) == 0) {
+		return fmt.Errorf("'%s' block must be provided when '%s=%s'", RepoMongoDBSettingsKey, TypeKey, MongoDB)
+	} else if r.Type != MongoDB && len(mongoDBSettings) > 0 {
+		return fmt.Errorf("'%s' block is only allowed when '%s=%s'", RepoMongoDBSettingsKey, TypeKey, MongoDB)
+	}
+	return r.MongoDBSettingsFromInterface(mongoDBSettings)
 }
 
 func (r *RepoInfo) LabelsAsInterface() []interface{} {
@@ -205,14 +232,25 @@ func (r *RepoInfo) MongoDBSettingsAsInterface() []interface{} {
 	}}
 }
 
-func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) {
+func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 	if len(i) == 0 {
-		return
+		return nil
+	}
+	var replicaSetName = i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string)
+	var serverType = i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string)
+	if serverType == ReplicaSet && replicaSetName == "" {
+		return fmt.Errorf("'%s' must be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
+			RepoMongoDBServerTypeKey, ReplicaSet)
+	}
+	if serverType == Standalone && replicaSetName != "" {
+		return fmt.Errorf("'%s' cannot be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
+			RepoMongoDBServerTypeKey, Standalone)
 	}
 	r.MongoDBSettings = &MongoDBSettings{
 		ReplicaSetName: i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string),
 		ServerType:     i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string),
 	}
+	return nil
 }
 
 var ReadRepositoryConfig = ResourceOperationConfig{
@@ -378,7 +416,7 @@ func resourceRepository() *schema.Resource {
 						RepoMongoDBServerTypeKey: {
 							Description:  "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
 							Type:         schema.TypeString,
-							Optional:     true,
+							Required:     true,
 							ValidateFunc: validation.StringInSlice(mongoServerTypes(), false),
 						},
 					},

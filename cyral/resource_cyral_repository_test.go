@@ -15,7 +15,7 @@ const (
 var (
 	initialRepoConfig = RepoInfo{
 		Name:   accTestName(repositoryResourceName, "repo"),
-		Type:   "mongodb",
+		Type:   MongoDB,
 		Labels: []string{"rds", "us-east-2"},
 		RepoNodes: []*RepoNode{
 			{
@@ -23,11 +23,14 @@ var (
 				Port: 3333,
 			},
 		},
+		MongoDBSettings: &MongoDBSettings{
+			ServerType: Standalone,
+		},
 	}
 
 	updatedRepoConfig = RepoInfo{
 		Name:   accTestName(repositoryResourceName, "repo-updated"),
-		Type:   "mongodb",
+		Type:   MongoDB,
 		Labels: []string{"rds", "us-east-1"},
 		RepoNodes: []*RepoNode{
 			{
@@ -35,11 +38,14 @@ var (
 				Port: 3334,
 			},
 		},
+		MongoDBSettings: &MongoDBSettings{
+			ServerType: Standalone,
+		},
 	}
 
 	emptyConnDrainingConfig = RepoInfo{
 		Name: accTestName(repositoryResourceName, "repo-empty-conn-draining"),
-		Type: "mongodb",
+		Type: MongoDB,
 		ConnParams: &ConnParams{
 			ConnDraining: &ConnDraining{},
 		},
@@ -49,11 +55,14 @@ var (
 				Port: 27017,
 			},
 		},
+		MongoDBSettings: &MongoDBSettings{
+			ServerType: Standalone,
+		},
 	}
 
 	connDrainingConfig = RepoInfo{
 		Name: accTestName(repositoryResourceName, "repo-conn-draining"),
-		Type: "mongodb",
+		Type: MongoDB,
 		ConnParams: &ConnParams{
 			ConnDraining: &ConnDraining{
 				Auto:     true,
@@ -66,11 +75,14 @@ var (
 				Port: 27017,
 			},
 		},
+		MongoDBSettings: &MongoDBSettings{
+			ServerType: Standalone,
+		},
 	}
 
 	mixedMultipleNodesConfig = RepoInfo{
 		Name: accTestName(repositoryResourceName, "repo-mixed-multi-node"),
-		Type: "mongodb",
+		Type: MongoDB,
 		ConnParams: &ConnParams{
 			ConnDraining: &ConnDraining{
 				Auto:     true,
@@ -103,7 +115,7 @@ var (
 		},
 		MongoDBSettings: &MongoDBSettings{
 			ReplicaSetName: "some-replica-set",
-			ServerType:     "replicaset",
+			ServerType:     ReplicaSet,
 		},
 	}
 )
@@ -194,11 +206,14 @@ func repoCheckFuctions(repo RepoInfo, resName string) resource.TestCheckFunc {
 	}
 
 	if repo.MongoDBSettings != nil {
+		if repo.MongoDBSettings.ServerType == ReplicaSet {
+			checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+				resource.TestCheckResourceAttr(resourceFullName,
+					"mongodb_settings.0.replica_set_name",
+					repo.MongoDBSettings.ReplicaSetName),
+			}...)
+		}
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(resourceFullName,
-				"mongodb_settings.0.replica_set_name",
-				repo.MongoDBSettings.ReplicaSetName),
-
 			resource.TestCheckResourceAttr(resourceFullName,
 				"mongodb_settings.0.server_type",
 				repo.MongoDBSettings.ServerType),

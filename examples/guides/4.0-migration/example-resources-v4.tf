@@ -5,6 +5,9 @@ resource "cyral_repository" "mongo_repo" {
     host = "mongodb.cyral.com"
     port = 27017
   }
+  mongodb_settings {
+    server_type = "standalone"
+  }
 }
 
 resource "cyral_repository_binding" "binding" {
