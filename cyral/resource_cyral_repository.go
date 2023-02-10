@@ -138,12 +138,11 @@ func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 	r.ConnDrainingFromInterface(d.Get(RepoConnDrainingKey).(*schema.Set).List())
 	var mongoDBSettings = d.Get(RepoMongoDBSettingsKey).(*schema.Set).List()
 	if r.Type == MongoDB && (mongoDBSettings == nil || len(mongoDBSettings) == 0) {
-		return fmt.Errorf("'%s' block is mandatory when 'type=%s'", RepoMongoDBSettingsKey, MongoDB)
+		return fmt.Errorf("'%s' block must be provided when '%s=%s'", RepoMongoDBSettingsKey, TypeKey, MongoDB)
 	} else if r.Type != MongoDB && len(mongoDBSettings) > 0 {
-		return fmt.Errorf("'%s' block is only allowed when 'type=%s'", RepoMongoDBSettingsKey, MongoDB)
+		return fmt.Errorf("'%s' block is only allowed when '%s=%s'", RepoMongoDBSettingsKey, TypeKey, MongoDB)
 	}
-	r.MongoDBSettingsFromInterface(mongoDBSettings)
-	return nil
+	return r.MongoDBSettingsFromInterface(mongoDBSettings)
 }
 
 func (r *RepoInfo) LabelsAsInterface() []interface{} {
@@ -233,14 +232,25 @@ func (r *RepoInfo) MongoDBSettingsAsInterface() []interface{} {
 	}}
 }
 
-func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) {
+func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 	if len(i) == 0 {
-		return
+		return nil
+	}
+	var replicaSetName = i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string)
+	var serverType = i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string)
+	if serverType == ReplicaSet && replicaSetName == "" {
+		return fmt.Errorf("'%s' must be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
+			RepoMongoDBServerTypeKey, ReplicaSet)
+	}
+	if serverType == Standalone && replicaSetName != "" {
+		return fmt.Errorf("'%s' cannot be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
+			RepoMongoDBServerTypeKey, Standalone)
 	}
 	r.MongoDBSettings = &MongoDBSettings{
 		ReplicaSetName: i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string),
 		ServerType:     i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string),
 	}
+	return nil
 }
 
 var ReadRepositoryConfig = ResourceOperationConfig{

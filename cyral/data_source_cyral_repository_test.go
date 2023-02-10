@@ -35,6 +35,9 @@ func repositoryDataSourceTestRepos() []RepoInfo {
 					Port: 27017,
 				},
 			},
+			MongoDBSettings: &MongoDBSettings{
+				ServerType: Standalone,
+			},
 		},
 	}
 }

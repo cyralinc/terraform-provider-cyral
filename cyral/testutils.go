@@ -71,15 +71,30 @@ func importStateComposedIDFunc(
 }
 
 func formatBasicRepositoryIntoConfig(resName, repoName, typ, host string, port int) string {
-	return fmt.Sprintf(`
-	resource "cyral_repository" "%s" {
-		name = "%s"
-		type = "%s"
-		repo_node {
-			host = "%s"
-			port = %d
-		}
-	}`, resName, repoName, typ, host, port)
+	if typ == MongoDB {
+		return fmt.Sprintf(`
+		resource "cyral_repository" "%s" {
+			name = "%s"
+			type = "%s"
+			repo_node {
+				host = "%s"
+				port = %d
+			}
+			mongodb_settings {
+				server_type = "standalone"
+			}
+		}`, resName, repoName, typ, host, port)
+	} else {
+		return fmt.Sprintf(`
+		resource "cyral_repository" "%s" {
+			name = "%s"
+			type = "%s"
+			repo_node {
+				host = "%s"
+				port = %d
+			}
+		}`, resName, repoName, typ, host, port)
+	}
 }
 
 func formatBasicRepositoryBindingIntoConfig(resName, sidecarID, repositoryID, listenerID string) string {
