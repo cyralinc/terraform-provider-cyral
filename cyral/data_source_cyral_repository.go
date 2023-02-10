@@ -179,6 +179,11 @@ func dataSourceRepository() *schema.Resource {
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
+									RepoMongoDBSRVRecordName: {
+										Description: "Name of a DNS SRV record which contains cluster topology details",
+										Type:        schema.TypeString,
+										Optional:    true,
+									},
 								},
 							},
 						},

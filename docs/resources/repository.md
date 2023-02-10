@@ -140,8 +140,8 @@ Required:
 
 - `server_type` (String) Type of the MongoDB server. Allowed values:
   - `replicaset`
-  - `sharded`
   - `standalone`
+  - `sharded`
 
 Optional:
 

@@ -243,13 +243,22 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 	}
 	var replicaSetName = i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string)
 	var serverType = i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string)
+	var srvRecordName = i[0].(map[string]interface{})[RepoMongoDBSRVRecordName].(string)
 	if serverType == ReplicaSet && replicaSetName == "" {
 		return fmt.Errorf("'%s' must be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
 			RepoMongoDBServerTypeKey, ReplicaSet)
 	}
-	if serverType == Standalone && replicaSetName != "" {
+	if serverType != ReplicaSet && replicaSetName != "" {
 		return fmt.Errorf("'%s' cannot be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
-			RepoMongoDBServerTypeKey, Standalone)
+			RepoMongoDBServerTypeKey, serverType)
+	}
+	if serverType == Standalone && srvRecordName != "" {
+		return fmt.Errorf(
+			"'%s' cannot be provided when '%s=\"%s\"'",
+			RepoMongoDBSRVRecordName,
+			RepoMongoDBServerTypeKey,
+			Standalone,
+		)
 	}
 	r.MongoDBSettings = &MongoDBSettings{
 		ReplicaSetName: i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string),

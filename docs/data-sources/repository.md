@@ -101,6 +101,7 @@ Read-Only:
 
 - `replica_set_name` (String)
 - `server_type` (String)
+- `srv_record_name` (String)
 
 <a id="nestedobjatt--repository_list--repo_node"></a>
 
