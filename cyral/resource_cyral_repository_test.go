@@ -118,6 +118,27 @@ var (
 			ServerType:     ReplicaSet,
 		},
 	}
+
+	allRepoNodesAreDynamic = RepoInfo{
+		Name: accTestName(repositoryResourceName, "repo-all-repo-nodes-are-dynamic"),
+		Type: "mongodb",
+		RepoNodes: []*RepoNode{
+			{
+				Dynamic: true,
+			},
+			{
+				Dynamic: true,
+			},
+			{
+				Dynamic: true,
+			},
+		},
+		MongoDBSettings: &MongoDBSettings{
+			ReplicaSetName: "myReplicaSet",
+			ServerType:     "replicaset",
+			SRVRecordName:  "mySRVRecord",
+		},
+	}
 )
 
 func TestAccRepositoryResource(t *testing.T) {
@@ -129,6 +150,8 @@ func TestAccRepositoryResource(t *testing.T) {
 		emptyConnDrainingConfig, "conn_draining_empty_test")
 	connDraining := setupRepositoryTest(
 		connDrainingConfig, "conn_draining_test")
+	allDynamic := setupRepositoryTest(
+		allRepoNodesAreDynamic, "all_repo_nodes_are_dynamic")
 
 	multiNode := setupRepositoryTest(
 		mixedMultipleNodesConfig, "multi_node_test")
@@ -147,6 +170,7 @@ func TestAccRepositoryResource(t *testing.T) {
 			update,
 			connDrainingEmpty,
 			connDraining,
+			allDynamic,
 			multiNode,
 			importTest,
 		},
@@ -217,6 +241,10 @@ func repoCheckFuctions(repo RepoInfo, resName string) resource.TestCheckFunc {
 			resource.TestCheckResourceAttr(resourceFullName,
 				"mongodb_settings.0.server_type",
 				repo.MongoDBSettings.ServerType),
+
+			resource.TestCheckResourceAttr(resourceFullName,
+				"mongodb_settings.0.srv_record_name",
+				repo.MongoDBSettings.SRVRecordName),
 		}...)
 	}
 
@@ -241,21 +269,27 @@ func repoAsConfig(repo RepoInfo, resName string) string {
 	}
 
 	if repo.MongoDBSettings != nil {
-		replicaSet, serverType := "null", "null"
+		replicaSet := "null"
+		serverType := "null"
+		srvRecordName := "null"
 		if repo.MongoDBSettings.ReplicaSetName != "" {
-			replicaSet = fmt.Sprintf(
-				`"%s"`, repo.MongoDBSettings.ReplicaSetName)
+			replicaSet = fmt.Sprintf(`"%s"`, repo.MongoDBSettings.ReplicaSetName)
 		}
 		if repo.MongoDBSettings.ServerType != "" {
-			serverType = fmt.Sprintf(
-				`"%s"`, repo.MongoDBSettings.ServerType)
+			serverType = fmt.Sprintf(`"%s"`, repo.MongoDBSettings.ServerType)
+		}
+		if repo.MongoDBSettings.SRVRecordName != "" {
+			srvRecordName = fmt.Sprintf(`"%s"`, repo.MongoDBSettings.SRVRecordName)
 		}
 		config += fmt.Sprintf(`
 		mongodb_settings {
 			replica_set_name = %s
 			server_type = %s
-		}`, replicaSet,
+			srv_record_name = %s
+		}`,
+			replicaSet,
 			serverType,
+			srvRecordName,
 		)
 	}
 
