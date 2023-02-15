@@ -1,3 +1,16 @@
+## 4.1.0 (February 14, 2023)
+
+Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all previous `v4` control planes
+as long as the incompatible argument is not used.
+
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Features:
+
+- **Teach Terraform provider about MongoDB SRV Records**: [#336](https://github.com/cyralinc/terraform-provider-cyral/pull/336).
+
 ## 4.0.4 (February 9, 2023)
 
 Minimum required Control Plane version: `v4.0.0`.
@@ -61,7 +74,7 @@ Removed resource arguments:
 
 - `cyral_repository.host` -- use `cyral_repository.repo_node.host` instead.
 - `cyral_repository.port` -- use `cyral_repository.repo_node.port` instead.
-- `cyral_repository.properties.mongodb_replica_set.max_nodes` -- this parameter is no
+- `cyral_repository.properties.mongodb_replica_set.max_nodes` -- this argument is no
   longer used and is inferred from the number of `repo_node` blocks declared in
   `cyral_repository`.
 - `cyral_repository.properties.mongodb_replica_set.replica_set_id` -- use
@@ -208,7 +221,7 @@ Renamed resource arguments:
 ## 2.11.1 (November 14, 2022)
 
 Minimum required Control Plane version: `v2.35.0`.
-Resource incompatible with Control Planes between previous to `v2.35`: parameter `enable_dataset_rewrites` from resource `cyral_repository_conf_analysis`.
+Resource incompatible with Control Planes previous to `v2.35`: argument `enable_dataset_rewrites` from resource `cyral_repository_conf_analysis`.
 
 ### Bug fixes:
 
@@ -217,7 +230,7 @@ Resource incompatible with Control Planes between previous to `v2.35`: parameter
 ## 2.11.0 (November 7, 2022)
 
 Minimum required Control Plane version: `v2.35.0`.
-Resource incompatible with Control Planes between previous to `v2.35`: parameter `enable_dataset_rewrites` from resource `cyral_repository_conf_analysis`.
+Resource incompatible with Control Planes previous to `v2.35`: argument `enable_dataset_rewrites` from resource `cyral_repository_conf_analysis`.
 
 ### Features:
 
@@ -227,7 +240,7 @@ Resource incompatible with Control Planes between previous to `v2.35`: parameter
 ## 2.10.2 (October 18, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
-Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: argument `bypass_mode` from resource `cyral_sidecar`.
 
 ### Bug fixes:
 
@@ -236,7 +249,7 @@ Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter
 ## 2.10.1 (October 6, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
-Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: argument `bypass_mode` from resource `cyral_sidecar`.
 
 ### Documentation:
 
@@ -245,7 +258,7 @@ Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter
 ## 2.10.0 (October 5, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
-Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: argument `bypass_mode` from resource `cyral_sidecar`.
 
 ### Features:
 
@@ -254,7 +267,7 @@ Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter
 ## 2.9.0 (September 16, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
-Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: argument `bypass_mode` from resource `cyral_sidecar`.
 
 ### Features:
 
@@ -277,7 +290,7 @@ Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter
 ## 2.8.0 (August 5, 2022)
 
 Minimum required Control Plane version: `v2.34.0`.
-Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter `bypass_mode` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.32` and `v2.34`: argument `bypass_mode` from resource `cyral_sidecar`.
 
 ### Bug fixes:
 
@@ -295,7 +308,7 @@ Resource incompatible with Control Planes between `v2.32` and `v2.34`: parameter
 ## 2.7.2 (August 15, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
-Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: argument `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Bug fixes:
 
@@ -304,7 +317,7 @@ Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter
 ## 2.7.1 (July 19, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
-Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: argument `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Bug fixes:
 
@@ -313,7 +326,7 @@ Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter
 ## 2.7.0 (July 1, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
-Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: argument `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Bug fixes:
 
@@ -329,7 +342,7 @@ Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter
 ## 2.6.2 (June 6, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
-Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: argument `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Documentation:
 
@@ -338,7 +351,7 @@ Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter
 ## 2.6.1 (May 31, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
-Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: argument `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Documentation:
 
@@ -347,7 +360,7 @@ Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter
 ## 2.6.0 (May 27, 2022)
 
 Minimum required Control Plane version: `v2.32.0`.
-Resource incompatible with Control Planes between `v2.29` and `v2.31`: parameter `certificate_bundle_secrets` from resource `cyral_sidecar`.
+Resource incompatible with Control Planes between `v2.29` and `v2.31`: argument `certificate_bundle_secrets` from resource `cyral_sidecar`.
 
 ### Bug fixes:
 
