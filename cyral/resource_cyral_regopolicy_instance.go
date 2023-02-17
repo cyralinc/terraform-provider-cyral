@@ -7,12 +7,14 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// mand
 func (r *InsertPolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) error {
 	scope := &Scope{}
-	for _, scopeObj := range d.Get("scope").([]interface{}) {
+	for _, scopeObj := range d.Get("scope").(*schema.Set).List() {
 		scopeMap := scopeObj.(map[string]interface{})
 		repoIds := scopeMap["repo_ids"]
 		for _, repoId := range repoIds.([]interface{}) {
@@ -21,46 +23,44 @@ func (r *InsertPolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) err
 	}
 
 	lastUpdated := &ChangeInfo{}
-	for _, lastUpdatedObj := range d.Get("last_updated").([]interface{}) {
+	for _, lastUpdatedObj := range d.Get("last_updated").(*schema.Set).List() {
 		lastUpdatedMap := lastUpdatedObj.(map[string]interface{})
 		actor := lastUpdatedMap["actor"].(string)
-		actorType := lastUpdatedMap["actor_type"].(int32)
+		actorType := lastUpdatedMap["actor_type"].(string)
 		timestamp := lastUpdatedMap["timestamp"].(int64)
 		lastUpdated.Actor = actor
-		lastUpdated.ActorType = ChangeInfo_ActorType(actorType)
+		lastUpdated.ActorType = actorType
 		lastUpdated.Timestamp = &timestamppb.Timestamp{Seconds: timestamp}
 	}
 
 	created := &ChangeInfo{}
-	for _, createdObj := range d.Get("created").([]interface{}) {
+	for _, createdObj := range d.Get("created").(*schema.Set).List() {
 		createdMap := createdObj.(map[string]interface{})
 		actor := createdMap["actor"].(string)
-		actorType := createdMap["actor_type"].(int32)
+		actorType := createdMap["actor_type"].(string)
 		timestamp := createdMap["timestamp"].(int64)
 		created.Actor = actor
-		created.ActorType = ChangeInfo_ActorType(actorType)
+		created.ActorType = actorType
 		created.Timestamp = &timestamppb.Timestamp{Seconds: timestamp}
 	}
 
 	duration := d.Get("duration").(string)
 
-	r.Category = d.Get("category").(Category)
-	r.Data = PolicyInstanceDataRequest{
-		Instance: &PolicyInstance{
-			Name:        d.Get("name").(string),
-			Description: d.Get("description").(string),
-			TemplateId:  d.Get("template_id").(string),
-			Parameters:  d.Get("parameters").(string),
-			Enabled:     d.Get("enabled").(bool),
-			Scope:       scope,
-			LastUpdated: lastUpdated,
-			Created:     created,
-		},
-		Duration: duration,
+	r.Instance = &PolicyInstance{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		TemplateId:  d.Get("template_id").(string),
+		Parameters:  d.Get("parameters").(string),
+		Enabled:     d.Get("enabled").(bool),
+		Scope:       scope,
+		LastUpdated: lastUpdated,
+		Created:     created,
 	}
+	r.Duration = duration
 	return nil
 }
 
+// mand
 func (r *UpdatePolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) error {
 	scope := &Scope{}
 	for _, scopeObj := range d.Get("scope").([]interface{}) {
@@ -75,10 +75,10 @@ func (r *UpdatePolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) err
 	for _, lastUpdatedObj := range d.Get("last_updated").([]interface{}) {
 		lastUpdatedMap := lastUpdatedObj.(map[string]interface{})
 		actor := lastUpdatedMap["actor"].(string)
-		actorType := lastUpdatedMap["actor_type"].(int32)
+		actorType := lastUpdatedMap["actor_type"].(string)
 		timestamp := lastUpdatedMap["timestamp"].(int64)
 		lastUpdated.Actor = actor
-		lastUpdated.ActorType = ChangeInfo_ActorType(actorType)
+		lastUpdated.ActorType = actorType
 		lastUpdated.Timestamp = &timestamppb.Timestamp{Seconds: timestamp}
 	}
 
@@ -86,101 +86,65 @@ func (r *UpdatePolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) err
 	for _, createdObj := range d.Get("created").([]interface{}) {
 		createdMap := createdObj.(map[string]interface{})
 		actor := createdMap["actor"].(string)
-		actorType := createdMap["actor_type"].(int32)
+		actorType := createdMap["actor_type"].(string)
 		timestamp := createdMap["timestamp"].(int64)
 		created.Actor = actor
-		created.ActorType = ChangeInfo_ActorType(actorType)
+		created.ActorType = actorType
 		created.Timestamp = &timestamppb.Timestamp{Seconds: timestamp}
 	}
 
 	duration := d.Get("duration").(string)
 
-	r.Data = PolicyInstanceDataRequest{
-		Instance: &PolicyInstance{
-			Name:        d.Get("name").(string),
-			Description: d.Get("description").(string),
-			TemplateId:  d.Get("template_id").(string),
-			Parameters:  d.Get("parameters").(string),
-			Enabled:     d.Get("enabled").(bool),
-			Scope:       scope,
-			LastUpdated: lastUpdated,
-			Created:     created,
-		},
-		Duration: duration,
+	r.Instance = &PolicyInstance{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		TemplateId:  d.Get("template_id").(string),
+		Parameters:  d.Get("parameters").(string),
+		Enabled:     d.Get("enabled").(bool),
+		Scope:       scope,
+		LastUpdated: lastUpdated,
+		Created:     created,
 	}
+	r.Duration = duration
+
 	return nil
 }
 
-func (r *DeletePolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) error {
-	r.Key.Id = d.Get("regopolicy_id").(string)
-	r.Key.Category = d.Get("category").(Category)
-	return nil
-}
-
-func (r *ReadPolicyInstanceRequest) ReadFromSchema(d *schema.ResourceData) error {
-	r.Key.Id = d.Get("regopolicy_id").(string)
-	r.Key.Category = d.Get("category").(Category)
-	return nil
-}
-
+// mand
 func (r *InsertPolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) error {
-	regoPolicyId := r.Key.Id
-	regoPolicyCategory := r.Key.Category
-	d.SetId(regoPolicyId + "/" + string(regoPolicyCategory))
+	regoPolicyId := r.Id
+	regoPolicyCategory := r.Category
+	d.SetId(marshalComposedID([]string{regoPolicyId, regoPolicyCategory}, "/"))
 	d.Set("regopolicy_id", regoPolicyId)
 	d.Set("category", regoPolicyCategory)
 	return nil
 }
 
-func (r *DeletePolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.Set("name", r.instance.Name)
-	d.Set("description", r.instance.Description)
-	d.Set("template_id", r.instance.TemplateId)
-	d.Set("parameters", r.instance.Parameters)
-	d.Set("enabled", r.instance.Enabled)
-	repoIds := r.instance.Scope.RepoIds
-	scope := map[string]interface{}{
-		"repo_ids": repoIds,
-	}
-	d.Set("scope", scope)
-	d.Set("tags", r.instance.Tags)
-	lastUpdated := map[string]interface{}{
-		"actor":      r.instance.LastUpdated.Actor,
-		"actor_type": r.instance.LastUpdated.ActorType,
-		"timestamp":  r.instance.LastUpdated.Timestamp,
-	}
-	d.Set("last_updated", lastUpdated)
-	created := map[string]interface{}{
-		"actor":      r.instance.Created.Actor,
-		"actor_type": r.instance.Created.ActorType,
-		"timestamp":  r.instance.Created.Timestamp,
-	}
-	d.Set("created", created)
-	return nil
-}
-
+// mand
 func (r *ReadPolicyInstanceResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.Set("name", r.instance.Name)
-	d.Set("description", r.instance.Description)
-	d.Set("template_id", r.instance.TemplateId)
-	d.Set("parameters", r.instance.Parameters)
-	d.Set("enabled", r.instance.Enabled)
-	repoIds := r.instance.Scope.RepoIds
-	scope := map[string]interface{}{
-		"repo_ids": repoIds,
+	d.Set("name", r.Name)
+	d.Set("description", r.Description)
+	d.Set("template_id", r.TemplateId)
+	d.Set("parameters", r.Parameters)
+	d.Set("enabled", r.Enabled)
+	if r.Scope != nil {
+		repoIds := r.Scope.RepoIds
+		scope := map[string]interface{}{
+			"repo_ids": repoIds,
+		}
+		d.Set("scope", scope)
 	}
-	d.Set("scope", scope)
-	d.Set("tags", r.instance.Tags)
+	d.Set("tags", r.Tags)
 	lastUpdated := map[string]interface{}{
-		"actor":      r.instance.LastUpdated.Actor,
-		"actor_type": r.instance.LastUpdated.ActorType,
-		"timestamp":  r.instance.LastUpdated.Timestamp,
+		"actor":      r.LastUpdated.Actor,
+		"actor_type": r.LastUpdated.ActorType,
+		"timestamp":  r.LastUpdated.Timestamp,
 	}
 	d.Set("last_updated", lastUpdated)
 	created := map[string]interface{}{
-		"actor":      r.instance.Created.Actor,
-		"actor_type": r.instance.Created.ActorType,
-		"timestamp":  r.instance.Created.Timestamp,
+		"actor":      r.Created.Actor,
+		"actor_type": r.Created.ActorType,
+		"timestamp":  r.Created.Timestamp,
 	}
 	d.Set("created", created)
 	return nil
@@ -259,13 +223,14 @@ func resourceRegopolicyInstance() *schema.Resource {
 				Description: "ID for the policy instance.",
 				Type:        schema.TypeString,
 				ForceNew:    true,
-				Required:    true,
+				Computed:    true,
 			},
 			"category": {
-				Description: "Category of the policy instance.",
-				Type:        schema.TypeString,
-				ForceNew:    true,
-				Required:    true,
+				Description:  "Category of the policy instance.",
+				Type:         schema.TypeString,
+				ForceNew:     true,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice(append(categoryTypes(), ""), false),
 			},
 			"name": {
 				Description: "Name of the policy instance.",
@@ -275,7 +240,7 @@ func resourceRegopolicyInstance() *schema.Resource {
 			"description": {
 				Description: "Description for the policy instance.",
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 			},
 			"template_id": {
 				Description: "Template Id on which the instance was based",
@@ -285,18 +250,18 @@ func resourceRegopolicyInstance() *schema.Resource {
 			"parameters": {
 				Description: "Parameters for the policy instance (matches the template parameter schema)",
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 			},
 			"enabled": {
 				Description: "Whether the policy is enabled or not",
 				Type:        schema.TypeBool,
-				Required:    true,
+				Optional:    true,
 			},
 			"scope": {
 				Description: "Object that defines the scope of the policy, i.e. where it is applicable",
 				Type:        schema.TypeSet,
 				MaxItems:    1,
-				Required:    true,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"repo_ids": {
@@ -305,6 +270,7 @@ func resourceRegopolicyInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Optional: true,
 						},
 					},
 				},
@@ -315,12 +281,12 @@ func resourceRegopolicyInstance() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Optional: true,
 			},
 			"last_updated": {
 				Description: "Object that defines the actor and the time when the instance last update happened.",
 				Type:        schema.TypeSet,
 				Computed:    true,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"actor": {
@@ -329,9 +295,10 @@ func resourceRegopolicyInstance() *schema.Resource {
 							Computed:    true,
 						},
 						"actor_type": {
-							Description: "Type of actor, if it is user or api",
-							Type:        schema.TypeString,
-							Computed:    true,
+							Description:  "Type of actor, if it is user or api",
+							Type:         schema.TypeString,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice(append(actorTypes(), ""), false),
 						},
 						"timestamp": {
 							Description: "Timestamp for action of updating",
@@ -353,9 +320,10 @@ func resourceRegopolicyInstance() *schema.Resource {
 							Computed:    true,
 						},
 						"actor_type": {
-							Description: "Type of actor, if it is user or api",
-							Type:        schema.TypeString,
-							Computed:    true,
+							Description:  "Type of actor, if it is user or api",
+							Type:         schema.TypeString,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice(append(actorTypes(), ""), false),
 						},
 						"timestamp": {
 							Description: "Timestamp for the action of creating",
@@ -368,7 +336,7 @@ func resourceRegopolicyInstance() *schema.Resource {
 			"duration": {
 				Description: "Duration of the policy instance.",
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 			},
 		},
 		Importer: &schema.ResourceImporter{

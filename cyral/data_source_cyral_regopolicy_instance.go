@@ -100,6 +100,7 @@ func dataSourceRegopolicyInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Optional: true,
 						},
 					},
 				},
