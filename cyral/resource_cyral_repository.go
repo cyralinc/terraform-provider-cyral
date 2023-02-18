@@ -414,7 +414,7 @@ func resourceRepository() *schema.Resource {
 								"will query the cluster to get the topology information and discover the " +
 								"hosts of the remaining nodes. If set to `true`, `host` and `port` must " +
 								"be empty. A node that does not declare this field is considered `static`.\n" +
-								"The feature works in the following conditions: \n" +
+								"The following conditions apply: \n" +
 								"  - The total number of declared `" + RepoNodesKey + "` blocks must match " +
 								"the actual number of nodes in the cluster.\n" +
 								"  - If there are static nodes in the configuration, they must be declared " +
@@ -441,7 +441,7 @@ func resourceRepository() *schema.Resource {
 						},
 						RepoMongoDBServerTypeKey: {
 							Description: "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()) +
-								".The following conditions apply:\n" +
+								".\nThe following conditions apply:\n" +
 								"  - If `" + RepoMongoDBServerTypeKey + "=" + Standalone + "`, then only one `" + RepoNodesKey +
 								"` block can be declared and it must be static. See `" + RepoNodeDynamicKey + "`." +
 								"  - If `" + RepoMongoDBServerTypeKey + "=" + Sharded + "` and the a `" + RepoMongoDBSRVRecordName +

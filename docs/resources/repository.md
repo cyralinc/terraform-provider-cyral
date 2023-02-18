@@ -120,7 +120,7 @@ Optional:
 
 - `dynamic` (Boolean) _Only supported for MongoDB in cluster configurations._
   Indicates if the node is dynamically discovered, meaning that the sidecar will query the cluster to get the topology information and discover the hosts of the remaining nodes. If set to `true`, `host` and `port` must be empty. A node that does not declare this field is considered `static`.
-  The feature works in the following conditions:
+  The following conditions apply:
   - The total number of declared `repo_node` blocks must match the actual number of nodes in the cluster.
   - If there are static nodes in the configuration, they must be declared before all dynamic nodes.
   - See the MongoDB-specific configuration in the [mongodb_settings](#nested-schema-for-mongodb_settings).
@@ -146,7 +146,8 @@ Required:
 - `server_type` (String) Type of the MongoDB server. Allowed values:
   - `replicaset`
   - `standalone`
-  - `sharded`.The following conditions apply:
+  - `sharded`.
+    The following conditions apply:
   - If `server_type=standalone`, then only one `repo_node` block can be declared and it must be static. See `dynamic`. - If `server_type=sharded` and the a `srv_record_name` is provided, then all `repo_node` blocks must be declared dynamic, otherwise all of them must be static. See `dynamic`.
 
 Optional:
