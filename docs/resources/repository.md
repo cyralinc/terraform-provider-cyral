@@ -119,7 +119,7 @@ resource "cyral_repository" "multi_node_mongo_repo" {
 Optional:
 
 - `dynamic` (Boolean) _Only supported for MongoDB in cluster configurations._
-  Indicates if the node is dynamically discovered, meaning that the sidecar will query the cluster to get the topology information and discover the hosts of the remaining nodes. If set to `true`, `host` and `port` must be empty. A node that does not declare this field is considered `static`.
+  Indicates if the node is dynamically discovered, meaning that the sidecar will query the cluster to get the topology information and discover the addresses of the dynamic nodes. If set to `true`, `host` and `port` must be empty. A node that does not declare this field is considered `static`.
   The following conditions apply:
   - The total number of declared `repo_node` blocks must match the actual number of nodes in the cluster.
   - If there are static nodes in the configuration, they must be declared before all dynamic nodes.
@@ -148,11 +148,13 @@ Required:
   - `standalone`
   - `sharded`.
     The following conditions apply:
-  - If `server_type=standalone`, then only one `repo_node` block can be declared and it must be static. See `dynamic`. - If `server_type=sharded` and the a `srv_record_name` is provided, then all `repo_node` blocks must be declared dynamic, otherwise all of them must be static. See `dynamic`.
+  - If `sharded` and `srv_record_name` _not_ provided, then all `repo_node` blocks must be static (see `dynamic`).
+  - If `sharded` and `srv_record_name` provided, then all `repo_node` blocks must be dynamic (see `dynamic`).
+  - If `standalone`, then only one `repo_node` block can be declared and it must be static (see `dynamic`). The `srv_record_name`is not supported in this configuration.
+  - If `replicaset` and `srv_record_name` _not_ provided, then `repo_node` blocks may mix dynamic and static nodes (see `dynamic`).
+  - If `replicaset` and `srv_record_name` provided, then `repo_node` blocks must be dynamic (see `dynamic`).
 
 Optional:
 
 - `replica_set_name` (String) Name of the replica set, if applicable.
-- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. The following conditions apply:
-  - If `srv_record_name` is specified, then all `repo_node` blocks can be declared `dynamic=true`.
-  - If `srv_record_name` is _not_ specified, then at _least one_ node must have `repo_node.host` and `repo_node.port`.
+- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. If specified, then all `repo_node` blocks must be declared dynamic (see `dynamic`).
