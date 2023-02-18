@@ -118,7 +118,12 @@ resource "cyral_repository" "multi_node_mongo_repo" {
 
 Optional:
 
-- `dynamic` (Boolean) Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.
+- `dynamic` (Boolean) _Only supported for MongoDB in cluster configurations._
+  Indicates if the node is dynamically discovered, meaning that the sidecar will query the cluster to get the topology information and discover the hosts of the remaining nodes. If set to `true`, `host` and `port` must be empty. A node that does not declare this field is considered `static`.
+  The feature works in the following conditions:
+  - The total number of declared `repo_node` blocks must match the actual number of nodes in the cluster.
+  - If there are static nodes in the configuration, they must be declared before all dynamic nodes.
+  - See the MongoDB-specific configuration in the [mongodb_settings](#nested-schema-for-mongodb_settings).
 - `host` (String) Repo node host (ex: `somerepo.cyral.com`). Can be empty if node is dynamic.
 - `name` (String) Name of the repo node.
 - `port` (Number) Repository access port (ex: `3306`). Can be empty if node is dynamic.
@@ -141,9 +146,12 @@ Required:
 - `server_type` (String) Type of the MongoDB server. Allowed values:
   - `replicaset`
   - `standalone`
-  - `sharded`
+  - `sharded`.The following conditions apply:
+  - If `server_type=standalone`, then only one `repo_node` block can be declared and it must be static. See `dynamic`. - If `server_type=sharded` and the a `srv_record_name` is provided, then all `repo_node` blocks must be declared dynamic, otherwise all of them must be static. See `dynamic`.
 
 Optional:
 
 - `replica_set_name` (String) Name of the replica set, if applicable.
-- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details
+- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. The following conditions apply:
+  - If `srv_record_name` is specified, then all `repo_node` blocks can be declared `dynamic=true`.
+  - If `srv_record_name` is _not_ specified, then at _least one_ node must have `repo_node.host` and `repo_node.port`.

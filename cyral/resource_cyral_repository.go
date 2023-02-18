@@ -409,9 +409,20 @@ func resourceRepository() *schema.Resource {
 							Optional:    true,
 						},
 						RepoNodeDynamicKey: {
-							Description: "Indicates if node is dynamically discovered. If true, `host` and `port` must be empty.",
-							Type:        schema.TypeBool,
-							Optional:    true,
+							Description: "*Only supported for MongoDB in cluster configurations.*\n" +
+								"Indicates if the node is dynamically discovered, meaning that the sidecar " +
+								"will query the cluster to get the topology information and discover the " +
+								"hosts of the remaining nodes. If set to `true`, `host` and `port` must " +
+								"be empty. A node that does not declare this field is considered `static`.\n" +
+								"The feature works in the following conditions: \n" +
+								"  - The total number of declared `" + RepoNodesKey + "` blocks must match " +
+								"the actual number of nodes in the cluster.\n" +
+								"  - If there are static nodes in the configuration, they must be declared " +
+								"before all dynamic nodes.\n" +
+								"  - See the MongoDB-specific configuration in the [" + RepoMongoDBSettingsKey +
+								"](#nested-schema-for-" + RepoMongoDBSettingsKey + ").",
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 					},
 				},
@@ -429,15 +440,25 @@ func resourceRepository() *schema.Resource {
 							Optional:    true,
 						},
 						RepoMongoDBServerTypeKey: {
-							Description:  "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()),
+							Description: "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()) +
+								".The following conditions apply:\n" +
+								"  - If `" + RepoMongoDBServerTypeKey + "=" + Standalone + "`, then only one `" + RepoNodesKey +
+								"` block can be declared and it must be static. See `" + RepoNodeDynamicKey + "`." +
+								"  - If `" + RepoMongoDBServerTypeKey + "=" + Sharded + "` and the a `" + RepoMongoDBSRVRecordName +
+								"` is provided, then all `" + RepoNodesKey + "` blocks must be declared dynamic, " +
+								"otherwise all of them must be static. See `" + RepoNodeDynamicKey + "`.",
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice(mongoServerTypes(), false),
 						},
 						RepoMongoDBSRVRecordName: {
-							Description: "Name of a DNS SRV record which contains cluster topology details",
-							Type:        schema.TypeString,
-							Optional:    true,
+							Description: "Name of a DNS SRV record which contains cluster topology details. The following conditions apply:\n" +
+								"  - If `" + RepoMongoDBSRVRecordName + "` is specified, then all `" + RepoNodesKey + "` blocks can be declared `" +
+								RepoNodeDynamicKey + "=true`.\n" +
+								"  - If `" + RepoMongoDBSRVRecordName + "` is *not* specified, then at *least one* node must have `" + RepoNodesKey +
+								"." + RepoHostKey + "` and `" + RepoNodesKey + "." + RepoPortKey + "`.\n",
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
