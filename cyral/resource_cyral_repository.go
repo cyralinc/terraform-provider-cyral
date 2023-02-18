@@ -412,7 +412,7 @@ func resourceRepository() *schema.Resource {
 							Description: "*Only supported for MongoDB in cluster configurations.*\n" +
 								"Indicates if the node is dynamically discovered, meaning that the sidecar " +
 								"will query the cluster to get the topology information and discover the " +
-								"hosts of the remaining nodes. If set to `true`, `host` and `port` must " +
+								"addresses of the dynamic nodes. If set to `true`, `host` and `port` must " +
 								"be empty. A node that does not declare this field is considered `static`.\n" +
 								"The following conditions apply: \n" +
 								"  - The total number of declared `" + RepoNodesKey + "` blocks must match " +
