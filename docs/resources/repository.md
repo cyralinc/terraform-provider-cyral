@@ -144,17 +144,20 @@ Optional:
 Required:
 
 - `server_type` (String) Type of the MongoDB server. Allowed values:
+
   - `replicaset`
   - `standalone`
-  - `sharded`.
-    The following conditions apply:
-  - If `sharded` and `srv_record_name` _not_ provided, then all `repo_node` blocks must be static (see `dynamic`).
-  - If `sharded` and `srv_record_name` provided, then all `repo_node` blocks must be dynamic (see `dynamic`).
-  - If `standalone`, then only one `repo_node` block can be declared and it must be static (see `dynamic`). The `srv_record_name`is not supported in this configuration.
-  - If `replicaset` and `srv_record_name` _not_ provided, then `repo_node` blocks may mix dynamic and static nodes (see `dynamic`).
-  - If `replicaset` and `srv_record_name` provided, then `repo_node` blocks must be dynamic (see `dynamic`).
+  - `sharded`
+
+  The following conditions apply:
+
+  - If `sharded` and `srv_record_name` _not_ provided, then all `repo_node` blocks must be static (see [`dynamic`](#dynamic)).
+  - If `sharded` and `srv_record_name` provided, then all `repo_node` blocks must be dynamic (see [`dynamic`](#dynamic)).
+  - If `standalone`, then only one `repo_node` block can be declared and it must be static (see [`dynamic`](#dynamic)). The `srv_record_name` is not supported in this configuration.
+  - If `replicaset` and `srv_record_name` _not_ provided, then `repo_node` blocks may mix dynamic and static nodes (see [`dynamic`](#dynamic)).
+  - If `replicaset` and `srv_record_name` provided, then `repo_node` blocks must be dynamic (see [`dynamic`](#dynamic)).
 
 Optional:
 
 - `replica_set_name` (String) Name of the replica set, if applicable.
-- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. If specified, then all `repo_node` blocks must be declared dynamic (see `dynamic`).
+- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. If specified, then all `repo_node` blocks must be declared dynamic (see [`dynamic`](#dynamic)).

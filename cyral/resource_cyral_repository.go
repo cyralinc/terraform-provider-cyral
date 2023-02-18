@@ -441,18 +441,18 @@ func resourceRepository() *schema.Resource {
 						},
 						RepoMongoDBServerTypeKey: {
 							Description: "Type of the MongoDB server. Allowed values: " + supportedTypesMarkdown(mongoServerTypes()) +
-								".\nThe following conditions apply:\n" +
+								"\n\n  The following conditions apply:\n" +
 								"  - If `" + Sharded + "` and `" + RepoMongoDBSRVRecordName + "` *not* provided, then all `" +
-								RepoNodesKey + "` blocks must be static (see `" + RepoNodeDynamicKey + "`).\n" +
+								RepoNodesKey + "` blocks must be static (see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")).\n" +
 								"  - If `" + Sharded + "` and `" + RepoMongoDBSRVRecordName + "` provided, then all `" +
-								RepoNodesKey + "` blocks must be dynamic (see `" + RepoNodeDynamicKey + "`).\n" +
+								RepoNodesKey + "` blocks must be dynamic (see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")).\n" +
 								"  - If `" + Standalone + "`, then only one `" + RepoNodesKey +
-								"` block can be declared and it must be static (see `" + RepoNodeDynamicKey + "`). The `" +
-								RepoMongoDBSRVRecordName + "`is not supported in this configuration.\n" +
+								"` block can be declared and it must be static (see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")). The `" +
+								RepoMongoDBSRVRecordName + "` is not supported in this configuration.\n" +
 								"  - If `" + ReplicaSet + "` and `" + RepoMongoDBSRVRecordName + "` *not* provided, then `" +
-								RepoNodesKey + "` blocks may mix dynamic and static nodes (see `" + RepoNodeDynamicKey + "`).\n" +
+								RepoNodesKey + "` blocks may mix dynamic and static nodes (see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")).\n" +
 								"  - If `" + ReplicaSet + "` and `" + RepoMongoDBSRVRecordName + "` provided, then `" +
-								RepoNodesKey + "` blocks must be dynamic (see `" + RepoNodeDynamicKey + "`).\n",
+								RepoNodesKey + "` blocks must be dynamic (see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")).\n",
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice(mongoServerTypes(), false),
@@ -460,7 +460,7 @@ func resourceRepository() *schema.Resource {
 						RepoMongoDBSRVRecordName: {
 							Description: "Name of a DNS SRV record which contains cluster topology details. " +
 								"If specified, then all `" + RepoNodesKey + "` blocks must be declared dynamic " +
-								"(see `" + RepoNodeDynamicKey + "`).",
+								"(see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")).",
 							Type:     schema.TypeString,
 							Optional: true,
 						},
