@@ -1,3 +1,16 @@
+## 4.1.1 (February 21, 2023)
+
+Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all previous `v4` control planes
+as long as the incompatible argument is not used.
+
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Documentation:
+
+- **Improve cyral_repository docs**: [#361](https://github.com/cyralinc/terraform-provider-cyral/pull/361).
+
 ## 4.1.0 (February 14, 2023)
 
 Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all previous `v4` control planes
