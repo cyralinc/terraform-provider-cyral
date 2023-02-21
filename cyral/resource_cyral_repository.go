@@ -460,7 +460,9 @@ func resourceRepository() *schema.Resource {
 						RepoMongoDBSRVRecordName: {
 							Description: "Name of a DNS SRV record which contains cluster topology details. " +
 								"If specified, then all `" + RepoNodesKey + "` blocks must be declared dynamic " +
-								"(see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")).",
+								"(see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")). " +
+								"Only supported for `" + RepoMongoDBServerTypeKey + "=\"" + Sharded + "\"` or `" +
+								RepoMongoDBServerTypeKey + "=\"" + ReplicaSet + "\".",
 							Type:     schema.TypeString,
 							Optional: true,
 						},

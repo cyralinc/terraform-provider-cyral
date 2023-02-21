@@ -119,7 +119,7 @@ resource "cyral_repository" "multi_node_mongo_repo" {
 Optional:
 
 - `dynamic` (Boolean) _Only supported for MongoDB in cluster configurations._
-  Indicates if the node is dynamically discovered, meaning that the sidecar will query the cluster to get the topology information and discover the addresses of the dynamic nodes. If set to `true`, `host` and `port` must be empty. A node that does not declare this field is considered `static`.
+  Indicates if the node is dynamically discovered, meaning that the sidecar will query the cluster to get the topology information and discover the addresses of the dynamic nodes. If set to `true`, `host` and `port` must be empty. A node with value of this field as false considered `static`.
   The following conditions apply:
   - The total number of declared `repo_node` blocks must match the actual number of nodes in the cluster.
   - If there are static nodes in the configuration, they must be declared before all dynamic nodes.
@@ -160,4 +160,4 @@ Required:
 Optional:
 
 - `replica_set_name` (String) Name of the replica set, if applicable.
-- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. If specified, then all `repo_node` blocks must be declared dynamic (see [`dynamic`](#dynamic)).
+- `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. If specified, then all `repo_node` blocks must be declared dynamic (see [`dynamic`](#dynamic)). Only supported for `server_type="sharded"` or `server_type="replicaset".
