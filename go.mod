@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0
 	google.golang.org/protobuf v1.28.1 // indirect
 )
