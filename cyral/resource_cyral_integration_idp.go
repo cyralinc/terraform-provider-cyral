@@ -391,7 +391,7 @@ var (
 	adfsDefaultValuesMap = map[string]interface{}{
 		"display_name":                          "Active Directory",
 		"disable_post_binding_logout":           true,
-		"name_id_policy_format":                 "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+		"name_id_policy_format":                 "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
 		"saml_xml_key_name_tranformer":          "CERT_SUBJECT",
 		"single_logout_service_url":             "",
 		"xml_sig_key_info_key_name_transformer": "CERT_SUBJECT",
