@@ -1,8 +1,7 @@
 FROM hashicorp/terraform:1.2.8 as terraform
 
-FROM golang:1.17.3-alpine3.13 AS build
+FROM golang:1.19.6-alpine3.17 AS build
 WORKDIR /go/src/cyral
-RUN apk add --no-cache build-base=0.5-r3
 COPY main.go go.mod go.sum ./
 COPY client/ client/
 COPY cyral/ cyral/

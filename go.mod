@@ -1,6 +1,6 @@
 module github.com/cyralinc/terraform-provider-cyral
 
-go 1.18
+go 1.19
 
 require (
 	github.com/aws/aws-sdk-go v1.39.4
