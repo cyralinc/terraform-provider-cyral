@@ -224,10 +224,11 @@ func resourceRepositoryAccessRules() *schema.Resource {
 			},
 
 			"user_account_id": {
-				Description: "ID of the database account.",
-				Required:    true,
-				Type:        schema.TypeString,
-				ForceNew:    true,
+				Description: "ID of the database account. This should be the attribute `user_account_id` " +
+					"of the resource `cyral_repository_user_account`.",
+				Required: true,
+				Type:     schema.TypeString,
+				ForceNew: true,
 			},
 
 			"rule": {
