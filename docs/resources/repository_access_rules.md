@@ -53,7 +53,7 @@ resource "cyral_repository_access_rules" "some_resource_name" {
 
 - `repository_id` (String) ID of the repository.
 - `rule` (Block List, Min: 1) An ordered list of access rules. (see [below for nested schema](#nestedblock--rule))
-- `user_account_id` (String) ID of the database account.
+- `user_account_id` (String) ID of the database account. This should be the attribute `user_account_id` of the resource `cyral_repository_user_account`.
 
 ### Read-Only
 
