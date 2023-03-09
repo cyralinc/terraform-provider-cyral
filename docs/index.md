@@ -14,10 +14,13 @@ code and use Terraform to control state changes.
 Our provider uses the same naming conventions and organization as stated in
 Terraform guidelines for [writing custom providers](https://www.terraform.io/docs/extend/writing-custom-providers.html).
 
-## Version history and compatibility
+## Version history, upgrades and compatibility
 
 Please refer to our [Change Log](https://github.com/cyralinc/terraform-provider-cyral/blob/main/CHANGELOG.md) to learn about our version
-history, its features, bug fixes and Control Plane compatibility.
+history with its features, bug fixes and Control Plane compatibility.
+
+If you are upgrading from versions `v2` or `v3` of this provider, please refer to our
+[4.0 migration guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/4.0-migration-guide).
 
 ## How to use this provider
 
