@@ -22,7 +22,7 @@ resource "cyral_sidecar_listener" "listener" {
 }
 
 # Listener with MySQL Settings
-resource "cyral_sidecar_listener" "listener" {
+resource "cyral_sidecar_listener" "listener_mysql" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mysql"]
   network_address {
@@ -35,20 +35,30 @@ resource "cyral_sidecar_listener" "listener" {
   }
 }
 
-# Listener with S3 Settings
-resource "cyral_sidecar_listener" "listener" {
+# Listener for S3 CLI
+resource "cyral_sidecar_listener" "listener_s3_cli" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["s3"]
   network_address {
     port = 443
+  }
+}
+
+# Listener for S3 browser (using port 444 assuming port 443 is used for CLI)
+resource "cyral_sidecar_listener" "listener_s3_cli" {
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["s3"]
+  network_address {
+    port = 444
   }
   s3_settings {
     proxy_mode = true
   }
 }
 
+
 # Listener with DynamoDB Settings
-resource "cyral_sidecar_listener" "listener" {
+resource "cyral_sidecar_listener" "listener_dynamodb" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["dynamodb"]
   network_address {
