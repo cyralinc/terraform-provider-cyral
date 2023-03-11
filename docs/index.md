@@ -4,6 +4,9 @@ description: |-
   Terraform provider to interact with Cyral API.
 ---
 
+-> Note: If you are upgrading from versions `v2` or `v3` of this provider, please refer to our
+[4.0 migration guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/4.0-migration-guide).
+
 # Cyral Terraform Provider
 
 The Cyral Terraform Provider contains resources that can be used to interact
@@ -19,7 +22,7 @@ Terraform guidelines for [writing custom providers](https://www.terraform.io/doc
 Please refer to our [Change Log](https://github.com/cyralinc/terraform-provider-cyral/blob/main/CHANGELOG.md) to learn about our version
 history with its features, bug fixes and Control Plane compatibility.
 
-If you are upgrading from versions `v2` or `v3` of this provider, please refer to our
+-> Note: If you are upgrading from versions `v2` or `v3` of this provider, please refer to our
 [4.0 migration guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/4.0-migration-guide).
 
 ## How to use this provider

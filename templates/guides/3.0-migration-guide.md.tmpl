@@ -86,5 +86,5 @@ If migration failed for one or two resources, do the following.
 4.  Once the script is finished, recreate the problematic resources using the new resource types.
     *  If the resource was a `cyral_repository_local_account`, replace it with a `cyral_repository_user_account` resource.
     *   If the resource was a `cyral_repository_identity_map`, replace it with a `cyral_repository_access_rules` resource.
-        Note: If the identity map had `identity_type=user` and some non-zero `access_duration`, then
+        -> Note: If the identity map had `identity_type=user` and some non-zero `access_duration`, then
         *there is no need to recreate the resource*. Instead, use the Cyral UI to create an equivalent Approval.

@@ -77,6 +77,9 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 Minimum required Control Plane version: `v4.0.0`.
 
+Checkout the [v4 Migration Guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/4.0-migration-guide)
+if you are upgrading from provider versions `v2` or `v3`. It can save you a lot of time.
+
 Resources incompatible with Control Planes `v3.x`:
 `cyral_repository` and `cyral_repository_binding`.
 
@@ -188,6 +191,9 @@ See the list of incompatible resources with Control Planes `v2.x` and provider `
 ## 3.0.0 (October 5, 2022)
 
 Minimum required Control Plane version: `v3.0.0`.
+
+Checkout the [v3 Migration Guide](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/3.0-migration-guide)
+if you are upgrading from provider versions `v2`. It can save you a lot of time.
 
 Resources incompatible with Control Planes `v2.x`:
 `cyral_datamap` (removed, refer to `cyral_repository_datamap` instead),
