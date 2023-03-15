@@ -37,7 +37,7 @@ resource "cyral_sidecar_listener" "listener_pg" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["postgresql"]
   network_address {
-    port = 5434 // clients will connect to the pg using sidecar port 5434
+    port = 5434 // clients will connect to the pg repo using sidecar port 5434
   }
 }
 
