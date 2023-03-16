@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -93,10 +95,39 @@ func (data ReadRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData)
 	return nil
 }
 
-func CreateConfAuthConfig() ResourceOperationConfig {
+func resourceRepositoryConfAuthCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	m interface{},
+) diag.Diagnostics {
+	log.Printf("[DEBUG] Init resourceRepositoryConfAuthCreate")
+	c := m.(*client.Client)
+	httpMethod := http.MethodPost
+	if confAuthAlreadyExists(c, d.Get("repository_id").(string)) {
+		httpMethod = http.MethodPut
+	}
+	defer log.Printf("[DEBUG] End resourceRepositoryConfAuthCreate")
+	return CreateResource(CreateConfAuthConfig(httpMethod), ReadConfAuthConfig())(ctx, d, m)
+}
+
+func confAuthAlreadyExists(c *client.Client, repositoryID string) bool {
+	url := fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, repositoryID)
+	_, err := c.DoRequest(url, http.MethodGet, nil)
+	// The GET /v1/repos/{repoID}/conf/auth API currently returns 500 status code for every type
+	// of error, so its not possible to distinguish if the error is due to a 404 Not Found or not.
+	// Once the status code returned by this API is fixed we should return false only if it returns
+	// a 404 Not Found, otherwise, if a different error occurs, this function should return an error.
+	if err != nil {
+		log.Printf("[DEBUG] Unable to read Conf Auth resource for repository %s: %v", repositoryID, err)
+		return false
+	}
+	return true
+}
+
+func CreateConfAuthConfig(httpMethod string) ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "ConfAuthResourceCreate",
-		HttpMethod: http.MethodPut,
+		HttpMethod: httpMethod,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
@@ -191,7 +222,7 @@ func upgradeRepositoryConfAuthV0(
 func resourceRepositoryConfAuth() *schema.Resource {
 	return &schema.Resource{
 		Description:   "Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.",
-		CreateContext: CreateResource(CreateConfAuthConfig(), ReadConfAuthConfig()),
+		CreateContext: resourceRepositoryConfAuthCreate,
 		ReadContext:   ReadResource(ReadConfAuthConfig()),
 		UpdateContext: UpdateResource(UpdateConfAuthConfig(), ReadConfAuthConfig()),
 		DeleteContext: DeleteResource(DeleteConfAuthConfig()),
