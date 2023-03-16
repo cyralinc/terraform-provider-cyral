@@ -147,7 +147,7 @@ func resourceRepositoryAccessRules() *schema.Resource {
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "RepositoryAccessRulesCreate",
-				HttpMethod: http.MethodPost,
+				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					repoID := d.Get("repository_id").(string)
 					userAccountID := d.Get("user_account_id").(string)

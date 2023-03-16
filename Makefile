@@ -42,8 +42,8 @@ local/install: local/build
 	cp out/darwin_amd64/$(BINARY) ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64
 
 docker/test:
-	docker-compose run -e CYRAL_TF_CONTROL_PLANE=$(CYRAL_TF_CONTROL_PLANE) -e CYRAL_TF_CLIENT_ID=$(CYRAL_TF_CLIENT_ID) \
-	  -e CYRAL_TF_CLIENT_SECRET=$(CYRAL_TF_CLIENT_SECRET) -e TF_ACC=true \
+	docker-compose run -e CYRAL_TF_CONTROL_PLANE=$$CYRAL_TF_CONTROL_PLANE -e CYRAL_TF_CLIENT_ID=$$CYRAL_TF_CLIENT_ID \
+	  -e CYRAL_TF_CLIENT_SECRET=$$CYRAL_TF_CLIENT_SECRET -e TF_ACC=true \
 	  app $(GOTEST) github.com/cyralinc/terraform-provider-cyral/... -v -race
 
 docker/build:
