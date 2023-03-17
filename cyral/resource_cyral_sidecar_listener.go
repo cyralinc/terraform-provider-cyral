@@ -292,15 +292,29 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						DbVersionKey: {
-							Description: "MySQL advertised DB version. Required (and only relevant) for listeners of type `mysql`.",
-							Type:        schema.TypeString,
-							Optional:    true,
+							Description: "MySQL advertised DB version. Required (and only relevant) for listeners of " +
+								"types `mysql` and `mariadb`. This value represents the MySQL/MariaDB server version that " +
+								"the Cyral sidecar will use to present itself to client applications. Different applications, " +
+								"especially JDBC-based ones, may behave differently according to the version of the " +
+								"database they are connecting to. It is crucial that version value specified in this " +
+								"field to be either the same value as the underlying database version, or to be a " +
+								"compatible one. For a compatibility reference, please access: " +
+								"https://cyral.com/docs/v4.2/sidecars/sidecar-bind-repo#mysql-smart-port-configuration. " +
+								"Example values: `\"5.7.3\"`, `\"8.0.4\"` or `\"10.2.1\"`.",
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						CharacterSetKey: {
-							Description: "MySQL character set. Optional (and only relevant) for listeners of type `mysql`.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
+							Description: "MySQL character set. Optional (and only relevant) for listeners of " +
+								"types `mysql` and `mariadb`. The sidecar automatically derives this value out of the server " +
+								"version specified in the dbVersion field. This field should only be populated if the database " +
+								"was configured, at deployment time, to use a global character set different from the database " +
+								"default. The char set is extracted from the collation informed. The list of possible collations " +
+								"can be extracted from the column `collation` by running the command `SHOW COLLATION` in " +
+								"the target database.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -315,9 +329,22 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						ProxyModeKey: {
-							Description: "S3 proxy mode, only relevant for S3 listeners. Defaults to false.",
-							Type:        schema.TypeBool,
-							Optional:    true,
+							Description: "S3 proxy mode. Only relevant for S3 listeners. Allowed values: [true, false]. " +
+								"Defaults to `false`. " +
+								"When `true`, instructs the sidecar to operate as an HTTP Proxy server. Client " +
+								"applications need to be explicitly configured to send the traffic through an HTTP " +
+								"proxy server, represented by the Cyral sidecar endpoint + the S3 listening port. " +
+								"It is indicated when connecting from CLI applications, such as `aws cli`, or through " +
+								"the AWS SDK. This listener mode is functional for client applications using either " +
+								"AWS native credentials, e.g. Access Key ID/Secret Access Key, or Cyral-Provided access " +
+								"tokens (Single Sign-On connections). " +
+								"When `false`, instructs the sidecar to mimic the actual behavior of AWS S3, meaning " +
+								"client applications will not be aware of a middleware HTTP proxy in the path to S3. " +
+								"This listener mode is only compatible with applications using Cyral-Provided access tokens " +
+								"and is must used when configuring the Cyral S3 Browser. This mode is currently not " +
+								"recommended for any other use besides the Cyral S3 Browser.",
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 					},
 				},
@@ -332,8 +359,16 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						ProxyModeKey: {
-							Description: "DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Note " +
-								"that `proxy_mode` must be set to `true` for listeners of type `dynamodb`. Defaults to false.",
+							Description: "DynamoDB proxy mode. Only relevant for listeners of type `dynamodb` or " +
+								"`dynamodbstreams` and must always be set to `true` for these listener types. " +
+								"Defaults to false. " +
+								"When `true`, instructs the sidecar to operate as an HTTP Proxy server. Client " +
+								"applications need to be explicitly configured to send the traffic through an HTTP " +
+								"proxy server, represented by the Cyral sidecar endpoint + the DynamoDB listening port. " +
+								"It is indicated when connecting from CLI applications, such as `aws cli`, or through " +
+								"the AWS SDK." +
+								"Setting this value to `false` for the `dynamodb` and `dynamodbstreams` listeners types " +
+								"is currently not allowed and is reserved for future use.",
 							Type:     schema.TypeBool,
 							Optional: true,
 						},

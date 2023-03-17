@@ -1,6 +1,10 @@
 # cyral_repository_user_account (Resource)
 
--> **NOTE** Import ID syntax is `{repository_id}/{user_account_id}`, where `{user_account_id}` is the ID of the user account in the Cyral Control Plane.
+~> **Warning** When referring to the user account ID in other resources, like `cyral_repository_access_rules` for example,
+use the read-only attribute `user_account_id` instead of `id`.
+
+-> Import ID syntax is `{repository_id}/{user_account_id}`, where `{user_account_id}` is the ID of the user
+account in the Cyral Control Plane.
 
 ## Example Usage
 

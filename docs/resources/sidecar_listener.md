@@ -2,7 +2,7 @@
 
 Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
 
--> **NOTE** Import ID syntax is `{sidecar_id}/{listener_id}`.
+-> Import ID syntax is `{sidecar_id}/{listener_id}`.
 
 ## Example Usage
 
@@ -22,7 +22,7 @@ resource "cyral_sidecar_listener" "listener" {
 }
 
 # Listener with MySQL Settings
-resource "cyral_sidecar_listener" "listener" {
+resource "cyral_sidecar_listener" "listener_mysql" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mysql"]
   network_address {
@@ -30,13 +30,13 @@ resource "cyral_sidecar_listener" "listener" {
   }
 
   mysql_settings {
-    db_version    = "3.4.0"
-    character_set = "ujis_japanese_ci"
+    db_version    = "8.0.4"
+    character_set = "utf8mb4_0900_ai_ci"
   }
 }
 
-# Listener with S3 Settings
-resource "cyral_sidecar_listener" "listener" {
+# Listener for S3 CLI and AWS SDK
+resource "cyral_sidecar_listener" "listener_s3_cli" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["s3"]
   network_address {
@@ -47,15 +47,28 @@ resource "cyral_sidecar_listener" "listener" {
   }
 }
 
+# Listener for S3 browser (using port 444 assuming port 443 is used for CLI)
+resource "cyral_sidecar_listener" "listener_s3_cli" {
+  sidecar_id = cyral_sidecar.sidecar.id
+  repo_types = ["s3"]
+  network_address {
+    port = 444
+  }
+  s3_settings {
+    proxy_mode = false // may be omitted for s3 browser as it defaults to `false`
+  }
+}
+
+
 # Listener with DynamoDB Settings
-resource "cyral_sidecar_listener" "listener" {
+resource "cyral_sidecar_listener" "listener_dynamodb" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["dynamodb"]
   network_address {
     port = 8000
   }
   dynamodb_settings {
-    proxy_mode = true
+    proxy_mode = true // must be true if repo_type is either `dynamodb` or `dynamodbstreams`
   }
 }
 ```
@@ -113,7 +126,7 @@ Optional:
 
 Optional:
 
-- `proxy_mode` (Boolean) DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Note that `proxy_mode` must be set to `true` for listeners of type `dynamodb`. Defaults to false.
+- `proxy_mode` (Boolean) DynamoDB proxy mode. Only relevant for listeners of type `dynamodb` or `dynamodbstreams` and must always be set to `true` for these listener types. Defaults to false. When `true`, instructs the sidecar to operate as an HTTP Proxy server. Client applications need to be explicitly configured to send the traffic through an HTTP proxy server, represented by the Cyral sidecar endpoint + the DynamoDB listening port. It is indicated when connecting from CLI applications, such as `aws cli`, or through the AWS SDK.Setting this value to `false` for the `dynamodb` and `dynamodbstreams` listeners types is currently not allowed and is reserved for future use.
 
 <a id="nestedblock--mysql_settings"></a>
 
@@ -121,8 +134,8 @@ Optional:
 
 Optional:
 
-- `character_set` (String) MySQL character set. Optional (and only relevant) for listeners of type `mysql`.
-- `db_version` (String) MySQL advertised DB version. Required (and only relevant) for listeners of type `mysql`.
+- `character_set` (String) MySQL character set. Optional (and only relevant) for listeners of types `mysql` and `mariadb`. The sidecar automatically derives this value out of the server version specified in the dbVersion field. This field should only be populated if the database was configured, at deployment time, to use a global character set different from the database default. The char set is extracted from the collation informed. The list of possible collations can be extracted from the column `collation` by running the command `SHOW COLLATION` in the target database.
+- `db_version` (String) MySQL advertised DB version. Required (and only relevant) for listeners of types `mysql` and `mariadb`. This value represents the MySQL/MariaDB server version that the Cyral sidecar will use to present itself to client applications. Different applications, especially JDBC-based ones, may behave differently according to the version of the database they are connecting to. It is crucial that version value specified in this field to be either the same value as the underlying database version, or to be a compatible one. For a compatibility reference, please access: https://cyral.com/docs/v4.2/sidecars/sidecar-bind-repo#mysql-smart-port-configuration. Example values: `"5.7.3"`, `"8.0.4"` or `"10.2.1"`.
 
 <a id="nestedblock--s3_settings"></a>
 
@@ -130,4 +143,4 @@ Optional:
 
 Optional:
 
-- `proxy_mode` (Boolean) S3 proxy mode, only relevant for S3 listeners. Defaults to false.
+- `proxy_mode` (Boolean) S3 proxy mode. Only relevant for S3 listeners. Allowed values: [true, false]. Defaults to `false`. When `true`, instructs the sidecar to operate as an HTTP Proxy server. Client applications need to be explicitly configured to send the traffic through an HTTP proxy server, represented by the Cyral sidecar endpoint + the S3 listening port. It is indicated when connecting from CLI applications, such as `aws cli`, or through the AWS SDK. This listener mode is functional for client applications using either AWS native credentials, e.g. Access Key ID/Secret Access Key, or Cyral-Provided access tokens (Single Sign-On connections). When `false`, instructs the sidecar to mimic the actual behavior of AWS S3, meaning client applications will not be aware of a middleware HTTP proxy in the path to S3. This listener mode is only compatible with applications using Cyral-Provided access tokens and is must used when configuring the Cyral S3 Browser. This mode is currently not recommended for any other use besides the Cyral S3 Browser.

@@ -2,7 +2,7 @@
 
 Manages SAML IdP integrations.
 
-~> **NOTE** This resource manages the completion of a SAML IdP integration
+~> **Warning** This resource manages the completion of a SAML IdP integration
 draft. SAML drafts are managed by `cyral_integration_idp_saml_draft`. In the
 Cyral API, if an integration is deleted, the associated SAML draft is also
 deleted. Therefore, do not destroy this resource without destroying the
