@@ -1,3 +1,27 @@
+## 4.1.2 (March 17, 2023)
+
+Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
+as long as the incompatible argument is not used.
+
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Bug fixes:
+
+- **Update ADFS default value for IdP resource**: [#364](https://github.com/cyralinc/terraform-provider-cyral/pull/364).
+
+### Documentation:
+
+- **Update docs index with migration guide**: [#373](https://github.com/cyralinc/terraform-provider-cyral/pull/373).
+- **Overall documentation improments**: [#375](https://github.com/cyralinc/terraform-provider-cyral/pull/375).
+
+### Improvements:
+
+- **Update SDK**: [#365](https://github.com/cyralinc/terraform-provider-cyral/pull/365).
+- **Replace POST by PUT in access rule creation**: [#376](https://github.com/cyralinc/terraform-provider-cyral/pull/376).
+- **Update Conf Auth resource to fix recreation issue**: [#378](https://github.com/cyralinc/terraform-provider-cyral/pull/378).
+
 ## 4.1.1 (February 21, 2023)
 
 Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
