@@ -2,7 +2,7 @@
 
 Manages the sidecar and binding set as the access gateway for [cyral_repositories](./repositories.md).
 
--> **NOTE** Import ID syntax is `{repository_id}`.
+-> Import ID syntax is `{repository_id}`.
 
 ## Example Usage
 

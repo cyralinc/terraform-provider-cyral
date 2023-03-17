@@ -332,8 +332,8 @@ func resourceSidecarListener() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						ProxyModeKey: {
-							Description: "DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Note " +
-								"that `proxy_mode` must be set to `true` for listeners of type `dynamodb`. Defaults to false.",
+							Description: "DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Must " +
+								"be set to `true` for listeners of type `dynamodb`. Defaults to false.",
 							Type:     schema.TypeBool,
 							Optional: true,
 						},

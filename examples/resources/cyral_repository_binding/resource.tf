@@ -46,7 +46,7 @@ resource "cyral_repository_binding" "binding_mongodb" {
   repository_id = cyral_repository.repo_mongodb.id
   listener_binding {
     listener_id = cyral_sidecar_listener.listener_mongodb.listener_id
-    node_index = 0
+    node_index = 0 // optional if there is only one repo node
   }
 }
 

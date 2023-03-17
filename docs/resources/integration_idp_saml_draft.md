@@ -2,8 +2,8 @@
 
 Manages SAML IdP integration drafts.
 
-~> **NOTE** If using this resource in conjunction with
-`cyral_integration_idp_saml`, please see **NOTE** at the beginning of
+~> If using this resource in conjunction with
+`cyral_integration_idp_saml`, please see the note at the beginning of
 [cyral_integration_idp_saml](./cyral_integration_idp_saml.md).
 
 ## Example Usage

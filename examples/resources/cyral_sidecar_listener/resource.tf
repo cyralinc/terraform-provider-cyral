@@ -33,6 +33,9 @@ resource "cyral_sidecar_listener" "listener_s3_cli" {
   network_address {
     port = 443
   }
+  s3_settings {
+    proxy_mode = true
+  }
 }
 
 # Listener for S3 browser (using port 444 assuming port 443 is used for CLI)
@@ -43,7 +46,7 @@ resource "cyral_sidecar_listener" "listener_s3_cli" {
     port = 444
   }
   s3_settings {
-    proxy_mode = true
+    proxy_mode = false // may be omitted for s3 browser as it defaults to `false`
   }
 }
 
@@ -56,6 +59,6 @@ resource "cyral_sidecar_listener" "listener_dynamodb" {
     port = 8000
   }
   dynamodb_settings {
-    proxy_mode = true
+    proxy_mode = true // must be true if repo_type is `dynamodb`
   }
 }

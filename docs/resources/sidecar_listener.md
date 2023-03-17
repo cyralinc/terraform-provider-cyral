@@ -2,7 +2,7 @@
 
 Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
 
--> **NOTE** Import ID syntax is `{sidecar_id}/{listener_id}`.
+-> Import ID syntax is `{sidecar_id}/{listener_id}`.
 
 ## Example Usage
 
@@ -42,6 +42,9 @@ resource "cyral_sidecar_listener" "listener_s3_cli" {
   network_address {
     port = 443
   }
+  s3_settings {
+    proxy_mode = true
+  }
 }
 
 # Listener for S3 browser (using port 444 assuming port 443 is used for CLI)
@@ -52,7 +55,7 @@ resource "cyral_sidecar_listener" "listener_s3_cli" {
     port = 444
   }
   s3_settings {
-    proxy_mode = true
+    proxy_mode = false // may be omitted for s3 browser as it defaults to `false`
   }
 }
 
@@ -65,7 +68,7 @@ resource "cyral_sidecar_listener" "listener_dynamodb" {
     port = 8000
   }
   dynamodb_settings {
-    proxy_mode = true
+    proxy_mode = true // must be true if repo_type is `dynamodb`
   }
 }
 ```
@@ -123,7 +126,7 @@ Optional:
 
 Optional:
 
-- `proxy_mode` (Boolean) DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Note that `proxy_mode` must be set to `true` for listeners of type `dynamodb`. Defaults to false.
+- `proxy_mode` (Boolean) DynamoDB proxy mode. Only relevant for listeners of type `dynamodb`. Must be set to `true` for listeners of type `dynamodb`. Defaults to false.
 
 <a id="nestedblock--mysql_settings"></a>
 
