@@ -21,12 +21,12 @@ resource "cyral_sidecar_listener" "listener_mysql" {
   }
 
   mysql_settings {
-    db_version    = "3.4.0"
-    character_set = "ujis_japanese_ci"
+    db_version    = "8.0.4"
+    character_set = "utf8mb4_0900_ai_ci"
   }
 }
 
-# Listener for S3 CLI
+# Listener for S3 CLI and AWS SDK
 resource "cyral_sidecar_listener" "listener_s3_cli" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["s3"]
@@ -59,6 +59,6 @@ resource "cyral_sidecar_listener" "listener_dynamodb" {
     port = 8000
   }
   dynamodb_settings {
-    proxy_mode = true // must be true if repo_type is `dynamodb`
+    proxy_mode = true // must be true if repo_type is either `dynamodb` or `dynamodbstreams`
   }
 }
