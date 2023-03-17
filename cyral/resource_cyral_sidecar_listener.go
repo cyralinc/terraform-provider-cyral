@@ -306,8 +306,8 @@ func resourceSidecarListener() *schema.Resource {
 						},
 						CharacterSetKey: {
 							Description: "MySQL character set. Optional (and only relevant) for listeners of " +
-								"types `mysql` and `mariadb`. The sidecar automatically derives this value out of the server" +
-								"version specified in the dbVersion field. This field should only be populated if the database" +
+								"types `mysql` and `mariadb`. The sidecar automatically derives this value out of the server " +
+								"version specified in the dbVersion field. This field should only be populated if the database " +
 								"was configured, at deployment time, to use a global character set different from the database " +
 								"default.",
 							Type:     schema.TypeString,
