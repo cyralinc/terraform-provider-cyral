@@ -309,7 +309,9 @@ func resourceSidecarListener() *schema.Resource {
 								"types `mysql` and `mariadb`. The sidecar automatically derives this value out of the server " +
 								"version specified in the dbVersion field. This field should only be populated if the database " +
 								"was configured, at deployment time, to use a global character set different from the database " +
-								"default.",
+								"default. The char set is extracted from the collation informed. The list of possible collations " +
+								"can be extracted from the column `collation` by running the command `SHOW COLLATION` in " +
+								"the target database.",
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,

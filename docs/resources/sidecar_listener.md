@@ -134,7 +134,7 @@ Optional:
 
 Optional:
 
-- `character_set` (String) MySQL character set. Optional (and only relevant) for listeners of types `mysql` and `mariadb`. The sidecar automatically derives this value out of the server version specified in the dbVersion field. This field should only be populated if the database was configured, at deployment time, to use a global character set different from the database default.
+- `character_set` (String) MySQL character set. Optional (and only relevant) for listeners of types `mysql` and `mariadb`. The sidecar automatically derives this value out of the server version specified in the dbVersion field. This field should only be populated if the database was configured, at deployment time, to use a global character set different from the database default. The char set is extracted from the collation informed. The list of possible collations can be extracted from the column `collation` by running the command `SHOW COLLATION` in the target database.
 - `db_version` (String) MySQL advertised DB version. Required (and only relevant) for listeners of types `mysql` and `mariadb`. This value represents the MySQL/MariaDB server version that the Cyral sidecar will use to present itself to client applications. Different applications, especially JDBC-based ones, may behave differently according to the version of the database they are connecting to. It is crucial that version value specified in this field to be either the same value as the underlying database version, or to be a compatible one. For a compatibility reference, please access: https://cyral.com/docs/v4.2/sidecars/sidecar-bind-repo#mysql-smart-port-configuration. Example values: `"5.7.3"`, `"8.0.4"` or `"10.2.1"`.
 
 <a id="nestedblock--s3_settings"></a>
