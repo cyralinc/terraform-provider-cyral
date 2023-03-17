@@ -300,7 +300,7 @@ func resourceSidecarListener() *schema.Resource {
 								"field to be either the same value as the underlying database version, or to be a " +
 								"compatible one. For a compatibility reference, please access: " +
 								"https://cyral.com/docs/v4.2/sidecars/sidecar-bind-repo#mysql-smart-port-configuration. " +
-								"Example values: \"5.7.3\", \"8.0.4\", or \"10.2.1\".",
+								"Example values: `\"5.7.3\"`, `\"8.0.4\"` or `\"10.2.1\"`.",
 							Type:     schema.TypeString,
 							Optional: true,
 						},
