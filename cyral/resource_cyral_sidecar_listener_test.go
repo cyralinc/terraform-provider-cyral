@@ -16,7 +16,7 @@ func sidecarListenerSidecarConfig() string {
 	return formatBasicSidecarIntoConfig(
 		basicSidecarResName,
 		accTestName(sidecarListenerTestSidecarResourceName, "sidecar"),
-		"docker",
+		"docker", "",
 	)
 }
 
@@ -26,10 +26,12 @@ func TestSidecarListenerResource(t *testing.T) {
 	testSteps = append(testSteps, settingsTest()...)
 	testSteps = append(testSteps, multipleListenersAndImportTest()...)
 
-	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
-		Steps:             testSteps,
-	})
+	resource.ParallelTest(
+		t, resource.TestCase{
+			ProviderFactories: providerFactories,
+			Steps:             testSteps,
+		},
+	)
 }
 
 func updateTest() []resource.TestStep {
@@ -174,9 +176,11 @@ func multipleListenersAndImportTest() []resource.TestStep {
 
 	// Setup config containing both listeners.
 	listener1Config := setupSidecarListenerConfig(
-		listener1ResName, listener1)
+		listener1ResName, listener1,
+	)
 	listener2Config := setupSidecarListenerConfig(
-		listener2ResName, listener2)
+		listener2ResName, listener2,
+	)
 	multipleListenersConfig := sidecarListenerSidecarConfig() +
 		listener1Config + listener2Config
 
@@ -184,7 +188,8 @@ func multipleListenersAndImportTest() []resource.TestStep {
 	listener1Check := setupSidecarListenerCheck(listener1ResName, listener1)
 	listener2Check := setupSidecarListenerCheck(listener2ResName, listener2)
 	multipleListenersCheck := resource.ComposeTestCheckFunc(
-		listener1Check, listener2Check)
+		listener1Check, listener2Check,
+	)
 
 	// Create multiple listeners test step.
 	multipleListenersTest := resource.TestStep{
@@ -219,30 +224,42 @@ func setupSidecarListenerCheck(resourceName string, listener SidecarListener) re
 	var checkFuncs []resource.TestCheckFunc
 
 	// Required attributes
-	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-		resource.TestCheckResourceAttrPair(
-			resFullName, SidecarIDKey,
-			fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id"),
-		resource.TestCheckResourceAttr(resFullName,
-			fmt.Sprintf("%s.0", RepoTypesKey), listener.RepoTypes[0]),
-	}...)
+	checkFuncs = append(
+		checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttrPair(
+				resFullName, SidecarIDKey,
+				fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id",
+			),
+			resource.TestCheckResourceAttr(
+				resFullName,
+				fmt.Sprintf("%s.0", RepoTypesKey), listener.RepoTypes[0],
+			),
+		}...,
+	)
 
 	// Optional attributes
 	if listener.NetworkAddress != nil {
-		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			// Exactly one Network Address conf.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.#", NetworkAddressKey),
-				"1"),
-			// Check host.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.0.%s", NetworkAddressKey, HostKey),
-				listener.NetworkAddress.Host),
-			// Check port.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.0.%s", NetworkAddressKey, PortKey),
-				strconv.Itoa(listener.NetworkAddress.Port)),
-		}...,
+		checkFuncs = append(
+			checkFuncs, []resource.TestCheckFunc{
+				// Exactly one Network Address conf.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.#", NetworkAddressKey),
+					"1",
+				),
+				// Check host.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.0.%s", NetworkAddressKey, HostKey),
+					listener.NetworkAddress.Host,
+				),
+				// Check port.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.0.%s", NetworkAddressKey, PortKey),
+					strconv.Itoa(listener.NetworkAddress.Port),
+				),
+			}...,
 		)
 	}
 
@@ -252,48 +269,65 @@ func setupSidecarListenerCheck(resourceName string, listener SidecarListener) re
 			expectedCharSet = listener.MySQLSettings.CharacterSet
 		}
 
-		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			// Exactly one mySQL Settings.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.#", MySQLSettingsKey),
-				"1"),
-			// Check DB version.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.0.%s", MySQLSettingsKey, DbVersionKey),
-				listener.MySQLSettings.DbVersion),
-			// Check character set.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.0.%s", MySQLSettingsKey, CharacterSetKey),
-				expectedCharSet),
-		}...,
+		checkFuncs = append(
+			checkFuncs, []resource.TestCheckFunc{
+				// Exactly one mySQL Settings.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.#", MySQLSettingsKey),
+					"1",
+				),
+				// Check DB version.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.0.%s", MySQLSettingsKey, DbVersionKey),
+					listener.MySQLSettings.DbVersion,
+				),
+				// Check character set.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.0.%s", MySQLSettingsKey, CharacterSetKey),
+					expectedCharSet,
+				),
+			}...,
 		)
 	}
 
 	if listener.S3Settings != nil {
-		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			// Exactly one S3 Settings.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.#", S3SettingsKey),
-				"1"),
-			// Check proxy mode.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.0.%s", S3SettingsKey, ProxyModeKey),
-				strconv.FormatBool(listener.S3Settings.ProxyMode)),
-		}...,
+		checkFuncs = append(
+			checkFuncs, []resource.TestCheckFunc{
+				// Exactly one S3 Settings.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.#", S3SettingsKey),
+					"1",
+				),
+				// Check proxy mode.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.0.%s", S3SettingsKey, ProxyModeKey),
+					strconv.FormatBool(listener.S3Settings.ProxyMode),
+				),
+			}...,
 		)
 	}
 
 	if listener.DynamoDbSettings != nil {
-		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			// Exactly one S3 Settings.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.#", DynamoDbSettingsKey),
-				"1"),
-			// Check proxy mode.
-			resource.TestCheckResourceAttr(resFullName,
-				fmt.Sprintf("%s.0.%s", DynamoDbSettingsKey, ProxyModeKey),
-				strconv.FormatBool(listener.DynamoDbSettings.ProxyMode)),
-		}...,
+		checkFuncs = append(
+			checkFuncs, []resource.TestCheckFunc{
+				// Exactly one S3 Settings.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.#", DynamoDbSettingsKey),
+					"1",
+				),
+				// Check proxy mode.
+				resource.TestCheckResourceAttr(
+					resFullName,
+					fmt.Sprintf("%s.0.%s", DynamoDbSettingsKey, ProxyModeKey),
+					strconv.FormatBool(listener.DynamoDbSettings.ProxyMode),
+				),
+			}...,
 		)
 	}
 
@@ -311,11 +345,13 @@ func setupSidecarListenerConfig(resourceName string, listener SidecarListener) s
 		if listener.NetworkAddress.Port != 0 {
 			port = fmt.Sprintf(`port = %d`, listener.NetworkAddress.Port)
 		}
-		networkAddressStr = fmt.Sprintf(`
+		networkAddressStr = fmt.Sprintf(
+			`
 			network_address {
 				%s
 				%s
-			}`, host, port)
+			}`, host, port,
+		)
 	}
 
 	var settings string
@@ -328,29 +364,37 @@ func setupSidecarListenerConfig(resourceName string, listener SidecarListener) s
 		if listener.MySQLSettings.DbVersion != "" {
 			dbVersion = fmt.Sprintf(`"%s"`, listener.MySQLSettings.DbVersion)
 		}
-		settings = fmt.Sprintf(`
+		settings = fmt.Sprintf(
+			`
 		mysql_settings {
 			db_version = %s
 			character_set = %s
-		}`, dbVersion, charSet)
+		}`, dbVersion, charSet,
+		)
 	case listener.DynamoDbSettings != nil:
-		settings = fmt.Sprintf(`
+		settings = fmt.Sprintf(
+			`
 		dynamodb_settings {
 			proxy_mode = %s
-		}`, strconv.FormatBool(listener.DynamoDbSettings.ProxyMode))
+		}`, strconv.FormatBool(listener.DynamoDbSettings.ProxyMode),
+		)
 	case listener.S3Settings != nil:
-		settings = fmt.Sprintf(`
+		settings = fmt.Sprintf(
+			`
 		s3_settings {
 			proxy_mode = %s
-		}`, strconv.FormatBool(listener.S3Settings.ProxyMode))
+		}`, strconv.FormatBool(listener.S3Settings.ProxyMode),
+		)
 	}
 
-	config += fmt.Sprintf(`
+	config += fmt.Sprintf(
+		`
 	resource "cyral_sidecar_listener" "%s" {
 		sidecar_id = %s
 		repo_types = ["%s"]
 		%s
 		%s
-	}`, resourceName, basicSidecarID, listener.RepoTypes[0], networkAddressStr, settings)
+	}`, resourceName, basicSidecarID, listener.RepoTypes[0], networkAddressStr, settings,
+	)
 	return config
 }

@@ -41,7 +41,7 @@ func accessGatewayConfig(ag accessGatewayTestConfig) string {
 	config += formatBasicSidecarIntoConfig(
 		ag.sidecarResName,
 		accTestName(repoAccessGatewayResourceName, ag.sidecarResName),
-		"docker",
+		"docker", "",
 	)
 
 	config += formatBasicSidecarListenerIntoConfig(
@@ -89,15 +89,17 @@ func TestAccRepositoryAccessGatewayResource(t *testing.T) {
 		ImportStateVerify: true,
 		ResourceName:      resourceToImport,
 	}
-	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
-		Steps: []resource.TestStep{
-			intialTest,
-			updateSidecarTest,
-			updateBindingTest,
-			importTest,
+	resource.ParallelTest(
+		t, resource.TestCase{
+			ProviderFactories: providerFactories,
+			Steps: []resource.TestStep{
+				intialTest,
+				updateSidecarTest,
+				updateBindingTest,
+				importTest,
+			},
 		},
-	})
+	)
 }
 
 func repositoryAccessGatewayTestStep(resName string, ag accessGatewayTestConfig) resource.TestStep {
@@ -113,22 +115,27 @@ func repoAccessGatewayCheck(resName, sidecarResName, bindingResName string) reso
 	checkFuncs := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			resFullName, SidecarIDKey,
-			fmt.Sprintf("cyral_sidecar.%s", sidecarResName), "id"),
+			fmt.Sprintf("cyral_sidecar.%s", sidecarResName), "id",
+		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, RepositoryIDKey,
-			fmt.Sprintf("cyral_repository.%s", basicRepositoryResName), "id"),
+			fmt.Sprintf("cyral_repository.%s", basicRepositoryResName), "id",
+		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, BindingIDKey,
-			fmt.Sprintf("cyral_repository_binding.%s", bindingResName), "binding_id"),
+			fmt.Sprintf("cyral_repository_binding.%s", bindingResName), "binding_id",
+		),
 	}
 	return resource.ComposeTestCheckFunc(checkFuncs...)
 }
 
 func repoAccessGatewayConfig(resName, sidecarID, bindingID string) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 	resource "cyral_repository_access_gateway" "%s" {
 		repository_id  = %s
 		sidecar_id  = %s
 		binding_id = %s
-	}`, resName, basicRepositoryID, sidecarID, bindingID)
+	}`, resName, basicRepositoryID, sidecarID, bindingID,
+	)
 }

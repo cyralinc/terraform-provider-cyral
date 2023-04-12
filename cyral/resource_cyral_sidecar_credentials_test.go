@@ -14,21 +14,23 @@ const (
 func TestAccSidecarCredentialsResource(t *testing.T) {
 	testConfig, testFunc := setupSidecarCredentialsTest()
 
-	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testConfig,
-				Check:  testFunc,
-			},
-			{
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"client_secret"},
-				ResourceName:            "cyral_sidecar_credentials.test_sidecar_credentials",
+	resource.ParallelTest(
+		t, resource.TestCase{
+			ProviderFactories: providerFactories,
+			Steps: []resource.TestStep{
+				{
+					Config: testConfig,
+					Check:  testFunc,
+				},
+				{
+					ImportState:             true,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{"client_secret"},
+					ResourceName:            "cyral_sidecar_credentials.test_sidecar_credentials",
+				},
 			},
 		},
-	})
+	)
 }
 
 func setupSidecarCredentialsTest() (string, resource.TestCheckFunc) {
@@ -37,16 +39,20 @@ func setupSidecarCredentialsTest() (string, resource.TestCheckFunc) {
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair(
 			"cyral_sidecar_credentials.test_sidecar_credentials", "sidecar_id",
-			"cyral_sidecar.test_sidecar", "id"),
+			"cyral_sidecar.test_sidecar", "id",
+		),
 		resource.TestCheckResourceAttrSet(
 			"cyral_sidecar_credentials.test_sidecar_credentials",
-			"client_id"),
+			"client_id",
+		),
 		resource.TestCheckResourceAttrSet(
 			"cyral_sidecar_credentials.test_sidecar_credentials",
-			"client_secret"),
+			"client_secret",
+		),
 		resource.TestCheckResourceAttrPair(
 			"cyral_sidecar_credentials.test_sidecar_credentials", "id",
-			"cyral_sidecar_credentials.test_sidecar_credentials", "client_id"),
+			"cyral_sidecar_credentials.test_sidecar_credentials", "client_id",
+		),
 	)
 
 	return configuration, testFunction
@@ -57,11 +63,13 @@ func createSidecarCredentialsConfig() string {
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
 		accTestName(sidecarCredentialsResourceName, "sidecar"),
-		"docker",
+		"docker", "",
 	)
-	config += fmt.Sprintf(`
+	config += fmt.Sprintf(
+		`
 	resource "cyral_sidecar_credentials" "test_sidecar_credentials" {
 		sidecar_id = %s
-	}`, basicSidecarID)
+	}`, basicSidecarID,
+	)
 	return config
 }
