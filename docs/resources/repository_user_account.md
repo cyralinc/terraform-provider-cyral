@@ -204,7 +204,7 @@ Required:
 
 ### Nested Schema for `approval_config`
 
-Required:
+Optional:
 
 - `automatic_grant` (Boolean) If `true`, approvals can be automatically granted.
-- `max_auto_grant_duration` (String) The maximum duration in seconds for approvals can be automatically granted. E.g.: `"2000s"`, `"3000.5s"
+- `max_auto_grant_duration` (String) The maximum duration in seconds for approvals automatically granted. Must be greater than `"0s"`. E.g.: `"2000s"`, `"3000.5s"`

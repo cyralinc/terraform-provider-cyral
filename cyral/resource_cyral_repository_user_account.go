@@ -460,14 +460,16 @@ func resourceRepositoryUserAccount() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"automatic_grant": {
 							Description: "If `true`, approvals can be automatically granted.",
-							Required:    true,
+							Optional:    true,
 							Type:        schema.TypeBool,
 						},
 						"max_auto_grant_duration": {
-							Description: "The maximum duration in seconds for approvals can be " +
-								"automatically granted. E.g.: `\"2000s\"`, `\"3000.5s\"",
-							Required: true,
-							Type:     schema.TypeString,
+							Description: "The maximum duration in seconds for approvals " +
+								"automatically granted. Must be greater than `\"0s\"`. " +
+								"E.g.: `\"2000s\"`, `\"3000.5s\"`",
+							Optional:     true,
+							Type:         schema.TypeString,
+							RequiredWith: []string{"automatic_grant"},
 						},
 					},
 				},
