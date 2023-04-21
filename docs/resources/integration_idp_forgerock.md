@@ -1,6 +1,6 @@
 # cyral_integration_idp_forgerock (Resource)
 
-Manages [integration with Forgerock](https://cyral.com/docs/sso/sso-forgerock#add-forgerock-idp-to-cyral) identity provider to allow single-sign on to Cyral.
+~> **DEPRECATED** Use resource and data source `cyral_integration_idp_saml` instead.
 
 ## Example Usage
 

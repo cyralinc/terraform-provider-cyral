@@ -116,7 +116,8 @@ func DeleteGenericSAMLDraftConfig() ResourceOperationConfig {
 
 func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages SAML IdP integration drafts.",
+		Description: "Manages SAML IdP integration drafts." +
+			"\n\nSee also the remaining SAML-related resources and data sources.",
 		CreateContext: CreateResource(
 			CreateGenericSAMLDraftConfig(),
 			ReadGenericSAMLDraftConfig(),

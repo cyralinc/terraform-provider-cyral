@@ -1,6 +1,6 @@
 # cyral_integration_idp_adfs (Resource)
 
-Manages [integration with Active Directory Federation Services](https://cyral.com/docs/sso/sso-adfs#add-your-adfs-as-an-idp-in-cyral) identity provider to allow single-sign on to Cyral.
+~> **DEPRECATED** Use resource and data source `cyral_integration_idp_saml` instead.
 
 ## Example Usage
 

@@ -1,6 +1,6 @@
 # cyral_integration_idp_aad (Resource)
 
-Manages [integration with Azure Active Directory](https://cyral.com/docs/sso/sso-azure-ad#add-azure-ad-integration-to-cyral) identity provider to allow single-sign on to Cyral.
+~> **DEPRECATED** Use resource and data source `cyral_integration_idp_saml` instead.
 
 ## Example Usage
 

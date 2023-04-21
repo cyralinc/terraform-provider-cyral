@@ -2,9 +2,11 @@
 
 Manages SAML IdP integration drafts.
 
+See also the remaining SAML-related resources and data sources.
+
 ~> If using this resource in conjunction with
 `cyral_integration_idp_saml`, please see the note at the beginning of
-[cyral_integration_idp_saml](./cyral_integration_idp_saml.md).
+[cyral_integration_idp_saml](./integration_idp_saml.md).
 
 ## Example Usage
 

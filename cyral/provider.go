@@ -25,7 +25,7 @@ func init() {
 	schema.ResourceDescriptionBuilder = func(s *schema.Resource) string {
 		desc := s.Description
 		if s.DeprecationMessage != "" {
-			desc = fmt.Sprintf("**Deprecated.** %s", s.DeprecationMessage)
+			desc = fmt.Sprintf("~> **DEPRECATED** %s", s.DeprecationMessage)
 		}
 		return strings.TrimSpace(desc)
 	}

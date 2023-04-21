@@ -13,11 +13,12 @@ import (
 
 func resourceIntegrationIdP(identityProvider string) *schema.Resource {
 	return &schema.Resource{
-		Description:   fmt.Sprintf("%v", idpDefaultValues(identityProvider, "resource_description")),
-		CreateContext: resourceIntegrationIdPCreate(identityProvider),
-		ReadContext:   resourceIntegrationIdPRead,
-		UpdateContext: resourceIntegrationIdPUpdate(identityProvider),
-		DeleteContext: resourceIntegrationIdPDelete,
+		Description:        fmt.Sprintf("%v", idpDefaultValues(identityProvider, "resource_description")),
+		CreateContext:      resourceIntegrationIdPCreate(identityProvider),
+		ReadContext:        resourceIntegrationIdPRead,
+		UpdateContext:      resourceIntegrationIdPUpdate(identityProvider),
+		DeleteContext:      resourceIntegrationIdPDelete,
+		DeprecationMessage: "Use resource and data source `cyral_integration_idp_saml` instead.",
 
 		Schema: map[string]*schema.Schema{
 			"id": {
