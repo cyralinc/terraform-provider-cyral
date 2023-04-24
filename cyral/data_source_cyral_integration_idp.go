@@ -17,8 +17,9 @@ import (
 
 func dataSourceIntegrationIdP() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieve and filter IdP integrations.",
-		ReadContext: dataSourceIntegrationIdPRead,
+		Description:        "Retrieve and filter IdP integrations.",
+		ReadContext:        dataSourceIntegrationIdPRead,
+		DeprecationMessage: "Use resource and data source `cyral_integration_idp_saml` instead.",
 		Schema: map[string]*schema.Schema{
 			"display_name": {
 				Description: "Filter results by the name of an existing IdP integration.",

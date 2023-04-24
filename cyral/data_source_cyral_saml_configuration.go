@@ -19,7 +19,8 @@ var (
 
 func dataSourceSAMLConfiguration() *schema.Resource {
 	return &schema.Resource{
-		Description: "Parses a SAML metadata URL or a Base64 document into a SAML configuration.",
+		Description: "Parses a SAML metadata URL or a Base64 document into a SAML configuration." +
+			"\n\nSee also the remaining SAML-related resources and data sources.",
 		ReadContext: dataSourceSAMLConfigurationRead,
 		Schema: map[string]*schema.Schema{
 			"id": {

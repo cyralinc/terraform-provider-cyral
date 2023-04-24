@@ -1,6 +1,6 @@
 # cyral_integration_idp_okta (Resource)
 
-Manages [integration with Okta](https://cyral.com/docs/sso/sso-okta#in-cyral-management-console-create-okta-integration) identity provider to allow single-sign on to Cyral.
+~> **DEPRECATED** Use resource and data source `cyral_integration_idp_saml` instead.
 
 See also [Cyral IdP Integration Module for Okta](https://github.com/cyralinc/terraform-okta-idp).
 This module encapsulates both Okta and Cyral providers and creates all the necessary configuration to get

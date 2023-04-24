@@ -1,6 +1,8 @@
 # cyral_integration_idp_saml (Resource)
 
-Manages SAML IdP integrations.
+Manages identity provider (IdP) integrations using SAML to allow [Single Sing-On](https://cyral.com/docs/sso/overview) to Cyral.
+
+See also the remaining SAML-related resources and data sources.
 
 ~> **Warning** This resource manages the completion of a SAML IdP integration
 draft. SAML drafts are managed by `cyral_integration_idp_saml_draft`. In the

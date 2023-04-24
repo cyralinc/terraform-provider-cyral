@@ -4,11 +4,14 @@ page_title: "cyral_saml_certificate Data Source - cyral"
 subcategory: ""
 description: |-
   Retrieves a X.509 certificate used for signing SAML requests.
+  See also the remaining SAML-related resources and data sources.
 ---
 
 # cyral_saml_certificate (Data Source)
 
 Retrieves a X.509 certificate used for signing SAML requests.
+
+See also the remaining SAML-related resources and data sources.
 
 ## Example Usage
 

@@ -1,6 +1,6 @@
 # cyral_integration_idp_gsuite (Resource)
 
-Manages integration with GSuite identity provider to allow single-sign on to Cyral.
+~> **DEPRECATED** Use resource and data source `cyral_integration_idp_saml` instead.
 
 ## Example Usage
 

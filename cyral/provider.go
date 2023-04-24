@@ -25,7 +25,7 @@ func init() {
 	schema.ResourceDescriptionBuilder = func(s *schema.Resource) string {
 		desc := s.Description
 		if s.DeprecationMessage != "" {
-			desc = fmt.Sprintf("**Deprecated.** %s", s.DeprecationMessage)
+			desc = fmt.Sprintf("\n~> **DEPRECATED** %s", s.DeprecationMessage)
 		}
 		return strings.TrimSpace(desc)
 	}
@@ -33,6 +33,7 @@ func init() {
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
+	var idpDeprecationMessage = "Use resource and data source `cyral_integration_idp_saml` instead."
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"client_id": {
@@ -95,12 +96,12 @@ func Provider() *schema.Provider {
 			"cyral_integration_pager_duty":           resourceIntegrationPagerDuty(),
 			"cyral_integration_slack_alerts":         resourceIntegrationSlackAlerts(),
 			"cyral_integration_splunk":               resourceIntegrationSplunk(),
-			"cyral_integration_idp_aad":              resourceIntegrationIdP("aad"),
-			"cyral_integration_idp_adfs":             resourceIntegrationIdP("adfs-2016"),
-			"cyral_integration_idp_forgerock":        resourceIntegrationIdP("forgerock"),
-			"cyral_integration_idp_gsuite":           resourceIntegrationIdP("gsuite"),
-			"cyral_integration_idp_okta":             resourceIntegrationIdP("okta"),
-			"cyral_integration_idp_ping_one":         resourceIntegrationIdP("pingone"),
+			"cyral_integration_idp_aad":              resourceIntegrationIdP("aad", idpDeprecationMessage),
+			"cyral_integration_idp_adfs":             resourceIntegrationIdP("adfs-2016", idpDeprecationMessage),
+			"cyral_integration_idp_forgerock":        resourceIntegrationIdP("forgerock", ""),
+			"cyral_integration_idp_gsuite":           resourceIntegrationIdP("gsuite", idpDeprecationMessage),
+			"cyral_integration_idp_okta":             resourceIntegrationIdP("okta", idpDeprecationMessage),
+			"cyral_integration_idp_ping_one":         resourceIntegrationIdP("pingone", idpDeprecationMessage),
 			"cyral_integration_idp_saml":             resourceIntegrationIdPSAML(),
 			"cyral_integration_idp_saml_draft":       resourceIntegrationIdPSAMLDraft(),
 			"cyral_integration_sumo_logic":           resourceIntegrationSumoLogic(),

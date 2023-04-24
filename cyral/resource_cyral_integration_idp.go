@@ -11,13 +11,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceIntegrationIdP(identityProvider string) *schema.Resource {
+func resourceIntegrationIdP(identityProvider string, deprecationMessage string) *schema.Resource {
 	return &schema.Resource{
-		Description:   fmt.Sprintf("%v", idpDefaultValues(identityProvider, "resource_description")),
-		CreateContext: resourceIntegrationIdPCreate(identityProvider),
-		ReadContext:   resourceIntegrationIdPRead,
-		UpdateContext: resourceIntegrationIdPUpdate(identityProvider),
-		DeleteContext: resourceIntegrationIdPDelete,
+		Description:        fmt.Sprintf("%v", idpDefaultValues(identityProvider, "resource_description")),
+		CreateContext:      resourceIntegrationIdPCreate(identityProvider),
+		ReadContext:        resourceIntegrationIdPRead,
+		UpdateContext:      resourceIntegrationIdPUpdate(identityProvider),
+		DeleteContext:      resourceIntegrationIdPDelete,
+		DeprecationMessage: deprecationMessage,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
