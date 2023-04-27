@@ -72,7 +72,8 @@ func importStateComposedIDFunc(
 
 func formatBasicRepositoryIntoConfig(resName, repoName, typ, host string, port int) string {
 	if typ == MongoDB {
-		return fmt.Sprintf(`
+		return fmt.Sprintf(
+			`
 		resource "cyral_repository" "%s" {
 			name = "%s"
 			type = "%s"
@@ -83,9 +84,11 @@ func formatBasicRepositoryIntoConfig(resName, repoName, typ, host string, port i
 			mongodb_settings {
 				server_type = "standalone"
 			}
-		}`, resName, repoName, typ, host, port)
+		}`, resName, repoName, typ, host, port,
+		)
 	} else {
-		return fmt.Sprintf(`
+		return fmt.Sprintf(
+			`
 		resource "cyral_repository" "%s" {
 			name = "%s"
 			type = "%s"
@@ -93,12 +96,14 @@ func formatBasicRepositoryIntoConfig(resName, repoName, typ, host string, port i
 				host = "%s"
 				port = %d
 			}
-		}`, resName, repoName, typ, host, port)
+		}`, resName, repoName, typ, host, port,
+		)
 	}
 }
 
 func formatBasicRepositoryBindingIntoConfig(resName, sidecarID, repositoryID, listenerID string) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 	resource "cyral_repository_binding" "%s" {
 		sidecar_id    = %s
 		repository_id = %s
@@ -106,38 +111,47 @@ func formatBasicRepositoryBindingIntoConfig(resName, sidecarID, repositoryID, li
 			listener_id = %s
 			node_index = 0
 		}
-	}`, resName, sidecarID, repositoryID, listenerID)
+	}`, resName, sidecarID, repositoryID, listenerID,
+	)
 }
 
 func formatBasicSidecarListenerIntoConfig(resName, sidecarID, repoType string, listenerPort int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 	resource "cyral_sidecar_listener" "%s" {
 		sidecar_id = %s
 		repo_types = ["%s"]
 		network_address {
 			port = %d
 		}
-	}`, resName, sidecarID, repoType, listenerPort)
+	}`, resName, sidecarID, repoType, listenerPort,
+	)
 }
 
-func formatBasicSidecarIntoConfig(resName, sidecarName, deploymentMethod string) string {
-	return fmt.Sprintf(`
+func formatBasicSidecarIntoConfig(resName, sidecarName, deploymentMethod, logIntegrationID string) string {
+	return fmt.Sprintf(
+		`
 	resource "cyral_sidecar" "%s" {
-		name              = "%s"
-		deployment_method = "%s"
-	}`, resName, sidecarName, deploymentMethod)
+		name               = "%s"
+		deployment_method  = "%s"
+		log_integration_id = "%s"
+	}`, resName, sidecarName, deploymentMethod, logIntegrationID,
+	)
 }
 
 func formatBasicPolicyIntoConfig(name string, data []string) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 	resource "cyral_policy" "%s" {
 		name = "%s"
 		data = %s
-	}`, basicPolicyResName, name, listToStr(data))
+	}`, basicPolicyResName, name, listToStr(data),
+	)
 }
 
 func formatBasicIntegrationIdPOktaIntoConfig(resName, displayName, ssoURL string) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 	resource "cyral_integration_idp_okta" "%s" {
 		samlp {
 			display_name = "%s"
@@ -145,15 +159,18 @@ func formatBasicIntegrationIdPOktaIntoConfig(resName, displayName, ssoURL string
 				single_sign_on_service_url = "%s"
 			}
 		}
-	}`, resName, displayName, ssoURL)
+	}`, resName, displayName, ssoURL,
+	)
 }
 
 func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType string) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 	resource "cyral_integration_idp_saml_draft" "%s" {
 		display_name = "%s"
 		idp_type = "%s"
-	}`, resName, displayName, idpType)
+	}`, resName, displayName, idpType,
+	)
 }
 
 func notZeroRegex() *regexp.Regexp {
@@ -192,9 +209,11 @@ func dsourceCheckTypeFilter(
 			typeLocation := fmt.Sprintf(typeTemplate, i)
 			actualType := ds.Primary.Attributes[typeLocation]
 			if actualType != typeFilter {
-				return fmt.Errorf("Expected all objects in %s "+
-					"to have type equal to type filter %q, "+
-					"but got: %s", listKey, typeFilter, actualType)
+				return fmt.Errorf(
+					"Expected all objects in %s "+
+						"to have type equal to type filter %q, "+
+						"but got: %s", listKey, typeFilter, actualType,
+				)
 			}
 		}
 		return nil

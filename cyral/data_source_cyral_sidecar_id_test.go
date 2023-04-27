@@ -15,24 +15,30 @@ const (
 func TestAccSidecarIDDataSource(t *testing.T) {
 	nonExistentSidecarName := "some-non-existent-sidecar-name"
 
-	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccSidecarIDConfig_EmptySidecarName(),
-				ExpectError: regexp.MustCompile(`The argument "sidecar_name" is required`),
-			},
-			{
-				Config: testAccSidecarIDConfig_NoSidecarFoundForGivenName(nonExistentSidecarName),
-				ExpectError: regexp.MustCompile(fmt.Sprintf("No sidecar found for name '%s'.",
-					nonExistentSidecarName)),
-			},
-			{
-				Config: testAccSidecarIDConfig_ExistentSidecar(),
-				Check:  testAccSidecarIDCheck_ExistentSidecar(),
+	resource.ParallelTest(
+		t, resource.TestCase{
+			ProviderFactories: providerFactories,
+			Steps: []resource.TestStep{
+				{
+					Config:      testAccSidecarIDConfig_EmptySidecarName(),
+					ExpectError: regexp.MustCompile(`The argument "sidecar_name" is required`),
+				},
+				{
+					Config: testAccSidecarIDConfig_NoSidecarFoundForGivenName(nonExistentSidecarName),
+					ExpectError: regexp.MustCompile(
+						fmt.Sprintf(
+							"No sidecar found for name '%s'.",
+							nonExistentSidecarName,
+						),
+					),
+				},
+				{
+					Config: testAccSidecarIDConfig_ExistentSidecar(),
+					Check:  testAccSidecarIDCheck_ExistentSidecar(),
+				},
 			},
 		},
-	})
+	)
 }
 
 func testAccSidecarIDConfig_EmptySidecarName() string {
@@ -43,11 +49,13 @@ func testAccSidecarIDConfig_EmptySidecarName() string {
 }
 
 func testAccSidecarIDConfig_NoSidecarFoundForGivenName(nonExistentSidecarName string) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 	data "cyral_sidecar_id" "sidecar_id" {
 		sidecar_name = "%s"
 	}
-	`, nonExistentSidecarName)
+	`, nonExistentSidecarName,
+	)
 }
 
 func testAccSidecarIDConfig_ExistentSidecar() string {
@@ -55,12 +63,14 @@ func testAccSidecarIDConfig_ExistentSidecar() string {
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
 		accTestName(sidecarIDDataSourceName, "sidecar"),
-		"cloudFormation",
+		"cloudFormation", "",
 	)
-	config += fmt.Sprintf(`
+	config += fmt.Sprintf(
+		`
 	data "cyral_sidecar_id" "sidecar_id" {
 		sidecar_name = cyral_sidecar.%s.name
-	}`, basicSidecarResName)
+	}`, basicSidecarResName,
+	)
 	return config
 }
 

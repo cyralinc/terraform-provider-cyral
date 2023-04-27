@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
 type CreateSidecarResponse struct {
@@ -41,11 +42,13 @@ func (sd *SidecarData) BypassMode() string {
 
 type SidecarProperties struct {
 	DeploymentMethod string `json:"deploymentMethod"`
+	LogIntegrationID string `json:"logIntegrationID,omitempty"`
 }
 
-func NewSidecarProperties(deploymentMethod string) *SidecarProperties {
+func NewSidecarProperties(deploymentMethod, logIntegrationID string) *SidecarProperties {
 	return &SidecarProperties{
 		DeploymentMethod: deploymentMethod,
+		LogIntegrationID: logIntegrationID,
 	}
 }
 
@@ -82,11 +85,18 @@ func resourceSidecar() *schema.Resource {
 				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`, `linux`, and `singleContainer`).",
 				Type:        schema.TypeString,
 				Required:    true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"docker", "cloudFormation", "terraform", "helm", "helm3",
-					"automated", "custom", "terraformGKE", "singleContainer",
-					"linux",
-				}, false),
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						"docker", "cloudFormation", "terraform", "helm", "helm3",
+						"automated", "custom", "terraformGKE", "singleContainer",
+						"linux",
+					}, false,
+				),
+			},
+			"log_integration_id": {
+				Description: "ID of the log integration mapped to this sidecar.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"labels": {
 				Description: "Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.",
@@ -106,11 +116,13 @@ func resourceSidecar() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "failover",
-				ValidateFunc: validation.StringInSlice([]string{
-					"always",
-					"failover",
-					"never",
-				}, false),
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						"always",
+						"failover",
+						"never",
+					}, false,
+				),
 			},
 			"certificate_bundle_secrets": {
 				Description: "Certificate Bundle Secret is a configuration that holds data about the" +
@@ -143,10 +155,12 @@ func resourceSidecar() *schema.Resource {
 										Description: "Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.",
 										Type:        schema.TypeString,
 										Required:    true,
-										ValidateFunc: validation.StringInSlice([]string{
-											"aws",
-											"k8s",
-										}, false),
+										ValidateFunc: validation.StringInSlice(
+											[]string{
+												"aws",
+												"k8s",
+											}, false,
+										),
 									},
 								},
 							},
@@ -204,17 +218,25 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 		// issue is fixed in the sidecar API, we should handle the error here by its status
 		// code, and only remove the resource from the state (d.SetId("")) if it returns a 404
 		// Not Found.
-		matched, regexpError := regexp.MatchString("Failed to extract info for wrapper",
-			err.Error())
+		matched, regexpError := regexp.MatchString(
+			"Failed to extract info for wrapper",
+			err.Error(),
+		)
 		if regexpError == nil && matched {
-			log.Printf("[DEBUG] Sidecar not found. SidecarID: %s. "+
-				"Removing it from state. Error: %v", d.Id(), err)
+			log.Printf(
+				"[DEBUG] Sidecar not found. SidecarID: %s. "+
+					"Removing it from state. Error: %v", d.Id(), err,
+			)
 			d.SetId("")
 			return nil
 		}
 
-		return createError(fmt.Sprintf("Unable to read sidecar. SidecarID: %s",
-			d.Id()), fmt.Sprintf("%v", err))
+		return createError(
+			fmt.Sprintf(
+				"Unable to read sidecar. SidecarID: %s",
+				d.Id(),
+			), fmt.Sprintf("%v", err),
+		)
 	}
 
 	response := SidecarData{}
@@ -226,6 +248,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("name", response.Name)
 	if properties := response.SidecarProperties; properties != nil {
 		d.Set("deployment_method", properties.DeploymentMethod)
+		d.Set("log_integration_id", properties.LogIntegrationID)
 	}
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
@@ -278,8 +301,9 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	log.Printf("[DEBUG] Init getSidecarDataFromResource")
 
 	deploymentMethod := d.Get("deployment_method").(string)
+	logIntegrationID := d.Get("log_integration_id").(string)
 
-	properties := NewSidecarProperties(deploymentMethod)
+	properties := NewSidecarProperties(deploymentMethod, logIntegrationID)
 
 	svcconf := SidecarServicesConfig{
 		"dispatcher": map[string]string{

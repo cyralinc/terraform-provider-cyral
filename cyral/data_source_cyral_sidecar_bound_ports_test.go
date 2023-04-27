@@ -16,28 +16,30 @@ func dsourceSidecarBoundPortsSampleSidecarConfig() string {
 	return formatBasicSidecarIntoConfig(
 		basicSidecarResName,
 		accTestName(sidecarBoundPortsDataSourceName, "sidecar"),
-		"cloudFormation",
+		"cloudFormation", "",
 	)
 }
 
 func TestAccSidecarBoundPortsDataSource(t *testing.T) {
-	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccSidecarBoundPortsConfig_EmptySidecarID(),
-				ExpectError: regexp.MustCompile(`The argument "sidecar_id" is required`),
-			},
-			{
-				Config: testAccSidecarBoundPortsConfig_NoBindings(),
-				Check:  testAccSidecarBoundPortsCheck_NoBindings(),
-			},
-			{
-				Config: testAccSidecarBoundPortsConfig_MultipleBindings(),
-				Check:  testAccSidecarBoundPortsCheck_MultipleBindings(),
+	resource.ParallelTest(
+		t, resource.TestCase{
+			ProviderFactories: providerFactories,
+			Steps: []resource.TestStep{
+				{
+					Config:      testAccSidecarBoundPortsConfig_EmptySidecarID(),
+					ExpectError: regexp.MustCompile(`The argument "sidecar_id" is required`),
+				},
+				{
+					Config: testAccSidecarBoundPortsConfig_NoBindings(),
+					Check:  testAccSidecarBoundPortsCheck_NoBindings(),
+				},
+				{
+					Config: testAccSidecarBoundPortsConfig_MultipleBindings(),
+					Check:  testAccSidecarBoundPortsCheck_MultipleBindings(),
+				},
 			},
 		},
-	})
+	)
 }
 
 func testAccSidecarBoundPortsConfig_EmptySidecarID() string {
@@ -50,10 +52,12 @@ func testAccSidecarBoundPortsConfig_EmptySidecarID() string {
 func testAccSidecarBoundPortsConfig_NoBindings() string {
 	var config string
 	config += dsourceSidecarBoundPortsSampleSidecarConfig()
-	config += fmt.Sprintf(`
+	config += fmt.Sprintf(
+		`
 	data "cyral_sidecar_bound_ports" "sidecar_bound_ports_1" {
 		sidecar_id = %s
-	}`, basicSidecarID)
+	}`, basicSidecarID,
+	)
 	return config
 }
 
@@ -150,7 +154,8 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 		"cyral_repository.repo_4.id",
 		"cyral_sidecar_listener.listener_4.listener_id",
 	)
-	config += fmt.Sprintf(`
+	config += fmt.Sprintf(
+		`
 	data "cyral_sidecar_bound_ports" "sidecar_bound_ports_1" {
 		// depends_on is needed here so that we can retrieve the sidecar bound ports
 		// only after the bindings are created. Otherwise, the data source would
@@ -163,7 +168,8 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 			cyral_repository_binding.binding_4
 		]
 		sidecar_id = %s
-	}`, basicSidecarID)
+	}`, basicSidecarID,
+	)
 
 	return config
 }
