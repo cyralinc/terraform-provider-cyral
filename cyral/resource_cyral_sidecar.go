@@ -94,7 +94,7 @@ func resourceSidecar() *schema.Resource {
 				),
 			},
 			"log_integration_id": {
-				Description: "ID of the log integration mapped to this sidecar",
+				Description: "ID of the log integration mapped to this sidecar.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
