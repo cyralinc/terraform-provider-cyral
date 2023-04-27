@@ -1,3 +1,20 @@
+## 4.2.0 (April 27, 2023)
+
+Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
+as long as the incompatible argument is not used.
+
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Deprecate:
+
+- **ENG-11470: Deprecation notices and minor docs fixes**: [#389](https://github.com/cyralinc/terraform-provider-cyral/pull/389).
+
+### Features:
+
+- **ENG-11522: Add sidecar log integration ID**: [#387](https://github.com/cyralinc/terraform-provider-cyral/pull/387).
+
 ## 4.1.2 (March 17, 2023)
 
 Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
