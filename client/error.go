@@ -1,5 +1,9 @@
 package client
 
+import (
+	"net/http"
+)
+
 type HttpError struct {
 	err        string
 	StatusCode int
@@ -18,3 +22,7 @@ func (e *HttpError) Error() string {
 
 // *HttpError implements error
 var _ error = (*HttpError)(nil)
+
+func (e *HttpError) Is404Status() bool {
+	return e.StatusCode == http.StatusNotFound
+}

@@ -83,7 +83,13 @@ func HandleRequest(
 		body, err := c.DoRequest(url, config.HttpMethod, resourceData)
 		if config.RequestErrorHandler != nil {
 			err = config.RequestErrorHandler.HandleError(d, c, err)
+		} else {
+			errorHandler := defaultRequestErrorHandler(operationType,
+				config.Name)
+			err = errorHandler.HandleError(d, c, err)
 		}
+		// Even after proper error handling, some error remains. So
+		// there is nothing else we can do: propagate the error.
 		if err != nil {
 			return createError(
 				fmt.Sprintf("Unable to %s resource", operationType),
