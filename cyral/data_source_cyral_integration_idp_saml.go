@@ -34,8 +34,21 @@ func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData) e
 			})
 		}
 		if idp.SPMetadata != nil {
+			acs := []map[string]interface{}{}
+			if idp.SPMetadata.AssertionConsumerServices != nil {
+				for _, assertionConsumerService := range idp.SPMetadata.AssertionConsumerServices {
+					acsObject := make(map[string]interface{})
+					acsObject["url"] = assertionConsumerService.Url
+					acsObject["index"] = assertionConsumerService.Index
+					acs = append(acs, acsObject)
+				}
+			}
 			spMetadata = append(spMetadata, map[string]interface{}{
-				"xml_document": idp.SPMetadata.XMLDocument,
+				"xml_document":                idp.SPMetadata.XMLDocument,
+				"url":                         idp.SPMetadata.Url,
+				"entity_id":                   idp.SPMetadata.EntityID,
+				"single_logout_url":           idp.SPMetadata.SingleLogoutURL,
+				"assertion_consumer_services": acs,
 			})
 		}
 		if idp.Attributes != nil {
@@ -160,6 +173,40 @@ func dataSourceIntegrationIdPSAML() *schema.Resource {
 										Description: "SP SAML metadata XML document.",
 										Type:        schema.TypeString,
 										Computed:    true,
+									},
+									"url": {
+										Description: "URL where the metadata document can be downloaded.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"entity_id": {
+										Description: "Entity ID defined in th SAML Metadata XML.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"single_logout_url": {
+										Description: "The single logout URL defined in the SAML Metadata XML (SL0).",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"assertion_consumer_services": {
+										Description: "The Assertion Consumer Services defined in the SAML Metadata XML.",
+										Type:        schema.TypeSet,
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"url": {
+													Description: "The Assertion Consumer Service URL",
+													Type:        schema.TypeString,
+													Computed:    true,
+												},
+												"index": {
+													Description: "The index for the Assertion Consumer Service.",
+													Type:        schema.TypeInt,
+													Computed:    true,
+												},
+											},
+										},
 									},
 								},
 							},

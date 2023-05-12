@@ -23,8 +23,19 @@ type GenericSAMLDraft struct {
 	Completed                bool                    `json:"completed"`
 }
 
+type AssertionConsumerService struct {
+	Url   string `json:"url"`
+	Index int32  `json:"index"`
+}
 type GenericSAMLSPMetadata struct {
 	XMLDocument string `json:"xmlDocument"`
+	Url         string `json:"url"`
+	// Entity ID defined in th SAML Metadata XML
+	EntityID string `json:"entityID"`
+	// The single logout URL defined in the SAML Metadata XML (SL0)
+	SingleLogoutURL string `json:"singleLogoutURL"`
+	// An array with the Assertion Consumer Services defined in the SAML Metadata XML
+	AssertionConsumerServices []*AssertionConsumerService `json:"assertionConsumerServices"`
 }
 
 type RequiredUserAttributes struct {
@@ -60,6 +71,30 @@ func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData) error 
 		"groups":     uatt.Groups.Name,
 	})
 	return d.Set("attributes", attributes)
+}
+
+func (spmetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData) error {
+	var spMetadata []interface{}
+	if spmetadataObj != nil {
+		acs := []map[string]interface{}{}
+		if spmetadataObj.AssertionConsumerServices != nil {
+			for _, assertionConsumerService := range spmetadataObj.AssertionConsumerServices {
+				acsObject := make(map[string]interface{})
+				acsObject["url"] = assertionConsumerService.Url
+				acsObject["index"] = assertionConsumerService.Index
+				acs = append(acs, acsObject)
+			}
+		}
+		spMetadata = append(spMetadata, map[string]interface{}{
+			"xml_document":                spmetadataObj.XMLDocument,
+			"url":                         spmetadataObj.Url,
+			"entity_id":                   spmetadataObj.EntityID,
+			"single_logout_url":           spmetadataObj.SingleLogoutURL,
+			"assertion_consumer_services": acs,
+		})
+	}
+
+	return d.Set("service_provider_metadata", spMetadata)
 }
 
 func RequiredUserAttributesFromSchema(d *schema.ResourceData) (*RequiredUserAttributes, error) {
