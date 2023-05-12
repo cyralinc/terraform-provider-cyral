@@ -82,6 +82,7 @@ func Provider() *schema.Provider {
 			"cyral_sidecar_cft_template": dataSourceSidecarCftTemplate(),
 			"cyral_sidecar_id":           dataSourceSidecarID(),
 			"cyral_sidecar_instance_ids": dataSourceSidecarInstanceIDs(),
+			"cyral_regopolicy_instance":  dataSourceRegopolicyInstance(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -107,6 +108,7 @@ func Provider() *schema.Provider {
 			"cyral_integration_sumo_logic":           resourceIntegrationSumoLogic(),
 			"cyral_policy":                           resourcePolicy(),
 			"cyral_policy_rule":                      resourcePolicyRule(),
+			"cyral_regopolicy_instance":              resourceRegopolicyInstance(),
 			"cyral_repository":                       resourceRepository(),
 			"cyral_repository_binding":               resourceRepositoryBinding(),
 			"cyral_repository_conf_analysis":         resourceRepositoryConfAnalysis(),
