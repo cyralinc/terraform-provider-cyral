@@ -164,7 +164,7 @@ func dataSourceIntegrationIdPSAML() *schema.Resource {
 							},
 						},
 						"sp_metadata": {
-							Description: "The SP Metadata document describing the Cyral service provider for this integration.",
+							Description: "The SP Metadata fields describing the Cyral service provider for this integration.",
 							Type:        schema.TypeSet,
 							Computed:    true,
 							Elem: &schema.Resource{
