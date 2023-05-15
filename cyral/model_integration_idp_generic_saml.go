@@ -77,19 +77,19 @@ func (spMetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData
 	return d.Set("service_provider_metadata", spMetadataObj.ToMap())
 }
 
-func (spMetadataObj *GenericSAMLSPMetadata) ToMap() []interface{} {
-	var spMetadata []interface{}
+func (spMetadataObj *GenericSAMLSPMetadata) ToMap() []any {
+	var spMetadata []any
 	if spMetadataObj != nil {
-		assertionConsumerServices := []map[string]interface{}{}
+		assertionConsumerServices := []map[string]any{}
 		if spMetadataObj.AssertionConsumerServices != nil {
 			for _, assertionConsumerService := range spMetadataObj.AssertionConsumerServices {
-				acs := make(map[string]interface{})
+				acs := make(map[string]any)
 				acs["url"] = assertionConsumerService.Url
 				acs["index"] = assertionConsumerService.Index
 				assertionConsumerServices = append(assertionConsumerServices, acs)
 			}
 		}
-		spMetadata = append(spMetadata, map[string]interface{}{
+		spMetadata = append(spMetadata, map[string]any{
 			"xml_document":                spMetadataObj.XMLDocument,
 			"url":                         spMetadataObj.Url,
 			"entity_id":                   spMetadataObj.EntityID,
