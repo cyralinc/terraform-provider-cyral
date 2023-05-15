@@ -203,7 +203,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Description: "The SP Metadata document describing the Cyral service provider for this integration.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				Deprecated:  "Configure service_provider_metadata.xml_document instead. This will be removed in the next major version of the provider.",
+				Deprecated:  "Use `service_provider_metadata.xml_document` instead. This will be removed in the next major version of the provider.",
 			},
 			"service_provider_metadata": {
 				Description: "The SP Metadata document describing the Cyral service provider for this integration.",
