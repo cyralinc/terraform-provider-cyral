@@ -34,22 +34,7 @@ func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData) e
 			})
 		}
 		if idp.SPMetadata != nil {
-			acs := []map[string]interface{}{}
-			if idp.SPMetadata.AssertionConsumerServices != nil {
-				for _, assertionConsumerService := range idp.SPMetadata.AssertionConsumerServices {
-					acsObject := make(map[string]interface{})
-					acsObject["url"] = assertionConsumerService.Url
-					acsObject["index"] = assertionConsumerService.Index
-					acs = append(acs, acsObject)
-				}
-			}
-			spMetadata = append(spMetadata, map[string]interface{}{
-				"xml_document":                idp.SPMetadata.XMLDocument,
-				"url":                         idp.SPMetadata.Url,
-				"entity_id":                   idp.SPMetadata.EntityID,
-				"single_logout_url":           idp.SPMetadata.SingleLogoutURL,
-				"assertion_consumer_services": acs,
-			})
+			spMetadata = idp.SPMetadata.ToMap()
 		}
 		if idp.Attributes != nil {
 			attributes = append(attributes, map[string]interface{}{

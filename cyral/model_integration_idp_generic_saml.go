@@ -73,28 +73,32 @@ func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData) error 
 	return d.Set("attributes", attributes)
 }
 
-func (spmetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData) error {
+func (spMetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData) error {
+	return d.Set("service_provider_metadata", spMetadataObj.ToMap())
+}
+
+func (spMetadataObj *GenericSAMLSPMetadata) ToMap() []interface{} {
 	var spMetadata []interface{}
-	if spmetadataObj != nil {
-		acs := []map[string]interface{}{}
-		if spmetadataObj.AssertionConsumerServices != nil {
-			for _, assertionConsumerService := range spmetadataObj.AssertionConsumerServices {
-				acsObject := make(map[string]interface{})
-				acsObject["url"] = assertionConsumerService.Url
-				acsObject["index"] = assertionConsumerService.Index
-				acs = append(acs, acsObject)
+	if spMetadataObj != nil {
+		assertionConsumerServices := []map[string]interface{}{}
+		if spMetadataObj.AssertionConsumerServices != nil {
+			for _, assertionConsumerService := range spMetadataObj.AssertionConsumerServices {
+				acs := make(map[string]interface{})
+				acs["url"] = assertionConsumerService.Url
+				acs["index"] = assertionConsumerService.Index
+				assertionConsumerServices = append(assertionConsumerServices, acs)
 			}
 		}
 		spMetadata = append(spMetadata, map[string]interface{}{
-			"xml_document":                spmetadataObj.XMLDocument,
-			"url":                         spmetadataObj.Url,
-			"entity_id":                   spmetadataObj.EntityID,
-			"single_logout_url":           spmetadataObj.SingleLogoutURL,
-			"assertion_consumer_services": acs,
+			"xml_document":                spMetadataObj.XMLDocument,
+			"url":                         spMetadataObj.Url,
+			"entity_id":                   spMetadataObj.EntityID,
+			"single_logout_url":           spMetadataObj.SingleLogoutURL,
+			"assertion_consumer_services": assertionConsumerServices,
 		})
 	}
 
-	return d.Set("service_provider_metadata", spMetadata)
+	return spMetadata
 }
 
 func RequiredUserAttributesFromSchema(d *schema.ResourceData) (*RequiredUserAttributes, error) {
