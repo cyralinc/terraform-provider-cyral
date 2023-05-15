@@ -185,7 +185,7 @@ func dataSourceIntegrationIdPSAML() *schema.Resource {
 										Computed:    true,
 									},
 									"single_logout_url": {
-										Description: "The single logout URL defined in the SAML Metadata XML (SL0).",
+										Description: "The single logout URL defined in the SAML Metadata XML (SLO).",
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
