@@ -206,7 +206,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Deprecated:  "Use `service_provider_metadata.xml_document` instead. This will be removed in the next major version of the provider.",
 			},
 			"service_provider_metadata": {
-				Description: "The SP Metadata document describing the Cyral service provider for this integration.",
+				Description: "The SP Metadata fields describing the Cyral service provider for this integration.",
 				Type:        schema.TypeSet,
 				Computed:    true,
 				Elem: &schema.Resource{
@@ -227,7 +227,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Computed:    true,
 						},
 						"single_logout_url": {
-							Description: "The single logout URL defined in the SAML Metadata XML (SL0).",
+							Description: "The single logout URL defined in the SAML Metadata XML (SLO).",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
@@ -238,7 +238,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"url": {
-										Description: "The Assertion Consumer Service URL",
+										Description: "The Assertion Consumer Service URL.",
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
