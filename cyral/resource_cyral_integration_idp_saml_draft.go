@@ -233,7 +233,7 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 						},
 						"assertion_consumer_services": {
 							Description: "The Assertion Consumer Services defined in the SAML Metadata XML.",
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
