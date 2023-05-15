@@ -196,7 +196,7 @@ func dataSourceIntegrationIdPSAML() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"url": {
-													Description: "The Assertion Consumer Service URL",
+													Description: "The Assertion Consumer Service URL.",
 													Type:        schema.TypeString,
 													Computed:    true,
 												},
