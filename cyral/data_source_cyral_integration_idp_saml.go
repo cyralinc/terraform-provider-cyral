@@ -34,7 +34,7 @@ func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData) e
 			})
 		}
 		if idp.SPMetadata != nil {
-			spMetadata = idp.SPMetadata.ToMap()
+			spMetadata = idp.SPMetadata.ToList()
 		}
 		if idp.Attributes != nil {
 			attributes = append(attributes, map[string]interface{}{

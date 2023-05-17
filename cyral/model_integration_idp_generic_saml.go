@@ -74,10 +74,10 @@ func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData) error 
 }
 
 func (spMetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData) error {
-	return d.Set("service_provider_metadata", spMetadataObj.ToMap())
+	return d.Set("service_provider_metadata", spMetadataObj.ToList())
 }
 
-func (spMetadataObj *GenericSAMLSPMetadata) ToMap() []any {
+func (spMetadataObj *GenericSAMLSPMetadata) ToList() []any {
 	var spMetadata []any
 	if spMetadataObj != nil {
 		assertionConsumerServices := []map[string]any{}
