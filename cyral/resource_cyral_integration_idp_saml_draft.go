@@ -64,6 +64,11 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) erro
 	if err := d.Set("sp_metadata", resp.Draft.SPMetadata.XMLDocument); err != nil {
 		return err
 	}
+	if resp.Draft.SPMetadata != nil {
+		if err := resp.Draft.SPMetadata.WriteToSchema(d); err != nil {
+			return err
+		}
+	}
 	if err := d.Set("idp_type", resp.Draft.IdpType); err != nil {
 		return err
 	}
@@ -198,6 +203,55 @@ func resourceIntegrationIdPSAMLDraft() *schema.Resource {
 				Description: "The SP Metadata document describing the Cyral service provider for this integration.",
 				Type:        schema.TypeString,
 				Computed:    true,
+				Deprecated:  "Use `service_provider_metadata.xml_document` instead. This will be removed in the next major version of the provider.",
+			},
+			"service_provider_metadata": {
+				Description: "The SP Metadata fields describing the Cyral service provider for this integration.",
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"xml_document": {
+							Description: "SP SAML metadata XML document.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"url": {
+							Description: "URL where the metadata document can be downloaded.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"entity_id": {
+							Description: "Entity ID defined in th SAML Metadata XML.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"single_logout_url": {
+							Description: "The single logout URL defined in the SAML Metadata XML (SLO).",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"assertion_consumer_services": {
+							Description: "The Assertion Consumer Services defined in the SAML Metadata XML.",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"url": {
+										Description: "The Assertion Consumer Service URL.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"index": {
+										Description: "The index for the Assertion Consumer Service.",
+										Type:        schema.TypeInt,
+										Computed:    true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"id": {
 				Description: "ID of this resource in the Cyral environment.",

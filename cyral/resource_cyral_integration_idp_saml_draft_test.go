@@ -122,6 +122,20 @@ func setupIntegrationIdPSAMLDraftTest(t *testing.T, draft *GenericSAMLDraft, res
 		}...)
 	}
 
+	// checking SPMetadata content
+	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.xml_document"),
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.entity_id"),
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.url"),
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.single_logout_url"),
+	}...)
+	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.assertion_consumer_services.0.url"),
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.assertion_consumer_services.0.index"),
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.assertion_consumer_services.1.url"),
+		resource.TestCheckResourceAttrSet(resourceFullName, "service_provider_metadata.0.assertion_consumer_services.1.index"),
+	}...)
+
 	return config, resource.ComposeTestCheckFunc(checkFuncs...)
 }
 

@@ -76,4 +76,17 @@ Read-Only:
 
 Read-Only:
 
+- `assertion_consumer_services` (List of Object) (see [below for nested schema](#nestedobjatt--idp_list--sp_metadata--assertion_consumer_services))
+- `entity_id` (String)
+- `single_logout_url` (String)
+- `url` (String)
 - `xml_document` (String)
+
+<a id="nestedobjatt--idp_list--sp_metadata--assertion_consumer_services"></a>
+
+### Nested Schema for `idp_list.sp_metadata.assertion_consumer_services`
+
+Read-Only:
+
+- `index` (Number)
+- `url` (String)

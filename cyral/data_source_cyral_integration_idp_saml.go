@@ -34,9 +34,7 @@ func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData) e
 			})
 		}
 		if idp.SPMetadata != nil {
-			spMetadata = append(spMetadata, map[string]interface{}{
-				"xml_document": idp.SPMetadata.XMLDocument,
-			})
+			spMetadata = idp.SPMetadata.ToList()
 		}
 		if idp.Attributes != nil {
 			attributes = append(attributes, map[string]interface{}{
@@ -151,7 +149,7 @@ func dataSourceIntegrationIdPSAML() *schema.Resource {
 							},
 						},
 						"sp_metadata": {
-							Description: "The SP Metadata document describing the Cyral service provider for this integration.",
+							Description: "The SP Metadata fields describing the Cyral service provider for this integration.",
 							Type:        schema.TypeSet,
 							Computed:    true,
 							Elem: &schema.Resource{
@@ -160,6 +158,40 @@ func dataSourceIntegrationIdPSAML() *schema.Resource {
 										Description: "SP SAML metadata XML document.",
 										Type:        schema.TypeString,
 										Computed:    true,
+									},
+									"url": {
+										Description: "URL where the metadata document can be downloaded.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"entity_id": {
+										Description: "Entity ID defined in th SAML Metadata XML.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"single_logout_url": {
+										Description: "The single logout URL defined in the SAML Metadata XML (SLO).",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"assertion_consumer_services": {
+										Description: "The Assertion Consumer Services defined in the SAML Metadata XML.",
+										Type:        schema.TypeList,
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"url": {
+													Description: "The Assertion Consumer Service URL.",
+													Type:        schema.TypeString,
+													Computed:    true,
+												},
+												"index": {
+													Description: "The index for the Assertion Consumer Service.",
+													Type:        schema.TypeInt,
+													Computed:    true,
+												},
+											},
+										},
 									},
 								},
 							},

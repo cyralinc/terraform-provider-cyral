@@ -23,8 +23,19 @@ type GenericSAMLDraft struct {
 	Completed                bool                    `json:"completed"`
 }
 
+type AssertionConsumerService struct {
+	Url   string `json:"url"`
+	Index int32  `json:"index"`
+}
 type GenericSAMLSPMetadata struct {
 	XMLDocument string `json:"xmlDocument"`
+	Url         string `json:"url"`
+	// Entity ID defined in th SAML Metadata XML
+	EntityID string `json:"entityID"`
+	// The single logout URL defined in the SAML Metadata XML (SL0)
+	SingleLogoutURL string `json:"singleLogoutURL"`
+	// An array with the Assertion Consumer Services defined in the SAML Metadata XML
+	AssertionConsumerServices []*AssertionConsumerService `json:"assertionConsumerServices"`
 }
 
 type RequiredUserAttributes struct {
@@ -60,6 +71,34 @@ func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData) error 
 		"groups":     uatt.Groups.Name,
 	})
 	return d.Set("attributes", attributes)
+}
+
+func (spMetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData) error {
+	return d.Set("service_provider_metadata", spMetadataObj.ToList())
+}
+
+func (spMetadataObj *GenericSAMLSPMetadata) ToList() []any {
+	var spMetadata []any
+	if spMetadataObj != nil {
+		assertionConsumerServices := []map[string]any{}
+		if spMetadataObj.AssertionConsumerServices != nil {
+			for _, assertionConsumerService := range spMetadataObj.AssertionConsumerServices {
+				acs := make(map[string]any)
+				acs["url"] = assertionConsumerService.Url
+				acs["index"] = assertionConsumerService.Index
+				assertionConsumerServices = append(assertionConsumerServices, acs)
+			}
+		}
+		spMetadata = append(spMetadata, map[string]any{
+			"xml_document":                spMetadataObj.XMLDocument,
+			"url":                         spMetadataObj.Url,
+			"entity_id":                   spMetadataObj.EntityID,
+			"single_logout_url":           spMetadataObj.SingleLogoutURL,
+			"assertion_consumer_services": assertionConsumerServices,
+		})
+	}
+
+	return spMetadata
 }
 
 func RequiredUserAttributesFromSchema(d *schema.ResourceData) (*RequiredUserAttributes, error) {
