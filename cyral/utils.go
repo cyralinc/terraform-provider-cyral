@@ -113,3 +113,19 @@ func getStrList(m map[string]interface{}, attName string) []string {
 	}
 	return attStrs
 }
+
+func schemaAllComputed(s map[string]*schema.Schema) map[string]*schema.Schema {
+	for k, _ := range s {
+		s[k].Optional = false
+		s[k].Required = false
+		s[k].Computed = true
+		s[k].Default = nil
+		s[k].MaxItems = 0
+		s[k].ExactlyOneOf = nil
+		if s[k].Elem != nil {
+			schemaAllComputed(s[k].Elem.(*schema.Resource).Schema)
+		}
+	}
+
+	return s
+}

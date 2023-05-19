@@ -16,11 +16,15 @@ type DataDogConfig struct {
 	ApiKey string `json:"apiKey"`
 }
 
+type EsCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type ElkConfig struct {
-	EsURL     string `json:"esUrl"`
-	KibanaURL string `json:"kibanaUrl"`
-	EsUid     string `json:"esUid"`
-	EsPwd     string `json:"esPwd"`
+	EsURL         string        `json:"esUrl"`
+	KibanaURL     string        `json:"kibanaUrl"`
+	EsCredentials EsCredentials `json:"esCredentials"`
 }
 
 type SplunkConfig struct {
@@ -74,13 +78,11 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			Description: "The name of the logging integration config.",
 			Required:    true,
 			Type:        schema.TypeString,
-			ForceNew:    true,
 		},
 		"enable_audit_logs": {
 			Description: "Whether or not Cyral audit logs should be forwarded to this logging integration.",
 			Optional:    true,
 			Type:        schema.TypeBool,
-			ForceNew:    true,
 			Default:     true,
 		},
 		"config_scheme": {
@@ -103,19 +105,16 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Description: "The AWS region.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 								"group": {
 									Description: "The CloudWatch log group.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 								"stream": {
 									Description: "The CloudWatch log stream.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 							},
 						},
@@ -133,7 +132,6 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Description: "The DataDog API key.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 							},
 						},
@@ -151,25 +149,31 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Description: "The Elasticsearch URL.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 								"kibana_url": {
 									Description: "The Kibana URL.",
 									Optional:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
-								"es_uid": {
-									Description: "The Elasticsearch username.",
+								"es_credentials": {
+									Description: "Object to comport Elastic Search credentials",
 									Optional:    true,
-									Type:        schema.TypeString,
-									ForceNew:    true,
-								},
-								"es_pwd": {
-									Description: "The Elasticsearch password.",
-									Optional:    true,
-									Type:        schema.TypeString,
-									ForceNew:    true,
+									Type:        schema.TypeSet,
+									MaxItems:    1,
+									Elem: &schema.Resource{
+										Schema: map[string]*schema.Schema{
+											"username": {
+												Description: "The Elasticsearch username.",
+												Optional:    true,
+												Type:        schema.TypeString,
+											},
+											"password": {
+												Description: "The Elasticsearch password.",
+												Optional:    true,
+												Type:        schema.TypeString,
+											},
+										},
+									},
 								},
 							},
 						},
@@ -187,31 +191,26 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Description: "The Splunk hostname.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 								"hec_port": {
 									Description: "The Splunk HTTP Event Collector (HEC) port.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 								"access_token": {
 									Description: "The Splunk access token.",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 								"index": {
 									Description: "The Slunk index.",
 									Optional:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 								"use_tls": {
 									Description: "Whether or not to use TLS.",
 									Required:    true,
 									Type:        schema.TypeBool,
-									ForceNew:    true,
 								},
 							},
 						},
@@ -229,7 +228,6 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Description: "The Sumo Logic HTTP collector address. A full URL is expected",
 									Required:    true,
 									Type:        schema.TypeString,
-									ForceNew:    true,
 								},
 							},
 						},

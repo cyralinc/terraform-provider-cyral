@@ -41,8 +41,12 @@ func writeConfigScheme(resource *IntegrationLogConfig) ([]interface{}, error) {
 					map[string]interface{}{
 						"es_url":     resource.Elk.EsURL,
 						"kibana_url": resource.Elk.KibanaURL,
-						"es_uid":     resource.Elk.EsUid,
-						"es_pwd":     resource.Elk.EsPwd,
+						"es_credentials": []interface{}{
+							map[string]interface{}{
+								"username": resource.Elk.EsCredentials.Username,
+								"password": resource.Elk.EsCredentials.Password,
+							},
+						},
 					},
 				},
 			},
@@ -79,9 +83,6 @@ func writeConfigScheme(resource *IntegrationLogConfig) ([]interface{}, error) {
 }
 
 func (resource *IntegrationLogConfig) WriteToSchema(d *schema.ResourceData) error {
-	// if err := d.Set("integration_id", resource.Id); err != nil {
-	// 	return fmt.Errorf("error setting 'integration_id': %w", err)
-	// }
 
 	if err := d.Set("name", resource.Name); err != nil {
 		return fmt.Errorf("error setting 'name': %w", err)
@@ -138,11 +139,23 @@ func (integrationLogConfig *IntegrationLogConfig) ReadFromSchema(d *schema.Resou
 				ApiKey: m["api_key"].(string),
 			}
 		case "elk":
+			credentialsSet := m["es_credentials"].(*schema.Set).List()
+			if len(credentialsSet) > 1 {
+				return fmt.Errorf(
+					"at most one elastic search credential is expected",
+				)
+			}
+			credentialScheme := make(map[string]interface{})
+			if len(credentialsSet) != 0 {
+				credentialScheme = credentialsSet[0].(map[string]interface{})
+			}
 			integrationLogConfig.Elk = &ElkConfig{
 				EsURL:     m["es_url"].(string),
 				KibanaURL: m["kibana_url"].(string),
-				EsUid:     m["es_uid"].(string),
-				EsPwd:     m["es_pwd"].(string),
+				EsCredentials: EsCredentials{
+					Username: credentialScheme["username"].(string),
+					Password: credentialScheme["password"].(string),
+				},
 			}
 		case "splunk":
 			integrationLogConfig.Splunk = &SplunkConfig{
@@ -171,7 +184,7 @@ func CreateIntegrationLogConfig() ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/logging", c.ControlPlane)
 		},
 		NewResourceData: func() ResourceData { return &IntegrationLogConfig{} },
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IntegrationLogConfig{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 	}
 }
 
