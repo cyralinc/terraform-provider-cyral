@@ -40,9 +40,9 @@ type SumoLogicConfig struct {
 }
 
 type IntegrationLogConfig struct {
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	EnableAuditLogs bool   `json:"enableAuditLogs"`
+	Id               string `json:"id"`
+	Name             string `json:"name"`
+	ReceiveAuditLogs bool   `json:"receiveAuditLogs"`
 	IntegrationConfigScheme
 }
 
@@ -79,7 +79,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			Required:    true,
 			Type:        schema.TypeString,
 		},
-		"enable_audit_logs": {
+		"receive_audit_logs": {
 			Description: "Whether or not Cyral audit logs should be forwarded to this logging integration.",
 			Optional:    true,
 			Type:        schema.TypeBool,

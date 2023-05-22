@@ -87,8 +87,8 @@ func (resource *IntegrationLogConfig) WriteToSchema(d *schema.ResourceData) erro
 	if err := d.Set("name", resource.Name); err != nil {
 		return fmt.Errorf("error setting 'name': %w", err)
 	}
-	if err := d.Set("enable_audit_logs", resource.EnableAuditLogs); err != nil {
-		return fmt.Errorf("error setting 'enable_audit_logs': %w", err)
+	if err := d.Set("receive_audit_logs", resource.ReceiveAuditLogs); err != nil {
+		return fmt.Errorf("error setting 'receive_audit_logs': %w", err)
 	}
 
 	configScheme, err := writeConfigScheme(resource)
@@ -108,7 +108,7 @@ func (resource *IntegrationLogConfig) WriteToSchema(d *schema.ResourceData) erro
 func (integrationLogConfig *IntegrationLogConfig) ReadFromSchema(d *schema.ResourceData) error {
 	integrationLogConfig.Id = d.Id() //Get("integration_id").(string)
 	integrationLogConfig.Name = d.Get("name").(string)
-	integrationLogConfig.EnableAuditLogs = d.Get("enable_audit_logs").(bool)
+	integrationLogConfig.ReceiveAuditLogs = d.Get("receive_audit_logs").(bool)
 
 	// Handle Config Scheme (required field).
 	configSchemeSet := d.Get("config_scheme").([]interface{})

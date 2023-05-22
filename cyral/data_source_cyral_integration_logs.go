@@ -29,9 +29,9 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 		}
 
 		integrationList = append(integrationList, map[string]interface{}{
-			"name":              integration.Name,
-			"enable_audit_logs": integration.EnableAuditLogs,
-			"config_scheme":     configScheme,
+			"name":               integration.Name,
+			"receive_audit_logs": integration.ReceiveAuditLogs,
+			"config_scheme":      configScheme,
 		})
 	}
 	if err := d.Set("integration_list", integrationList); err != nil {
