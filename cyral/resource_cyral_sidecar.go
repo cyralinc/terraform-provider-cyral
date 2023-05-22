@@ -125,6 +125,9 @@ func resourceSidecar() *schema.Resource {
 				),
 			},
 			"certificate_bundle_secrets": {
+				Deprecated: "Since sidecar v4.7 the certificate is managed at deployment level. Refer" +
+					" to [our public docs](https://cyral.com/docs/v4.7/sidecars/sidecar-certificates)" +
+					" for more information.",
 				Description: "Certificate Bundle Secret is a configuration that holds data about the" +
 					" location of a particular TLS certificate bundle in a secrets manager.",
 				Type:     schema.TypeSet,
