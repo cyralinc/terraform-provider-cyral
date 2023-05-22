@@ -9,6 +9,8 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
+const loggingApiUrl = "https://%s/v1/integrations/logging/%s"
+
 func writeConfigScheme(resource *IntegrationLogConfig) ([]interface{}, error) {
 	var configScheme []interface{}
 	switch {
@@ -192,7 +194,7 @@ var ReadIntegrationLogConfig = ResourceOperationConfig{
 	Name:       "IntegrationLogConfigRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/logging/%s", c.ControlPlane, d.Id())
+		return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 	},
 	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IntegrationLogConfig{} },
 }
@@ -202,7 +204,7 @@ func UpdateIntegrationLogConfig() ResourceOperationConfig {
 		Name:       "IntegrationLogConfigUpdate",
 		HttpMethod: http.MethodPut,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/integrations/logging/%s", c.ControlPlane, d.Id())
+			return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 		},
 		NewResourceData: func() ResourceData { return &IntegrationLogConfig{} },
 	}
@@ -213,7 +215,7 @@ func DeleteIntegrationLogConfig() ResourceOperationConfig {
 		Name:       "IntegrationLogConfigDelete",
 		HttpMethod: http.MethodDelete,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/integrations/logging/%s", c.ControlPlane, d.Id())
+			return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 		},
 	}
 }
