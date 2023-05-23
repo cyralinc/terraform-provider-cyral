@@ -215,7 +215,7 @@ func formatLogsIntegrationDataIntoConfig(data IntegrationLogConfig) (string, err
 	resource "cyral_integration_logs" "logs_integration" {
 		name = "%s"
 		receive_audit_logs = "%s"
-		config_scheme {	
+		config_scheme {
 			%s
 		}
 	}`, data.Name, boolAsString(data.ReceiveAuditLogs), config), nil
