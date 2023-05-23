@@ -39,6 +39,10 @@ type SumoLogicConfig struct {
 	Address string `json:"address"`
 }
 
+type FluentBitConfig struct {
+	Config string `json:"config"`
+}
+
 type IntegrationLogConfig struct {
 	Id               string `json:"id"`
 	Name             string `json:"name"`
@@ -52,6 +56,7 @@ type IntegrationConfigScheme struct {
 	Elk        *ElkConfig        `json:"elk"`
 	Splunk     *SplunkConfig     `json:"splunk"`
 	SumoLogic  *SumoLogicConfig  `json:"sumoLogic"`
+	FluentBit  *FluentBitConfig  `json:"fluentBit"`
 }
 
 var allLogIntegrationConfigs = []string{
@@ -60,6 +65,7 @@ var allLogIntegrationConfigs = []string{
 	"elk",
 	"splunk",
 	"sumo_logic",
+	"fluentbit",
 }
 
 func getIntegrationLogsSchema() map[string]*schema.Schema {
@@ -226,6 +232,23 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 							Schema: map[string]*schema.Schema{
 								"address": {
 									Description: "The Sumo Logic HTTP collector address. A full URL is expected",
+									Required:    true,
+									Type:        schema.TypeString,
+								},
+							},
+						},
+					},
+
+					"fluentbit": {
+						Description:  "Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper.",
+						Optional:     true,
+						Type:         schema.TypeSet,
+						ExactlyOneOf: configSchemeTypes,
+						MaxItems:     1,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"config": {
+									Description: "The Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file",
 									Required:    true,
 									Type:        schema.TypeString,
 								},

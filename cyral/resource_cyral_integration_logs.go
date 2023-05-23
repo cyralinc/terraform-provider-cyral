@@ -77,6 +77,16 @@ func writeConfigScheme(resource *IntegrationLogConfig) ([]interface{}, error) {
 				},
 			},
 		}
+	case resource.FluentBit != nil:
+		configScheme = []interface{}{
+			map[string]interface{}{
+				"fluentbit": []interface{}{
+					map[string]interface{}{
+						"config": resource.FluentBit.Config,
+					},
+				},
+			},
+		}
 	default:
 		return nil, fmt.Errorf("config scheme is required, log integration config is corrupt: %v", resource)
 	}
@@ -170,6 +180,10 @@ func (integrationLogConfig *IntegrationLogConfig) ReadFromSchema(d *schema.Resou
 		case "sumo_logic":
 			integrationLogConfig.SumoLogic = &SumoLogicConfig{
 				Address: m["address"].(string),
+			}
+		case "fluentbit":
+			integrationLogConfig.FluentBit = &FluentBitConfig{
+				Config: m["config"].(string),
 			}
 		default:
 			return fmt.Errorf("unexpected config_scheme [%s]", k)

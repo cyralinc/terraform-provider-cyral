@@ -79,6 +79,7 @@ func dataSourceIntegrationLogs() *schema.Resource {
 					"ELK",
 					"SPLUNK",
 					"SUMOLOGIC",
+					"FLUENTBIT",
 				}, false),
 			},
 			"integration_list": {

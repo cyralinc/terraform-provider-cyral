@@ -159,6 +159,11 @@ func setupLogsTest(integrationData IntegrationLogConfig) (string, resource.TestC
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config_scheme.0.sumo_logic.0.address", integrationData.SumoLogic.Address),
 		}...)
+
+	case integrationData.FluentBit != nil:
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config_scheme.0.fluentbit.0.config", integrationData.FluentBit.Config),
+		}...)
 	}
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)
@@ -207,6 +212,11 @@ func formatLogsIntegrationDataIntoConfig(data IntegrationLogConfig) (string, err
 		sumo_logic {
 			address = "%s"
 		}`, data.SumoLogic.Address)
+	case data.FluentBit != nil:
+		config = fmt.Sprintf(`
+		fluentbit {
+			config = "%s"
+		}`, data.FluentBit.Config)
 	default:
 		return "", fmt.Errorf("Error in parsing config scheme in test, %v", data)
 	}
