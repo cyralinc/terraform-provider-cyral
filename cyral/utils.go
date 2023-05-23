@@ -129,3 +129,11 @@ func schemaAllComputed(s map[string]*schema.Schema) map[string]*schema.Schema {
 
 	return s
 }
+
+func boolAsString(v bool) string {
+	if v {
+		return "true"
+	} else {
+		return "false"
+	}
+}

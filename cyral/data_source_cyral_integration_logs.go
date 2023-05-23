@@ -29,6 +29,7 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 		}
 
 		integrationList = append(integrationList, map[string]interface{}{
+			"id":                 integration.Id,
 			"name":               integration.Name,
 			"receive_audit_logs": integration.ReceiveAuditLogs,
 			"config_scheme":      configScheme,
