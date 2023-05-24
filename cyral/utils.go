@@ -122,6 +122,7 @@ func schemaAllComputed(s map[string]*schema.Schema) map[string]*schema.Schema {
 		s[k].Default = nil
 		s[k].MaxItems = 0
 		s[k].ExactlyOneOf = nil
+		s[k].ValidateFunc = nil
 		if s[k].Elem != nil {
 			schemaAllComputed(s[k].Elem.(*schema.Resource).Schema)
 		}

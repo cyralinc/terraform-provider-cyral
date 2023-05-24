@@ -29,13 +29,14 @@ var initialLogsConfigElk IntegrationLogConfig = IntegrationLogConfig{
 }
 
 var initialLogsConfigCloudWatch IntegrationLogConfig = IntegrationLogConfig{
-	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatch"),
+	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
 	ReceiveAuditLogs: true,
 	IntegrationConfigScheme: IntegrationConfigScheme{
 		CloudWatch: &CloudWatchConfig{
-			Region: "us-east-1",
-			Group:  "group1",
-			Stream: "abc",
+			Region:           "us-east-2",
+			Group:            "group2",
+			Stream:           "abcd",
+			LogRetentionDays: 1,
 		},
 	},
 }
@@ -56,13 +57,14 @@ var updatedLogsConfigElk IntegrationLogConfig = IntegrationLogConfig{
 }
 
 var updatedLogsConfigCloudWatch IntegrationLogConfig = IntegrationLogConfig{
-	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatch"),
+	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
 	ReceiveAuditLogs: true,
 	IntegrationConfigScheme: IntegrationConfigScheme{
 		CloudWatch: &CloudWatchConfig{
-			Region: "us-east-1",
-			Group:  "group1",
-			Stream: "abc",
+			Region:           "us-east-1",
+			Group:            "group1",
+			Stream:           "abcd",
+			LogRetentionDays: 1,
 		},
 	},
 }
@@ -135,6 +137,7 @@ func setupLogsTest(integrationData IntegrationLogConfig) (string, resource.TestC
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config_scheme.0.cloud_watch.0.region", integrationData.CloudWatch.Region),
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config_scheme.0.cloud_watch.0.group", integrationData.CloudWatch.Group),
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config_scheme.0.cloud_watch.0.stream", integrationData.CloudWatch.Stream),
+			resource.TestCheckResourceAttrSet(integrationLogsFullTerraformResourceName, "config_scheme.0.cloud_watch.0.log_retention_days"),
 		}...)
 	case integrationData.Datadog != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
@@ -182,7 +185,8 @@ func formatLogsIntegrationDataIntoConfig(data IntegrationLogConfig) (string, err
 			group = "%s"
 			region = "%s"
 			stream = "%s"
-		}`, data.CloudWatch.Group, data.CloudWatch.Region, data.CloudWatch.Stream)
+			log_retention_days = %d
+		}`, data.CloudWatch.Group, data.CloudWatch.Region, data.CloudWatch.Stream, data.CloudWatch.LogRetentionDays)
 	case data.Datadog != nil:
 		config = fmt.Sprintf(`
 		datadog {

@@ -19,9 +19,10 @@ func writeConfigScheme(resource *IntegrationLogConfig) ([]interface{}, error) {
 			map[string]interface{}{
 				"cloud_watch": []interface{}{
 					map[string]interface{}{
-						"region": resource.CloudWatch.Region,
-						"group":  resource.CloudWatch.Group,
-						"stream": resource.CloudWatch.Stream,
+						"region":             resource.CloudWatch.Region,
+						"group":              resource.CloudWatch.Group,
+						"stream":             resource.CloudWatch.Stream,
+						"log_retention_days": resource.CloudWatch.LogRetentionDays,
 					},
 				},
 			},
@@ -142,9 +143,10 @@ func (integrationLogConfig *IntegrationLogConfig) ReadFromSchema(d *schema.Resou
 		switch k {
 		case "cloud_watch":
 			integrationLogConfig.CloudWatch = &CloudWatchConfig{
-				Region: m["region"].(string),
-				Group:  m["group"].(string),
-				Stream: m["stream"].(string),
+				Region:           m["region"].(string),
+				Group:            m["group"].(string),
+				Stream:           m["stream"].(string),
+				LogRetentionDays: m["log_retention_days"].(int),
 			}
 		case "datadog":
 			integrationLogConfig.Datadog = &DataDogConfig{
