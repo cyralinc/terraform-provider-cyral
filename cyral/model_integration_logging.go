@@ -97,12 +97,12 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 	}
 	schema := map[string]*schema.Schema{
 		"id": {
-			Description: "The unique identifier of the logging integration.",
+			Description: "Unique identifier of the logging integration.",
 			Computed:    true,
 			Type:        schema.TypeString,
 		},
 		"name": {
-			Description: "The name of the logging integration config.",
+			Description: "Name of the logging integration config.",
 			Required:    true,
 			Type:        schema.TypeString,
 		},
@@ -129,22 +129,22 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
 								"region": {
-									Description: "The AWS region.",
+									Description: "AWS region.",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
 								"group": {
-									Description: "The CloudWatch log group.",
+									Description: "CloudWatch log group.",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
 								"stream": {
-									Description: "The CloudWatch log stream.",
+									Description: "CloudWatch log stream.",
 									Optional:    true,
 									Type:        schema.TypeString,
 								},
 								"log_retention_days": {
-									Description:  "The log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.",
+									Description:  "Log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.",
 									Optional:     true,
 									Type:         schema.TypeInt,
 									ValidateFunc: validateLogRetentionDays,
@@ -162,7 +162,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
 								"api_key": {
-									Description: "The DataDog API key.",
+									Description: "DataDog API key.",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
@@ -179,29 +179,29 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
 								"es_url": {
-									Description: "The Elasticsearch URL.",
+									Description: "Elasticsearch URL.",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
 								"kibana_url": {
-									Description: "The Kibana URL.",
+									Description: "Kibana URL.",
 									Optional:    true,
 									Type:        schema.TypeString,
 								},
 								"es_credentials": {
-									Description: "The credentials used to authenticate with Elastic Search",
+									Description: "Credentials used to authenticate with Elastic Search",
 									Optional:    true,
 									Type:        schema.TypeSet,
 									MaxItems:    1,
 									Elem: &schema.Resource{
 										Schema: map[string]*schema.Schema{
 											"username": {
-												Description: "The Elasticsearch username.",
+												Description: "Elasticsearch username.",
 												Required:    true,
 												Type:        schema.TypeString,
 											},
 											"password": {
-												Description: "The Elasticsearch password.",
+												Description: "Elasticsearch password.",
 												Required:    true,
 												Type:        schema.TypeString,
 											},
@@ -221,22 +221,22 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
 								"host": {
-									Description: "The Splunk hostname.",
+									Description: "Splunk hostname.",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
 								"hec_port": {
-									Description: "The Splunk HTTP Event Collector (HEC) port.",
+									Description: "Splunk HTTP Event Collector (HEC) port.",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
 								"access_token": {
-									Description: "The Splunk access token.",
+									Description: "Splunk access token.",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
 								"index": {
-									Description: "The Splunk index which logs should be indexed to.",
+									Description: "Splunk index which logs should be indexed to.",
 									Optional:    true,
 									Type:        schema.TypeString,
 								},
@@ -258,7 +258,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
 								"address": {
-									Description: "The Sumo Logic HTTP collector address. A full URL is expected",
+									Description: "Sumo Logic HTTP collector address. A full URL is expected",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
@@ -275,7 +275,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
 								"config": {
-									Description: "The Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file",
+									Description: "Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file",
 									Required:    true,
 									Type:        schema.TypeString,
 								},
