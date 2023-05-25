@@ -29,7 +29,7 @@ Retrieve and filter logging integrations.
 
 Read-Only:
 
-- `config` (Set of Object) (see [below for nested schema](#nestedobjatt--integration_list--config))
+- `config` (List of Object) (see [below for nested schema](#nestedobjatt--integration_list--config))
 - `id` (String)
 - `name` (String)
 - `receive_audit_logs` (Boolean)

@@ -16,14 +16,14 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 
 ### Required
 
-- `config` (Block Set, Min: 1, Max: 1) Config option specific for the type of logging integration. List of supported types:
+- `config` (Block List, Min: 1, Max: 1) Config option specific for the type of logging integration. List of supported types:
   - `cloud_watch`
   - `datadog`
   - `elk`
   - `splunk`
   - `sumo_logic`
   - `fluentbit` (see [below for nested schema](#nestedblock--config))
-- `name` (String) The name of the logging integration config.
+- `name` (String) Name of the logging integration config.
 
 ### Optional
 
@@ -31,7 +31,7 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 
 ### Read-Only
 
-- `id` (String) The unique identifier of the logging integration.
+- `id` (String) Unique identifier of the logging integration.
 
 <a id="nestedblock--config"></a>
 
@@ -52,13 +52,13 @@ Optional:
 
 Required:
 
-- `group` (String) The CloudWatch log group.
-- `region` (String) The AWS region.
+- `group` (String) CloudWatch log group.
+- `region` (String) AWS region.
 
 Optional:
 
-- `log_retention_days` (Number) The log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.
-- `stream` (String) The CloudWatch log stream.
+- `log_retention_days` (Number) Log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.
+- `stream` (String) CloudWatch log stream.
 
 <a id="nestedblock--config--datadog"></a>
 
@@ -66,7 +66,7 @@ Optional:
 
 Required:
 
-- `api_key` (String) The DataDog API key.
+- `api_key` (String) DataDog API key.
 
 <a id="nestedblock--config--elk"></a>
 
@@ -74,12 +74,12 @@ Required:
 
 Required:
 
-- `es_url` (String) The Elasticsearch URL.
+- `es_url` (String) Elasticsearch URL.
 
 Optional:
 
-- `es_credentials` (Block Set, Max: 1) The credentials used to authenticate with Elastic Search (see [below for nested schema](#nestedblock--config--elk--es_credentials))
-- `kibana_url` (String) The Kibana URL.
+- `es_credentials` (Block Set, Max: 1) Credentials used to authenticate with Elastic Search (see [below for nested schema](#nestedblock--config--elk--es_credentials))
+- `kibana_url` (String) Kibana URL.
 
 <a id="nestedblock--config--elk--es_credentials"></a>
 
@@ -87,8 +87,8 @@ Optional:
 
 Required:
 
-- `password` (String) The Elasticsearch password.
-- `username` (String) The Elasticsearch username.
+- `password` (String) Elasticsearch password.
+- `username` (String) Elasticsearch username.
 
 <a id="nestedblock--config--fluentbit"></a>
 
@@ -96,7 +96,7 @@ Required:
 
 Required:
 
-- `config` (String) The Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
+- `config` (String) Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
 
 <a id="nestedblock--config--splunk"></a>
 
@@ -104,13 +104,13 @@ Required:
 
 Required:
 
-- `access_token` (String) The Splunk access token.
-- `hec_port` (String) The Splunk HTTP Event Collector (HEC) port.
-- `host` (String) The Splunk hostname.
+- `access_token` (String) Splunk access token.
+- `hec_port` (String) Splunk HTTP Event Collector (HEC) port.
+- `host` (String) Splunk hostname.
 
 Optional:
 
-- `index` (String) The Splunk index which logs should be indexed to.
+- `index` (String) Splunk index which logs should be indexed to.
 - `use_tls` (Boolean) Whether or not to use TLS.
 
 <a id="nestedblock--config--sumo_logic"></a>
@@ -119,4 +119,4 @@ Optional:
 
 Required:
 
-- `address` (String) The Sumo Logic HTTP collector address. A full URL is expected
+- `address` (String) Sumo Logic HTTP collector address. A full URL is expected
