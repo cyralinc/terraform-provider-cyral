@@ -56,7 +56,7 @@ var initialLogsConfigSplunk LoggingIntegration = LoggingIntegration{
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Splunk: &SplunkConfig{
-			Hostname:    "192.111.111.95",
+			Hostname:    "www.splunk.com",
 			HecPort:     "9529",
 			AccessToken: "ACCESS",
 			Index:       "65",
@@ -130,7 +130,7 @@ var updatedLogsConfigSplunk LoggingIntegration = LoggingIntegration{
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Splunk: &SplunkConfig{
-			Hostname:    "192.111.222.95",
+			Hostname:    "www.splunk2.com",
 			HecPort:     "8090",
 			AccessToken: "ACCESS",
 			Index:       "65",
