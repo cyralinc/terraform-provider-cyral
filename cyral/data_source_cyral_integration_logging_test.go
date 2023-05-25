@@ -1,6 +1,8 @@
 package cyral
 
 import (
+	"fmt"
+	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,115 +12,123 @@ const (
 	integrationLogsDataSourceName = "integration-log-datasource"
 )
 
-func TestAccLogsIntegrationDataSource(t *testing.T) {
-	// Using vars from resource test
-	testConfigElk, testFuncElk := setupLogsTest(initialLogsConfigElk)
-	testUpdateConfigElk, testUpdateFuncElk := setupLogsTest(updatedLogsConfigElk)
+func testIntegrationLoggingDataSource(t *testing.T, resName string, typeFilter string) (
+	string, resource.TestCheckFunc,
+) {
+	return testIntegrationLoggingDataSourceConfig(resName, typeFilter),
+		testIntegrationLoggingDataSourceChecks(t, resName, typeFilter)
+}
 
-	testConfigCloudWatch, testFuncCloudWatch := setupLogsTest(initialLogsConfigCloudWatch)
-	testUpdateConfigCloudWatch, testUpdateFuncCloudWatch := setupLogsTest(updatedLogsConfigCloudWatch)
+func testIntegrationLoggingDataSourceConfig(resName, typeFilter string) string {
+	var config string
+	config += testIntegrationLoggingDataSourceConfigDependencies(resName)
+	config += integrationLogsDataSourceConfig(
+		resName,
+		typeFilter,
+		[]string{
+			fmt.Sprintf("cyral_integration_logging.%s_1", resName),
+			fmt.Sprintf("cyral_integration_logging.%s_2", resName),
+		})
+	return config
+}
+
+// Setup two integrations that are retrieved and checked by the data source.
+func testIntegrationLoggingDataSourceConfigDependencies(resName string) string {
+	resName1 := resName + "_1"
+	resName2 := resName + "_2"
+
+	resource1, _ := formatLogsIntegrationDataIntoConfig(LoggingIntegration{
+		Name:             resName1,
+		ReceiveAuditLogs: true,
+		LoggingIntegrationConfig: LoggingIntegrationConfig{
+			CloudWatch: &CloudWatchConfig{
+				Region:           "us-east-2",
+				Group:            "group2",
+				Stream:           "abcd",
+				LogRetentionDays: 1,
+			},
+		},
+	}, resName1)
+
+	resource2, _ := formatLogsIntegrationDataIntoConfig(LoggingIntegration{
+		Name:             resName2,
+		ReceiveAuditLogs: true,
+		LoggingIntegrationConfig: LoggingIntegrationConfig{
+			Datadog: &DataDogConfig{
+				ApiKey: "API_KEY_A",
+			},
+		},
+	}, resName2)
+
+	var config string
+	config += resource1
+	config += resource2
+	return config
+}
+
+func TestAccLoggingIntegrationDataSource(t *testing.T) {
+	testConfig1, testFunc1 := testIntegrationLoggingDataSource(t,
+		"test1", "CLOUDWATCH")
+	testConfig2, testFunc2 := testIntegrationLoggingDataSource(t,
+		"test2", "DATADOG")
+
+	log.Printf("TEST CONFIG: %v", testConfig1)
+	log.Printf("TEST FUBNC: %v", testFunc1)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testConfigElk,
-				Check:  testFuncElk,
+				Config: testConfig1,
+				Check:  testFunc1,
 			},
 			{
-				Config: testUpdateConfigElk,
-				Check:  testUpdateFuncElk,
-			},
-			{
-				ImportState:       true,
-				ImportStateVerify: true,
-				ResourceName:      "cyral_integration_logging.logs_integration",
-			},
-			{
-				Config: testAccIntegrationLogsDataSourceConfigElk(),
-				Check:  testAccIntegrationLogsDataSourceCheckElk(),
-			},
-			{
-				Config: testConfigCloudWatch,
-				Check:  testFuncCloudWatch,
-			},
-			{
-				Config: testUpdateConfigCloudWatch,
-				Check:  testUpdateFuncCloudWatch,
-			},
-			{
-				ImportState:       true,
-				ImportStateVerify: true,
-				ResourceName:      "cyral_integration_logging.logs_integration",
-			},
-			{
-				Config: testAccIntegrationLogsDataSourceConfigCloudWatch(),
-				Check:  testAccIntegrationLogsDataSourceCheckCloudWatch(),
+				Config: testConfig2,
+				Check:  testFunc2,
 			},
 		},
 	})
 }
 
-func testAccIntegrationLogsDataSourceConfigElk() string {
-	return `
-	data "cyral_integration_logging" "list_integrations" {
-		type = "ELK"
-	}
-	`
-}
-
-func testAccIntegrationLogsDataSourceCheckElk() resource.TestCheckFunc {
+func testIntegrationLoggingDataSourceChecks(t *testing.T, resName, typeFilter string) resource.TestCheckFunc {
 	var checkFuncs []resource.TestCheckFunc
 
-	pathResource := "data.cyral_integration_logging.list_integrations"
+	pathResource := fmt.Sprintf("data.cyral_integration_logging.%s", resName)
 
 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrSet(pathResource,
 			"integration_list.0.name"),
 		resource.TestCheckResourceAttrSet(pathResource,
 			"integration_list.0.receive_audit_logs"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config.0.elk.0.es_url"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config.0.elk.0.kibana_url"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config.0.elk.0.es_credentials.0.username"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config.0.elk.0.es_credentials.0.password"),
 	}...)
 
-	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)
-
-	return testFunction
-}
-
-func testAccIntegrationLogsDataSourceConfigCloudWatch() string {
-	return `
-	data "cyral_integration_logging" "list_integrations2" {
-		type = "CLOUDWATCH"
+	if typeFilter == "DATADOG" {
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttrSet(pathResource,
+				"integration_list.0.config.0.datadog.0.api_key"),
+		}...)
 	}
-	`
-}
 
-func testAccIntegrationLogsDataSourceCheckCloudWatch() resource.TestCheckFunc {
-	var checkFuncs []resource.TestCheckFunc
-
-	pathResource := "data.cyral_integration_logging.list_integrations2"
-
-	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.name"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.receive_audit_logs"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config.0.cloud_watch.0.region"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config.0.cloud_watch.0.group"),
-		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config.0.cloud_watch.0.stream"),
-	}...)
+	if typeFilter == "CLOUDWATCH" {
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttrSet(pathResource,
+				"integration_list.0.config.0.cloud_watch.0.region"),
+			resource.TestCheckResourceAttrSet(pathResource,
+				"integration_list.0.config.0.cloud_watch.0.group"),
+			resource.TestCheckResourceAttrSet(pathResource,
+				"integration_list.0.config.0.cloud_watch.0.stream"),
+		}...)
+	}
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)
 
 	return testFunction
+}
+
+func integrationLogsDataSourceConfig(resName string, typeFilter string, dependsOn []string) string {
+	return fmt.Sprintf(`
+	data "cyral_integration_logging" "%s" {
+		depends_on = %s
+		type = "%s"
+	}`, resName, listToStr(dependsOn), typeFilter)
 }

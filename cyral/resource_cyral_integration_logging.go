@@ -59,7 +59,7 @@ func getLoggingConfig(resource *LoggingIntegration) ([]interface{}, error) {
 			map[string]interface{}{
 				"splunk": []interface{}{
 					map[string]interface{}{
-						"host":         resource.Splunk.Host,
+						"hostname":     resource.Splunk.Hostname,
 						"hec_port":     resource.Splunk.HecPort,
 						"access_token": resource.Splunk.AccessToken,
 						"index":        resource.Splunk.Index,
@@ -167,7 +167,7 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 			}
 		case "splunk":
 			integrationLogConfig.Splunk = &SplunkConfig{
-				Host:        m["host"].(string),
+				Hostname:    m["hostname"].(string),
 				HecPort:     m["hec_port"].(string),
 				AccessToken: m["access_token"].(string),
 				Index:       m["index"].(string),

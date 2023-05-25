@@ -101,7 +101,7 @@ Read-Only:
 
 - `access_token` (String)
 - `hec_port` (String)
-- `host` (String)
+- `hostname` (String)
 - `index` (String)
 - `use_tls` (Boolean)
 

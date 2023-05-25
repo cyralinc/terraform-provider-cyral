@@ -106,7 +106,7 @@ Required:
 
 - `access_token` (String) Splunk access token.
 - `hec_port` (String) Splunk HTTP Event Collector (HEC) port.
-- `host` (String) Splunk hostname.
+- `hostname` (String) Splunk hostname.
 
 Optional:
 

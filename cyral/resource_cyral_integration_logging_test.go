@@ -3,6 +3,7 @@ package cyral
 import (
 	"fmt"
 	"log"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,9 +11,31 @@ import (
 
 const (
 	integrationLogsResourceName              = "integration-log"
-	integrationLogsFullTerraformResourceName = "cyral_integration_logging.logs_integration"
+	integrationLogsFullTerraformResourceName = "cyral_integration_logging.logs_integration_test"
 )
 
+var initialLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		CloudWatch: &CloudWatchConfig{
+			Region:           "us-east-2",
+			Group:            "group2",
+			Stream:           "abcd",
+			LogRetentionDays: 1,
+		},
+	},
+}
+
+var initialLogsConfigDataDog LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Datadog"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		Datadog: &DataDogConfig{
+			ApiKey: "TESTING_API",
+		},
+	},
+}
 var initialLogsConfigElk LoggingIntegration = LoggingIntegration{
 	Name:             accTestName(integrationLogsResourceName, "LogsElk"),
 	ReceiveAuditLogs: true,
@@ -28,15 +51,61 @@ var initialLogsConfigElk LoggingIntegration = LoggingIntegration{
 	},
 }
 
-var initialLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
+var initialLogsConfigSplunk LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Splunk"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		Splunk: &SplunkConfig{
+			Hostname:    "192.111.111.95",
+			HecPort:     "9529",
+			AccessToken: "ACCESS",
+			Index:       "65",
+			UseTLS:      true,
+		},
+	},
+}
+
+var initialLogsConfigSumologic LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Sumologic"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		SumoLogic: &SumoLogicConfig{
+			Address: "http://www.hostname.com.br",
+		},
+	},
+}
+
+var initialLogsConfigFluentbit LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Fluentbit"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		FluentBit: &FluentBitConfig{
+			Config: `[OUTPUT]
+Name         stdout
+Match        *`,
+		},
+	},
+}
+
+var updatedLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
 	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		CloudWatch: &CloudWatchConfig{
-			Region:           "us-east-2",
-			Group:            "group2",
+			Region:           "us-east-1",
+			Group:            "group1",
 			Stream:           "abcd",
 			LogRetentionDays: 1,
+		},
+	},
+}
+
+var updatedLogsConfigDataDog LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Datadog"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		Datadog: &DataDogConfig{
+			ApiKey: "TESTING_API",
 		},
 	},
 }
@@ -56,17 +125,88 @@ var updatedLogsConfigElk LoggingIntegration = LoggingIntegration{
 	},
 }
 
-var updatedLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
+var updatedLogsConfigSplunk LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Splunk"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
-		CloudWatch: &CloudWatchConfig{
-			Region:           "us-east-1",
-			Group:            "group1",
-			Stream:           "abcd",
-			LogRetentionDays: 1,
+		Splunk: &SplunkConfig{
+			Hostname:    "192.111.222.95",
+			HecPort:     "8090",
+			AccessToken: "ACCESS",
+			Index:       "65",
+			UseTLS:      true,
 		},
 	},
+}
+
+var updatedLogsConfigSumologic LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Sumologic"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		SumoLogic: &SumoLogicConfig{
+			Address: "http://www.hostnameupdated.com.br",
+		},
+	},
+}
+
+var updatedLogsConfigFluentbit LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "Fluentbit"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		FluentBit: &FluentBitConfig{
+			Config: `[OUTPUT]
+Name         stdout
+Match        *`,
+		},
+	},
+}
+
+func TestAccLogsIntegrationResourceCloudWatch(t *testing.T) {
+	testConfig, testFunc := setupLogsTest(initialLogsConfigCloudWatch)
+	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigCloudWatch)
+
+	resource.ParallelTest(t, resource.TestCase{
+		ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      integrationLogsFullTerraformResourceName,
+			},
+		},
+	})
+}
+
+func TestAccLogsIntegrationResourceDataDog(t *testing.T) {
+	testConfig, testFunc := setupLogsTest(initialLogsConfigDataDog)
+	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigDataDog)
+
+	resource.ParallelTest(t, resource.TestCase{
+		ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      integrationLogsFullTerraformResourceName,
+			},
+		},
+	})
 }
 
 func TestAccLogsIntegrationResourceElk(t *testing.T) {
@@ -93,20 +233,68 @@ func TestAccLogsIntegrationResourceElk(t *testing.T) {
 	})
 }
 
-func TestAccLogsIntegrationResourceCloudWatch(t *testing.T) {
-	testConfig2, testFunc2 := setupLogsTest(initialLogsConfigCloudWatch)
-	testUpdateConfig2, testUpdateFunc2 := setupLogsTest(updatedLogsConfigCloudWatch)
+func TestAccLogsIntegrationResourceSplunk(t *testing.T) {
+	testConfig, testFunc := setupLogsTest(initialLogsConfigSplunk)
+	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigSplunk)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testConfig2,
-				Check:  testFunc2,
+				Config: testConfig,
+				Check:  testFunc,
 			},
 			{
-				Config: testUpdateConfig2,
-				Check:  testUpdateFunc2,
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      integrationLogsFullTerraformResourceName,
+			},
+		},
+	})
+}
+
+func TestAccLogsIntegrationResourceSumologic(t *testing.T) {
+	testConfig, testFunc := setupLogsTest(initialLogsConfigSumologic)
+	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigSumologic)
+
+	resource.ParallelTest(t, resource.TestCase{
+		ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      integrationLogsFullTerraformResourceName,
+			},
+		},
+	})
+}
+
+func TestAccLogsIntegrationResourceFluentbit(t *testing.T) {
+	testConfig, testFunc := setupLogsTest(initialLogsConfigFluentbit)
+	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigFluentbit)
+
+	resource.ParallelTest(t, resource.TestCase{
+		ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
 			},
 			{
 				ImportState:       true,
@@ -118,7 +306,7 @@ func TestAccLogsIntegrationResourceCloudWatch(t *testing.T) {
 }
 
 func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestCheckFunc) {
-	configuration, err := formatLogsIntegrationDataIntoConfig(integrationData)
+	configuration, err := formatLogsIntegrationDataIntoConfig(integrationData, "logs_integration_test")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return "", nil
@@ -152,7 +340,7 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 		}...)
 	case integrationData.Splunk != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.host", integrationData.Splunk.Host),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.hostname", integrationData.Splunk.Hostname),
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.hec_port", integrationData.Splunk.HecPort),
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.access_token", integrationData.Splunk.AccessToken),
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.index", integrationData.Splunk.Index),
@@ -165,7 +353,15 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 
 	case integrationData.FluentBit != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.fluentbit.0.config", integrationData.FluentBit.Config),
+			resource.TestCheckResourceAttrWith(integrationLogsFullTerraformResourceName, "config.0.fluentbit.0.config", func(value string) error {
+
+				// string must contain the config.
+				// We don't check exact value as it may contain trailing characters
+				if strings.Contains(value, integrationData.FluentBit.Config) {
+					return nil
+				}
+				return fmt.Errorf("expected %v, got %v", integrationData.FluentBit.Config, value)
+			}),
 		}...)
 	}
 
@@ -176,7 +372,7 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 
 // this function formats LoggingIntegration into string.
 // this is also used in datasource tests
-func formatLogsIntegrationDataIntoConfig(data LoggingIntegration) (string, error) {
+func formatLogsIntegrationDataIntoConfig(data LoggingIntegration, resName string) (string, error) {
 	var config string
 	switch {
 	case data.CloudWatch != nil:
@@ -205,32 +401,35 @@ func formatLogsIntegrationDataIntoConfig(data LoggingIntegration) (string, error
 	case data.Splunk != nil:
 		config = fmt.Sprintf(`
 		splunk {
-			host = "%s"
+			hostname = "%s"
 			hec_port = "%s"
 			access_token = "%s"
 			index = "%s"
 			use_tls = %t
-		}`, data.Splunk.Host, data.Splunk.HecPort, data.Splunk.AccessToken, data.Splunk.Index, data.Splunk.UseTLS)
+		}`, data.Splunk.Hostname, data.Splunk.HecPort, data.Splunk.AccessToken, data.Splunk.Index, data.Splunk.UseTLS)
 	case data.SumoLogic != nil:
 		config = fmt.Sprintf(`
 		sumo_logic {
 			address = "%s"
 		}`, data.SumoLogic.Address)
 	case data.FluentBit != nil:
+		// fluentbit use INI format, so we need a proper way to handle this
 		config = fmt.Sprintf(`
 		fluentbit {
-			config = "%s"
+			config = <<-EOF
+%s
+			EOF
 		}`, data.FluentBit.Config)
 	default:
 		return "", fmt.Errorf("Error in parsing config scheme in test, %v", data)
 	}
 
 	return fmt.Sprintf(`
-	resource "cyral_integration_logging" "logs_integration" {
+	resource "cyral_integration_logging" "%s" {
 		name = "%s"
 		receive_audit_logs = %t
 		config {
 			%s
 		}
-	}`, data.Name, data.ReceiveAuditLogs, config), nil
+	}`, resName, data.Name, data.ReceiveAuditLogs, config), nil
 }

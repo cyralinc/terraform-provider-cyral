@@ -29,7 +29,7 @@ type ElkConfig struct {
 }
 
 type SplunkConfig struct {
-	Host        string `json:"host"`
+	Hostname    string `json:"hostname"`
 	HecPort     string `json:"hecPort"`
 	AccessToken string `json:"accessToken"`
 	Index       string `json:"index"`
@@ -220,7 +220,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						MaxItems:     1,
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
-								"host": {
+								"hostname": {
 									Description: "Splunk hostname.",
 									Required:    true,
 									Type:        schema.TypeString,
