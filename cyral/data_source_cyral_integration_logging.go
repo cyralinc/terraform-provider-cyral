@@ -16,7 +16,7 @@ type ListIntegrationLogsResponse struct {
 }
 
 func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) error {
-	var integrationList []interface{}
+	var integrations []interface{}
 	for _, integration := range resp.Integrations {
 		// write in config scheme
 		configScheme, err := getLoggingConfig(&integration)
@@ -24,14 +24,14 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 			return err
 		}
 
-		integrationList = append(integrationList, map[string]interface{}{
+		integrations = append(integrations, map[string]interface{}{
 			"id":                 integration.Id,
 			"name":               integration.Name,
 			"receive_audit_logs": integration.ReceiveAuditLogs,
 			"config":             configScheme,
 		})
 	}
-	if err := d.Set("integration_list", integrationList); err != nil {
+	if err := d.Set("integration_list", integrations); err != nil {
 		return err
 	}
 
