@@ -32,7 +32,7 @@ func TestAccLogsIntegrationDataSource(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      "cyral_integration_logs.logs_integration",
+				ResourceName:      "cyral_integration_logging.logs_integration",
 			},
 			{
 				Config: testAccIntegrationLogsDataSourceConfigElk(),
@@ -49,7 +49,7 @@ func TestAccLogsIntegrationDataSource(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      "cyral_integration_logs.logs_integration",
+				ResourceName:      "cyral_integration_logging.logs_integration",
 			},
 			{
 				Config: testAccIntegrationLogsDataSourceConfigCloudWatch(),
@@ -61,7 +61,7 @@ func TestAccLogsIntegrationDataSource(t *testing.T) {
 
 func testAccIntegrationLogsDataSourceConfigElk() string {
 	return `
-	data "cyral_integration_logs" "list_integrations" {
+	data "cyral_integration_logging" "list_integrations" {
 		type = "ELK"
 	}
 	`
@@ -70,7 +70,7 @@ func testAccIntegrationLogsDataSourceConfigElk() string {
 func testAccIntegrationLogsDataSourceCheckElk() resource.TestCheckFunc {
 	var checkFuncs []resource.TestCheckFunc
 
-	pathResource := "data.cyral_integration_logs.list_integrations"
+	pathResource := "data.cyral_integration_logging.list_integrations"
 
 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrSet(pathResource,
@@ -78,13 +78,13 @@ func testAccIntegrationLogsDataSourceCheckElk() resource.TestCheckFunc {
 		resource.TestCheckResourceAttrSet(pathResource,
 			"integration_list.0.receive_audit_logs"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config_scheme.0.elk.0.es_url"),
+			"integration_list.0.config.0.elk.0.es_url"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config_scheme.0.elk.0.kibana_url"),
+			"integration_list.0.config.0.elk.0.kibana_url"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config_scheme.0.elk.0.es_credentials.0.username"),
+			"integration_list.0.config.0.elk.0.es_credentials.0.username"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config_scheme.0.elk.0.es_credentials.0.password"),
+			"integration_list.0.config.0.elk.0.es_credentials.0.password"),
 	}...)
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)
@@ -94,7 +94,7 @@ func testAccIntegrationLogsDataSourceCheckElk() resource.TestCheckFunc {
 
 func testAccIntegrationLogsDataSourceConfigCloudWatch() string {
 	return `
-	data "cyral_integration_logs" "list_integrations2" {
+	data "cyral_integration_logging" "list_integrations2" {
 		type = "CLOUDWATCH"
 	}
 	`
@@ -103,7 +103,7 @@ func testAccIntegrationLogsDataSourceConfigCloudWatch() string {
 func testAccIntegrationLogsDataSourceCheckCloudWatch() resource.TestCheckFunc {
 	var checkFuncs []resource.TestCheckFunc
 
-	pathResource := "data.cyral_integration_logs.list_integrations2"
+	pathResource := "data.cyral_integration_logging.list_integrations2"
 
 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrSet(pathResource,
@@ -111,11 +111,11 @@ func testAccIntegrationLogsDataSourceCheckCloudWatch() resource.TestCheckFunc {
 		resource.TestCheckResourceAttrSet(pathResource,
 			"integration_list.0.receive_audit_logs"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config_scheme.0.cloud_watch.0.region"),
+			"integration_list.0.config.0.cloud_watch.0.region"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config_scheme.0.cloud_watch.0.group"),
+			"integration_list.0.config.0.cloud_watch.0.group"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.config_scheme.0.cloud_watch.0.stream"),
+			"integration_list.0.config.0.cloud_watch.0.stream"),
 	}...)
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)

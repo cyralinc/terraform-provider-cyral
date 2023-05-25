@@ -11,7 +11,7 @@ import (
 
 const loggingApiUrl = "https://%s/v1/integrations/logging/%s"
 
-func writeConfigScheme(resource *IntegrationLogConfig) ([]interface{}, error) {
+func getLoggingConfig(resource *LoggingIntegration) ([]interface{}, error) {
 	var configScheme []interface{}
 	switch {
 	case resource.CloudWatch != nil:
@@ -95,7 +95,7 @@ func writeConfigScheme(resource *IntegrationLogConfig) ([]interface{}, error) {
 	return configScheme, nil
 }
 
-func (resource *IntegrationLogConfig) WriteToSchema(d *schema.ResourceData) error {
+func (resource *LoggingIntegration) WriteToSchema(d *schema.ResourceData) error {
 
 	if err := d.Set("name", resource.Name); err != nil {
 		return fmt.Errorf("error setting 'name': %w", err)
@@ -104,30 +104,29 @@ func (resource *IntegrationLogConfig) WriteToSchema(d *schema.ResourceData) erro
 		return fmt.Errorf("error setting 'receive_audit_logs': %w", err)
 	}
 
-	configScheme, err := writeConfigScheme(resource)
+	configScheme, err := getLoggingConfig(resource)
 	if err != nil {
 		return err
 	}
 
-	if err := d.Set("config_scheme", configScheme); err != nil {
-		return fmt.Errorf("error setting 'config_scheme': %w", err)
+	if err := d.Set("config", configScheme); err != nil {
+		return fmt.Errorf("error setting 'config': %w", err)
 	}
 
 	return nil
 }
 
-// ReadFromSchema is used to translate a .tf file into whatever the
-// IntegrationLog API expects.
-func (integrationLogConfig *IntegrationLogConfig) ReadFromSchema(d *schema.ResourceData) error {
+// ReadFromSchema is used to parse the resource schema into a logging integration structure that is expected by the API
+func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	integrationLogConfig.Id = d.Id() //Get("integration_id").(string)
 	integrationLogConfig.Name = d.Get("name").(string)
 	integrationLogConfig.ReceiveAuditLogs = d.Get("receive_audit_logs").(bool)
 
 	// Handle Config Scheme (required field).
-	configSchemeSet := d.Get("config_scheme").([]interface{})
+	configSchemeSet := d.Get("config").([]interface{})
 	if len(configSchemeSet) != 1 {
 		return fmt.Errorf(
-			"exactly one config_scheme attribute is required",
+			"exactly one config attribute is required",
 		)
 	}
 
@@ -154,11 +153,6 @@ func (integrationLogConfig *IntegrationLogConfig) ReadFromSchema(d *schema.Resou
 			}
 		case "elk":
 			credentialsSet := m["es_credentials"].(*schema.Set).List()
-			if len(credentialsSet) > 1 {
-				return fmt.Errorf(
-					"at most one elastic search credential is expected",
-				)
-			}
 			credentialScheme := make(map[string]interface{})
 			if len(credentialsSet) != 0 {
 				credentialScheme = credentialsSet[0].(map[string]interface{})
@@ -188,47 +182,47 @@ func (integrationLogConfig *IntegrationLogConfig) ReadFromSchema(d *schema.Resou
 				Config: m["config"].(string),
 			}
 		default:
-			return fmt.Errorf("unexpected config_scheme [%s]", k)
+			return fmt.Errorf("unexpected config [%s]", k)
 		}
 	}
 	return nil
 }
 
-func CreateIntegrationLogConfig() ResourceOperationConfig {
+func CreateLoggingIntegration() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "IntegrationLogConfigCreate",
+		Name:       "LoggingIntegrationCreate",
 		HttpMethod: http.MethodPost,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/logging", c.ControlPlane)
 		},
-		NewResourceData: func() ResourceData { return &IntegrationLogConfig{} },
+		NewResourceData: func() ResourceData { return &LoggingIntegration{} },
 		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IDBasedResponse{} },
 	}
 }
 
-var ReadIntegrationLogConfig = ResourceOperationConfig{
-	Name:       "IntegrationLogConfigRead",
+var ReadLoggingIntegration = ResourceOperationConfig{
+	Name:       "LoggingIntegrationRead",
 	HttpMethod: http.MethodGet,
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IntegrationLogConfig{} },
+	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &LoggingIntegration{} },
 }
 
-func UpdateIntegrationLogConfig() ResourceOperationConfig {
+func UpdateLoggingIntegration() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "IntegrationLogConfigUpdate",
+		Name:       "LoggingIntegrationUpdate",
 		HttpMethod: http.MethodPut,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 		},
-		NewResourceData: func() ResourceData { return &IntegrationLogConfig{} },
+		NewResourceData: func() ResourceData { return &LoggingIntegration{} },
 	}
 }
 
-func DeleteIntegrationLogConfig() ResourceOperationConfig {
+func DeleteLoggingIntegration() ResourceOperationConfig {
 	return ResourceOperationConfig{
-		Name:       "IntegrationLogConfigDelete",
+		Name:       "LoggingIntegrationDelete",
 		HttpMethod: http.MethodDelete,
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
@@ -236,17 +230,17 @@ func DeleteIntegrationLogConfig() ResourceOperationConfig {
 	}
 }
 
-func resourceIntegrationLogs() *schema.Resource {
+func resourceIntegrationLogging() *schema.Resource {
 
 	return &schema.Resource{
-		Description: "Manages Integrations with log services.",
+		Description: "Manages a logging integration that can be used to push logs from Cyral to the corresponding logging system (E.g.: AWS CloudWatch, Splunk, SumoLogic, etc).",
 		CreateContext: CreateResource(
-			CreateIntegrationLogConfig(),
-			ReadIntegrationLogConfig,
+			CreateLoggingIntegration(),
+			ReadLoggingIntegration,
 		),
-		ReadContext:   ReadResource(ReadIntegrationLogConfig),
-		UpdateContext: UpdateResource(UpdateIntegrationLogConfig(), ReadIntegrationLogConfig),
-		DeleteContext: DeleteResource(DeleteIntegrationLogConfig()),
+		ReadContext:   ReadResource(ReadLoggingIntegration),
+		UpdateContext: UpdateResource(UpdateLoggingIntegration(), ReadLoggingIntegration),
+		DeleteContext: DeleteResource(DeleteLoggingIntegration()),
 		Schema:        getIntegrationLogsSchema(),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,

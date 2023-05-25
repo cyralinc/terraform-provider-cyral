@@ -11,19 +11,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-type ListIntegrationLogsRequest struct {
-	IntegrationType string `json:"type"`
-}
-
 type ListIntegrationLogsResponse struct {
-	Integrations []IntegrationLogConfig `json:"integrations"`
+	Integrations []LoggingIntegration `json:"integrations"`
 }
 
 func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) error {
 	var integrationList []interface{}
 	for _, integration := range resp.Integrations {
 		// write in config scheme
-		configScheme, err := writeConfigScheme(&integration)
+		configScheme, err := getLoggingConfig(&integration)
 		if err != nil {
 			return err
 		}
@@ -32,7 +28,7 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 			"id":                 integration.Id,
 			"name":               integration.Name,
 			"receive_audit_logs": integration.ReceiveAuditLogs,
-			"config_scheme":      configScheme,
+			"config":             configScheme,
 		})
 	}
 	if err := d.Set("integration_list", integrationList); err != nil {
@@ -58,14 +54,14 @@ func dataSourceIntegrationLogsRead() ResourceOperationConfig {
 	}
 }
 
-func dataSourceIntegrationLogs() *schema.Resource {
+func dataSourceIntegrationLogging() *schema.Resource {
 	rawSchema := getIntegrationLogsSchema()
-	// all fields in data_source are computed.
+	// all fields in integration_list are computed.
 	// this function changes the schema to achieve this
-	computedSchema := schemaAllComputed(rawSchema)
+	computedSchema := convertSchemaFieldsToComputed(rawSchema)
 	log.Printf("[INFO] Computed schema: %v", computedSchema)
 	return &schema.Resource{
-		Description: "Retrieve and filter integrations.",
+		Description: "Retrieve and filter logging integrations.",
 		ReadContext: ReadResource(dataSourceIntegrationLogsRead()),
 		Schema: map[string]*schema.Schema{
 			"type": {
@@ -81,6 +77,7 @@ func dataSourceIntegrationLogs() *schema.Resource {
 					"SUMOLOGIC",
 					"FLUENTBIT",
 				}, false),
+				Default: "ANY",
 			},
 			"integration_list": {
 				Type: schema.TypeList,

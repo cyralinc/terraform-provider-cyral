@@ -44,14 +44,14 @@ type FluentBitConfig struct {
 	Config string `json:"config"`
 }
 
-type IntegrationLogConfig struct {
+type LoggingIntegration struct {
 	Id               string `json:"id"`
 	Name             string `json:"name"`
 	ReceiveAuditLogs bool   `json:"receiveAuditLogs"`
-	IntegrationConfigScheme
+	LoggingIntegrationConfig
 }
 
-type IntegrationConfigScheme struct {
+type LoggingIntegrationConfig struct {
 	CloudWatch *CloudWatchConfig `json:"cloudWatch"`
 	Datadog    *DataDogConfig    `json:"datadog"`
 	Elk        *ElkConfig        `json:"elk"`
@@ -93,7 +93,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 	configSchemeTypes := make([]string, 0, len(allLogIntegrationConfigs))
 	for _, config := range allLogIntegrationConfigs {
 		configSchemeTypes = append(configSchemeTypes,
-			fmt.Sprintf("config_scheme.0.%s", config))
+			fmt.Sprintf("config.0.%s", config))
 	}
 	schema := map[string]*schema.Schema{
 		"id": {
@@ -110,10 +110,10 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			Description: "Whether or not Cyral audit logs should be forwarded to this logging integration.",
 			Optional:    true,
 			Type:        schema.TypeBool,
-			Default:     true,
+			Default:     false,
 		},
-		"config_scheme": {
-			Description: "Config option for your integration. List of supported types: " +
+		"config": {
+			Description: "Config option specific for the type of logging integration. List of supported types: " +
 				supportedTypesMarkdown(allLogIntegrationConfigs),
 			Required: true,
 			Type:     schema.TypeList,
@@ -140,7 +140,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 								},
 								"stream": {
 									Description: "The CloudWatch log stream.",
-									Required:    true,
+									Optional:    true,
 									Type:        schema.TypeString,
 								},
 								"log_retention_days": {
@@ -189,7 +189,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Type:        schema.TypeString,
 								},
 								"es_credentials": {
-									Description: "Object to comport Elastic Search credentials",
+									Description: "The credentials used to authenticate with Elastic Search",
 									Optional:    true,
 									Type:        schema.TypeSet,
 									MaxItems:    1,
@@ -197,12 +197,12 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 										Schema: map[string]*schema.Schema{
 											"username": {
 												Description: "The Elasticsearch username.",
-												Optional:    true,
+												Required:    true,
 												Type:        schema.TypeString,
 											},
 											"password": {
 												Description: "The Elasticsearch password.",
-												Optional:    true,
+												Required:    true,
 												Type:        schema.TypeString,
 											},
 										},
@@ -236,13 +236,13 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Type:        schema.TypeString,
 								},
 								"index": {
-									Description: "The Slunk index.",
+									Description: "The Splunk index which logs should be indexed to.",
 									Optional:    true,
 									Type:        schema.TypeString,
 								},
 								"use_tls": {
 									Description: "Whether or not to use TLS.",
-									Required:    true,
+									Optional:    true,
 									Type:        schema.TypeBool,
 								},
 							},
