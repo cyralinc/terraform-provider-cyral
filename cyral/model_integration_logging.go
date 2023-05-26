@@ -69,26 +69,6 @@ var allLogIntegrationConfigs = []string{
 	"fluentbit",
 }
 
-func validateLogRetentionDays(v interface{}, k string) (ws []string, errors []error) {
-	// 0 == unspecified
-	validValues := []int{0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653}
-
-	value, ok := v.(int)
-	if !ok {
-		errors = append(errors, fmt.Errorf("%q must be an integer", k))
-		return
-	}
-
-	for _, validValue := range validValues {
-		if value == validValue {
-			return
-		}
-	}
-
-	errors = append(errors, fmt.Errorf("%q must be one of the following values: %v", k, validValues))
-	return
-}
-
 func getIntegrationLogsSchema() map[string]*schema.Schema {
 	configSchemeTypes := make([]string, 0, len(allLogIntegrationConfigs))
 	for _, config := range allLogIntegrationConfigs {
@@ -144,10 +124,9 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 									Type:        schema.TypeString,
 								},
 								"log_retention_days": {
-									Description:  "Log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.",
-									Optional:     true,
-									Type:         schema.TypeInt,
-									ValidateFunc: validateLogRetentionDays,
+									Description: "Log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.",
+									Optional:    true,
+									Type:        schema.TypeInt,
 								},
 							},
 						},
