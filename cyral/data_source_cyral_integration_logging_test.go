@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -71,9 +70,6 @@ func TestAccLoggingIntegrationDataSource(t *testing.T) {
 		"test1", "CLOUDWATCH")
 	testConfig2, testFunc2 := testIntegrationLoggingDataSource(t,
 		"test2", "DATADOG")
-
-	log.Printf("TEST CONFIG: %v", testConfig1)
-	log.Printf("TEST FUBNC: %v", testFunc1)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,

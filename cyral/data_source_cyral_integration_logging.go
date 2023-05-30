@@ -2,7 +2,6 @@ package cyral
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
@@ -59,7 +58,6 @@ func dataSourceIntegrationLogging() *schema.Resource {
 	// all fields in integrations are computed.
 	// this function changes the schema to achieve this
 	computedSchema := convertSchemaFieldsToComputed(rawSchema)
-	log.Printf("[INFO] Computed schema: %v", computedSchema)
 	return &schema.Resource{
 		Description: "Retrieve and filter logging integrations.",
 		ReadContext: ReadResource(dataSourceIntegrationLogsRead()),
