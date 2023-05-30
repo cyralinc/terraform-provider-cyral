@@ -143,6 +143,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 								"api_key": {
 									Description: "DataDog API key.",
 									Required:    true,
+									Sensitive:   true,
 									Type:        schema.TypeString,
 								},
 							},
@@ -182,6 +183,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 											"password": {
 												Description: "Elasticsearch password.",
 												Required:    true,
+												Sensitive:   true,
 												Type:        schema.TypeString,
 											},
 										},
@@ -212,6 +214,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 								"access_token": {
 									Description: "Splunk access token.",
 									Required:    true,
+									Sensitive:   true,
 									Type:        schema.TypeString,
 								},
 								"index": {
