@@ -31,7 +31,7 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 			"config":             configScheme,
 		})
 	}
-	if err := d.Set("integration_list", integrations); err != nil {
+	if err := d.Set("integrations", integrations); err != nil {
 		return err
 	}
 
@@ -56,7 +56,7 @@ func dataSourceIntegrationLogsRead() ResourceOperationConfig {
 
 func dataSourceIntegrationLogging() *schema.Resource {
 	rawSchema := getIntegrationLogsSchema()
-	// all fields in integration_list are computed.
+	// all fields in integrations are computed.
 	// this function changes the schema to achieve this
 	computedSchema := convertSchemaFieldsToComputed(rawSchema)
 	log.Printf("[INFO] Computed schema: %v", computedSchema)
@@ -79,7 +79,7 @@ func dataSourceIntegrationLogging() *schema.Resource {
 				}, false),
 				Default: "ANY",
 			},
-			"integration_list": {
+			"integrations": {
 				Type: schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: computedSchema,

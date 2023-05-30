@@ -97,26 +97,26 @@ func testIntegrationLoggingDataSourceChecks(t *testing.T, resName, typeFilter st
 
 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.name"),
+			"integrations.0.name"),
 		resource.TestCheckResourceAttrSet(pathResource,
-			"integration_list.0.receive_audit_logs"),
+			"integrations.0.receive_audit_logs"),
 	}...)
 
 	if typeFilter == "DATADOG" {
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttrSet(pathResource,
-				"integration_list.0.config.0.datadog.0.api_key"),
+				"integrations.0.config.0.datadog.0.api_key"),
 		}...)
 	}
 
 	if typeFilter == "CLOUDWATCH" {
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttrSet(pathResource,
-				"integration_list.0.config.0.cloud_watch.0.region"),
+				"integrations.0.config.0.cloud_watch.0.region"),
 			resource.TestCheckResourceAttrSet(pathResource,
-				"integration_list.0.config.0.cloud_watch.0.group"),
+				"integrations.0.config.0.cloud_watch.0.group"),
 			resource.TestCheckResourceAttrSet(pathResource,
-				"integration_list.0.config.0.cloud_watch.0.stream"),
+				"integrations.0.config.0.cloud_watch.0.stream"),
 		}...)
 	}
 
