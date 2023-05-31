@@ -78,7 +78,6 @@ func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, erro
 }
 
 func (resource *LoggingIntegration) WriteToSchema(d *schema.ResourceData) error {
-
 	if err := d.Set("name", resource.Name); err != nil {
 		return fmt.Errorf("error setting 'name': %w", err)
 	}
@@ -121,17 +120,17 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 	m := configDetails[0].(map[string]interface{})
 
 	switch configType {
-	case "cloud_watch":
+	case CloudWatchKey:
 		integrationLogConfig.CloudWatch = &CloudWatchConfig{
 			Region: m["region"].(string),
 			Group:  m["group"].(string),
 			Stream: m["stream"].(string),
 		}
-	case "datadog":
+	case DatadogKey:
 		integrationLogConfig.Datadog = &DataDogConfig{
 			ApiKey: m["api_key"].(string),
 		}
-	case "elk":
+	case ElkKey:
 		credentialsSet := m["es_credentials"].(*schema.Set).List()
 		credentialScheme := make(map[string]interface{})
 		if len(credentialsSet) != 0 {
@@ -145,7 +144,7 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 				Password: credentialScheme["password"].(string),
 			},
 		}
-	case "splunk":
+	case SplunkKey:
 		integrationLogConfig.Splunk = &SplunkConfig{
 			Hostname:    m["hostname"].(string),
 			HecPort:     m["hec_port"].(string),
@@ -153,11 +152,11 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 			Index:       m["index"].(string),
 			UseTLS:      m["use_tls"].(bool),
 		}
-	case "sumo_logic":
+	case SumoLogicKey:
 		integrationLogConfig.SumoLogic = &SumoLogicConfig{
 			Address: m["address"].(string),
 		}
-	case "fluentbit":
+	case FluentbitKey:
 		integrationLogConfig.FluentBit = &FluentBitConfig{
 			Config: m["config"].(string),
 		}

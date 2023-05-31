@@ -23,7 +23,7 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 - `cloud_watch` (Block Set, Max: 1) Represents the configuration data required for the `AWS` CloudWatch log management system. (see [below for nested schema](#nestedblock--cloud_watch))
 - `datadog` (Block Set, Max: 1) Represents the configuration data required for the Datadog's log management system. (see [below for nested schema](#nestedblock--datadog))
 - `elk` (Block Set, Max: 1) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--elk))
-- `fluentbit` (Block Set, Max: 1) Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper. (see [below for nested schema](#nestedblock--fluentbit))
+- `fluent_bit` (Block Set, Max: 1) Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper. (see [below for nested schema](#nestedblock--fluent_bit))
 - `receive_audit_logs` (Boolean) Whether or not Cyral audit logs should be forwarded to this logging integration.
 - `splunk` (Block Set, Max: 1) Represents the configuration data required for the Splunk log management system. (see [below for nested schema](#nestedblock--splunk))
 - `sumo_logic` (Block Set, Max: 1) Represents the configuration data required for the Sumo Logic log management system. (see [below for nested schema](#nestedblock--sumo_logic))
@@ -43,7 +43,7 @@ Required:
 
 Optional:
 
-- `stream` (String) CloudWatch log stream.
+- `stream` (String) CloudWatch log stream. Defaults to `cyral-sidecar` if not set.
 
 <a id="nestedblock--datadog"></a>
 
@@ -75,9 +75,9 @@ Required:
 - `password` (String, Sensitive) Elasticsearch password.
 - `username` (String) Elasticsearch username.
 
-<a id="nestedblock--fluentbit"></a>
+<a id="nestedblock--fluent_bit"></a>
 
-### Nested Schema for `fluentbit`
+### Nested Schema for `fluent_bit`
 
 Required:
 

@@ -350,7 +350,7 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 
 	case integrationData.FluentBit != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttrWith(integrationLogsFullTerraformResourceName, "fluentbit.0.config", func(value string) error {
+			resource.TestCheckResourceAttrWith(integrationLogsFullTerraformResourceName, "fluent_bit.0.config", func(value string) error {
 
 				// string must contain the config.
 				// We don't check exact value as it may contain trailing characters
@@ -411,7 +411,7 @@ func formatLogsIntegrationDataIntoConfig(data LoggingIntegration, resName string
 	case data.FluentBit != nil:
 		// fluentbit use INI format, so we need a proper way to handle this
 		config = fmt.Sprintf(`
-		fluentbit {
+		fluent_bit {
 			config = <<-EOF
 %s
 			EOF

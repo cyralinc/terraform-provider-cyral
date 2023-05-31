@@ -63,7 +63,7 @@ const (
 	ElkKey        = "elk"
 	SplunkKey     = "splunk"
 	SumoLogicKey  = "sumo_logic"
-	FluentbitKey  = "fluentbit"
+	FluentbitKey  = "fluent_bit"
 )
 
 var allLogIntegrationConfigs = []string{
@@ -112,7 +112,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Type:        schema.TypeString,
 					},
 					"stream": {
-						Description: "CloudWatch log stream.",
+						Description: "CloudWatch log stream. Defaults to `cyral-sidecar` if not set.",
 						Optional:    true,
 						Type:        schema.TypeString,
 					},
@@ -236,7 +236,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			},
 		},
 
-		"fluentbit": {
+		"fluent_bit": {
 			Description:   "Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper.",
 			Optional:      true,
 			Type:          schema.TypeSet,

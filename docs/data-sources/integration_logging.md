@@ -32,7 +32,7 @@ Read-Only:
 - `cloud_watch` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--cloud_watch))
 - `datadog` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--datadog))
 - `elk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk))
-- `fluentbit` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--fluentbit))
+- `fluent_bit` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--fluent_bit))
 - `id` (String)
 - `name` (String)
 - `receive_audit_logs` (Boolean)
@@ -76,9 +76,9 @@ Read-Only:
 - `password` (String)
 - `username` (String)
 
-<a id="nestedobjatt--integrations--fluentbit"></a>
+<a id="nestedobjatt--integrations--fluent_bit"></a>
 
-### Nested Schema for `integrations.fluentbit`
+### Nested Schema for `integrations.fluent_bit`
 
 Read-Only:
 

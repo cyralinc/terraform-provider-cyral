@@ -15,20 +15,19 @@ type ListIntegrationLogsResponse struct {
 }
 
 func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) error {
-	var integrations []interface{}
-	for _, integration := range resp.Integrations {
+	integrations := make([]interface{}, len(resp.Integrations))
+	for i, integration := range resp.Integrations {
 		// write in config scheme
 		configType, config, err := getLoggingConfig(&integration)
 		if err != nil {
 			return err
 		}
-
-		integrations = append(integrations, map[string]interface{}{
+		integrations[i] = map[string]interface{}{
 			"id":                 integration.Id,
 			"name":               integration.Name,
 			"receive_audit_logs": integration.ReceiveAuditLogs,
 			configType:           config,
-		})
+		}
 	}
 	if err := d.Set("integrations", integrations); err != nil {
 		return err
