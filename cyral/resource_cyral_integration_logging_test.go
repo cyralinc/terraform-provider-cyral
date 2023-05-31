@@ -322,38 +322,38 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 	switch {
 	case integrationData.CloudWatch != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.cloud_watch.0.region", integrationData.CloudWatch.Region),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.cloud_watch.0.group", integrationData.CloudWatch.Group),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.cloud_watch.0.stream", integrationData.CloudWatch.Stream),
-			resource.TestCheckResourceAttrSet(integrationLogsFullTerraformResourceName, "config.0.cloud_watch.0.log_retention_days"),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.region", integrationData.CloudWatch.Region),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.group", integrationData.CloudWatch.Group),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.stream", integrationData.CloudWatch.Stream),
+			resource.TestCheckResourceAttrSet(integrationLogsFullTerraformResourceName, "cloud_watch.0.log_retention_days"),
 		}...)
 	case integrationData.Datadog != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.datadog.0.api_key", integrationData.Datadog.ApiKey),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "datadog.0.api_key", integrationData.Datadog.ApiKey),
 		}...)
 	case integrationData.Elk != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.elk.0.es_url", integrationData.Elk.EsURL),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.elk.0.kibana_url", integrationData.Elk.KibanaURL),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.elk.0.es_credentials.0.password", integrationData.Elk.EsCredentials.Password),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.elk.0.es_credentials.0.username", integrationData.Elk.EsCredentials.Username),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_url", integrationData.Elk.EsURL),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.kibana_url", integrationData.Elk.KibanaURL),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_credentials.0.password", integrationData.Elk.EsCredentials.Password),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_credentials.0.username", integrationData.Elk.EsCredentials.Username),
 		}...)
 	case integrationData.Splunk != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.hostname", integrationData.Splunk.Hostname),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.hec_port", integrationData.Splunk.HecPort),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.access_token", integrationData.Splunk.AccessToken),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.index", integrationData.Splunk.Index),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.splunk.0.use_tls", fmt.Sprint(integrationData.Splunk.UseTLS)),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "splunk.0.hostname", integrationData.Splunk.Hostname),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "splunk.0.hec_port", integrationData.Splunk.HecPort),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "splunk.0.access_token", integrationData.Splunk.AccessToken),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "splunk.0.index", integrationData.Splunk.Index),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "splunk.0.use_tls", fmt.Sprint(integrationData.Splunk.UseTLS)),
 		}...)
 	case integrationData.SumoLogic != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "config.0.sumo_logic.0.address", integrationData.SumoLogic.Address),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "sumo_logic.0.address", integrationData.SumoLogic.Address),
 		}...)
 
 	case integrationData.FluentBit != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttrWith(integrationLogsFullTerraformResourceName, "config.0.fluentbit.0.config", func(value string) error {
+			resource.TestCheckResourceAttrWith(integrationLogsFullTerraformResourceName, "fluentbit.0.config", func(value string) error {
 
 				// string must contain the config.
 				// We don't check exact value as it may contain trailing characters
@@ -421,15 +421,13 @@ func formatLogsIntegrationDataIntoConfig(data LoggingIntegration, resName string
 			EOF
 		}`, data.FluentBit.Config)
 	default:
-		return "", fmt.Errorf("Error in parsing config scheme in test, %v", data)
+		return "", fmt.Errorf("Error in parsing config in test, %v", data)
 	}
 
 	return fmt.Sprintf(`
 	resource "cyral_integration_logging" "%s" {
 		name = "%s"
 		receive_audit_logs = %t
-		config {
-			%s
-		}
+		%s
 	}`, resName, data.Name, data.ReceiveAuditLogs, config), nil
 }

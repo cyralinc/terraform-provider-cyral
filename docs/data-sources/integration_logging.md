@@ -29,27 +29,19 @@ Retrieve and filter logging integrations.
 
 Read-Only:
 
-- `config` (List of Object) (see [below for nested schema](#nestedobjatt--integrations--config))
+- `cloud_watch` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--cloud_watch))
+- `datadog` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--datadog))
+- `elk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk))
+- `fluentbit` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--fluentbit))
 - `id` (String)
 - `name` (String)
 - `receive_audit_logs` (Boolean)
+- `splunk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--splunk))
+- `sumo_logic` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--sumo_logic))
 
-<a id="nestedobjatt--integrations--config"></a>
+<a id="nestedobjatt--integrations--cloud_watch"></a>
 
-### Nested Schema for `integrations.config`
-
-Read-Only:
-
-- `cloud_watch` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--config--cloud_watch))
-- `datadog` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--config--datadog))
-- `elk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--config--elk))
-- `fluentbit` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--config--fluentbit))
-- `splunk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--config--splunk))
-- `sumo_logic` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--config--sumo_logic))
-
-<a id="nestedobjatt--integrations--config--cloud_watch"></a>
-
-### Nested Schema for `integrations.config.cloud_watch`
+### Nested Schema for `integrations.cloud_watch`
 
 Read-Only:
 
@@ -58,44 +50,44 @@ Read-Only:
 - `region` (String)
 - `stream` (String)
 
-<a id="nestedobjatt--integrations--config--datadog"></a>
+<a id="nestedobjatt--integrations--datadog"></a>
 
-### Nested Schema for `integrations.config.datadog`
+### Nested Schema for `integrations.datadog`
 
 Read-Only:
 
 - `api_key` (String)
 
-<a id="nestedobjatt--integrations--config--elk"></a>
+<a id="nestedobjatt--integrations--elk"></a>
 
-### Nested Schema for `integrations.config.elk`
+### Nested Schema for `integrations.elk`
 
 Read-Only:
 
-- `es_credentials` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--config--elk--es_credentials))
+- `es_credentials` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk--es_credentials))
 - `es_url` (String)
 - `kibana_url` (String)
 
-<a id="nestedobjatt--integrations--config--elk--es_credentials"></a>
+<a id="nestedobjatt--integrations--elk--es_credentials"></a>
 
-### Nested Schema for `integrations.config.elk.kibana_url`
+### Nested Schema for `integrations.elk.es_credentials`
 
 Read-Only:
 
 - `password` (String)
 - `username` (String)
 
-<a id="nestedobjatt--integrations--config--fluentbit"></a>
+<a id="nestedobjatt--integrations--fluentbit"></a>
 
-### Nested Schema for `integrations.config.fluentbit`
+### Nested Schema for `integrations.fluentbit`
 
 Read-Only:
 
 - `config` (String)
 
-<a id="nestedobjatt--integrations--config--splunk"></a>
+<a id="nestedobjatt--integrations--splunk"></a>
 
-### Nested Schema for `integrations.config.splunk`
+### Nested Schema for `integrations.splunk`
 
 Read-Only:
 
@@ -105,9 +97,9 @@ Read-Only:
 - `index` (String)
 - `use_tls` (Boolean)
 
-<a id="nestedobjatt--integrations--config--sumo_logic"></a>
+<a id="nestedobjatt--integrations--sumo_logic"></a>
 
-### Nested Schema for `integrations.config.sumo_logic`
+### Nested Schema for `integrations.sumo_logic`
 
 Read-Only:
 

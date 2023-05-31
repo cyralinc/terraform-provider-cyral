@@ -16,39 +16,25 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 
 ### Required
 
-- `config` (Block List, Min: 1, Max: 1) Config option specific for the type of logging integration. List of supported types:
-  - `cloud_watch`
-  - `datadog`
-  - `elk`
-  - `splunk`
-  - `sumo_logic`
-  - `fluentbit` (see [below for nested schema](#nestedblock--config))
 - `name` (String) Name of the logging integration config.
 
 ### Optional
 
+- `cloud_watch` (Block Set, Max: 1) Represents the configuration data required for the `AWS` CloudWatch log management system. (see [below for nested schema](#nestedblock--cloud_watch))
+- `datadog` (Block Set, Max: 1) Represents the configuration data required for the Datadog's log management system. (see [below for nested schema](#nestedblock--datadog))
+- `elk` (Block Set, Max: 1) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--elk))
+- `fluentbit` (Block Set, Max: 1) Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper. (see [below for nested schema](#nestedblock--fluentbit))
 - `receive_audit_logs` (Boolean) Whether or not Cyral audit logs should be forwarded to this logging integration.
+- `splunk` (Block Set, Max: 1) Represents the configuration data required for the Splunk log management system. (see [below for nested schema](#nestedblock--splunk))
+- `sumo_logic` (Block Set, Max: 1) Represents the configuration data required for the Sumo Logic log management system. (see [below for nested schema](#nestedblock--sumo_logic))
 
 ### Read-Only
 
 - `id` (String) Unique identifier of the logging integration.
 
-<a id="nestedblock--config"></a>
+<a id="nestedblock--cloud_watch"></a>
 
-### Nested Schema for `config`
-
-Optional:
-
-- `cloud_watch` (Block Set, Max: 1) Represents the configuration data required for the `AWS` CloudWatch log management system. (see [below for nested schema](#nestedblock--config--cloud_watch))
-- `datadog` (Block Set, Max: 1) Represents the configuration data required for the Datadog's log management system. (see [below for nested schema](#nestedblock--config--datadog))
-- `elk` (Block Set, Max: 1) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--config--elk))
-- `fluentbit` (Block Set, Max: 1) Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper. (see [below for nested schema](#nestedblock--config--fluentbit))
-- `splunk` (Block Set, Max: 1) Represents the configuration data required for the Splunk log management system. (see [below for nested schema](#nestedblock--config--splunk))
-- `sumo_logic` (Block Set, Max: 1) Represents the configuration data required for the Sumo Logic log management system. (see [below for nested schema](#nestedblock--config--sumo_logic))
-
-<a id="nestedblock--config--cloud_watch"></a>
-
-### Nested Schema for `config.cloud_watch`
+### Nested Schema for `cloud_watch`
 
 Required:
 
@@ -60,17 +46,17 @@ Optional:
 - `log_retention_days` (Number) Log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.
 - `stream` (String) CloudWatch log stream.
 
-<a id="nestedblock--config--datadog"></a>
+<a id="nestedblock--datadog"></a>
 
-### Nested Schema for `config.datadog`
+### Nested Schema for `datadog`
 
 Required:
 
-- `api_key` (String) DataDog API key.
+- `api_key` (String, Sensitive) DataDog API key.
 
-<a id="nestedblock--config--elk"></a>
+<a id="nestedblock--elk"></a>
 
-### Nested Schema for `config.elk`
+### Nested Schema for `elk`
 
 Required:
 
@@ -78,33 +64,33 @@ Required:
 
 Optional:
 
-- `es_credentials` (Block Set, Max: 1) Credentials used to authenticate with Elastic Search (see [below for nested schema](#nestedblock--config--elk--es_credentials))
+- `es_credentials` (Block Set, Max: 1) Credentials used to authenticate with Elastic Search (see [below for nested schema](#nestedblock--elk--es_credentials))
 - `kibana_url` (String) Kibana URL.
 
-<a id="nestedblock--config--elk--es_credentials"></a>
+<a id="nestedblock--elk--es_credentials"></a>
 
-### Nested Schema for `config.elk.es_credentials`
+### Nested Schema for `elk.es_credentials`
 
 Required:
 
-- `password` (String) Elasticsearch password.
+- `password` (String, Sensitive) Elasticsearch password.
 - `username` (String) Elasticsearch username.
 
-<a id="nestedblock--config--fluentbit"></a>
+<a id="nestedblock--fluentbit"></a>
 
-### Nested Schema for `config.fluentbit`
+### Nested Schema for `fluentbit`
 
 Required:
 
 - `config` (String) Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
 
-<a id="nestedblock--config--splunk"></a>
+<a id="nestedblock--splunk"></a>
 
-### Nested Schema for `config.splunk`
+### Nested Schema for `splunk`
 
 Required:
 
-- `access_token` (String) Splunk access token.
+- `access_token` (String, Sensitive) Splunk access token.
 - `hec_port` (String) Splunk HTTP Event Collector (HEC) port.
 - `hostname` (String) Splunk hostname.
 
@@ -113,9 +99,9 @@ Optional:
 - `index` (String) Splunk index which logs should be indexed to.
 - `use_tls` (Boolean) Whether or not to use TLS.
 
-<a id="nestedblock--config--sumo_logic"></a>
+<a id="nestedblock--sumo_logic"></a>
 
-### Nested Schema for `config.sumo_logic`
+### Nested Schema for `sumo_logic`
 
 Required:
 

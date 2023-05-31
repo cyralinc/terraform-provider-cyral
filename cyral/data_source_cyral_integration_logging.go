@@ -18,7 +18,7 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 	var integrations []interface{}
 	for _, integration := range resp.Integrations {
 		// write in config scheme
-		configScheme, err := getLoggingConfig(&integration)
+		configType, config, err := getLoggingConfig(&integration)
 		if err != nil {
 			return err
 		}
@@ -27,7 +27,7 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 			"id":                 integration.Id,
 			"name":               integration.Name,
 			"receive_audit_logs": integration.ReceiveAuditLogs,
-			"config":             configScheme,
+			configType:           config,
 		})
 	}
 	if err := d.Set("integrations", integrations); err != nil {
