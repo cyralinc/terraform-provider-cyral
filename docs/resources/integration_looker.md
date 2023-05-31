@@ -3,12 +3,12 @@
 page_title: "cyral_integration_looker Resource - cyral"
 subcategory: ""
 description: |-
-  Manages integration with Looker.
+  ~> DEPRECATED Integration no longer supported.
 ---
 
 # cyral_integration_looker (Resource)
 
-Manages integration with Looker.
+~> **DEPRECATED** Integration no longer supported.
 
 ## Example Usage
 

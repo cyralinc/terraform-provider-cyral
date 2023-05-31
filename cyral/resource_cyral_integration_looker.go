@@ -39,7 +39,8 @@ var ReadLookerConfig = ResourceOperationConfig{
 
 func resourceIntegrationLooker() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages integration with Looker.",
+		DeprecationMessage: "Integration no longer supported.",
+		Description:        "Manages integration with Looker.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "LookerResourceCreate",

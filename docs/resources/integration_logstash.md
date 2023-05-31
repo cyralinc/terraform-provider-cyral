@@ -3,12 +3,12 @@
 page_title: "cyral_integration_logstash Resource - cyral"
 subcategory: ""
 description: |-
-  Manages integration with Logstash.
+  ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_logstash (Resource)
 
-Manages integration with Logstash.
+~> **DEPRECATED** Use resource `cyral_integration_logging` instead.
 
 ## Example Usage
 

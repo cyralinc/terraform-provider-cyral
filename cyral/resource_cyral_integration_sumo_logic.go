@@ -36,7 +36,8 @@ var ReadSumoLogicConfig = ResourceOperationConfig{
 
 func resourceIntegrationSumoLogic() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages integration with [Sumo Logic to push sidecar logs](https://cyral.com/docs/integrations/siem/sumo-logic/).",
+		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
+		Description:        "Manages integration with [Sumo Logic to push sidecar logs](https://cyral.com/docs/integrations/siem/sumo-logic/).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SumoLogicResourceCreate",

@@ -41,7 +41,8 @@ var ReadELKConfig = ResourceOperationConfig{
 
 func resourceIntegrationELK() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [integration with ELK](https://cyral.com/docs/integrations/siem/elk/) to push sidecar metrics.",
+		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
+		Description:        "Manages [integration with ELK](https://cyral.com/docs/integrations/siem/elk/) to push sidecar metrics.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "ELKResourceCreate",

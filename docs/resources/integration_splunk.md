@@ -3,12 +3,12 @@
 page_title: "cyral_integration_splunk Resource - cyral"
 subcategory: ""
 description: |-
-  Manages integration with Splunk https://cyral.com/docs/integrations/siem/splunk/#procedure.
+  ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_splunk (Resource)
 
-Manages [integration with Splunk](https://cyral.com/docs/integrations/siem/splunk/#procedure).
+~> **DEPRECATED** Use resource `cyral_integration_logging` instead.
 
 ## Example Usage
 

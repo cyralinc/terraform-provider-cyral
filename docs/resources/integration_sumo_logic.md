@@ -3,12 +3,12 @@
 page_title: "cyral_integration_sumo_logic Resource - cyral"
 subcategory: ""
 description: |-
-  Manages integration with Sumo Logic to push sidecar logs https://cyral.com/docs/integrations/siem/sumo-logic/.
+  ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_sumo_logic (Resource)
 
-Manages integration with [Sumo Logic to push sidecar logs](https://cyral.com/docs/integrations/siem/sumo-logic/).
+~> **DEPRECATED** Use resource `cyral_integration_logging` instead.
 
 ## Example Usage
 

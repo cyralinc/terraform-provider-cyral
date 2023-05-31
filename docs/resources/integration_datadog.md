@@ -3,12 +3,12 @@
 page_title: "cyral_integration_datadog Resource - cyral"
 subcategory: ""
 description: |-
-  Manages integration with DataDog https://cyral.com/docs/integrations/apm/datadog/ to push sidecar logs and/or metrics.
+  ~> DEPRECATED If configuring Datadog for logging purposes, use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_datadog (Resource)
 
-Manages [integration with DataDog](https://cyral.com/docs/integrations/apm/datadog/) to push sidecar logs and/or metrics.
+~> **DEPRECATED** If configuring Datadog for logging purposes, use resource `cyral_integration_logging` instead.
 
 ## Example Usage
 

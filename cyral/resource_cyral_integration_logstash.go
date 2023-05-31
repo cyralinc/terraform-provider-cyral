@@ -45,7 +45,8 @@ var ReadLogstashConfig = ResourceOperationConfig{
 
 func resourceIntegrationLogstash() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages integration with Logstash.",
+		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
+		Description:        "Manages integration with Logstash.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "LogstashResourceCreate",
