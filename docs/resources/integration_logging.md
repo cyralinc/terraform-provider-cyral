@@ -43,7 +43,6 @@ Required:
 
 Optional:
 
-- `log_retention_days` (Number) Log retention days (optional). If specified, valid values are [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]. If unspecified, CloudWatch will retain the logs indefinitely.
 - `stream` (String) CloudWatch log stream.
 
 <a id="nestedblock--datadog"></a>

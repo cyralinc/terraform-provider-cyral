@@ -41,10 +41,9 @@ func testIntegrationLoggingDataSourceConfigDependencies(resName string) string {
 		ReceiveAuditLogs: true,
 		LoggingIntegrationConfig: LoggingIntegrationConfig{
 			CloudWatch: &CloudWatchConfig{
-				Region:           "us-east-2",
-				Group:            "group2",
-				Stream:           "abcd",
-				LogRetentionDays: 1,
+				Region: "us-east-2",
+				Group:  "group2",
+				Stream: "abcd",
 			},
 		},
 	}, resName1)

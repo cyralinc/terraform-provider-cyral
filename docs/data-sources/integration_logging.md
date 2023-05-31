@@ -46,7 +46,6 @@ Read-Only:
 Read-Only:
 
 - `group` (String)
-- `log_retention_days` (Number)
 - `region` (String)
 - `stream` (String)
 

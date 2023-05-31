@@ -19,10 +19,9 @@ var initialLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		CloudWatch: &CloudWatchConfig{
-			Region:           "us-east-2",
-			Group:            "group2",
-			Stream:           "abcd",
-			LogRetentionDays: 1,
+			Region: "us-east-2",
+			Group:  "group2",
+			Stream: "abcd",
 		},
 	},
 }
@@ -92,10 +91,9 @@ var updatedLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		CloudWatch: &CloudWatchConfig{
-			Region:           "us-east-1",
-			Group:            "group1",
-			Stream:           "abcd",
-			LogRetentionDays: 1,
+			Region: "us-east-1",
+			Group:  "group1",
+			Stream: "abcd",
 		},
 	},
 }
@@ -325,7 +323,6 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.region", integrationData.CloudWatch.Region),
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.group", integrationData.CloudWatch.Group),
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.stream", integrationData.CloudWatch.Stream),
-			resource.TestCheckResourceAttrSet(integrationLogsFullTerraformResourceName, "cloud_watch.0.log_retention_days"),
 		}...)
 	case integrationData.Datadog != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
@@ -381,8 +378,7 @@ func formatLogsIntegrationDataIntoConfig(data LoggingIntegration, resName string
 			group = "%s"
 			region = "%s"
 			stream = "%s"
-			log_retention_days = %d
-		}`, data.CloudWatch.Group, data.CloudWatch.Region, data.CloudWatch.Stream, data.CloudWatch.LogRetentionDays)
+		}`, data.CloudWatch.Group, data.CloudWatch.Region, data.CloudWatch.Stream)
 	case data.Datadog != nil:
 		config = fmt.Sprintf(`
 		datadog {

@@ -19,10 +19,9 @@ func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, erro
 		configType = CloudWatchKey
 		configScheme = []interface{}{
 			map[string]interface{}{
-				"region":             resource.CloudWatch.Region,
-				"group":              resource.CloudWatch.Group,
-				"stream":             resource.CloudWatch.Stream,
-				"log_retention_days": resource.CloudWatch.LogRetentionDays,
+				"region": resource.CloudWatch.Region,
+				"group":  resource.CloudWatch.Group,
+				"stream": resource.CloudWatch.Stream,
 			},
 		}
 	case resource.Datadog != nil:
@@ -124,10 +123,9 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 	switch configType {
 	case "cloud_watch":
 		integrationLogConfig.CloudWatch = &CloudWatchConfig{
-			Region:           m["region"].(string),
-			Group:            m["group"].(string),
-			Stream:           m["stream"].(string),
-			LogRetentionDays: m["log_retention_days"].(int),
+			Region: m["region"].(string),
+			Group:  m["group"].(string),
+			Stream: m["stream"].(string),
 		}
 	case "datadog":
 		integrationLogConfig.Datadog = &DataDogConfig{
