@@ -49,7 +49,8 @@ var ReadSplunkConfig = ResourceOperationConfig{
 
 func resourceIntegrationSplunk() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [integration with Splunk](https://cyral.com/docs/integrations/siem/splunk/#procedure).",
+		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
+		Description:        "Manages [integration with Splunk](https://cyral.com/docs/integrations/siem/splunk/#procedure).",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SplunkResourceCreate",

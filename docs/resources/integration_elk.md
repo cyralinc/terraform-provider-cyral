@@ -3,12 +3,12 @@
 page_title: "cyral_integration_elk Resource - cyral"
 subcategory: ""
 description: |-
-  Manages integration with ELK https://cyral.com/docs/integrations/siem/elk/ to push sidecar metrics.
+  ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_elk (Resource)
 
-Manages [integration with ELK](https://cyral.com/docs/integrations/siem/elk/) to push sidecar metrics.
+~> **DEPRECATED** Use resource `cyral_integration_logging` instead.
 
 ## Example Usage
 
