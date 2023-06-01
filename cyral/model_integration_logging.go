@@ -88,7 +88,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 		},
 		"receive_audit_logs": {
-			Description:   "Whether or not Cyral audit logs should be forwarded to this logging integration. Declaration not supported with `fluent_bit` block.",
+			Description:   "Whether or not Cyral audit logs should be forwarded to this logging integration. Declaration not supported in conjunction with `fluent_bit` block.",
 			Optional:      true,
 			Type:          schema.TypeBool,
 			Default:       false,
