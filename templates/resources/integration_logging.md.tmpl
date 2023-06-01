@@ -1,0 +1,9 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_integration_logging/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
