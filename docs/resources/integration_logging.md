@@ -6,7 +6,7 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 
 ```terraform
 # Configures `my-sidecar-cloud-watch` to push logs to CloudWatch to a log stream named `cyral-sidecar`
-# in a log group named after `cyral-example-loggroup`.
+# in a log group named `cyral-example-loggroup`.
 resource "cyral_sidecar" "sidecar_cloud_watch" {
   name               = "my-sidecar-cloud-watch"
   deployment_method  = "terraform"
