@@ -58,7 +58,7 @@ type LoggingIntegrationConfig struct {
 }
 
 const (
-	CloudWatchKey = "cloud_watch"
+	CloudWatchKey = "cloudwatch"
 	DatadogKey    = "datadog"
 	ElkKey        = "elk"
 	SplunkKey     = "splunk"
@@ -88,12 +88,13 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 		},
 		"receive_audit_logs": {
-			Description: "Whether or not Cyral audit logs should be forwarded to this logging integration.",
-			Optional:    true,
-			Type:        schema.TypeBool,
-			Default:     false,
+			Description:   "Whether or not Cyral audit logs should be forwarded to this logging integration. Declaration not supported in conjunction with `fluent_bit` block.",
+			Optional:      true,
+			Type:          schema.TypeBool,
+			Default:       false,
+			ConflictsWith: []string{FluentbitKey},
 		},
-		"cloud_watch": {
+		CloudWatchKey: {
 			Description:   "Represents the configuration data required for the `AWS` CloudWatch log management system.",
 			Type:          schema.TypeSet,
 			Optional:      true,
@@ -120,7 +121,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			},
 		},
 
-		"datadog": {
+		DatadogKey: {
 			Description:   "Represents the configuration data required for the Datadog's log management system.",
 			Optional:      true,
 			Type:          schema.TypeSet,
@@ -138,7 +139,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			},
 		},
 
-		"elk": {
+		ElkKey: {
 			Description:   "Represents the configuration data required for the ELK stack log management system.",
 			Optional:      true,
 			Type:          schema.TypeSet,
@@ -157,7 +158,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Type:        schema.TypeString,
 					},
 					"es_credentials": {
-						Description: "Credentials used to authenticate with Elastic Search",
+						Description: "Credentials used to authenticate to Elastic Search",
 						Optional:    true,
 						Type:        schema.TypeSet,
 						MaxItems:    1,
@@ -181,7 +182,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			},
 		},
 
-		"splunk": {
+		SplunkKey: {
 			Description:   "Represents the configuration data required for the Splunk log management system.",
 			Optional:      true,
 			Type:          schema.TypeSet,
@@ -219,7 +220,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			},
 		},
 
-		"sumo_logic": {
+		SumoLogicKey: {
 			Description:   "Represents the configuration data required for the Sumo Logic log management system.",
 			Optional:      true,
 			Type:          schema.TypeSet,
@@ -236,7 +237,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			},
 		},
 
-		"fluent_bit": {
+		FluentbitKey: {
 			Description:   "Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper.",
 			Optional:      true,
 			Type:          schema.TypeSet,

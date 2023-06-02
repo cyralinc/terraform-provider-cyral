@@ -107,11 +107,11 @@ func testIntegrationLoggingDataSourceChecks(t *testing.T, resName, typeFilter st
 	if typeFilter == "CLOUDWATCH" {
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttrSet(pathResource,
-				"integrations.0.cloud_watch.0.region"),
+				"integrations.0.cloudwatch.0.region"),
 			resource.TestCheckResourceAttrSet(pathResource,
-				"integrations.0.cloud_watch.0.group"),
+				"integrations.0.cloudwatch.0.group"),
 			resource.TestCheckResourceAttrSet(pathResource,
-				"integrations.0.cloud_watch.0.stream"),
+				"integrations.0.cloudwatch.0.stream"),
 		}...)
 	}
 
