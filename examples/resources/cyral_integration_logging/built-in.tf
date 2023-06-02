@@ -12,7 +12,7 @@ resource "cyral_sidecar" "sidecar" {
 
 resource "cyral_integration_logging" "cloudwatch" {
   name = "my-cloudwatch"
-  cloud_watch {
+  cloudwatch {
     region = "us-east-1"
     group  = local.cloudwatch_log_group_name
     stream = "cyral-sidecar"
