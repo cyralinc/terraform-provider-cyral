@@ -58,7 +58,7 @@ type LoggingIntegrationConfig struct {
 }
 
 const (
-	CloudWatchKey = "cloud_watch"
+	CloudWatchKey = "cloudwatch"
 	DatadogKey    = "datadog"
 	ElkKey        = "elk"
 	SplunkKey     = "splunk"
@@ -94,7 +94,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			Default:       false,
 			ConflictsWith: []string{FluentbitKey},
 		},
-		"cloud_watch": {
+		"cloudwatch": {
 			Description:   "Represents the configuration data required for the `AWS` CloudWatch log management system.",
 			Type:          schema.TypeSet,
 			Optional:      true,

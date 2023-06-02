@@ -7,15 +7,15 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 ```terraform
 # Configures `my-sidecar-cloud-watch` to push logs to CloudWatch to a log stream named `cyral-sidecar`
 # in a log group named `cyral-example-loggroup`.
-resource "cyral_sidecar" "sidecar_cloud_watch" {
+resource "cyral_sidecar" "sidecar_cloudwatch" {
   name               = "my-sidecar-cloud-watch"
   deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.cloud_watch.id
+  log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
-resource "cyral_integration_logging" "cloud_watch" {
+resource "cyral_integration_logging" "cloudwatch" {
   name = "my-cloudwatch"
-  cloud_watch {
+  cloudwatch {
     region = "us-east-1"
     group  = "cyral-example-loggroup"
     stream = "cyral-sidecar"
@@ -67,7 +67,7 @@ resource "cyral_integration_logging" "elk_integration" {
 
 ### Optional
 
-- `cloud_watch` (Block Set, Max: 1) Represents the configuration data required for the `AWS` CloudWatch log management system. (see [below for nested schema](#nestedblock--cloud_watch))
+- `cloudwatch` (Block Set, Max: 1) Represents the configuration data required for the `AWS` CloudWatch log management system. (see [below for nested schema](#nestedblock--cloudwatch))
 - `datadog` (Block Set, Max: 1) Represents the configuration data required for the Datadog's log management system. (see [below for nested schema](#nestedblock--datadog))
 - `elk` (Block Set, Max: 1) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--elk))
 - `fluent_bit` (Block Set, Max: 1) Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper. (see [below for nested schema](#nestedblock--fluent_bit))
@@ -79,9 +79,9 @@ resource "cyral_integration_logging" "elk_integration" {
 
 - `id` (String) Unique identifier of the logging integration.
 
-<a id="nestedblock--cloud_watch"></a>
+<a id="nestedblock--cloudwatch"></a>
 
-### Nested Schema for `cloud_watch`
+### Nested Schema for `cloudwatch`
 
 Required:
 

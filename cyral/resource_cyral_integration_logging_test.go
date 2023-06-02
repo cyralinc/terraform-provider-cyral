@@ -149,7 +149,7 @@ var updatedLogsConfigSumologic LoggingIntegration = LoggingIntegration{
 
 var updatedLogsConfigFluentbit LoggingIntegration = LoggingIntegration{
 	Name:             accTestName(integrationLogsResourceName, "Fluentbit"),
-	ReceiveAuditLogs: true,
+	ReceiveAuditLogs: false,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		FluentBit: &FluentBitConfig{
 			Config: `[OUTPUT]
@@ -314,15 +314,20 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 
 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "name", integrationData.Name),
-		resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "receive_audit_logs", "true"),
 	}...)
+
+	if integrationData.FluentBit == nil {
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "receive_audit_logs", "true"),
+		}...)
+	}
 
 	switch {
 	case integrationData.CloudWatch != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.region", integrationData.CloudWatch.Region),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.group", integrationData.CloudWatch.Group),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloud_watch.0.stream", integrationData.CloudWatch.Stream),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloudwatch.0.region", integrationData.CloudWatch.Region),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloudwatch.0.group", integrationData.CloudWatch.Group),
+			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "cloudwatch.0.stream", integrationData.CloudWatch.Stream),
 		}...)
 	case integrationData.Datadog != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
@@ -374,7 +379,7 @@ func formatLogsIntegrationDataIntoConfig(data LoggingIntegration, resName string
 	switch {
 	case data.CloudWatch != nil:
 		config = fmt.Sprintf(`
-		cloud_watch {
+		cloudwatch {
 			group = "%s"
 			region = "%s"
 			stream = "%s"
@@ -420,10 +425,19 @@ func formatLogsIntegrationDataIntoConfig(data LoggingIntegration, resName string
 		return "", fmt.Errorf("Error in parsing config in test, %v", data)
 	}
 
-	return fmt.Sprintf(`
-	resource "cyral_integration_logging" "%s" {
-		name = "%s"
-		receive_audit_logs = %t
-		%s
-	}`, resName, data.Name, data.ReceiveAuditLogs, config), nil
+	if data.FluentBit == nil {
+		return fmt.Sprintf(`
+		resource "cyral_integration_logging" "%s" {
+			name = "%s"
+			receive_audit_logs = %t
+			%s
+		}`, resName, data.Name, data.ReceiveAuditLogs, config), nil
+	} else {
+		return fmt.Sprintf(`
+		resource "cyral_integration_logging" "%s" {
+			name = "%s"
+			%s
+		}`, resName, data.Name, config), nil
+	}
+
 }

@@ -35,7 +35,7 @@ data "cyral_integration_logging" "another_data_source_name" {
 
 Read-Only:
 
-- `cloud_watch` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--cloud_watch))
+- `cloudwatch` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--cloudwatch))
 - `datadog` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--datadog))
 - `elk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk))
 - `fluent_bit` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--fluent_bit))
@@ -45,9 +45,9 @@ Read-Only:
 - `splunk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--splunk))
 - `sumo_logic` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--sumo_logic))
 
-<a id="nestedobjatt--integrations--cloud_watch"></a>
+<a id="nestedobjatt--integrations--cloudwatch"></a>
 
-### Nested Schema for `integrations.cloud_watch`
+### Nested Schema for `integrations.cloudwatch`
 
 Read-Only:
 

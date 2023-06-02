@@ -1,14 +1,14 @@
 # Configures `my-sidecar-cloud-watch` to push logs to CloudWatch to a log stream named `cyral-sidecar`
 # in a log group named `cyral-example-loggroup`.
-resource "cyral_sidecar" "sidecar_cloud_watch" {
+resource "cyral_sidecar" "sidecar_cloudwatch" {
   name               = "my-sidecar-cloud-watch"
   deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.cloud_watch.id
+  log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
-resource "cyral_integration_logging" "cloud_watch" {
+resource "cyral_integration_logging" "cloudwatch" {
   name = "my-cloudwatch"
-  cloud_watch {
+  cloudwatch {
     region = "us-east-1"
     group  = "cyral-example-loggroup"
     stream = "cyral-sidecar"
