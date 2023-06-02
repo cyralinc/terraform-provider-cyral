@@ -4,9 +4,7 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 
 ## Example Usage
 
-### Built-in Integration
-
-See the list of all the built-in log integrations in the resource schema.
+See the list of all the supported logging integrations in the resource schema.
 More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview).
 
 ```terraform
