@@ -4,19 +4,20 @@
 
 ## Example Usage
 
-### Built-in Integration
-
-See the list of all the built-in log integrations in the resource schema.
+See the list of all the supported logging integrations in the resource schema.
 More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview).
 
-{{ tffile "examples/resources/cyral_integration_logging/built-in.tf" }}
+{{ tffile "examples/resources/cyral_integration_logging/cloudwatch.tf" }}
 
 ### Custom Integration
 
-Custom log integrations can be defined using the `fluent_bit` block and providing output plugins.
-More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview)
-and in the official [Fluent Bit documentation](https://docs.fluentbit.io/manual/pipeline/outputs).
+Advanced users can use the "Fluent Bit" logging integration to customize how the sidecar sends logs to
+their log management destination. Using the `fluent_bit` block, users can provide a customized Fluent Bit
+configuration (in ["classic mode" INI format](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode)),
+using any combination of filter and output plugins. More information can be found in our in the official
+Fluent Bit [documentation](https://docs.fluentbit.io/manual/concepts/data-pipeline) (see the "Filter"
+and "Output" sections).
 
-{{ tffile "examples/resources/cyral_integration_logging/custom.tf" }}
+{{ tffile "examples/resources/cyral_integration_logging/fluent-bit.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}
