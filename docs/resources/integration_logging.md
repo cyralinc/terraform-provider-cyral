@@ -4,25 +4,61 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 
 ## Example Usage
 
+### Built-in Integration
+
+See the list of all the built-in log integrations in the resource schema.
+More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview).
+
 ```terraform
-# Configures `my-sidecar-cloud-watch` to push logs to CloudWatch to a log stream named `cyral-sidecar`
-# in a log group named `cyral-example-loggroup`.
-resource "cyral_sidecar" "sidecar_cloudwatch" {
-  name               = "my-sidecar-cloud-watch"
-  deployment_method  = "terraform"
+# Configures `my-sidecar-cloudwatch` to push logs to CloudWatch to a log
+# group named `cyral-example-loggroup` and a stream named `cyral-sidecar`.
+locals {
+  cloudwatch_log_group_name = "cyral-example-loggroup"
+}
+
+resource "cyral_sidecar" "sidecar" {
+  name = "my-sidecar-cloudwatch"
+  deployment_method = "terraform"
   log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
 resource "cyral_integration_logging" "cloudwatch" {
   name = "my-cloudwatch"
-  cloudwatch {
+  cloud_watch {
     region = "us-east-1"
-    group  = "cyral-example-loggroup"
+    group  = local.cloudwatch_log_group_name
     stream = "cyral-sidecar"
   }
 }
 
-# Configures `my-sidecar-fluent-bit` to push logs to S3 to a bucket named  `example-bucket`.
+resource "cyral_sidecar_credentials" "creds" {
+  sidecar_id = cyral_sidecar.sidecar.id
+}
+
+module "cyral_sidecar" {
+  source  = "cyralinc/sidecar-ec2/aws"
+  version = "~> 4.0"
+
+  sidecar_id      = cyral_sidecar.sidecar.id
+
+  cloudwatch_log_group_name = local.cloudwatch_log_group_name
+
+  client_id = cyral_sidecar_credentials.creds.client_id
+  client_secret = cyral_sidecar_credentials.creds.client_secret
+
+  ...
+}
+```
+
+### Custom Integration
+
+Custom log integrations can be defined using the `fluent_bit` block and providing output plugins.
+More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview)
+and in the official [Fluent Bit documentation](https://docs.fluentbit.io/manual/pipeline/outputs).
+
+```terraform
+# Configures `my-sidecar-fluent-bit` to push logs to a bucket named
+# `example-bucket` in AWS S3.
 resource "cyral_sidecar" "sidecar_fluent_bit" {
   name               = "my-sidecar-fluent-bit"
   deployment_method  = "terraform"
@@ -110,7 +146,7 @@ Required:
 
 Optional:
 
-- `es_credentials` (Block Set, Max: 1) Credentials used to authenticate with Elastic Search (see [below for nested schema](#nestedblock--elk--es_credentials))
+- `es_credentials` (Block Set, Max: 1) Credentials used to authenticate to Elastic Search (see [below for nested schema](#nestedblock--elk--es_credentials))
 - `kibana_url` (String) Kibana URL.
 
 <a id="nestedblock--elk--es_credentials"></a>

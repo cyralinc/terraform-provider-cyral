@@ -158,7 +158,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Type:        schema.TypeString,
 					},
 					"es_credentials": {
-						Description: "Credentials used to authenticate with Elastic Search",
+						Description: "Credentials used to authenticate to Elastic Search",
 						Optional:    true,
 						Type:        schema.TypeSet,
 						MaxItems:    1,

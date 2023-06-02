@@ -1,21 +1,5 @@
-# Configures `my-sidecar-cloud-watch` to push logs to CloudWatch to a log stream named `cyral-sidecar`
-# in a log group named `cyral-example-loggroup`.
-resource "cyral_sidecar" "sidecar_cloudwatch" {
-  name               = "my-sidecar-cloud-watch"
-  deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.cloudwatch.id
-}
-
-resource "cyral_integration_logging" "cloudwatch" {
-  name = "my-cloudwatch"
-  cloudwatch {
-    region = "us-east-1"
-    group  = "cyral-example-loggroup"
-    stream = "cyral-sidecar"
-  }
-}
-
-# Configures `my-sidecar-fluent-bit` to push logs to S3 to a bucket named  `example-bucket`.
+# Configures `my-sidecar-fluent-bit` to push logs to a bucket named
+# `example-bucket` in AWS S3.
 resource "cyral_sidecar" "sidecar_fluent_bit" {
   name               = "my-sidecar-fluent-bit"
   deployment_method  = "terraform"

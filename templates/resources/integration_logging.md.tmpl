@@ -4,6 +4,19 @@
 
 ## Example Usage
 
-{{ tffile "examples/resources/cyral_integration_logging/resource.tf" }}
+### Built-in Integration
+
+See the list of all the built-in log integrations in the resource schema.
+More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview).
+
+{{ tffile "examples/resources/cyral_integration_logging/built-in.tf" }}
+
+### Custom Integration
+
+Custom log integrations can be defined using the `fluent_bit` block and providing output plugins.
+More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview)
+and in the official [Fluent Bit documentation](https://docs.fluentbit.io/manual/pipeline/outputs).
+
+{{ tffile "examples/resources/cyral_integration_logging/custom.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}
