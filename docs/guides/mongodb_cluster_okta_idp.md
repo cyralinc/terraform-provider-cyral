@@ -179,7 +179,7 @@ resource "cyral_sidecar" "mongodb_sidecar" {
   deployment_method = "terraform"
 }
 
-resource "cyral_sidecar_credentials" "sidecar_credentials" {
+resource "cyral_sidecar_credentials" "mongodb_sidecar_credentials" {
   sidecar_id = cyral_sidecar.mongodb_sidecar.id
 }
 
@@ -239,8 +239,8 @@ module "cyral_sidecar" {
   container_registry          = local.sidecar.container_registry.name
   container_registry_username = local.sidecar.container_registry.username
   container_registry_key      = local.sidecar.container_registry.registry_key
-  client_id                   = cyral_sidecar_credentials.sidecar_credentials.client_id
-  client_secret               = cyral_sidecar_credentials.sidecar_credentials.client_secret
+  client_id                   = cyral_sidecar_credentials.mongodb_sidecar_credentials.client_id
+  client_secret               = cyral_sidecar_credentials.mongodb_sidecar_credentials.client_secret
 }
 
 output "sidecar_dns" {
