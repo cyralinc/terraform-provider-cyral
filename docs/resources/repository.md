@@ -11,7 +11,7 @@ This module provides the repository configuration options as shown in Cyral UI.
 
 More complex examples using `cyral_repository` resource are available in the `Guides` section:
 
-- [Create an AWS-based sidecar to protect PostgreSQL and MySQL databases](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/setup_cp_and_deploy_sidecar)
+- [Create an AWS EC2 sidecar to protect PostgreSQL and MySQL databases](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/setup_cp_and_deploy_sidecar)
 - [Setup SSO access to MongoDB cluster using Okta IdP](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/guides/mongodb_cluster_okta_idp)
 
 ```terraform

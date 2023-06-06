@@ -1,16 +1,16 @@
 ---
-page_title: "Create an AWS-based sidecar to protect PostgreSQL and MySQL databases"
+page_title: "Create an AWS EC2 sidecar to protect PostgreSQL and MySQL databases"
 ---
 
-Use the following code to deploy an AWS-based sidecar, a MySQL and a PostgreSQL
-repository to your control plane.
+Use the following guide to create the minimum required configuration in both Cyral
+Control Plane and your AWS account to deploy a Cyral Sidecar to AWS EC2 in front
+of two database instances: MySQL and PostgreSQL.
 
 By running this example you will have a fully functional sidecar on your AWS
-account to protect your database. Read the comments and update the necessary
-parameters as instructed.
+account. Read the comments and update the necessary parameters as instructed.
 
 See also the [Cyral Sidecar module for AWS EC2](https://registry.terraform.io/modules/cyralinc/sidecar-ec2/aws/latest)
-for more details on how the sidecar is deployed to AWS.
+for more details on how the sidecar is deployed to AWS and more advanced configurations.
 
 ```terraform
 terraform {
