@@ -7,27 +7,23 @@ AWS Secrets Manager and also to associate it to a Cyral Repository that can be
 later bound to a sidecar.
 
 ```terraform
-# All information related to the database that will be mapped to a
-# cyral repository is defined here for clarity, but you can define
-# somewhere else.
+terraform {
+  required_providers {
+    cyral = {
+      source  = "cyralinc/cyral"
+      version = "~> 4.0"
+    }
+  }
+}
+
 locals {
   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
   control_plane_host = "[TENANT].app.cyral.com"
-  control_plane_port = 443
 
   database_name = ""
   database_credentials = {
     username = ""
     password = ""
-  }
-}
-
-terraform {
-  required_providers {
-    cyral = {
-      source  = "cyralinc/cyral"
-      version = "~> 3.0"
-    }
   }
 }
 
@@ -38,7 +34,7 @@ terraform {
 provider "cyral" {
   client_id     = ""
   client_secret = ""
-  control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+  control_plane = local.control_plane_host
 }
 
 # See the AWS provider documentation for more information on how to
@@ -52,7 +48,7 @@ provider "aws" {
 
 resource "cyral_repository" "mongodb_repo" {
   type = "mongodb"
-  name = "mymongodb"
+  name = "my-mongodb"
   repo_node {
     host = "mongodb.mycompany.com"
     port = 27017
@@ -73,6 +69,8 @@ resource "cyral_repository_user_account" "my_user_account" {
   }
 }
 
+# Secrets stored in the same account as the sidecar and which names starts
+# with `/cyral/` are automatically accessible from the sidecar instances.
 resource "aws_secretsmanager_secret" "my_repository_secret" {
   name = join("", [
     "/cyral/dbsecrets/",

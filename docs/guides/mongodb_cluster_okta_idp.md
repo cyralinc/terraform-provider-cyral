@@ -37,8 +37,6 @@ Configure the providers:
 locals {
   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
   control_plane_host = "[TENANT].app.cyral.com"
-  # Set the control plane API port
-  control_plane_port = 443
 }
 
 # Follow the instructions in the Cyral Terraform Provider page to set
@@ -48,7 +46,7 @@ locals {
 provider "cyral" {
   client_id     = ""
   client_secret = ""
-  control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+  control_plane = local.control_plane_host
 }
 
 # Refer to okta provider documentation:
@@ -76,15 +74,11 @@ the Cyral control plane or see [in the public repository](https://github.com/cyr
 ```terraform
 locals {
   sidecar = {
-    # If you would like to use other log integration, download a new
-    # template from the UI and copy the log integration configuration
-    # or follow this module documentation.
-    log_integration = "cloudwatch"
-    # Set the desired EC2 instance type for the auto scaling group.
-    instance_type = "t3.medium"
     # Set to true if you want a sidecar deployed with an
     # internet-facing load balancer (requires a public subnet).
     public_sidecar = false
+    # Set the desired sidecar version.
+    sidecar_version = "v4.7.0"
 
     # Set the AWS region that the sidecar will be deployed to
     region = ""
@@ -98,9 +92,11 @@ locals {
     # Set the allowed CIDR block for database access through the
     # sidecar
     db_inbound_cidr = ["0.0.0.0/0"]
-    # Set the allowed CIDR block for health check requests to the
+    # Set the allowed CIDR block for monitoring requests to the
     # sidecar
-    healthcheck_inbound_cidr = ["0.0.0.0/0"]
+    monitoring_inbound_cidr = ["0.0.0.0/0"]
+    # Name of the CloudWatch log group used to push logs
+    cloudwatch_log_group_name = "cyral-example-loggroup"
 
     # Set the parameters to access the private Cyral container
     # registry.  These parameters can be found on the sidecar
@@ -151,12 +147,12 @@ resource "cyral_repository" "mongodb_repo" {
   # remaining nodes of the replication cluster. However, you will
   # still have to explictly define listeners for each node's port.
   repo_node {
-    name = "node_2"
+    name    = "node_2"
     dynamic = true
   }
 
   repo_node {
-    name = "node_3"
+    name    = "node_3"
     dynamic = true
   }
 
@@ -167,7 +163,7 @@ resource "cyral_repository" "mongodb_repo" {
     #
     # * https://cyral.freshdesk.com/a/solutions/articles/44002241594
     replica_set_name = "some-replica-set"
-    server_type = "replicaset"
+    server_type      = "replicaset"
   }
 }
 
@@ -209,56 +205,62 @@ resource "cyral_sidecar_listener" "mongodb_listener_node_3" {
 
 # Bind the sidecar listeners to the repository.
 resource "cyral_repository_binding" "mongodb_repo_binding" {
-  repository_id                 = cyral_repository.mongodb_repo.id
-  sidecar_id                    = cyral_sidecar.mongodb_sidecar.id
-  enabled = true
+  repository_id = cyral_repository.mongodb_repo.id
+  sidecar_id    = cyral_sidecar.sidecar.id
+  enabled       = true
   listener_binding {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_1.listener_id
-    node_index = 0
+    node_index  = 0
   }
   listener_binding {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_2.listener_id
-    node_index = 1
+    node_index  = 1
   }
   listener_binding {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_3.listener_id
-    node_index = 2
+    node_index  = 2
   }
 }
 
 # Set the access gateway for the repository.
 resource "cyral_repository_access_gateway" "mongodb_access_gateway" {
-  repository_id  = cyral_repository.mongodb_repo.id
-  sidecar_id  = cyral_sidecar.mongodb_sidecar.id
-  binding_id = cyral_repository_binding.mongodb_repo_binding.binding_id
+  repository_id = cyral_repository.mongodb_repo.id
+  sidecar_id    = cyral_sidecar.sidecar.id
+  binding_id    = cyral_repository_binding.mongodb_repo_binding.binding_id
 }
 
+resource "cyral_integration_logging" "cloudwatch" {
+  name = "my-cloudwatch"
+  cloudwatch {
+    region = local.sidecar.region
+    group  = local.sidecar.cloudwatch_log_group_name
+    stream = "cyral-sidecar"
+  }
+}
 
-resource "cyral_sidecar" "mongodb_sidecar" {
-  name              = "MongoDBSidecar"
-  deployment_method = "terraform"
+resource "cyral_sidecar" "sidecar" {
+  name               = "my-sidecar"
+  deployment_method  = "terraform"
+  log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
 resource "cyral_sidecar_credentials" "sidecar_credentials" {
-  sidecar_id = cyral_sidecar.mongodb_sidecar.id
+  sidecar_id = cyral_sidecar.sidecar.id
 }
 
 module "cyral_sidecar" {
-  # Set the desired sidecar version. This information can be extracted
-  # from the template downloaded from the UI.
-  sidecar_version = "v3.0.0"
-
   source = "cyralinc/sidecar-ec2/aws"
-  # Use the module version that is compatible with your sidecar. This
-  # information can be extracted from the template downloaded from the
-  # UI.
-  version = "~> 3.0"
 
-  sidecar_id = cyral_sidecar.mongodb_sidecar.id
+  # Use the module version that is compatible with your sidecar.
+  version = "~> 4.0"
+
+  sidecar_version = local.sidecar.sidecar_version
+
+  sidecar_id = cyral_sidecar.sidecar.id
 
   control_plane = local.control_plane_host
 
-  repositories_supported = ["mongodb"]
+  cloudwatch_log_group_name = local.sidecar.cloudwatch_log_group_name
 
   # Specify all the ports that can be used in the sidecar. Below, we
   # allocate ports for MongoDB only. If you wish to bind this sidecar
@@ -266,20 +268,18 @@ module "cyral_sidecar" {
   # ports for them.
   sidecar_ports = local.mongodb_ports
 
-  instance_type   = local.sidecar.instance_type
-  log_integration = local.sidecar.log_integration
-  vpc_id          = local.sidecar.vpc_id
-  subnets         = local.sidecar.subnets
+  vpc_id  = local.sidecar.vpc_id
+  subnets = local.sidecar.subnets
 
-  ssh_inbound_cidr         = local.sidecar.ssh_inbound_cidr
-  db_inbound_cidr          = local.sidecar.db_inbound_cidr
-  healthcheck_inbound_cidr = local.sidecar.healthcheck_inbound_cidr
+  ssh_inbound_cidr        = local.sidecar.ssh_inbound_cidr
+  db_inbound_cidr         = local.sidecar.db_inbound_cidr
+  monitoring_inbound_cidr = local.sidecar.monitoring_inbound_cidr
 
   load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
   associate_public_ip_address = local.sidecar.public_sidecar
 
   deploy_secrets   = true
-  secrets_location = "/cyral/sidecars/${cyral_sidecar.mongodb_sidecar.id}/secrets"
+  secrets_location = "/cyral/sidecars/${cyral_sidecar.sidecar.id}/secrets"
 
   container_registry          = local.sidecar.container_registry.name
   container_registry_username = local.sidecar.container_registry.username
@@ -358,7 +358,7 @@ module "cyral_idp_okta" {
 
   tenant = "default"
 
-  control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+  control_plane = local.control_plane_host
 
   okta_app_name        = local.okta_app_name
   idp_integration_name = local.okta_integration_name

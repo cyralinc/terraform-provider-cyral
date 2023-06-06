@@ -1,8 +1,6 @@
 locals {
   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
   control_plane_host = "[TENANT].app.cyral.com"
-  # Set the control plane API port
-  control_plane_port = 443
 }
 
 # Follow the instructions in the Cyral Terraform Provider page to set
@@ -12,7 +10,7 @@ locals {
 provider "cyral" {
   client_id     = ""
   client_secret = ""
-  control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+  control_plane = local.control_plane_host
 }
 
 # Refer to okta provider documentation:
