@@ -75,12 +75,12 @@ resource "cyral_repository" "mongodb_repo" {
   # remaining nodes of the replication cluster. However, you will
   # still have to explictly define listeners for each node's port.
   repo_node {
-    name = "node_2"
+    name    = "node_2"
     dynamic = true
   }
 
   repo_node {
-    name = "node_3"
+    name    = "node_3"
     dynamic = true
   }
 
@@ -91,7 +91,7 @@ resource "cyral_repository" "mongodb_repo" {
     #
     # * https://cyral.freshdesk.com/a/solutions/articles/44002241594
     replica_set_name = "some-replica-set"
-    server_type = "replicaset"
+    server_type      = "replicaset"
   }
 }
 
@@ -133,28 +133,28 @@ resource "cyral_sidecar_listener" "mongodb_listener_node_3" {
 
 # Bind the sidecar listeners to the repository.
 resource "cyral_repository_binding" "mongodb_repo_binding" {
-  repository_id                 = cyral_repository.mongodb_repo.id
-  sidecar_id                    = cyral_sidecar.sidecar.id
-  enabled = true
+  repository_id = cyral_repository.mongodb_repo.id
+  sidecar_id    = cyral_sidecar.sidecar.id
+  enabled       = true
   listener_binding {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_1.listener_id
-    node_index = 0
+    node_index  = 0
   }
   listener_binding {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_2.listener_id
-    node_index = 1
+    node_index  = 1
   }
   listener_binding {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_3.listener_id
-    node_index = 2
+    node_index  = 2
   }
 }
 
 # Set the access gateway for the repository.
 resource "cyral_repository_access_gateway" "mongodb_access_gateway" {
-  repository_id  = cyral_repository.mongodb_repo.id
-  sidecar_id  = cyral_sidecar.sidecar.id
-  binding_id = cyral_repository_binding.mongodb_repo_binding.binding_id
+  repository_id = cyral_repository.mongodb_repo.id
+  sidecar_id    = cyral_sidecar.sidecar.id
+  binding_id    = cyral_repository_binding.mongodb_repo_binding.binding_id
 }
 
 
