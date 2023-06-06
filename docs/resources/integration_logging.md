@@ -50,7 +50,12 @@ module "cyral_sidecar" {
 
 ### Custom Integration
 
-Advanced users can use the "Fluent Bit" logging integration to customize how the sidecar sends logs to their log management destination. Using the `fluent_bit` block, users can provide a customized Fluent Bit configuration (in ["classic mode" INI format](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode)), using any combination of filter and output plugins. More information can be found in the official Fluent Bit [documentation](https://docs.fluentbit.io/manual/concepts/data-pipeline) (see the "Filter" and "Output" sections).
+Advanced users can use the "Fluent Bit" logging integration to customize how the sidecar sends logs to
+their log management destination. Using the `fluent_bit` block, users can provide a customized Fluent Bit
+configuration (in ["classic mode" INI format](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode)),
+using any combination of filter and output plugins. More information can be found in the official
+Fluent Bit [documentation](https://docs.fluentbit.io/manual/concepts/data-pipeline) (see the "Filter"
+and "Output" sections).
 
 ```terraform
 # Configures `my-sidecar-fluent-bit` to push logs to a bucket named
