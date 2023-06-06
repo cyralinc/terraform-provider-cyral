@@ -97,7 +97,7 @@ provider "cyral" {
     control_plane = local.control_plane_host
 }
 
-# The log group group is created in AWS by module.cyral_sidecar
+# The log group is created in AWS by module.cyral_sidecar
 # when the sidecar is deployed.
 resource "cyral_integration_logging" "cloudwatch" {
     name = "my-cloudwatch"
