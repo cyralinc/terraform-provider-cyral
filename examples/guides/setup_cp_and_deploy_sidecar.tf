@@ -2,7 +2,7 @@ terraform {
   required_providers {
     cyral = {
       source  = "cyralinc/cyral"
-      version = "~> 3.0"
+      version = "~> 4.0"
     }
   }
 }
@@ -10,20 +10,33 @@ terraform {
 locals {
     # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
     control_plane_host = "[TENANT].app.cyral.com"
-    # Set the control plane API port
-    control_plane_port = 443
+
+    repos = {
+        postgresql = {
+            host  = "your-postgres-db-host"
+            # This is the port the DATABASE accepts connections.
+            db_port = 5432
+            # This is the port the SIDECAR will expose to
+            # clients connecting to this DB. In this case,
+            # it is different only for education purposes.
+            sidecar_port = 5433
+            type  = "postgresql"
+        }
+        mysql = {
+            host  = "your-mysql-db-host"
+            db_port = 3306
+            sidecar_port = 3307
+            type  = "mysql"
+        }
+    }
 
     sidecar = {
-        # If you would like to use other log integration, download a
-        # new template from the UI and copy the log integration
-        # configuration or follow this module documentation.
-        log_integration = "cloudwatch"
-        # Set the desired EC2 instance type for the auto scaling
-        # group.
-        instance_type = "t3.medium"
         # Set to true if you want a sidecar deployed with an
         # internet-facing load balancer (requires a public subnet).
         public_sidecar = false
+
+        # Set the desired sidecar version.
+        sidecar_version = "v4.7.0"
 
         # Set the AWS region that the sidecar will be deployed to
         region = ""
@@ -31,15 +44,17 @@ locals {
         vpc_id = ""
         # Set the IDs of the subnets that the sidecar will be deployed to
         subnets = [""]
+        # Name of the CloudWatch log group used to push logs
+        cloudwatch_log_group_name = "cyral-example-loggroup"
 
         # Set the allowed CIDR block for SSH access to the sidecar
         ssh_inbound_cidr = ["0.0.0.0/0"]
         # Set the allowed CIDR block for database access through the
         # sidecar
         db_inbound_cidr = ["0.0.0.0/0"]
-        # Set the allowed CIDR block for health check requests to the
+        # Set the allowed CIDR block for monitoring requests to the
         # sidecar
-        healthcheck_inbound_cidr = ["0.0.0.0/0"]
+        monitoring_inbound_cidr = ["0.0.0.0/0"]
 
         # Set the parameters to access the private Cyral container
         # registry. These parameters can be found on the sidecar
@@ -64,120 +79,104 @@ provider "cyral" {
     client_id     = ""
     client_secret = ""
 
-    control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+    control_plane = local.control_plane_host
 }
 
-resource "cyral_sidecar" "main_sidecar" {
-  name              = "MainSidecar"
-  deployment_method = "terraform"
+resource "cyral_integration_logging" "cloudwatch" {
+    name = "my-cloudwatch"
+    cloudwatch {
+        region = local.sidecar.region
+        group  = local.sidecar.cloudwatch_log_group_name
+        stream = "cyral-sidecar"
+    }
+}
+
+resource "cyral_sidecar" "sidecar" {
+    name               = "my-sidecar"
+    deployment_method  = "terraform"
+    log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
 resource "cyral_sidecar_credentials" "sidecar_credentials" {
-    sidecar_id = cyral_sidecar.main_sidecar.id
+    sidecar_id = cyral_sidecar.sidecar.id
 }
 
-resource "cyral_repository" "pg_repo" {
-  name = "pg_repo"
-  type = "postgresql"
-  repo_node {
-    host = "postgresql.mycompany.com"
-    port = 5432
-  }
+resource "cyral_repository" "all_repositories" {
+    for_each = local.repos
+    name  = each.key
+    type  = each.value.type
+
+    connection_draining {
+        auto      = false
+        wait_time = 0
+    }
+
+    repo_node {
+        host = each.value.host
+        port = each.value.db_port
+    }
 }
 
-resource "cyral_sidecar_listener" "pg_listener" {
-  sidecar_id = cyral_sidecar.main_sidecar.id
-  repo_types = ["postgresql"]
-  network_address {
-    host = "postgresql.mycompany.com"
-    port = 5432
-  }
+resource "cyral_sidecar_listener" "all_listeners" {
+    for_each = local.repos
+    sidecar_id = cyral_sidecar.sidecar.id
+    repo_types = [each.value.type]
+    network_address {
+        port = each.value.sidecar_port
+    }
 }
 
-resource "cyral_repository_binding" "pg_repo_binding" {
-  repository_id = cyral_repository.pg_repo.id
-  sidecar_id    = cyral_sidecar.main_sidecar.id
-  enabled = true
-  listener_binding {
-    listener_id = cyral_sidecar_listener.pg_listener.listener_id
-    node_index = 0
-  }
-}
+resource "cyral_repository_binding" "all_repo_binding" {
+    for_each = local.repos
+    repository_id = cyral_repository.all_repositories[each.key].id
+    sidecar_id = cyral_sidecar.sidecar.id
 
-resource "cyral_repository" "mysql_repo" {
-  name = "mysql_repo"
-  type = "mysql"
-  repo_node {
-    host = "mysql.mycompany.com"
-    port = 3306
-  }
-}
-
-resource "cyral_sidecar_listener" "mysql_listener" {
-  sidecar_id = cyral_sidecar.main_sidecar.id
-  repo_types = ["mysql"]
-  network_address {
-    host = "mysql.mycompany.com"
-    port = 3306
-  }
-}
-
-resource "cyral_repository_binding" "mysql_repo_binding" {
-  repository_id = cyral_repository.mysql_repo.id
-  sidecar_id    = cyral_sidecar.main_sidecar.id
-  enabled = true
-  listener_binding {
-    listener_id = cyral_sidecar_listener.mysql_listener.listener_id
-    node_index = 0
-  }
+    listener_binding {
+        listener_id = cyral_sidecar_listener.all_listeners["${each.value.type}"].listener_id
+    }
 }
 
 module "cyral_sidecar" {
-  # Set the desired sidecar version. This information can be extracted
-  # from the template downloaded from the UI.
-  sidecar_version = "v3.0.0"
+    source = "cyralinc/sidecar-ec2/aws"
 
-  source = "cyralinc/sidecar-ec2/aws"
-  # Use the module version that is compatible with your sidecar. This
-  # information can be extracted from the template downloaded from the
-  # UI.
-  version = "~> 3.0"
+    # Use the module version that is compatible with your sidecar.
+    version = "~> 4.0"
 
-  sidecar_id = cyral_sidecar.main_sidecar.id
+    sidecar_version = local.sidecar.sidecar_version
 
-  control_plane = local.control_plane_host
+    sidecar_id = cyral_sidecar.sidecar.id
 
-  repositories_supported = ["postgresql", "mysql"]
+    control_plane = local.control_plane_host
 
-  sidecar_ports = [cyral_repository.pg_repo.port, cyral_repository.mysql_repo.port]
+    cloudwatch_log_group_name = local.sidecar.cloudwatch_log_group_name
 
-  instance_type   = local.sidecar.instance_type
-  log_integration = local.sidecar.log_integration
-  vpc_id          = local.sidecar.vpc_id
-  subnets         = local.sidecar.subnets
+    sidecar_ports = [for repo in values(local.repos) : repo.sidecar_port]
 
-  ssh_inbound_cidr         = local.sidecar.ssh_inbound_cidr
-  db_inbound_cidr          = local.sidecar.db_inbound_cidr
-  healthcheck_inbound_cidr = local.sidecar.healthcheck_inbound_cidr
+    vpc_id          = local.sidecar.vpc_id
+    subnets         = local.sidecar.subnets
 
-  load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
-  associate_public_ip_address = local.sidecar.public_sidecar
+    ssh_inbound_cidr        = local.sidecar.ssh_inbound_cidr
+    db_inbound_cidr         = local.sidecar.db_inbound_cidr
+    monitoring_inbound_cidr = local.sidecar.monitoring_inbound_cidr
 
-  deploy_secrets   = true
-  secrets_location = "/cyral/sidecars/${cyral_sidecar.main_sidecar.id}/secrets"
+    load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
+    associate_public_ip_address = local.sidecar.public_sidecar
 
-  container_registry          = local.sidecar.container_registry.name
-  container_registry_username = local.sidecar.container_registry.username
-  container_registry_key      = local.sidecar.container_registry.registry_key
+    deploy_secrets   = true
+    secrets_location = "/cyral/sidecars/${cyral_sidecar.sidecar.id}/secrets"
 
-  client_id     = cyral_sidecar_credentials.sidecar_credentials.client_id
-  client_secret = cyral_sidecar_credentials.sidecar_credentials.client_secret
+    container_registry          = local.sidecar.container_registry.name
+    container_registry_username = local.sidecar.container_registry.username
+    container_registry_key      = local.sidecar.container_registry.registry_key
+
+    client_id     = cyral_sidecar_credentials.sidecar_credentials.client_id
+    client_secret = cyral_sidecar_credentials.sidecar_credentials.client_secret
 }
 
 output "sidecar_dns" {
-  value = module.cyral_sidecar.sidecar_dns
+    value = module.cyral_sidecar.sidecar_dns
 }
 
 output "sidecar_load_balancer_dns" {
-  value = module.cyral_sidecar.sidecar_load_balancer_dns
+    value = module.cyral_sidecar.sidecar_load_balancer_dns
 }
