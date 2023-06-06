@@ -11,7 +11,7 @@ module "cyral_idp_okta" {
 
   tenant = "default"
 
-  control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+  control_plane = local.control_plane_host
 
   okta_app_name        = local.okta_app_name
   idp_integration_name = local.okta_integration_name

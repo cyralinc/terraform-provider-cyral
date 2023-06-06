@@ -37,8 +37,6 @@ Configure the providers:
 locals {
   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
   control_plane_host = "[TENANT].app.cyral.com"
-  # Set the control plane API port
-  control_plane_port = 443
 }
 
 # Follow the instructions in the Cyral Terraform Provider page to set
@@ -48,7 +46,7 @@ locals {
 provider "cyral" {
   client_id     = ""
   client_secret = ""
-  control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+  control_plane = local.control_plane_host
 }
 
 # Refer to okta provider documentation:
@@ -210,7 +208,7 @@ resource "cyral_sidecar_listener" "mongodb_listener_node_3" {
 # Bind the sidecar listeners to the repository.
 resource "cyral_repository_binding" "mongodb_repo_binding" {
   repository_id                 = cyral_repository.mongodb_repo.id
-  sidecar_id                    = cyral_sidecar.mongodb_sidecar.id
+  sidecar_id                    = cyral_sidecar.sidecar.id
   enabled = true
   listener_binding {
     listener_id = cyral_sidecar_listener.mongodb_listener_node_1.listener_id
@@ -229,18 +227,18 @@ resource "cyral_repository_binding" "mongodb_repo_binding" {
 # Set the access gateway for the repository.
 resource "cyral_repository_access_gateway" "mongodb_access_gateway" {
   repository_id  = cyral_repository.mongodb_repo.id
-  sidecar_id  = cyral_sidecar.mongodb_sidecar.id
+  sidecar_id  = cyral_sidecar.sidecar.id
   binding_id = cyral_repository_binding.mongodb_repo_binding.binding_id
 }
 
 
-resource "cyral_sidecar" "mongodb_sidecar" {
+resource "cyral_sidecar" "sidecar" {
   name              = "MongoDBSidecar"
   deployment_method = "terraform"
 }
 
 resource "cyral_sidecar_credentials" "sidecar_credentials" {
-  sidecar_id = cyral_sidecar.mongodb_sidecar.id
+  sidecar_id = cyral_sidecar.sidecar.id
 }
 
 module "cyral_sidecar" {
@@ -254,7 +252,7 @@ module "cyral_sidecar" {
   # UI.
   version = "~> 3.0"
 
-  sidecar_id = cyral_sidecar.mongodb_sidecar.id
+  sidecar_id = cyral_sidecar.sidecar.id
 
   control_plane = local.control_plane_host
 
@@ -279,7 +277,7 @@ module "cyral_sidecar" {
   associate_public_ip_address = local.sidecar.public_sidecar
 
   deploy_secrets   = true
-  secrets_location = "/cyral/sidecars/${cyral_sidecar.mongodb_sidecar.id}/secrets"
+  secrets_location = "/cyral/sidecars/${cyral_sidecar.sidecar.id}/secrets"
 
   container_registry          = local.sidecar.container_registry.name
   container_registry_username = local.sidecar.container_registry.username
@@ -358,7 +356,7 @@ module "cyral_idp_okta" {
 
   tenant = "default"
 
-  control_plane = "${local.control_plane_host}:${local.control_plane_port}"
+  control_plane = local.control_plane_host
 
   okta_app_name        = local.okta_app_name
   idp_integration_name = local.okta_integration_name

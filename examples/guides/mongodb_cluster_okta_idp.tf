@@ -1,14 +1,53 @@
+terraform {
+  required_providers {
+    cyral = {
+      source  = "local/terraform/cyral"
+      version = "~> 4.3"
+    }
+    okta = {
+      source = "okta/okta"
+    }
+  }
+}
+
+# Follow the instructions in the Cyral Terraform Provider page to set
+# up the credentials:
+#
+# * https://registry.terraform.io/providers/cyralinc/cyral/latest/docs
+provider "cyral" {
+  client_id     = ""
+  client_secret = ""
+  control_plane = local.control_plane_host
+}
+
+# Refer to okta provider documentation:
+#
+# * https://registry.terraform.io/providers/okta/okta/latest/docs
+#
+provider "okta" {
+  org_name  = "dev-123456" # your organization name
+  base_url  = "okta.com"   # your organization url
+  api_token = "xxxx"
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
 locals {
+   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
+  control_plane_host = "[TENANT].app.cyral.com"
+  # Set the name to be displayed for this integration in Okta's UI.
+  okta_app_name = "Cyral"
+  # Set the name to be displayed for this integration in Cyral's UI.
+  okta_integration_name = "Okta"
   sidecar = {
-    # If you would like to use other log integration, download a new
-    # template from the UI and copy the log integration configuration
-    # or follow this module documentation.
-    log_integration = "cloudwatch"
-    # Set the desired EC2 instance type for the auto scaling group.
-    instance_type = "t3.medium"
     # Set to true if you want a sidecar deployed with an
     # internet-facing load balancer (requires a public subnet).
     public_sidecar = false
+
+    # Set the desired sidecar version.
+    sidecar_version = "v4.7.0"
 
     # Set the AWS region that the sidecar will be deployed to
     region = ""
@@ -22,9 +61,9 @@ locals {
     # Set the allowed CIDR block for database access through the
     # sidecar
     db_inbound_cidr = ["0.0.0.0/0"]
-    # Set the allowed CIDR block for health check requests to the
+    # Set the allowed CIDR block for monitoring requests to the
     # sidecar
-    healthcheck_inbound_cidr = ["0.0.0.0/0"]
+    monitoring_inbound_cidr = ["0.0.0.0/0"]
 
     # Set the parameters to access the private Cyral container
     # registry.  These parameters can be found on the sidecar
@@ -56,6 +95,18 @@ locals {
   }
 }
 
+# Configures the Okta app and the integration in Cyral control plane.
+module "cyral_idp_okta" {
+  source  = "cyralinc/idp/okta"
+  version = "~> 4.0"
+
+  tenant = "default"
+
+  control_plane = local.control_plane_host
+
+  okta_app_name        = local.okta_app_name
+  idp_integration_name = local.okta_integration_name
+}
 resource "cyral_repository" "mongodb_repo" {
   name = "mongodb_repo"
   type = "mongodb"
@@ -103,6 +154,16 @@ resource "cyral_repository_conf_auth" "mongodb_repo_auth_config" {
   repo_tls = "enable"
 }
 
+resource "cyral_repository_access_rules" "access_rules" {
+  repository_id   = cyral_repository.mongodb_repo.id
+  user_account_id = cyral_repository_user_account.mongodb_user_account.user_account_id
+  rule {
+    identity {
+      type = "username"
+      name = "me@mycompany.com"
+    }
+  }
+}
 # Create listeners for each MongoDB repo node.
 resource "cyral_sidecar_listener" "mongodb_listener_node_1" {
   sidecar_id = cyral_sidecar.sidecar.id
@@ -168,36 +229,27 @@ resource "cyral_sidecar_credentials" "sidecar_credentials" {
 }
 
 module "cyral_sidecar" {
-  # Set the desired sidecar version. This information can be extracted
-  # from the template downloaded from the UI.
-  sidecar_version = "v3.0.0"
-
   source = "cyralinc/sidecar-ec2/aws"
-  # Use the module version that is compatible with your sidecar. This
-  # information can be extracted from the template downloaded from the
-  # UI.
-  version = "~> 3.0"
+
+  # Use the module version that is compatible with your sidecar.
+  version = "~> 4.0"
+
+  sidecar_version = local.sidecar.sidecar_version
 
   sidecar_id = cyral_sidecar.sidecar.id
 
   control_plane = local.control_plane_host
 
-  repositories_supported = ["mongodb"]
+  cloudwatch_log_group_name = local.sidecar.cloudwatch_log_group_name
 
-  # Specify all the ports that can be used in the sidecar. Below, we
-  # allocate ports for MongoDB only. If you wish to bind this sidecar
-  # to other types of repositories, make sure to allocate additional
-  # ports for them.
-  sidecar_ports = local.mongodb_ports
+  sidecar_ports = [for repo in values(local.repos) : repo.sidecar_port]
 
-  instance_type   = local.sidecar.instance_type
-  log_integration = local.sidecar.log_integration
   vpc_id          = local.sidecar.vpc_id
   subnets         = local.sidecar.subnets
 
-  ssh_inbound_cidr         = local.sidecar.ssh_inbound_cidr
-  db_inbound_cidr          = local.sidecar.db_inbound_cidr
-  healthcheck_inbound_cidr = local.sidecar.healthcheck_inbound_cidr
+  ssh_inbound_cidr        = local.sidecar.ssh_inbound_cidr
+  db_inbound_cidr         = local.sidecar.db_inbound_cidr
+  monitoring_inbound_cidr = local.sidecar.monitoring_inbound_cidr
 
   load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
   associate_public_ip_address = local.sidecar.public_sidecar
@@ -208,8 +260,9 @@ module "cyral_sidecar" {
   container_registry          = local.sidecar.container_registry.name
   container_registry_username = local.sidecar.container_registry.username
   container_registry_key      = local.sidecar.container_registry.registry_key
-  client_id                   = cyral_sidecar_credentials.sidecar_credentials.client_id
-  client_secret               = cyral_sidecar_credentials.sidecar_credentials.client_secret
+
+  client_id     = cyral_sidecar_credentials.sidecar_credentials.client_id
+  client_secret = cyral_sidecar_credentials.sidecar_credentials.client_secret
 }
 
 output "sidecar_dns" {
