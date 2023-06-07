@@ -7,7 +7,7 @@ locals {
 
 module "cyral_idp_okta" {
   source  = "cyralinc/idp/okta"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   okta_app_name        = local.okta_app_name
   idp_integration_name = local.okta_integration_name
