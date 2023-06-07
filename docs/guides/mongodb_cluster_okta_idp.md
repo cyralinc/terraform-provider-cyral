@@ -356,10 +356,6 @@ module "cyral_idp_okta" {
   source  = "cyralinc/idp/okta"
   version = "~> 3.0"
 
-  tenant = "default"
-
-  control_plane = local.control_plane_host
-
   okta_app_name        = local.okta_app_name
   idp_integration_name = local.okta_integration_name
 }
