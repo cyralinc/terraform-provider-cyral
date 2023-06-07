@@ -1,9 +1,24 @@
+## 4.3.1 (June 7, 2023)
+
+Minimum required Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
+as long as the incompatible argument and resource are not used.
+
+Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Documentation:
+
+- **Update mongodb example to latest cyral_idp_okta module**: [#405](https://github.com/cyralinc/terraform-provider-cyral/pull/405).
+
 ## 4.3.0 (June 6, 2023)
 
 Minimum required Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
-as long as the incompatible resource is not used.
+as long as the incompatible argument and resource are not used.
 
 Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
 
 See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
 
