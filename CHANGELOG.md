@@ -1,3 +1,28 @@
+## 4.3.0 (June 6, 2023)
+
+Minimum required Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
+as long as the incompatible resource is not used.
+
+Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Deprecate:
+
+- **Deprecate old resources**: [#399](https://github.com/cyralinc/terraform-provider-cyral/pull/399).
+- **ENG-11753: Add deprecation notice**: [#397](https://github.com/cyralinc/terraform-provider-cyral/pull/397).
+
+### Features:
+
+- **ENG-11769: Update Generic SAML Draft to return SP Metadata**: [#394](https://github.com/cyralinc/terraform-provider-cyral/pull/394).
+- **ENG-11747: Add resource and datasource for new "log management" integration**: [#395](https://github.com/cyralinc/terraform-provider-cyral/pull/395).
+- **Add examples for using Integration logging Resources and Data Sources**: [#400](https://github.com/cyralinc/terraform-provider-cyral/pull/400).
+
+### Documentation:
+
+- **Update guides to remove CP ports and fix format**: [#403](https://github.com/cyralinc/terraform-provider-cyral/pull/403).
+- **Update guides to provider 4.0**: [#402](https://github.com/cyralinc/terraform-provider-cyral/pull/402).
+
 ## 4.2.0 (April 27, 2023)
 
 Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
