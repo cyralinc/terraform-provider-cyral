@@ -1,6 +1,7 @@
 # cyral_sidecar_listener (Resource)
 
 Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
+~> **Warning** Multiple listeners can be associated to a single sidecar as long as `host` and `port` are unique. If `host` is ommitted, then `port` must be unique.
 
 -> Import ID syntax is `{sidecar_id}/{listener_id}`.
 
@@ -12,7 +13,7 @@ resource "cyral_sidecar" "sidecar" {
   deployment_method = "docker"
 }
 
-# Plain listener
+// Plain listener
 resource "cyral_sidecar_listener" "listener" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mongodb"]
@@ -21,7 +22,7 @@ resource "cyral_sidecar_listener" "listener" {
   }
 }
 
-# Listener with MySQL Settings
+// Listener with MySQL Settings
 resource "cyral_sidecar_listener" "listener_mysql" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["mysql"]
@@ -47,7 +48,8 @@ resource "cyral_sidecar_listener" "listener_s3_cli" {
   }
 }
 
-# Listener for S3 browser (using port 444 assuming port 443 is used for CLI)
+# Listener for S3 browser (using port 444 assuming port
+# 443 is used for CLI)
 resource "cyral_sidecar_listener" "listener_s3_cli" {
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = ["s3"]
@@ -55,7 +57,8 @@ resource "cyral_sidecar_listener" "listener_s3_cli" {
     port = 444
   }
   s3_settings {
-    proxy_mode = false // may be omitted for s3 browser as it defaults to `false`
+    // may be omitted for s3 browser as it defaults to `false`
+    proxy_mode = false
   }
 }
 
@@ -68,7 +71,8 @@ resource "cyral_sidecar_listener" "listener_dynamodb" {
     port = 8000
   }
   dynamodb_settings {
-    proxy_mode = true // must be true if repo_type is either `dynamodb` or `dynamodbstreams`
+    // must be true if repo_type is either `dynamodb` or `dynamodbstreams`
+    proxy_mode = true
   }
 }
 ```

@@ -2,7 +2,7 @@
 page_title: "Create an AWS EC2 sidecar to protect PostgreSQL and MySQL databases"
 ---
 
-Use the following guide to create the minimum required configuration in both Cyral
+Use this guide to create the minimum required configuration in both Cyral
 Control Plane and your AWS account to deploy a Cyral Sidecar to AWS EC2 in front
 of two database instances: MySQL and PostgreSQL.
 
@@ -72,12 +72,14 @@ locals {
     monitoring_inbound_cidr = ["0.0.0.0/0"]
 
     # Set the parameters to access the private Cyral container
-    # registry. These parameters can be found on the sidecar
-    # Terraform template downloaded from the UI.
+    # registry. These parameters can be found in the sidecar
+    # Terraform template downloaded from the UI. Use the
+    # commented values to locate the variables and copy the
+    # values from the downloaded template.
     container_registry = {
-      name         = "" # see container_registry in the downloaded template
-      username     = "" # see container_registry_username in the downloaded template
-      registry_key = "" # see container_registry_key in the downloaded template
+      name         = "" # container_registry
+      username     = "" # container_registry_username
+      registry_key = "" # container_registry_key
     }
   }
 }
