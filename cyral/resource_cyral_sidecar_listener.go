@@ -198,7 +198,9 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 // DELETE {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID (Delete a listener)
 func resourceSidecarListener() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).",
+		Description: "Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners)." +
+			"\n~> **Warning** Multiple listeners can be associated to a single sidecar as long as " +
+			"`host` and `port` are unique. If `host` is ommitted, then `port` must be unique.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SidecarListenersResourceCreate",
