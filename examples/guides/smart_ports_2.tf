@@ -214,8 +214,7 @@ resource "cyral_repository_access_rules" "all_access_rules" {
 resource "cyral_repository_conf_auth" "all_conf_auth" {
   for_each          = local.repos
   repository_id     = cyral_repository.all_repositories[each.key].id
-  identity_provider = "cyral-engineering"
-  #identity_provider = data.cyral_integration_idp_saml.saml.idp_list[0].id
+  identity_provider = data.cyral_integration_idp_saml.saml.idp_list[0].id
   allow_native_auth = true
 }
 
