@@ -25,9 +25,12 @@ func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.Res
 	var listenersList []interface{}
 	log.Printf("[DEBUG] data.ListenerConfig: %+v", data.ListenerConfig)
 	log.Printf("[DEBUG] Init for _, l := range data.ListenerConfig")
-	repoType := d.Get(RepoTypesKey).(string)
+	repoTypeFilter := d.Get(RepoTypesKey).(string)
+	portFilter := d.Get(PortKey).(int)
 	for _, l := range data.ListenerConfig {
-		if repoType == "" || (repoType != "" && slices.Contains(l.RepoTypes, repoType)) {
+		// Check if either the repo filter or the port filter is provided and matches the listener
+		if (repoTypeFilter == "" || slices.Contains(l.RepoTypes, repoTypeFilter)) &&
+			(portFilter == 0 || l.NetworkAddress.Port == portFilter) {
 			argumentVals := map[string]interface{}{
 				ListenerIDKey:       l.ListenerId,
 				SidecarIDKey:        d.Get(SidecarIDKey).(string),
@@ -92,6 +95,11 @@ func dataSourceSidecarListener() *schema.Resource {
 			RepoTypesKey: {
 				Description: "Filter the results per repository type. Supported repo types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:        schema.TypeString,
+				Optional:    true,
+			},
+			PortKey: {
+				Description: "Filter the results per port.",
+				Type:        schema.TypeInt,
 				Optional:    true,
 			},
 			SidecarListenerListKey: {
