@@ -98,7 +98,7 @@ func dataSourceRole() *schema.Resource {
 				Optional:    true,
 			},
 			"role_list": {
-				Description: "List of existing roles satisfying given filter criteria.",
+				Description: "List of existing roles satisfying the filter criteria.",
 				Computed:    true,
 				Type:        schema.TypeList,
 				Elem: &schema.Resource{

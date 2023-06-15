@@ -35,7 +35,7 @@ data "cyral_datalabel" "some_data_source_name" {
 
 ### Read-Only
 
-- `datalabel_list` (List of Object) List of existing data labels satisfying given filter criteria. (see [below for nested schema](#nestedatt--datalabel_list))
+- `datalabel_list` (List of Object) List of existing data labels satisfying the filter criteria. (see [below for nested schema](#nestedatt--datalabel_list))
 - `id` (String) The ID of this resource.
 
 <a id="nestedatt--datalabel_list"></a>

@@ -86,7 +86,7 @@ func dataSourceRepository() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(append(repositoryTypes(), ""), false),
 			},
 			RepoListKey: {
-				Description: "List of existing repositories satisfying given filter criteria.",
+				Description: "List of existing repositories satisfying the filter criteria.",
 				Computed:    true,
 				Type:        schema.TypeList,
 				Elem: &schema.Resource{

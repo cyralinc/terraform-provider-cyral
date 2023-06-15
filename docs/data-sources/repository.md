@@ -68,7 +68,7 @@ output "mysql_repo_id" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `repository_list` (List of Object) List of existing repositories satisfying given filter criteria. (see [below for nested schema](#nestedatt--repository_list))
+- `repository_list` (List of Object) List of existing repositories satisfying the filter criteria. (see [below for nested schema](#nestedatt--repository_list))
 
 <a id="nestedatt--repository_list"></a>
 
