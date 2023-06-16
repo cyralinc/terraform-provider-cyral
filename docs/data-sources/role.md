@@ -30,7 +30,7 @@ data "cyral_role" "admin_roles" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `role_list` (List of Object) List of existing roles satisfying given filter criteria. (see [below for nested schema](#nestedatt--role_list))
+- `role_list` (List of Object) List of existing roles satisfying the filter criteria. (see [below for nested schema](#nestedatt--role_list))
 
 <a id="nestedatt--role_list"></a>
 

@@ -97,7 +97,7 @@ func dataSourceDatalabel() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(append(dataLabelTypes(), ""), false),
 			},
 			"datalabel_list": {
-				Description: "List of existing data labels satisfying given filter criteria.",
+				Description: "List of existing data labels satisfying the filter criteria.",
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem: &schema.Resource{
