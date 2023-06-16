@@ -122,8 +122,8 @@ func convertSchemaFieldsToComputed(s map[string]*schema.Schema) map[string]*sche
 			Computed:    true,
 			Elem:        s[k].Elem,
 		}
-		if s[k].Elem != nil {
-			convertSchemaFieldsToComputed(s[k].Elem.(*schema.Resource).Schema)
+		if elem, ok := s[k].Elem.(*schema.Resource); ok && elem != nil {
+			convertSchemaFieldsToComputed(elem.Schema)
 		}
 	}
 
