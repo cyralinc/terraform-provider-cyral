@@ -14,34 +14,35 @@ import (
 
 const (
 	SidecarListenerListKey = "listener_list"
+	DSRepoTypeKey          = "repo_type"
 )
 
 type ReadDataSourceSidecarListenerAPIResponse struct {
-	ListenerConfig []SidecarListener `json:"listenerConfigs"`
+	ListenerConfigs []SidecarListener `json:"listenerConfigs"`
 }
 
 func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	log.Printf("[DEBUG] Init ReadDataSourceSidecarListenerAPIResponse.WriteToSchema")
-	var listenersList []interface{}
-	log.Printf("[DEBUG] data.ListenerConfig: %+v", data.ListenerConfig)
+	var listenersList []any
+	log.Printf("[DEBUG] data.ListenerConfig: %+v", data.ListenerConfigs)
 	log.Printf("[DEBUG] Init for _, l := range data.ListenerConfig")
-	repoTypeFilter := d.Get(RepoTypesKey).(string)
+	repoTypeFilter := d.Get(DSRepoTypeKey).(string)
 	portFilter := d.Get(PortKey).(int)
-	for _, l := range data.ListenerConfig {
+	for _, listenerConfig := range data.ListenerConfigs {
 		// Check if either the repo filter or the port filter is provided and matches the listener
-		if (repoTypeFilter == "" || slices.Contains(l.RepoTypes, repoTypeFilter)) &&
-			(portFilter == 0 || l.NetworkAddress.Port == portFilter) {
-			argumentVals := map[string]interface{}{
-				ListenerIDKey:       l.ListenerId,
+		if (repoTypeFilter == "" || slices.Contains(listenerConfig.RepoTypes, repoTypeFilter)) &&
+			(portFilter == 0 || listenerConfig.NetworkAddress.Port == portFilter) {
+			listener := map[string]any{
+				ListenerIDKey:       listenerConfig.ListenerId,
 				SidecarIDKey:        d.Get(SidecarIDKey).(string),
-				RepoTypesKey:        l.RepoTypes,
-				NetworkAddressKey:   l.NetworkAddressAsInterface(),
-				MySQLSettingsKey:    l.MySQLSettingsAsInterface(),
-				S3SettingsKey:       l.S3SettingsAsInterface(),
-				DynamoDbSettingsKey: l.DynamoDbSettingsAsInterface(),
+				RepoTypesKey:        listenerConfig.RepoTypes,
+				NetworkAddressKey:   listenerConfig.NetworkAddressAsInterface(),
+				MySQLSettingsKey:    listenerConfig.MySQLSettingsAsInterface(),
+				S3SettingsKey:       listenerConfig.S3SettingsAsInterface(),
+				DynamoDbSettingsKey: listenerConfig.DynamoDbSettingsAsInterface(),
 			}
-			log.Printf("[DEBUG] argumentVals: %q", argumentVals)
-			listenersList = append(listenersList, argumentVals)
+			log.Printf("[DEBUG] listener: %q", listener)
+			listenersList = append(listenersList, listener)
 		}
 	}
 
@@ -74,13 +75,7 @@ func dataSourceSidecarListenerReadConfig() ResourceOperationConfig {
 
 func dataSourceSidecarListener() *schema.Resource {
 	log.Printf("[DEBUG] Init dataSourceSidecarListener")
-	listenerSchema := getSidecarListenerSchema()
-	for _, v := range listenerSchema {
-		v.Required = false
-		v.Computed = true
-		v.MaxItems = 0
-		v.ConflictsWith = nil
-	}
+	listenerSchema := convertSchemaFieldsToComputed(getSidecarListenerSchema())
 
 	log.Printf("[DEBUG] End dataSourceSidecarListener")
 	return &schema.Resource{
@@ -92,7 +87,7 @@ func dataSourceSidecarListener() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			RepoTypesKey: {
+			DSRepoTypeKey: {
 				Description: "Filter the results per repository type. Supported repo types:" + supportedTypesMarkdown(repositoryTypes()),
 				Type:        schema.TypeString,
 				Optional:    true,

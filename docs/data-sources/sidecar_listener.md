@@ -21,7 +21,7 @@ Retrieve and filter sidecar listeners.
 ### Optional
 
 - `port` (Number) Filter the results per port.
-- `repo_types` (String) Filter the results per repository type. Supported repo types:
+- `repo_type` (String) Filter the results per repository type. Supported repo types:
   - `denodo`
   - `dremio`
   - `dynamodb`
