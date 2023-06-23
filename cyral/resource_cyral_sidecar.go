@@ -41,14 +41,16 @@ func (sd *SidecarData) BypassMode() string {
 }
 
 type SidecarProperties struct {
-	DeploymentMethod string `json:"deploymentMethod"`
-	LogIntegrationID string `json:"logIntegrationID,omitempty"`
+	DeploymentMethod           string `json:"deploymentMethod"`
+	LogIntegrationID           string `json:"logIntegrationID,omitempty"`
+	DiagnosticLogIntegrationID string `json:"diagnosticLogIntegrationID,omitempty"`
 }
 
-func NewSidecarProperties(deploymentMethod, logIntegrationID string) *SidecarProperties {
+func NewSidecarProperties(deploymentMethod, activityLogIntegrationID, diagnosticLogIntegrationID string) *SidecarProperties {
 	return &SidecarProperties{
-		DeploymentMethod: deploymentMethod,
-		LogIntegrationID: logIntegrationID,
+		DeploymentMethod:           deploymentMethod,
+		LogIntegrationID:           activityLogIntegrationID,
+		DiagnosticLogIntegrationID: diagnosticLogIntegrationID,
 	}
 }
 
@@ -94,7 +96,18 @@ func resourceSidecar() *schema.Resource {
 				),
 			},
 			"log_integration_id": {
-				Description: "ID of the log integration mapped to this sidecar.",
+				Description: "ID of the log integration mapped to this sidecar, used for Cyral activity logs.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Deprecated:  "Since sidecar v4.8. Use `activity_log_integration_id` instead.",
+			},
+			"activity_log_integration_id": {
+				Description: "ID of the log integration mapped to this sidecar, used for Cyral activity logs.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+			"diagnostic_log_integration_id": {
+				Description: "ID of the log integration mapped to this sidecar, used for sidecar diagnostic logs.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
@@ -251,6 +264,8 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("name", response.Name)
 	if properties := response.SidecarProperties; properties != nil {
 		d.Set("deployment_method", properties.DeploymentMethod)
+		d.Set("activity_log_integration_id", properties.LogIntegrationID)
+		d.Set("diagnostic_log_integration_id", properties.DiagnosticLogIntegrationID)
 		d.Set("log_integration_id", properties.LogIntegrationID)
 	}
 	d.Set("labels", response.Labels)
@@ -304,9 +319,14 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	log.Printf("[DEBUG] Init getSidecarDataFromResource")
 
 	deploymentMethod := d.Get("deployment_method").(string)
-	logIntegrationID := d.Get("log_integration_id").(string)
 
-	properties := NewSidecarProperties(deploymentMethod, logIntegrationID)
+	activityLogIntegrationID := d.Get("activity_log_integration_id").(string)
+	if activityLogIntegrationID == "" {
+		activityLogIntegrationID = d.Get("log_integration_id").(string)
+	}
+	diagnosticLogIntegrationID := d.Get("diagnostic_log_integration_id").(string)
+
+	properties := NewSidecarProperties(deploymentMethod, activityLogIntegrationID, diagnosticLogIntegrationID)
 
 	svcconf := SidecarServicesConfig{
 		"dispatcher": map[string]string{
