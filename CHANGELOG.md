@@ -1,6 +1,21 @@
+## 4.5.0 (June 30, 2023)
+
+Minimum recommended Control Plane version: `v4.8.0`. It is safe to use this provider with all `v4` control planes
+as long as the incompatible arguments and resource are not used.
+
+Arguments incompatible with Control Planes previous to `v4.8`: `cyral_sidecar.activity_log_integration_id` and `cyral_sidecar.diagnostic_log_integration_id`.
+Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+## Features:
+
+- **Add activity and diagnostic log ID for sidecar**: [#413](https://github.com/cyralinc/terraform-provider-cyral/pull/413).
+
 ## 4.4.0 (June 16, 2023)
 
-Minimum required Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
+Minimum recommended Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
 as long as the incompatible argument and resource are not used.
 
 Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
@@ -18,7 +33,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ## 4.3.1 (June 7, 2023)
 
-Minimum required Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
+Minimum recommended Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
 as long as the incompatible argument and resource are not used.
 
 Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
@@ -32,7 +47,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ## 4.3.0 (June 6, 2023)
 
-Minimum required Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
+Minimum recommended Control Plane version: `v4.7.0`. It is safe to use this provider with all `v4` control planes
 as long as the incompatible argument and resource are not used.
 
 Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
@@ -58,7 +73,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ## 4.2.0 (April 27, 2023)
 
-Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
+Minimum recommended Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
 as long as the incompatible argument is not used.
 
 Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
@@ -75,7 +90,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ## 4.1.2 (March 17, 2023)
 
-Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
+Minimum recommended Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
 as long as the incompatible argument is not used.
 
 Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
@@ -99,7 +114,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ## 4.1.1 (February 21, 2023)
 
-Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
+Minimum recommended Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
 as long as the incompatible argument is not used.
 
 Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
@@ -112,7 +127,7 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 
 ## 4.1.0 (February 14, 2023)
 
-Minimum required Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
+Minimum recommended Control Plane version: `v4.2.0`. It is safe to use this provider with all `v4` control planes
 as long as the incompatible argument is not used.
 
 Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
