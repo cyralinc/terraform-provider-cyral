@@ -13,9 +13,9 @@ locals {
 
   repos = {
     postgresql = {
-      host = "your-postgres-db-host"
+      host         = "your-postgres-db-host"
       # This is the port the DATABASE accepts connections.
-      db_port = 5432
+      db_port      = 5432
       # This is the port the SIDECAR will expose to
       # clients connecting to this DB. In this case,
       # it is different only for education purposes.
@@ -39,19 +39,19 @@ locals {
     sidecar_version = "v4.7.0"
 
     # Set the AWS region that the sidecar will be deployed to
-    region = ""
+    region                    = ""
     # Set the ID of VPC that the sidecar will be deployed to
-    vpc_id = ""
+    vpc_id                    = ""
     # Set the IDs of the subnets that the sidecar will be deployed to
-    subnets = [""]
+    subnets                   = [""]
     # Name of the CloudWatch log group used to push logs
     cloudwatch_log_group_name = "cyral-example-loggroup"
 
     # Set the allowed CIDR block for SSH access to the sidecar
-    ssh_inbound_cidr = ["0.0.0.0/0"]
+    ssh_inbound_cidr        = ["0.0.0.0/0"]
     # Set the allowed CIDR block for database access through the
     # sidecar
-    db_inbound_cidr = ["0.0.0.0/0"]
+    db_inbound_cidr         = ["0.0.0.0/0"]
     # Set the allowed CIDR block for monitoring requests to the
     # sidecar
     monitoring_inbound_cidr = ["0.0.0.0/0"]
@@ -96,9 +96,9 @@ resource "cyral_integration_logging" "cloudwatch" {
 }
 
 resource "cyral_sidecar" "sidecar" {
-  name               = "my-sidecar"
-  deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.cloudwatch.id
+  name                        = "my-sidecar"
+  deployment_method           = "terraform"
+  activity_log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
 resource "cyral_sidecar_credentials" "sidecar_credentials" {

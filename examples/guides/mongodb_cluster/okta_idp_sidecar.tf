@@ -2,25 +2,25 @@ locals {
   sidecar = {
     # Set to true if you want a sidecar deployed with an
     # internet-facing load balancer (requires a public subnet).
-    public_sidecar = false
+    public_sidecar  = false
     # Set the desired sidecar version.
     sidecar_version = "v4.7.0"
 
     # Set the AWS region that the sidecar will be deployed to
-    region = ""
+    region  = ""
     # Set the ID of VPC that the sidecar will be deployed to
-    vpc_id = ""
+    vpc_id  = ""
     # Set the IDs of the subnets that the sidecar will be deployed to
     subnets = [""]
 
     # Set the allowed CIDR block for SSH access to the sidecar
-    ssh_inbound_cidr = ["0.0.0.0/0"]
+    ssh_inbound_cidr          = ["0.0.0.0/0"]
     # Set the allowed CIDR block for database access through the
     # sidecar
-    db_inbound_cidr = ["0.0.0.0/0"]
+    db_inbound_cidr           = ["0.0.0.0/0"]
     # Set the allowed CIDR block for monitoring requests to the
     # sidecar
-    monitoring_inbound_cidr = ["0.0.0.0/0"]
+    monitoring_inbound_cidr   = ["0.0.0.0/0"]
     # Name of the CloudWatch log group used to push logs
     cloudwatch_log_group_name = "cyral-example-loggroup"
 
@@ -100,7 +100,7 @@ resource "cyral_repository_conf_auth" "mongodb_repo_auth_config" {
   identity_provider = module.cyral_idp_okta.integration_idp_okta_id
   # Repo TLS is required to allow the sidecar to communicate with
   # MongoDB Atlas.
-  repo_tls = "enable"
+  repo_tls          = "enable"
 }
 
 # Create listeners for each MongoDB repo node.
@@ -167,9 +167,9 @@ resource "cyral_integration_logging" "cloudwatch" {
 }
 
 resource "cyral_sidecar" "sidecar" {
-  name               = "my-sidecar"
-  deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.cloudwatch.id
+  name                        = "my-sidecar"
+  deployment_method           = "terraform"
+  activity_log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
 resource "cyral_sidecar_credentials" "sidecar_credentials" {

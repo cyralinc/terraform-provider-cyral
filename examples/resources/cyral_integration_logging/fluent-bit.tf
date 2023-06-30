@@ -1,9 +1,9 @@
 # Configures `my-sidecar-fluent-bit` to push logs to a bucket named
 # `example-bucket` in AWS S3.
 resource "cyral_sidecar" "sidecar_fluent_bit" {
-  name               = "my-sidecar-fluent-bit"
-  deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.s3.id
+  name                        = "my-sidecar-fluent-bit"
+  deployment_method           = "terraform"
+  activity_log_integration_id = cyral_integration_logging.s3.id
 }
 
 resource "cyral_integration_logging" "s3" {
