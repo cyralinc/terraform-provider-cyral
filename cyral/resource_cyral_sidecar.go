@@ -96,10 +96,11 @@ func resourceSidecar() *schema.Resource {
 				),
 			},
 			"log_integration_id": {
-				Description: "ID of the log integration mapped to this sidecar, used for Cyral activity logs.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Deprecated:  "Since sidecar v4.8. Use `activity_log_integration_id` instead.",
+				Description:   "ID of the log integration mapped to this sidecar, used for Cyral activity logs.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Deprecated:    "Since sidecar v4.8. Use `activity_log_integration_id` instead.",
+				ConflictsWith: []string{"activity_log_integration_id"},
 			},
 			"activity_log_integration_id": {
 				Description: "ID of the log integration mapped to this sidecar, used for Cyral activity logs.",

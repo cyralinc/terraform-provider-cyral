@@ -15,9 +15,9 @@ locals {
 }
 
 resource "cyral_sidecar" "sidecar" {
-  name = "my-sidecar-cloudwatch"
-  deployment_method = "terraform"
-  log_integration_id = cyral_integration_logging.cloudwatch.id
+  name                        = "my-sidecar-cloudwatch"
+  deployment_method           = "terraform"
+  activity_log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
 resource "cyral_integration_logging" "cloudwatch" {
@@ -37,11 +37,11 @@ module "cyral_sidecar" {
   source  = "cyralinc/sidecar-ec2/aws"
   version = "~> 4.0"
 
-  sidecar_id      = cyral_sidecar.sidecar.id
+  sidecar_id = cyral_sidecar.sidecar.id
 
   cloudwatch_log_group_name = local.cloudwatch_log_group_name
 
-  client_id = cyral_sidecar_credentials.creds.client_id
+  client_id     = cyral_sidecar_credentials.creds.client_id
   client_secret = cyral_sidecar_credentials.creds.client_secret
 
   ...
@@ -61,9 +61,9 @@ and "Output" sections).
 # Configures `my-sidecar-fluent-bit` to push logs to a bucket named
 # `example-bucket` in AWS S3.
 resource "cyral_sidecar" "sidecar_fluent_bit" {
-  name               = "my-sidecar-fluent-bit"
-  deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.s3.id
+  name                        = "my-sidecar-fluent-bit"
+  deployment_method           = "terraform"
+  activity_log_integration_id = cyral_integration_logging.s3.id
 }
 
 resource "cyral_integration_logging" "s3" {

@@ -135,7 +135,8 @@ func formatBasicSidecarIntoConfig(resName, sidecarName, deploymentMethod, logInt
 		name               = "%s"
 		deployment_method  = "%s"
 		log_integration_id = "%s"
-	}`, resName, sidecarName, deploymentMethod, logIntegrationID,
+		activity_log_integration_id = "%s"
+	}`, resName, sidecarName, deploymentMethod, logIntegrationID, logIntegrationID,
 	)
 }
 

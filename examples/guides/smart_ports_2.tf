@@ -21,11 +21,11 @@ locals {
   repos = {
     mysql1 = {
       # Name that will be shown in the Cyral UI
-      name = "mysql-1"
-      host = "your-mysql-1-db-host"
+      name                 = "mysql-1"
+      host                 = "your-mysql-1-db-host"
       # This is the port the DATABASE accepts connections.
-      db_port = 3309
-      type    = "mysql"
+      db_port              = 3309
+      type                 = "mysql"
       database_credentials = {
         # Set the credentials that should be used to connect to the database
         username = ""
@@ -34,11 +34,11 @@ locals {
     }
     mysql2 = {
       # Name that will be shown in the Cyral UI
-      name = "mysql-2"
-      host = "your-mysql-2-db-host"
+      name                 = "mysql-2"
+      host                 = "your-mysql-2-db-host"
       # This is the port the DATABASE accepts connections.
-      db_port = 3310
-      type    = "mysql"
+      db_port              = 3310
+      type                 = "mysql"
       database_credentials = {
         # Set the credentials that should be used to connect to the database
         username = ""
@@ -56,19 +56,19 @@ locals {
     sidecar_version = "v4.7.0"
 
     # Set the AWS region that the sidecar will be deployed to
-    region = ""
+    region                    = ""
     # Set the ID of VPC that the sidecar will be deployed to
-    vpc_id = ""
+    vpc_id                    = ""
     # Set the IDs of the subnets that the sidecar will be deployed to
-    subnets = [""]
+    subnets                   = [""]
     # Name of the CloudWatch log group used to push logs
     cloudwatch_log_group_name = "cyral-example-loggroup"
 
     # Set the allowed CIDR block for SSH access to the sidecar
-    ssh_inbound_cidr = ["0.0.0.0/0"]
+    ssh_inbound_cidr        = ["0.0.0.0/0"]
     # Set the allowed CIDR block for database access through the
     # sidecar
-    db_inbound_cidr = ["0.0.0.0/0"]
+    db_inbound_cidr         = ["0.0.0.0/0"]
     # Set the allowed CIDR block for monitoring requests to the
     # sidecar
     monitoring_inbound_cidr = ["0.0.0.0/0"]
@@ -113,9 +113,9 @@ resource "cyral_integration_logging" "cloudwatch" {
 }
 
 resource "cyral_sidecar" "sidecar" {
-  name               = "my-sidecar"
-  deployment_method  = "terraform"
-  log_integration_id = cyral_integration_logging.cloudwatch.id
+  name                        = "my-sidecar"
+  deployment_method           = "terraform"
+  activity_log_integration_id = cyral_integration_logging.cloudwatch.id
 }
 
 resource "cyral_sidecar_credentials" "sidecar_credentials" {
@@ -134,7 +134,7 @@ resource "cyral_repository" "all_repositories" {
 }
 
 resource "cyral_sidecar_listener" "all_listeners" {
-    for_each = local.listeners
+  for_each   = local.listeners
   sidecar_id = cyral_sidecar.sidecar.id
   repo_types = [each.key]
   // Clients will connect to both MySQL repos through
@@ -168,7 +168,7 @@ resource "aws_secretsmanager_secret" "all_secrets" {
   # The sidecar deployed using our AWS sidecar module has access to
   # all secrets with the prefix '/cyral/' in the region it is
   # deployed.
-  name = join("", [
+  name     = join("", [
     "/cyral/dbsecrets/",
     cyral_repository.all_repositories[each.key].id
   ])
