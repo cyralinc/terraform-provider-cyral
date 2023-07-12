@@ -267,7 +267,6 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 		d.Set("deployment_method", properties.DeploymentMethod)
 		d.Set("activity_log_integration_id", properties.LogIntegrationID)
 		d.Set("diagnostic_log_integration_id", properties.DiagnosticLogIntegrationID)
-		d.Set("log_integration_id", properties.LogIntegrationID)
 	}
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
