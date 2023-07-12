@@ -134,9 +134,8 @@ func formatBasicSidecarIntoConfig(resName, sidecarName, deploymentMethod, logInt
 	resource "cyral_sidecar" "%s" {
 		name               = "%s"
 		deployment_method  = "%s"
-		log_integration_id = "%s"
 		activity_log_integration_id = "%s"
-	}`, resName, sidecarName, deploymentMethod, logIntegrationID, logIntegrationID,
+	}`, resName, sidecarName, deploymentMethod, logIntegrationID,
 	)
 }
 
