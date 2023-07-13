@@ -67,6 +67,18 @@ func CreateGenericSAMLConfig() ResourceOperationConfig {
 	}
 }
 
+func CreateIdPConfig() ResourceOperationConfig {
+	return ResourceOperationConfig{
+		Name:       "GenericSAMLResourceValidation",
+		HttpMethod: http.MethodPost,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
+		},
+		NewResourceData: func() ResourceData { return &IdentityProviderData{} },
+		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &IdentityProviderData{} },
+	}
+}
+
 func ReadGenericSAMLConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "GenericSAMLResourceRead",
@@ -93,9 +105,21 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 		Description: "Manages identity provider (IdP) integrations using SAML to allow " +
 			"[Single Sing-On](https://cyral.com/docs/sso/overview) to Cyral.\n\nSee also " +
 			"the remaining SAML-related resources and data sources.",
-		CreateContext: CreateResource(
-			CreateGenericSAMLConfig(),
-			ReadGenericSAMLConfig(),
+		CreateContext: CRUDResources(
+			[]ResourceOperation{
+				{
+					Type:   create,
+					Config: CreateGenericSAMLConfig(),
+				},
+				{
+					Type:   read,
+					Config: ReadGenericSAMLConfig(),
+				},
+				{
+					Type:   create,
+					Config: CreateIdPConfig(),
+				},
+			},
 		),
 		ReadContext:   ReadResource(ReadGenericSAMLConfig()),
 		DeleteContext: DeleteResource(DeleteGenericSAMLConfig()),

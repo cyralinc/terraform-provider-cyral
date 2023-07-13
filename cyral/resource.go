@@ -12,11 +12,18 @@ import (
 )
 
 const (
-	create = "create"
-	read   = "read"
-	update = "update"
-	delete = "delete"
+	create = OperationType("create")
+	read   = OperationType("read")
+	update = OperationType("update")
+	delete = OperationType("delete")
 )
+
+type OperationType string
+
+type ResourceOperation struct {
+	Type   OperationType
+	Config ResourceOperationConfig
+}
 
 type URLCreatorFunc = func(d *schema.ResourceData, c *client.Client) string
 
@@ -41,76 +48,112 @@ type ResourceOperationConfig struct {
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
+func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
+	return HandleRequests(resourceOperations)
+}
+
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
-	return HandleRequest(create, createConfig, &readConfig)
+	return HandleRequests(
+		[]ResourceOperation{
+			{
+				Type:   create,
+				Config: createConfig,
+			},
+			{
+				Type:   read,
+				Config: readConfig,
+			},
+		},
+	)
 }
 
 func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
-	return HandleRequest(read, readConfig, nil)
+	return HandleRequests(
+		[]ResourceOperation{
+			{
+				Type:   read,
+				Config: readConfig,
+			},
+		},
+	)
 }
 
 func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.UpdateContextFunc {
-	return HandleRequest(update, updateConfig, &readConfig)
+	return HandleRequests(
+		[]ResourceOperation{
+			{
+				Type:   update,
+				Config: updateConfig,
+			},
+			{
+				Type:   read,
+				Config: readConfig,
+			},
+		},
+	)
 }
 
 func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFunc {
-	return HandleRequest(delete, deleteConfig, nil)
+	return HandleRequests(
+		[]ResourceOperation{
+			{
+				Type:   delete,
+				Config: deleteConfig,
+			},
+		},
+	)
 }
 
-func HandleRequest(
-	operationType string,
-	config ResourceOperationConfig,
-	consecutiveConfig *ResourceOperationConfig,
+func HandleRequests(
+	resourceOperations []ResourceOperation,
 ) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-		log.Printf("[DEBUG] Init %s", config.Name)
-		c := m.(*client.Client)
+		for _, operation := range resourceOperations {
+			log.Printf("[DEBUG] Init %s", operation.Config.Name)
+			c := m.(*client.Client)
 
-		var resourceData ResourceData
-		if config.NewResourceData != nil {
-			if resourceData = config.NewResourceData(); resourceData != nil {
-				if err := resourceData.ReadFromSchema(d); err != nil {
-					return createError(
-						fmt.Sprintf("Unable to %s resource", operationType),
-						err.Error(),
-					)
+			var resourceData ResourceData
+			if operation.Config.NewResourceData != nil {
+				if resourceData = operation.Config.NewResourceData(); resourceData != nil {
+					if err := resourceData.ReadFromSchema(d); err != nil {
+						return createError(
+							fmt.Sprintf("Unable to %s resource", operation.Type),
+							err.Error(),
+						)
+					}
 				}
 			}
-		}
 
-		url := config.CreateURL(d, c)
+			url := operation.Config.CreateURL(d, c)
 
-		body, err := c.DoRequest(url, config.HttpMethod, resourceData)
-		if config.RequestErrorHandler != nil {
-			err = config.RequestErrorHandler.HandleError(d, c, err)
-		}
-		if err != nil {
-			return createError(
-				fmt.Sprintf("Unable to %s resource", operationType),
-				err.Error(),
-			)
-		}
+			body, err := c.DoRequest(url, operation.Config.HttpMethod, resourceData)
+			if operation.Config.RequestErrorHandler != nil {
+				err = operation.Config.RequestErrorHandler.HandleError(d, c, err)
+			}
+			if err != nil {
+				return createError(
+					fmt.Sprintf("Unable to %s resource", operation.Type),
+					err.Error(),
+				)
+			}
 
-		if body != nil && config.NewResponseData != nil {
-			if responseData := config.NewResponseData(d); responseData != nil {
-				if err := json.Unmarshal(body, responseData); err != nil {
-					return createError("Unable to unmarshall JSON", err.Error())
-				}
-				log.Printf("[DEBUG] Response body (unmarshalled): %#v", responseData)
+			if body != nil && operation.Config.NewResponseData != nil {
+				if responseData := operation.Config.NewResponseData(d); responseData != nil {
+					if err := json.Unmarshal(body, responseData); err != nil {
+						return createError("Unable to unmarshall JSON", err.Error())
+					}
+					log.Printf("[DEBUG] Response body (unmarshalled): %#v", responseData)
 
-				if err := responseData.WriteToSchema(d); err != nil {
-					return createError(
-						fmt.Sprintf("Unable to %s resource", operationType),
-						err.Error(),
-					)
+					if err := responseData.WriteToSchema(d); err != nil {
+						return createError(
+							fmt.Sprintf("Unable to %s resource", operation.Type),
+							err.Error(),
+						)
+					}
 				}
 			}
-		}
 
-		log.Printf("[DEBUG] End %s", config.Name)
-
-		if consecutiveConfig != nil {
-			return HandleRequest(read, *consecutiveConfig, nil)(ctx, d, m)
+			log.Printf("[DEBUG] End %s", operation.Config.Name)
 		}
 		return diag.Diagnostics{}
 	}
