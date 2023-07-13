@@ -67,7 +67,7 @@ func CreateGenericSAMLConfig() ResourceOperationConfig {
 	}
 }
 
-func ValidateGenericSAMLConfig() ResourceOperationConfig {
+func CreateIdPConfig() ResourceOperationConfig {
 	return ResourceOperationConfig{
 		Name:       "GenericSAMLResourceValidation",
 		HttpMethod: http.MethodPost,
@@ -116,8 +116,8 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 					Config: ReadGenericSAMLConfig(),
 				},
 				{
-					Type:   update,
-					Config: ValidateGenericSAMLConfig(),
+					Type:   create,
+					Config: CreateIdPConfig(),
 				},
 			},
 		),

@@ -48,8 +48,8 @@ type ResourceOperationConfig struct {
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
-func CRUDResources(config []ResourceOperation) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
-	return HandleRequests(config)
+func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
+	return HandleRequests(resourceOperations)
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
