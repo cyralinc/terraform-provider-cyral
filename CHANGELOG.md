@@ -1,3 +1,19 @@
+## 4.5.1 (July 12, 2023)
+
+Minimum recommended Control Plane version: `v4.8.0`. It is safe to use this provider with all `v4` control planes
+as long as the incompatible arguments and resource are not used.
+
+Arguments incompatible with Control Planes previous to `v4.8`: `cyral_sidecar.activity_log_integration_id` and `cyral_sidecar.diagnostic_log_integration_id`.
+Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+## Bug fixes:
+
+- **Fix conflicting log integration ID**: [#420](https://github.com/cyralinc/terraform-provider-cyral/pull/420).
+- **ENG-12107: Add missing validation to idp saml resource**: [#421](https://github.com/cyralinc/terraform-provider-cyral/pull/421).
+
 ## 4.5.0 (June 30, 2023)
 
 Minimum recommended Control Plane version: `v4.8.0`. It is safe to use this provider with all `v4` control planes
