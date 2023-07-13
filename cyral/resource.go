@@ -49,11 +49,11 @@ type ResourceOperationConfig struct {
 }
 
 func CRUDResources(config []ResourceConfig) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
-	return HandleRequest(config)
+	return HandleRequests(config)
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
-	return HandleRequest(
+	return HandleRequests(
 		[]ResourceConfig{
 			{
 				Type:            create,
@@ -68,7 +68,7 @@ func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.Cre
 }
 
 func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
-	return HandleRequest(
+	return HandleRequests(
 		[]ResourceConfig{
 			{
 				Type:            read,
@@ -79,7 +79,7 @@ func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
 }
 
 func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.UpdateContextFunc {
-	return HandleRequest(
+	return HandleRequests(
 		[]ResourceConfig{
 			{
 				Type:            update,
@@ -94,7 +94,7 @@ func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.Upd
 }
 
 func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFunc {
-	return HandleRequest(
+	return HandleRequests(
 		[]ResourceConfig{
 			{
 				Type:            delete,
@@ -104,11 +104,11 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 	)
 }
 
-func HandleRequest(
-	configSlice []ResourceConfig,
+func HandleRequests(
+	configs []ResourceConfig,
 ) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-		for _, config := range configSlice {
+		for _, config := range configs {
 			log.Printf("[DEBUG] Init %s", config.OperationConfig.Name)
 			c := m.(*client.Client)
 
