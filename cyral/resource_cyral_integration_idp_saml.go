@@ -106,18 +106,18 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 			"[Single Sing-On](https://cyral.com/docs/sso/overview) to Cyral.\n\nSee also " +
 			"the remaining SAML-related resources and data sources.",
 		CreateContext: CRUDResources(
-			[]ResourceConfig{
+			[]ResourceOperation{
 				{
-					Type:            create,
-					OperationConfig: CreateGenericSAMLConfig(),
+					Type:   create,
+					Config: CreateGenericSAMLConfig(),
 				},
 				{
-					Type:            read,
-					OperationConfig: ReadGenericSAMLConfig(),
+					Type:   read,
+					Config: ReadGenericSAMLConfig(),
 				},
 				{
-					Type:            update,
-					OperationConfig: ValidateGenericSAMLConfig(),
+					Type:   update,
+					Config: ValidateGenericSAMLConfig(),
 				},
 			},
 		),
