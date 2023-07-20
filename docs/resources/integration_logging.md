@@ -86,6 +86,7 @@ resource "cyral_integration_logging" "elk_integration" {
   elk {
     es_url     = "http://es.com"
     kibana_url = "http://kibana.com"
+    # `es_credentials` can omitted for unprotected instances.
     es_credentials {
       username = "another-user"
       password = "123"
@@ -147,7 +148,7 @@ Required:
 
 Optional:
 
-- `es_credentials` (Block Set, Max: 1) Credentials used to authenticate to Elastic Search (see [below for nested schema](#nestedblock--elk--es_credentials))
+- `es_credentials` (Block Set, Max: 1) Credentials used to authenticate to Elastic Search.Can be omitted for unprotected instances. (see [below for nested schema](#nestedblock--elk--es_credentials))
 - `kibana_url` (String) Kibana URL.
 
 <a id="nestedblock--elk--es_credentials"></a>
