@@ -26,6 +26,7 @@ resource "cyral_integration_logging" "elk_integration" {
   elk {
     es_url     = "http://es.com"
     kibana_url = "http://kibana.com"
+    # `es_credentials` can omitted for unprotected instances.
     es_credentials {
       username = "another-user"
       password = "123"
