@@ -36,16 +36,26 @@ var initialLogsConfigDataDog LoggingIntegration = LoggingIntegration{
 	},
 }
 var initialLogsConfigElk LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsElk"),
+	Name:             accTestName(integrationLogsResourceName, "LogsElkComplete"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Elk: &ElkConfig{
 			EsURL:     "http://es.com",
 			KibanaURL: "http://kibana.com",
-			EsCredentials: EsCredentials{
+			EsCredentials: &EsCredentials{
 				Username: "gabriel",
 				Password: "123",
 			},
+		},
+	},
+}
+
+var initialLogsConfigElkEmptyEsCredentials LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "LogsElkEmptyEsCredentials"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		Elk: &ElkConfig{
+			EsURL: "http://es.com",
 		},
 	},
 }
@@ -109,16 +119,26 @@ var updatedLogsConfigDataDog LoggingIntegration = LoggingIntegration{
 }
 
 var updatedLogsConfigElk LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsElk"),
+	Name:             accTestName(integrationLogsResourceName, "LogsElkComplete"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Elk: &ElkConfig{
 			EsURL:     "http://esupdate.com",
 			KibanaURL: "http://kibanaupdate.com",
-			EsCredentials: EsCredentials{
+			EsCredentials: &EsCredentials{
 				Username: "gabriel-update",
 				Password: "1234",
 			},
+		},
+	},
+}
+
+var updatedLogsConfigElkEmptyEsCredentials LoggingIntegration = LoggingIntegration{
+	Name:             accTestName(integrationLogsResourceName, "LogsElkEmptyEsCredentials"),
+	ReceiveAuditLogs: true,
+	LoggingIntegrationConfig: LoggingIntegrationConfig{
+		Elk: &ElkConfig{
+			EsURL: "http://esupdate1.com",
 		},
 	},
 }
@@ -210,6 +230,30 @@ func TestAccLogsIntegrationResourceDataDog(t *testing.T) {
 func TestAccLogsIntegrationResourceElk(t *testing.T) {
 	testConfig, testFunc := setupLogsTest(initialLogsConfigElk)
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigElk)
+
+	resource.ParallelTest(t, resource.TestCase{
+		ProviderFactories: providerFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testConfig,
+				Check:  testFunc,
+			},
+			{
+				Config: testUpdateConfig,
+				Check:  testUpdateFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      integrationLogsFullTerraformResourceName,
+			},
+		},
+	})
+}
+
+func TestAccLogsIntegrationResourceElkEmptyEsCredentials(t *testing.T) {
+	testConfig, testFunc := setupLogsTest(initialLogsConfigElkEmptyEsCredentials)
+	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigElkEmptyEsCredentials)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -336,10 +380,13 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 	case integrationData.Elk != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_url", integrationData.Elk.EsURL),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.kibana_url", integrationData.Elk.KibanaURL),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_credentials.0.password", integrationData.Elk.EsCredentials.Password),
-			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_credentials.0.username", integrationData.Elk.EsCredentials.Username),
 		}...)
+		if integrationData.Elk.EsCredentials != nil {
+			checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+				resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_credentials.0.password", integrationData.Elk.EsCredentials.Password),
+				resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "elk.0.es_credentials.0.username", integrationData.Elk.EsCredentials.Username),
+			}...)
+		}
 	case integrationData.Splunk != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(integrationLogsFullTerraformResourceName, "splunk.0.hostname", integrationData.Splunk.Hostname),
@@ -390,15 +437,23 @@ func formatLogsIntegrationDataIntoConfig(data LoggingIntegration, resName string
 			api_key = "%s"
 		}`, data.Datadog.ApiKey)
 	case data.Elk != nil:
-		config = fmt.Sprintf(`
-		elk {
-			es_url = "%s"
-			kibana_url = "%s"
-			es_credentials {
-				username = "%s"
-				password = "%s"
-			}
-		}`, data.Elk.EsURL, data.Elk.KibanaURL, data.Elk.EsCredentials.Username, data.Elk.EsCredentials.Password)
+		if data.Elk.EsCredentials != nil {
+			config = fmt.Sprintf(`
+			elk {
+				es_url = "%s"
+				kibana_url = "%s"
+				es_credentials {
+					username = "%s"
+					password = "%s"
+				}
+			}`, data.Elk.EsURL, data.Elk.KibanaURL, data.Elk.EsCredentials.Username, data.Elk.EsCredentials.Password)
+		} else {
+			config = fmt.Sprintf(`
+			elk {
+				es_url = "%s"
+				kibana_url = "%s"
+			}`, data.Elk.EsURL, data.Elk.KibanaURL)
+		}
 	case data.Splunk != nil:
 		config = fmt.Sprintf(`
 		splunk {
