@@ -33,7 +33,6 @@ func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, erro
 		}
 	case resource.Elk != nil:
 		configType = ElkKey
-		configScheme := []interface{}{}
 		elkConfig := map[string]interface{}{
 			"es_url":     resource.Elk.EsURL,
 			"kibana_url": resource.Elk.KibanaURL,
@@ -47,7 +46,7 @@ func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, erro
 				},
 			}
 		}
-		configScheme = append(configScheme, elkConfig)
+		configScheme = []interface{}{elkConfig}
 	case resource.Splunk != nil:
 		configType = SplunkKey
 		configScheme = []interface{}{
