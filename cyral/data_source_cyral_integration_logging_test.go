@@ -66,9 +66,9 @@ func testIntegrationLoggingDataSourceConfigDependencies(resName string) string {
 
 func TestAccLoggingIntegrationDataSource(t *testing.T) {
 	testConfig1, testFunc1 := testIntegrationLoggingDataSource(t,
-		"test1", "CLOUDWATCH")
+		accTestName(integrationLogsDataSourceName, "test1"), "CLOUDWATCH")
 	testConfig2, testFunc2 := testIntegrationLoggingDataSource(t,
-		"test2", "DATADOG")
+		accTestName(integrationLogsDataSourceName, "test2"), "DATADOG")
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,

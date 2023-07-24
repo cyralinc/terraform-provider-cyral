@@ -33,18 +33,20 @@ func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, erro
 		}
 	case resource.Elk != nil:
 		configType = ElkKey
-		configScheme = []interface{}{
-			map[string]interface{}{
-				"es_url":     resource.Elk.EsURL,
-				"kibana_url": resource.Elk.KibanaURL,
-				"es_credentials": []interface{}{
-					map[string]interface{}{
-						"username": resource.Elk.EsCredentials.Username,
-						"password": resource.Elk.EsCredentials.Password,
-					},
-				},
-			},
+		elkConfig := map[string]interface{}{
+			"es_url":     resource.Elk.EsURL,
+			"kibana_url": resource.Elk.KibanaURL,
 		}
+		// Optional, so we need to verify separately
+		if resource.Elk.EsCredentials != nil {
+			elkConfig["es_credentials"] = []interface{}{
+				map[string]interface{}{
+					"username": resource.Elk.EsCredentials.Username,
+					"password": resource.Elk.EsCredentials.Password,
+				},
+			}
+		}
+		configScheme = []interface{}{elkConfig}
 	case resource.Splunk != nil:
 		configType = SplunkKey
 		configScheme = []interface{}{
@@ -131,18 +133,18 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 			ApiKey: m["api_key"].(string),
 		}
 	case ElkKey:
-		credentialsSet := m["es_credentials"].(*schema.Set).List()
-		credentialScheme := make(map[string]interface{})
-		if len(credentialsSet) != 0 {
-			credentialScheme = credentialsSet[0].(map[string]interface{})
-		}
 		integrationLogConfig.Elk = &ElkConfig{
 			EsURL:     m["es_url"].(string),
 			KibanaURL: m["kibana_url"].(string),
-			EsCredentials: EsCredentials{
+		}
+		credentialsSet := m["es_credentials"].(*schema.Set).List()
+		if len(credentialsSet) != 0 {
+			credentialScheme := make(map[string]interface{})
+			credentialScheme = credentialsSet[0].(map[string]interface{})
+			integrationLogConfig.Elk.EsCredentials = &EsCredentials{
 				Username: credentialScheme["username"].(string),
 				Password: credentialScheme["password"].(string),
-			},
+			}
 		}
 	case SplunkKey:
 		integrationLogConfig.Splunk = &SplunkConfig{

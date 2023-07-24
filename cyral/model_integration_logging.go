@@ -20,9 +20,9 @@ type EsCredentials struct {
 }
 
 type ElkConfig struct {
-	EsURL         string        `json:"esUrl"`
-	KibanaURL     string        `json:"kibanaUrl"`
-	EsCredentials EsCredentials `json:"esCredentials"`
+	EsURL         string         `json:"esUrl"`
+	KibanaURL     string         `json:"kibanaUrl"`
+	EsCredentials *EsCredentials `json:"esCredentials"`
 }
 
 type SplunkConfig struct {
