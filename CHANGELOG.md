@@ -1,3 +1,22 @@
+## 4.5.2 (July 24, 2023)
+
+Minimum recommended Control Plane version: `v4.8.0`. It is safe to use this provider with all `v4` control planes
+as long as the incompatible arguments and resource are not used.
+
+Arguments incompatible with Control Planes previous to `v4.8`: `cyral_sidecar.activity_log_integration_id` and `cyral_sidecar.diagnostic_log_integration_id`.
+Resource incompatible with Control Planes previous to `v4.7`: `cyral_integration_logging`.
+Argument incompatible with Control Planes previous to `v4.2`: `cyral_repository.mongodb_settings.srv_record_name`.
+
+See the list of incompatible resources with Control Planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+## Bug fixes:
+
+- **ENG-12193: Terrraform provider panics when ELK integration creds are not set**: [#424](https://github.com/cyralinc/terraform-provider-cyral/pull/424).
+
+### Documentation:
+
+- **Improve es_credentials description**: [#423](https://github.com/cyralinc/terraform-provider-cyral/pull/423).
+
 ## 4.5.1 (July 12, 2023)
 
 Minimum recommended Control Plane version: `v4.8.0`. It is safe to use this provider with all `v4` control planes
@@ -116,6 +135,8 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 ### Bug fixes:
 
 - **Update ADFS default value for IdP resource**: [#364](https://github.com/cyralinc/terraform-provider-cyral/pull/364).
+- **Replace POST by PUT in access rule creation**: [#376](https://github.com/cyralinc/terraform-provider-cyral/pull/376).
+- **Update Conf Auth resource to fix recreation issue**: [#378](https://github.com/cyralinc/terraform-provider-cyral/pull/378).
 
 ### Documentation:
 
@@ -125,8 +146,6 @@ See the list of incompatible resources with Control Planes `v3.x` and provider `
 ### Improvements:
 
 - **Update SDK**: [#365](https://github.com/cyralinc/terraform-provider-cyral/pull/365).
-- **Replace POST by PUT in access rule creation**: [#376](https://github.com/cyralinc/terraform-provider-cyral/pull/376).
-- **Update Conf Auth resource to fix recreation issue**: [#378](https://github.com/cyralinc/terraform-provider-cyral/pull/378).
 
 ## 4.1.1 (February 21, 2023)
 
