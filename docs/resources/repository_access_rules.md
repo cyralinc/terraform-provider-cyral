@@ -91,4 +91,4 @@ Required:
 
 Required:
 
-- `policy_ids` (List of String) Extra authorization policies, such as PagerDuty or DUO.
+- `policy_ids` (List of String) Extra authorization policies, such as PagerDuty or DUO. Use the attribute `id` from resources `cyral_integration_pager_duty` and `cyral_integration_mfa_duo`.

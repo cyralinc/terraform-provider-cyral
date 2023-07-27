@@ -1,6 +1,6 @@
 # cyral_repository (Data Source)
 
-Retrieve and filter repositories.
+Retrieves a list of repositories. See [`repository_list`](#nestedatt--repository_list).
 
 ## Example Usage
 
@@ -18,9 +18,9 @@ resource "cyral_repository" "mongo-repository" {
   }
 }
 
-resource "cyral_repository" "mysql-repository" {
+resource "cyral_repository" "mysql-repository1" {
   type = "mysql"
-  name = "tf-provider-mysql-repository"
+  name = "tf-provider-mysql-repository1"
 
   repo_node {
     host = "mysql.com"
@@ -28,17 +28,45 @@ resource "cyral_repository" "mysql-repository" {
   }
 }
 
-data "cyral_repository" "search-for-mysql-repo" {
+resource "cyral_repository" "mysql-repository2" {
+  type = "mysql"
+  name = "tf-provider-mysql-repository2"
+
+  repo_node {
+    host = "mysql2.com"
+    port = 3306
+  }
+}
+
+data "cyral_repository" "specific-mysql-repo" {
   depends_on = [
     cyral_repository.mongo-repository,
-    cyral_repository.mysql-repository
+    cyral_repository.mysql-repository1,
+    cyral_repository.mysql-repository2,
   ]
-  name = "tf-provider-mysql-repository"
+  # As we have more than one MySQL repos, we need to provide
+  # the name and type or just the name (repo names are unique)
+  name = "tf-provider-mysql-repository1"
   type = "mysql"
 }
 
-output "mysql_repo_id" {
-  value = data.cyral_repository.search-for-mysql-repo.id
+data "cyral_repository" "all-mysql-repos" {
+  depends_on = [
+    cyral_repository.mongo-repository,
+    cyral_repository.mysql-repository1,
+    cyral_repository.mysql-repository2,
+  ]
+  type = "mysql"
+}
+
+output "mysql1_repo_id" {
+  # Because our search is targeting a specific name that we
+  # know it exists referencing index 0 is safe.
+  value = data.cyral_repository.specific-mysql-repo.repository_list[0].id
+}
+
+output "all_mysql_repo_ids" {
+  value = data.cyral_repository.all-mysql-repos.repository_list
 }
 ```
 
