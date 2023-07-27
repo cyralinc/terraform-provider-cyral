@@ -288,10 +288,12 @@ func resourceRepositoryAccessRules() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"policy_ids": {
-										Description: "Extra authorization policies, such as PagerDuty or DUO.",
-										Required:    true,
-										Type:        schema.TypeList,
-										MinItems:    1,
+										Description: "Extra authorization policies, such as PagerDuty or DUO." +
+											" Use the attribute `id` from resources `cyral_integration_pager_duty`" +
+											" and `cyral_integration_mfa_duo`.",
+										Required: true,
+										Type:     schema.TypeList,
+										MinItems: 1,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},

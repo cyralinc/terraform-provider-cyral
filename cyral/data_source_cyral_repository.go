@@ -71,7 +71,7 @@ func dataSourceRepositoryReadConfig() ResourceOperationConfig {
 
 func dataSourceRepository() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieve and filter repositories.",
+		Description: "Retrieves a list of repositories. See [`repository_list`]((#nestedatt--repository_list)).",
 		ReadContext: ReadResource(dataSourceRepositoryReadConfig()),
 		Schema: map[string]*schema.Schema{
 			RepoNameKey: {
