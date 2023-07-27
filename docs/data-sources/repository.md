@@ -1,6 +1,6 @@
 # cyral_repository (Data Source)
 
-Retrieves a list of repositories. See [`repository_list`](<(#nestedatt--repository_list)>).
+Retrieves a list of repositories. See [`repository_list`](#nestedatt--repository_list).
 
 ## Example Usage
 
