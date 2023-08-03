@@ -138,7 +138,8 @@ var readRoleSSOGroupsConfig = ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &RoleSSOGroupsReadResponse{} },
+	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &RoleSSOGroupsReadResponse{} },
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Role SSO groups"},
 }
 
 var deleteRoleSSOGroupsConfig = ResourceOperationConfig{

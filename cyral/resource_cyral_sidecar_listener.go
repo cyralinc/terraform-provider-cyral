@@ -58,7 +58,8 @@ var ReadSidecarListenersConfig = ResourceOperationConfig{
 			d.Get(SidecarIDKey).(string),
 			d.Get(ListenerIDKey).(string))
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadSidecarListenerAPIResponse{} },
+	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &ReadSidecarListenerAPIResponse{} },
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Sidecar listener"},
 }
 
 type ReadSidecarListenerAPIResponse struct {

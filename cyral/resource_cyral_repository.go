@@ -281,6 +281,7 @@ var ReadRepositoryConfig = ResourceOperationConfig{
 	NewResponseData: func(_ *schema.ResourceData) ResponseData {
 		return &GetRepoByIDResponse{}
 	},
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Repository"},
 }
 
 func resourceRepository() *schema.Resource {

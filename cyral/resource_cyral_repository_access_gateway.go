@@ -46,6 +46,7 @@ var ReadRepositoryAccessGatewayConfig = ResourceOperationConfig{
 	NewResponseData: func(_ *schema.ResourceData) ResponseData {
 		return &GetOrUpdateAccessGateway{}
 	},
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Repository access gateway"},
 }
 
 func resourceRepositoryAccessGateway() *schema.Resource {

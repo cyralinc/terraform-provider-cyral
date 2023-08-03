@@ -139,6 +139,7 @@ var ReadRepositoryAccessRulesConfig = ResourceOperationConfig{
 	NewResponseData: func(_ *schema.ResourceData) ResponseData {
 		return &AccessRulesResponse{}
 	},
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Repository access rule"},
 }
 
 func resourceRepositoryAccessRules() *schema.Resource {

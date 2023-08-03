@@ -36,7 +36,8 @@ var ReadELKConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ELKIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &ELKIntegration{} },
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Integration elk"},
 }
 
 func resourceIntegrationELK() *schema.Resource {

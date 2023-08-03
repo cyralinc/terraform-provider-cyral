@@ -25,3 +25,21 @@ func (h *DeleteIgnoreHttpNotFound) HandleError(
 	log.Printf("[DEBUG] %s not found. Skipping deletion.", h.resName)
 	return nil
 }
+
+type ReadIgnoreHttpNotFound struct {
+	resName string
+}
+
+func (h *ReadIgnoreHttpNotFound) HandleError(
+	r *schema.ResourceData,
+	_ *client.Client,
+	err error,
+) error {
+	httpError, ok := err.(*client.HttpError)
+	if !ok || httpError.StatusCode != http.StatusNotFound {
+		return err
+	}
+	r.SetId("")
+	log.Printf("[DEBUG] %s not found. Marking resource for recreation.", h.resName)
+	return nil
+}
