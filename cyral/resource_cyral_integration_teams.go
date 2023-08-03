@@ -31,7 +31,8 @@ var ReadMsTeamsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &MsTeamsIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &MsTeamsIntegration{} },
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Integration Teams"},
 }
 
 func resourceIntegrationMsTeams() *schema.Resource {

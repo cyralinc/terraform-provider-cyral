@@ -117,6 +117,7 @@ var ReadRepositoryBindingConfig = ResourceOperationConfig{
 	NewResponseData: func(_ *schema.ResourceData) ResponseData {
 		return &GetBindingResponse{}
 	},
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Repository binding"},
 }
 
 func resourceRepositoryBinding() *schema.Resource {

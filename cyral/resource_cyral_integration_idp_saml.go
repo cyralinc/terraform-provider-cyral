@@ -86,7 +86,8 @@ func ReadGenericSAMLConfig() ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
 		},
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadGenericSAMLResponse{} },
+		NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &ReadGenericSAMLResponse{} },
+		RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Generic SAML"},
 	}
 }
 

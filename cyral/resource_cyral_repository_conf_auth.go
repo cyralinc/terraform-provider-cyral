@@ -143,7 +143,8 @@ func ReadConfAuthConfig() ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &ReadRepositoryConfAuthResponse{} },
+		NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &ReadRepositoryConfAuthResponse{} },
+		RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Repository conf auth"},
 	}
 }
 

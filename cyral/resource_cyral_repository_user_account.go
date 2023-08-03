@@ -318,6 +318,7 @@ var ReadRepositoryUserAccountConfig = ResourceOperationConfig{
 	NewResponseData: func(_ *schema.ResourceData) ResponseData {
 		return &UserAccountResource{}
 	},
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "User account"},
 }
 
 func resourceRepositoryUserAccount() *schema.Resource {

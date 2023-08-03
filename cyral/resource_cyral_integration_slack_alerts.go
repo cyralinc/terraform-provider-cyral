@@ -31,7 +31,8 @@ var ReadSlackAlertsConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &SlackAlertsIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &SlackAlertsIntegration{} },
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Integration Slack"},
 }
 
 func resourceIntegrationSlackAlerts() *schema.Resource {

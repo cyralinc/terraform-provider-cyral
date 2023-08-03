@@ -117,7 +117,8 @@ func readRepositoryNetworkAccessPolicy() ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResponseData: func(_ *schema.ResourceData) ResponseData { return &NetworkAccessPolicy{} },
+		NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &NetworkAccessPolicy{} },
+		RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Repository network access policy"},
 	}
 }
 
