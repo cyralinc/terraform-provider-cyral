@@ -33,7 +33,8 @@ var ReadDatadogConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &DatadogIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &DatadogIntegration{} },
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Integration datadog"},
 }
 
 func resourceIntegrationDatadog() *schema.Resource {

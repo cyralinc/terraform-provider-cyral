@@ -187,7 +187,7 @@ var ReadLoggingIntegration = ResourceOperationConfig{
 		return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 	},
 	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &LoggingIntegration{} },
-	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Logging integration"},
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Integration logging"},
 }
 
 func UpdateLoggingIntegration() ResourceOperationConfig {

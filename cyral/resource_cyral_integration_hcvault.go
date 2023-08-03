@@ -32,7 +32,8 @@ var ReadHCVaultIntegrationConfig = ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) ResponseData { return &HCVaultIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) ResponseData { return &HCVaultIntegration{} },
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "Integration hcvault"},
 }
 
 func resourceIntegrationHCVault() *schema.Resource {
