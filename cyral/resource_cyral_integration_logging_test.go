@@ -79,7 +79,7 @@ var initialLogsConfigSumologic LoggingIntegration = LoggingIntegration{
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		SumoLogic: &SumoLogicConfig{
-			Address: "http://www.hostname.com.br",
+			Address: "https://www.hostname.com.br/path",
 		},
 	},
 }
@@ -162,7 +162,7 @@ var updatedLogsConfigSumologic LoggingIntegration = LoggingIntegration{
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		SumoLogic: &SumoLogicConfig{
-			Address: "http://www.hostnameupdated.com.br",
+			Address: "https://www.hostnameupdated.com.br/path",
 		},
 	},
 }

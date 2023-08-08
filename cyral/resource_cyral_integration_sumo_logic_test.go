@@ -13,12 +13,12 @@ const (
 
 var initialSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
 	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic"),
-	Address: "sumologic.local/initial",
+	Address: "https://sumologic.local/initial",
 }
 
 var updatedSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
 	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic-updated"),
-	Address: "sumologic.local/updated",
+	Address: "https://sumologic.local/updated",
 }
 
 func TestAccSumoLogicIntegrationResource(t *testing.T) {
