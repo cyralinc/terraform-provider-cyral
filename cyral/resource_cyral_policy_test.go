@@ -11,14 +11,6 @@ const (
 	policyResourceName = "policy"
 )
 
-type PolicyTestConfig struct {
-	Data        []string
-	Description string
-	Enabled     bool
-	Name        string
-	Tags        []string
-}
-
 var initialPolicyConfig = Policy{
 	Meta: &PolicyMetadata{
 		Name:        accTestName(policyResourceName, "test"),
