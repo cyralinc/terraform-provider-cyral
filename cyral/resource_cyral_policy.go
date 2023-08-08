@@ -70,6 +70,7 @@ func resourcePolicy() *schema.Resource {
 				},
 			},
 			"tags": {
+				Deprecated: "Use `metadata_tags` instead. This will be removed in the next major version of the provider.",
 				Description: "Metadata tags that can be used to organize and/or classify your policies " +
 					"(ex: `[your_tag1, your_tag2]`).",
 				Type:     schema.TypeList,
@@ -77,6 +78,17 @@ func resourcePolicy() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				ConflictsWith: []string{"metadata_tags"},
+			},
+			"metadata_tags": {
+				Description: "Metadata tags that can be used to organize and/or classify your policies " +
+					"(ex: `[your_tag1, your_tag2]`).",
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				ConflictsWith: []string{"tags"},
 			},
 			"type": {
 				Description: "Policy type.",
@@ -146,9 +158,16 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	d.Set("last_updated", response.Meta.LastUpdated.String())
 	d.Set("name", response.Meta.Name)
 	d.Set("data_label_tags", response.Tags)
-	d.Set("tags", response.Meta.Tags)
 	d.Set("type", response.Meta.Type)
 	d.Set("version", response.Meta.Version)
+	// Once the `tags` field is removed, this conditional logic should also be
+	// removed and only the `metadata_tags` should be set.
+	_, isDeprecatedFieldSet := d.GetOk("tags")
+	if isDeprecatedFieldSet {
+		d.Set("tags", response.Meta.Tags)
+	} else {
+		d.Set("metadata_tags", response.Meta.Tags)
+	}
 
 	log.Printf("[DEBUG] End resourcePolicyRead")
 	return diag.Diagnostics{}
@@ -201,7 +220,10 @@ func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
 func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 	data := getStrListFromSchemaField(d, "data")
 	dataLabelTags := getStrListFromSchemaField(d, "data_label_tags")
-	metadataTags := getStrListFromSchemaField(d, "tags")
+	metadataTags := getStrListFromSchemaField(d, "metadata_tags")
+	if len(metadataTags) == 0 {
+		metadataTags = getStrListFromSchemaField(d, "tags")
+	}
 
 	policy := Policy{
 		Data: data,
