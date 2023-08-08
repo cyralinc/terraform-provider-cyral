@@ -14,8 +14,9 @@ import (
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [policies](https://cyral.com/docs/reference/policy). See also: [Policy Rule](./policy_rule.md)." +
-			" For more information, see the [Policy Guide](https://cyral.com/docs/policy/overview).",
+		Description: "Manages [policies](https://cyral.com/docs/reference/policy). See also: " +
+			"[Policy Rule](./policy_rule.md). For more information, see the " +
+			"[Policy Guide](https://cyral.com/docs/policy/overview).",
 		CreateContext: resourcePolicyCreate,
 		ReadContext:   resourcePolicyRead,
 		UpdateContext: resourcePolicyUpdate,
@@ -27,9 +28,11 @@ func resourcePolicy() *schema.Resource {
 				Computed:    true,
 			},
 			"data": {
-				Description: "List that specify which data fields a policy manages. Each field is represented by the LABEL you established for it in your data map. The actual location of that data (the names of fields, columns, or databases that hold it) is listed in the data map.",
-				Type:        schema.TypeList,
-				Optional:    true,
+				Description: "List that specify which data fields a policy manages. Each field is represented by the LABEL " +
+					"you established for it in your data map. The actual location of that data (the names of fields, columns, " +
+					"or databases that hold it) is listed in the data map.",
+				Type:     schema.TypeList,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -56,10 +59,21 @@ func resourcePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
+			"data_label_tags": {
+				Description: "List of tags that represent sets of data labels (established in your data map) that " +
+					"are used to specify the collections of data labels that the policy manages. For more information, " +
+					"see [The tags block of a policy](https://cyral.com/docs/policy/policy-structure#the-tags-block-of-a-policy)",
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"tags": {
-				Description: "Tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).",
-				Type:        schema.TypeList,
-				Optional:    true,
+				Description: "Metadata tags that can be used to organize and/or classify your policies " +
+					"(ex: `[your_tag1, your_tag2]`).",
+				Type:     schema.TypeList,
+				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -121,7 +135,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 
 	response := Policy{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return createError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
+		return createError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
 
@@ -131,6 +145,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	d.Set("enabled", response.Meta.Enabled)
 	d.Set("last_updated", response.Meta.LastUpdated.String())
 	d.Set("name", response.Meta.Name)
+	d.Set("data_label_tags", response.Tags)
 	d.Set("tags", response.Meta.Tags)
 	d.Set("type", response.Meta.Type)
 	d.Set("version", response.Meta.Version)
@@ -185,12 +200,14 @@ func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
 
 func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 	data := getStrListFromSchemaField(d, "data")
-	tags := getStrListFromSchemaField(d, "tags")
+	dataLabelTags := getStrListFromSchemaField(d, "data_label_tags")
+	metadataTags := getStrListFromSchemaField(d, "tags")
 
 	policy := Policy{
 		Data: data,
+		Tags: dataLabelTags,
 		Meta: &PolicyMetadata{
-			Tags: tags,
+			Tags: metadataTags,
 		},
 	}
 

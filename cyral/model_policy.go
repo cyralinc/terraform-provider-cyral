@@ -5,20 +5,21 @@ import (
 )
 
 type Policy struct {
-	Meta *PolicyMetadata `json:"meta" yaml:"meta"`
-	Data []string        `json:"data,omitempty" yaml:"data,omitempty,flow"`
+	Meta *PolicyMetadata `json:"meta"`
+	Data []string        `json:"data,omitempty"`
+	Tags []string        `json:"tags,omitempty"`
 }
 
 type PolicyMetadata struct {
-	ID          string    `json:"id" yaml:"id"`
-	Name        string    `json:"name" yaml:"name"`
-	Version     string    `json:"version" yaml:"version"`
-	Created     time.Time `json:"created" yaml:"created"`
-	LastUpdated time.Time `json:"lastUpdated" yaml:"lastUpdated"`
-	Type        string    `json:"type" yaml:"type"`
-	Tags        []string  `json:"tags" yaml:"tags"`
-	Enabled     bool      `json:"enabled" yaml:"enabled"`
-	Description string    `json:"description" yaml:"description"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Version     string    `json:"version"`
+	Created     time.Time `json:"created"`
+	LastUpdated time.Time `json:"lastUpdated"`
+	Type        string    `json:"type"`
+	Tags        []string  `json:"tags"`
+	Enabled     bool      `json:"enabled"`
+	Description string    `json:"description"`
 }
 
 type PolicyListResponse struct {
