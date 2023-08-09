@@ -82,11 +82,11 @@ func setupPolicyTest(integrationData Policy) (string, resource.TestCheckFunc) {
 			integrationData.Data[0],
 		),
 		resource.TestCheckResourceAttr(
-			"cyral_policy.policy_test", "data_tags.#",
+			"cyral_policy.policy_test", "data_label_tags.#",
 			fmt.Sprintf("%d", len(integrationData.Tags)),
 		),
 		resource.TestCheckResourceAttr(
-			"cyral_policy.policy_test", "data_tags.0",
+			"cyral_policy.policy_test", "data_label_tags.0",
 			integrationData.Tags[0],
 		),
 		resource.TestCheckResourceAttr(
@@ -109,7 +109,7 @@ func formatPolicyTestConfigIntoConfig(data Policy) string {
 		description = "%s"
 		enabled = %t
 		data = %s
-		data_tags = %s
+		data_label_tags = %s
 		metadata_tags = %s
 	}`,
 		data.Meta.Name,

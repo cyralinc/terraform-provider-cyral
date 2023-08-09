@@ -37,7 +37,7 @@ func resourcePolicy() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"data_tags": {
+			"data_label_tags": {
 				Description: "List of tags that represent sets of data labels (established in your data map) that " +
 					"are used to specify the collections of data labels that the policy manages. For more information, " +
 					"see [The tags block of a policy](https://cyral.com/docs/policy/policy-structure#the-tags-block-of-a-policy)",
@@ -153,7 +153,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 
 	d.Set("created", response.Meta.Created.String())
 	d.Set("data", response.Data)
-	d.Set("data_tags", response.Tags)
+	d.Set("data_label_tags", response.Tags)
 	d.Set("description", response.Meta.Description)
 	d.Set("enabled", response.Meta.Enabled)
 	d.Set("last_updated", response.Meta.LastUpdated.String())
@@ -219,7 +219,7 @@ func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
 
 func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 	data := getStrListFromSchemaField(d, "data")
-	dataTags := getStrListFromSchemaField(d, "data_tags")
+	dataTags := getStrListFromSchemaField(d, "data_label_tags")
 	metadataTags := getStrListFromSchemaField(d, "metadata_tags")
 	if len(metadataTags) == 0 {
 		metadataTags = getStrListFromSchemaField(d, "tags")
