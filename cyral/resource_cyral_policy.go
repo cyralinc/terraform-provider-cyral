@@ -37,6 +37,16 @@ func resourcePolicy() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"data_tags": {
+				Description: "List of tags that represent sets of data labels (established in your data map) that " +
+					"are used to specify the collections of data labels that the policy manages. For more information, " +
+					"see [The tags block of a policy](https://cyral.com/docs/policy/policy-structure#the-tags-block-of-a-policy)",
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"description": {
 				Description: "String that describes the policy (ex: `your_policy_description`).",
 				Type:        schema.TypeString,
@@ -58,16 +68,6 @@ func resourcePolicy() *schema.Resource {
 				Description: "Policy name that will be used internally in Control Plane (ex: `your_policy_name`).",
 				Type:        schema.TypeString,
 				Required:    true,
-			},
-			"data_label_tags": {
-				Description: "List of tags that represent sets of data labels (established in your data map) that " +
-					"are used to specify the collections of data labels that the policy manages. For more information, " +
-					"see [The tags block of a policy](https://cyral.com/docs/policy/policy-structure#the-tags-block-of-a-policy)",
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
 			},
 			"tags": {
 				Deprecated: "Use `metadata_tags` instead. This will be removed in the next major version of the provider.",
@@ -153,11 +153,11 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 
 	d.Set("created", response.Meta.Created.String())
 	d.Set("data", response.Data)
+	d.Set("data_tags", response.Tags)
 	d.Set("description", response.Meta.Description)
 	d.Set("enabled", response.Meta.Enabled)
 	d.Set("last_updated", response.Meta.LastUpdated.String())
 	d.Set("name", response.Meta.Name)
-	d.Set("data_label_tags", response.Tags)
 	d.Set("type", response.Meta.Type)
 	d.Set("version", response.Meta.Version)
 	// Once the `tags` field is removed, this conditional logic should also be
@@ -219,7 +219,7 @@ func getStrListFromSchemaField(d *schema.ResourceData, field string) []string {
 
 func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 	data := getStrListFromSchemaField(d, "data")
-	dataLabelTags := getStrListFromSchemaField(d, "data_label_tags")
+	dataTags := getStrListFromSchemaField(d, "data_tags")
 	metadataTags := getStrListFromSchemaField(d, "metadata_tags")
 	if len(metadataTags) == 0 {
 		metadataTags = getStrListFromSchemaField(d, "tags")
@@ -227,7 +227,7 @@ func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 
 	policy := Policy{
 		Data: data,
-		Tags: dataLabelTags,
+		Tags: dataTags,
 		Meta: &PolicyMetadata{
 			Tags: metadataTags,
 		},

@@ -19,7 +19,7 @@ var initialPolicyConfig = Policy{
 		Tags:        []string{"tag"},
 	},
 	Data: []string{"data"},
-	Tags: []string{"DATA_LABEL_TAG_TEST"},
+	Tags: []string{"DATA_TAG_TEST"},
 }
 
 var updatedPolicyConfig = Policy{
@@ -30,7 +30,7 @@ var updatedPolicyConfig = Policy{
 		Tags:        []string{"tag-updated"},
 	},
 	Data: []string{"data-updated"},
-	Tags: []string{"DATA_LABEL_TAG_TEST_UPDATED"},
+	Tags: []string{"DATA_TAG_TEST_UPDATED"},
 }
 
 func TestAccPolicyResource(t *testing.T) {
@@ -82,11 +82,11 @@ func setupPolicyTest(integrationData Policy) (string, resource.TestCheckFunc) {
 			integrationData.Data[0],
 		),
 		resource.TestCheckResourceAttr(
-			"cyral_policy.policy_test", "data_label_tags.#",
+			"cyral_policy.policy_test", "data_tags.#",
 			fmt.Sprintf("%d", len(integrationData.Tags)),
 		),
 		resource.TestCheckResourceAttr(
-			"cyral_policy.policy_test", "data_label_tags.0",
+			"cyral_policy.policy_test", "data_tags.0",
 			integrationData.Tags[0],
 		),
 		resource.TestCheckResourceAttr(
@@ -109,7 +109,7 @@ func formatPolicyTestConfigIntoConfig(data Policy) string {
 		description = "%s"
 		enabled = %t
 		data = %s
-		data_label_tags = %s
+		data_tags = %s
 		metadata_tags = %s
 	}`,
 		data.Meta.Name,
