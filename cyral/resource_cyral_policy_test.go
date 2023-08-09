@@ -11,28 +11,26 @@ const (
 	policyResourceName = "policy"
 )
 
-type PolicyTestConfig struct {
-	Data        []string
-	Description string
-	Enabled     bool
-	Name        string
-	Tags        []string
+var initialPolicyConfig = Policy{
+	Meta: &PolicyMetadata{
+		Name:        accTestName(policyResourceName, "test"),
+		Description: "description",
+		Enabled:     false,
+		Tags:        []string{"tag"},
+	},
+	Data: []string{"data"},
+	Tags: []string{"DATA_TAG_TEST"},
 }
 
-var initialPolicyConfig PolicyTestConfig = PolicyTestConfig{
-	Data:        []string{"data"},
-	Description: "description",
-	Enabled:     false,
-	Name:        accTestName(policyResourceName, "test"),
-	Tags:        []string{"tag"},
-}
-
-var updatedPolicyConfig PolicyTestConfig = PolicyTestConfig{
-	Data:        []string{"data-updated"},
-	Description: "desctiption-updated",
-	Enabled:     true,
-	Name:        accTestName(policyResourceName, "test"),
-	Tags:        []string{"tag-updated"},
+var updatedPolicyConfig = Policy{
+	Meta: &PolicyMetadata{
+		Name:        accTestName(policyResourceName, "test-updated"),
+		Description: "desctiption-updated",
+		Enabled:     true,
+		Tags:        []string{"tag-updated"},
+	},
+	Data: []string{"data-updated"},
+	Tags: []string{"DATA_TAG_TEST_UPDATED"},
 }
 
 func TestAccPolicyResource(t *testing.T) {
@@ -59,30 +57,66 @@ func TestAccPolicyResource(t *testing.T) {
 	})
 }
 
-func setupPolicyTest(integrationData PolicyTestConfig) (string, resource.TestCheckFunc) {
+func setupPolicyTest(integrationData Policy) (string, resource.TestCheckFunc) {
 	configuration := formatPolicyTestConfigIntoConfig(integrationData)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_policy.policy_test", "data.#", fmt.Sprintf("%d", len(integrationData.Data))),
-		resource.TestCheckResourceAttr("cyral_policy.policy_test", "data.0", integrationData.Data[0]),
-		resource.TestCheckResourceAttr("cyral_policy.policy_test", "description", integrationData.Description),
-		resource.TestCheckResourceAttr("cyral_policy.policy_test", "enabled", fmt.Sprintf("%t", integrationData.Enabled)),
-		resource.TestCheckResourceAttr("cyral_policy.policy_test", "name", integrationData.Name),
-		resource.TestCheckResourceAttr("cyral_policy.policy_test", "tags.#", fmt.Sprintf("%d", len(integrationData.Tags))),
-		resource.TestCheckResourceAttr("cyral_policy.policy_test", "tags.0", integrationData.Tags[0]),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "name",
+			integrationData.Meta.Name,
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "description",
+			integrationData.Meta.Description,
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "enabled",
+			fmt.Sprintf("%t", integrationData.Meta.Enabled),
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "data.#",
+			fmt.Sprintf("%d", len(integrationData.Data)),
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "data.0",
+			integrationData.Data[0],
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "data_label_tags.#",
+			fmt.Sprintf("%d", len(integrationData.Tags)),
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "data_label_tags.0",
+			integrationData.Tags[0],
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "metadata_tags.#",
+			fmt.Sprintf("%d", len(integrationData.Meta.Tags)),
+		),
+		resource.TestCheckResourceAttr(
+			"cyral_policy.policy_test", "metadata_tags.0",
+			integrationData.Meta.Tags[0],
+		),
 	)
 
 	return configuration, testFunction
 }
 
-func formatPolicyTestConfigIntoConfig(data PolicyTestConfig) string {
+func formatPolicyTestConfigIntoConfig(data Policy) string {
 	return fmt.Sprintf(`
 	resource "cyral_policy" "policy_test" {
-		data = %s
+		name = "%s"
 		description = "%s"
 		enabled = %t
-		name = "%s"
-		tags = %s
-	  }`, listToStr(data.Data), data.Description, data.Enabled,
-		data.Name, listToStr(data.Tags))
+		data = %s
+		data_label_tags = %s
+		metadata_tags = %s
+	}`,
+		data.Meta.Name,
+		data.Meta.Description,
+		data.Meta.Enabled,
+		listToStr(data.Data),
+		listToStr(data.Tags),
+		listToStr(data.Meta.Tags),
+	)
 }

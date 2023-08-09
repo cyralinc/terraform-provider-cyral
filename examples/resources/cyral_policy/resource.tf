@@ -1,7 +1,8 @@
 resource "cyral_policy" "some_resource_name" {
-  data = [""]
+  name = ""
   description = ""
   enabled = true
-  name = ""
+  data = [""]
+  data_label_tags = [""]
   tags = [""]
 }
