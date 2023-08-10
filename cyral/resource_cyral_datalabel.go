@@ -53,6 +53,7 @@ func resourceDatalabel() *schema.Resource {
 							Description: "Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`.",
 							Type:        schema.TypeString,
 							Optional:    true,
+							Default:     "UNKNOWN",
 						},
 						"rule_code": {
 							Description: "Actual code of the classification rule. For example, this attribute may contain " +
@@ -64,6 +65,7 @@ func resourceDatalabel() *schema.Resource {
 							Description: "Status of the classification rule. Valid values are: `ENABLED` and  `DISABLED`.",
 							Type:        schema.TypeString,
 							Optional:    true,
+							Default:     "ENABLED",
 						},
 					},
 				},
