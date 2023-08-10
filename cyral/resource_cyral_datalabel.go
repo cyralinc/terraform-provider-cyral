@@ -43,17 +43,18 @@ func resourceDatalabel() *schema.Resource {
 			"classification_rule": {
 				Description: "Classification rules are used by the " +
 					"[Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map " +
-					"data locations to labels. Currently, only `PREDEFINED` labels have classification rules.",
+					"data locations to labels.",
 				Optional: true,
 				Type:     schema.TypeSet,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"rule_type": {
-							Description: "Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "UNKNOWN",
+							Description: "Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`. Defaults " +
+								"to `UNKNOWN`.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "UNKNOWN",
 						},
 						"rule_code": {
 							Description: "Actual code of the classification rule. For example, this attribute may contain " +
@@ -62,10 +63,11 @@ func resourceDatalabel() *schema.Resource {
 							Optional: true,
 						},
 						"rule_status": {
-							Description: "Status of the classification rule. Valid values are: `ENABLED` and  `DISABLED`.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "ENABLED",
+							Description: "Status of the classification rule. Valid values are: `ENABLED` and  `DISABLED`. " +
+								"Defaults to `ENABLED`.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "ENABLED",
 						},
 					},
 				},
