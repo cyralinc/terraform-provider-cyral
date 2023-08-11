@@ -24,14 +24,14 @@ type SidecarData struct {
 	Name                     string                   `json:"name"`
 	Labels                   []string                 `json:"labels"`
 	SidecarProperties        *SidecarProperties       `json:"properties"`
-	ServicesConfig           SidecarServicesConfig    `json:"services"`
+	ServiceConfigs           SidecarServiceConfigs    `json:"services"`
 	UserEndpoint             string                   `json:"userEndpoint"`
 	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
 }
 
 func (sd *SidecarData) BypassMode() string {
-	if sd.ServicesConfig != nil {
-		if dispConfig, ok := sd.ServicesConfig["dispatcher"]; ok {
+	if sd.ServiceConfigs != nil {
+		if dispConfig, ok := sd.ServiceConfigs["dispatcher"]; ok {
 			if bypass_mode, ok := dispConfig["bypass"]; ok {
 				return bypass_mode
 			}
@@ -54,7 +54,22 @@ func NewSidecarProperties(deploymentMethod, activityLogIntegrationID, diagnostic
 	}
 }
 
-type SidecarServicesConfig map[string]map[string]string
+type SidecarServiceConfigs map[string]map[string]string
+
+func (config *SidecarServiceConfigs) SidecarServiceConfigsAsInterface() []any {
+	if config == nil {
+		return nil
+	}
+	serviceConfigs := []any{}
+	for serviceName, serviceConfig := range *config {
+		serviceConfigMap := map[string]any{
+			"service_name": serviceName,
+			"config":       serviceConfig,
+		}
+		serviceConfigs = append(serviceConfigs, serviceConfigMap)
+	}
+	return serviceConfigs
+}
 
 type CertificateBundleSecrets map[string]*CertificateBundleSecret
 
@@ -84,9 +99,11 @@ func resourceSidecar() *schema.Resource {
 				Required:    true,
 			},
 			"deployment_method": {
-				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, `cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`, `linux`, and `singleContainer`).",
-				Type:        schema.TypeString,
-				Required:    true,
+				Description: "Deployment method that will be used by this sidecar (valid values: `docker`, " +
+					"`cloudFormation`, `terraform`, `helm`, `helm3`, `automated`, `custom`, `terraformGKE`, `linux`, " +
+					"and `singleContainer`).",
+				Type:     schema.TypeString,
+				Required: true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
 						"docker", "cloudFormation", "terraform", "helm", "helm3",
@@ -121,15 +138,23 @@ func resourceSidecar() *schema.Resource {
 				},
 			},
 			"user_endpoint": {
-				Description: "User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.",
-				Type:        schema.TypeString,
-				Optional:    true,
+				Description: "User-defined endpoint (also referred as `alias`) that can be used to override the sidecar " +
+					"DNS endpoint shown in the UI.",
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"bypass_mode": {
-				Description: "This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `always`, `failover` or `never`. Defaults to `failover`. If `always` is specified, the sidecar will run in [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode). If `failover` is specified, the sidecar will run in [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "failover",
+				Description: "This argument lets you specify how to handle the connection in the event of an error in the " +
+					"sidecar during a user's session. Valid modes are: `always`, `failover` or `never`. Defaults to `failover`. " +
+					"This argument overrides the `dispatcher.bypass` configuration set in the `service_configs` argument. " +
+					"If `always` is specified, the sidecar will run in " +
+					"[passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode). If `failover` is " +
+					"specified, the sidecar will run in " +
+					"[resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). " +
+					"If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "failover",
 				ValidateFunc: validation.StringInSlice(
 					[]string{
 						"always",
@@ -169,9 +194,10 @@ func resourceSidecar() *schema.Resource {
 										Required: true,
 									},
 									"type": {
-										Description: "Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.",
-										Type:        schema.TypeString,
-										Required:    true,
+										Description: "Type identifies the secret manager used to store the secret. Valid values " +
+											"are: `aws` and `k8s`.",
+										Type:     schema.TypeString,
+										Required: true,
 										ValidateFunc: validation.StringInSlice(
 											[]string{
 												"aws",
@@ -181,6 +207,27 @@ func resourceSidecar() *schema.Resource {
 									},
 								},
 							},
+						},
+					},
+				},
+			},
+			"service_configs": {
+				Description: "A set of sidecar services configurations that can be used to configure specific sidecar " +
+					"services through a key-value map config",
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"config": {
+							Type: schema.TypeMap,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Optional: true,
 						},
 					},
 				},
@@ -270,6 +317,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
+	d.Set("service_configs", response.ServiceConfigs.SidecarServiceConfigsAsInterface())
 	if bypassMode := response.BypassMode(); bypassMode != "" {
 		d.Set("bypass_mode", bypassMode)
 	}
@@ -318,22 +366,11 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*SidecarData, error) {
 	log.Printf("[DEBUG] Init getSidecarDataFromResource")
 
-	deploymentMethod := d.Get("deployment_method").(string)
-
-	activityLogIntegrationID := d.Get("activity_log_integration_id").(string)
-	if activityLogIntegrationID == "" {
-		activityLogIntegrationID = d.Get("log_integration_id").(string)
+	properties := getSidecarProperties(d)
+	serviceConfigs, err := getSidecarServiceConfigs(d)
+	if err != nil {
+		return nil, err
 	}
-	diagnosticLogIntegrationID := d.Get("diagnostic_log_integration_id").(string)
-
-	properties := NewSidecarProperties(deploymentMethod, activityLogIntegrationID, diagnosticLogIntegrationID)
-
-	svcconf := SidecarServicesConfig{
-		"dispatcher": map[string]string{
-			"bypass": d.Get("bypass_mode").(string),
-		},
-	}
-
 	labels := d.Get("labels").([]interface{})
 	sidecarDataLabels := []string{}
 	for _, labelInterface := range labels {
@@ -341,8 +378,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 			sidecarDataLabels = append(sidecarDataLabels, label)
 		}
 	}
-
-	cbs := getCertificateBundleSecret(d)
+	cbs := getSidecarCertificateBundleSecret(d)
 
 	log.Printf("[DEBUG] end getSidecarDataFromResource")
 	return &SidecarData{
@@ -350,47 +386,47 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 		Name:                     d.Get("name").(string),
 		Labels:                   sidecarDataLabels,
 		SidecarProperties:        properties,
-		ServicesConfig:           svcconf,
+		ServiceConfigs:           serviceConfigs,
 		UserEndpoint:             d.Get("user_endpoint").(string),
 		CertificateBundleSecrets: cbs,
 	}, nil
 }
 
-func flattenCertificateBundleSecrets(cbs CertificateBundleSecrets) []interface{} {
-	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
-	var flatCBS []interface{}
-	if cbs != nil {
-		cb := make(map[string]interface{})
-
-		for key, val := range cbs {
-			// Ignore self-signed certificates
-			if key != "sidecar-generated-selfsigned" {
-				contentCB := make([]interface{}, 1)
-
-				log.Printf("[DEBUG] key: %v", key)
-				log.Printf("[DEBUG] val: %v", val)
-
-				contentCBMap := make(map[string]interface{})
-				contentCBMap["secret_id"] = val.SecretId
-				contentCBMap["engine"] = val.Engine
-				contentCBMap["type"] = val.Type
-
-				contentCB[0] = contentCBMap
-				cb[key] = contentCB
-			}
-		}
-
-		if len(cb) > 0 {
-			flatCBS = make([]interface{}, 1)
-			flatCBS[0] = cb
-		}
+func getSidecarProperties(d *schema.ResourceData) *SidecarProperties {
+	deploymentMethod := d.Get("deployment_method").(string)
+	activityLogIntegrationID := d.Get("activity_log_integration_id").(string)
+	if activityLogIntegrationID == "" {
+		activityLogIntegrationID = d.Get("log_integration_id").(string)
 	}
-
-	log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
-	return flatCBS
+	diagnosticLogIntegrationID := d.Get("diagnostic_log_integration_id").(string)
+	properties := NewSidecarProperties(deploymentMethod, activityLogIntegrationID, diagnosticLogIntegrationID)
+	return properties
 }
 
-func getCertificateBundleSecret(d *schema.ResourceData) CertificateBundleSecrets {
+func getSidecarServiceConfigs(d *schema.ResourceData) (SidecarServiceConfigs, error) {
+	serviceConfigs := SidecarServiceConfigs{}
+	serviceConfigsList := d.Get("service_configs").(*schema.Set).List()
+	for _, serviceConfigObject := range serviceConfigsList {
+		serviceConfigObject := serviceConfigObject.(map[string]any)
+		serviceName := serviceConfigObject["service_name"].(string)
+		serviceConfig := map[string]string{}
+		for configName, configValue := range serviceConfigObject["config"].(map[string]any) {
+			serviceConfig[configName] = configValue.(string)
+		}
+		serviceConfigs[serviceName] = serviceConfig
+	}
+	if serviceConfigs["dispatcher"] == nil {
+		serviceConfigs["dispatcher"] = map[string]string{}
+	}
+	serviceConfigs["dispatcher"]["bypass"] = d.Get("bypass_mode").(string)
+	// Removes weird empty key that gets added by the terraform when
+	// applying changes to the `service_configs`` argument. TODO: confirm
+	// why this issue is happening and if thats the best approach to avoid it.
+	delete(serviceConfigs, "")
+	return serviceConfigs, nil
+}
+
+func getSidecarCertificateBundleSecret(d *schema.ResourceData) CertificateBundleSecrets {
 	log.Printf("[DEBUG] Init getCertificateBundleSecret")
 	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
 	ret := make(CertificateBundleSecrets)
@@ -428,4 +464,38 @@ func getCertificateBundleSecret(d *schema.ResourceData) CertificateBundleSecrets
 
 	log.Printf("[DEBUG] end getCertificateBundleSecret")
 	return ret
+}
+
+func flattenCertificateBundleSecrets(cbs CertificateBundleSecrets) []interface{} {
+	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
+	var flatCBS []interface{}
+	if cbs != nil {
+		cb := make(map[string]interface{})
+
+		for key, val := range cbs {
+			// Ignore self-signed certificates
+			if key != "sidecar-generated-selfsigned" {
+				contentCB := make([]interface{}, 1)
+
+				log.Printf("[DEBUG] key: %v", key)
+				log.Printf("[DEBUG] val: %v", val)
+
+				contentCBMap := make(map[string]interface{})
+				contentCBMap["secret_id"] = val.SecretId
+				contentCBMap["engine"] = val.Engine
+				contentCBMap["type"] = val.Type
+
+				contentCB[0] = contentCBMap
+				cb[key] = contentCB
+			}
+		}
+
+		if len(cb) > 0 {
+			flatCBS = make([]interface{}, 1)
+			flatCBS[0] = cb
+		}
+	}
+
+	log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
+	return flatCBS
 }

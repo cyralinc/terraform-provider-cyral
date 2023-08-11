@@ -109,15 +109,15 @@ func resourceIntegrationIdPSAML() *schema.Resource {
 		CreateContext: CRUDResources(
 			[]ResourceOperation{
 				{
-					Type:   create,
+					Type:   CREATE,
 					Config: CreateGenericSAMLConfig(),
 				},
 				{
-					Type:   read,
+					Type:   READ,
 					Config: ReadGenericSAMLConfig(),
 				},
 				{
-					Type:   create,
+					Type:   CREATE,
 					Config: CreateIdPConfig(),
 				},
 			},

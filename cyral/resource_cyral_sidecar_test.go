@@ -72,7 +72,7 @@ var linuxSidecarConfig = SidecarData{
 var bypassNeverSidecarConfig = SidecarData{
 	Name:              accTestName(sidecarResourceName, "bypassNeverSidecar"),
 	SidecarProperties: NewSidecarProperties("terraform", "a", ""),
-	ServicesConfig: SidecarServicesConfig{
+	ServiceConfigs: SidecarServiceConfigs{
 		"dispatcher": map[string]string{
 			"bypass": "never",
 		},
@@ -83,7 +83,7 @@ var bypassNeverSidecarConfig = SidecarData{
 var bypassAlwaysSidecarConfig = SidecarData{
 	Name:              accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
 	SidecarProperties: NewSidecarProperties("terraform", "b", ""),
-	ServicesConfig: SidecarServicesConfig{
+	ServiceConfigs: SidecarServiceConfigs{
 		"dispatcher": map[string]string{
 			"bypass": "always",
 		},
