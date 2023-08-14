@@ -15,70 +15,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
-type CreateSidecarResponse struct {
-	ID string `json:"ID"`
-}
-
-type SidecarData struct {
-	ID                       string                   `json:"id"`
-	Name                     string                   `json:"name"`
-	Labels                   []string                 `json:"labels"`
-	SidecarProperties        *SidecarProperties       `json:"properties"`
-	ServiceConfigs           SidecarServiceConfigs    `json:"services"`
-	UserEndpoint             string                   `json:"userEndpoint"`
-	CertificateBundleSecrets CertificateBundleSecrets `json:"certificateBundleSecrets,omitempty"`
-}
-
-func (sd *SidecarData) BypassMode() string {
-	if sd.ServiceConfigs != nil {
-		if dispConfig, ok := sd.ServiceConfigs["dispatcher"]; ok {
-			if bypass_mode, ok := dispConfig["bypass"]; ok {
-				return bypass_mode
-			}
-		}
-	}
-	return ""
-}
-
-type SidecarProperties struct {
-	DeploymentMethod           string `json:"deploymentMethod"`
-	LogIntegrationID           string `json:"logIntegrationID,omitempty"`
-	DiagnosticLogIntegrationID string `json:"diagnosticLogIntegrationID,omitempty"`
-}
-
-func NewSidecarProperties(deploymentMethod, activityLogIntegrationID, diagnosticLogIntegrationID string) *SidecarProperties {
-	return &SidecarProperties{
-		DeploymentMethod:           deploymentMethod,
-		LogIntegrationID:           activityLogIntegrationID,
-		DiagnosticLogIntegrationID: diagnosticLogIntegrationID,
-	}
-}
-
-type SidecarServiceConfigs map[string]map[string]string
-
-func (config *SidecarServiceConfigs) SidecarServiceConfigsAsInterface() []any {
-	if config == nil {
-		return nil
-	}
-	serviceConfigs := []any{}
-	for serviceName, serviceConfig := range *config {
-		serviceConfigMap := map[string]any{
-			"service_name": serviceName,
-			"config":       serviceConfig,
-		}
-		serviceConfigs = append(serviceConfigs, serviceConfigMap)
-	}
-	return serviceConfigs
-}
-
-type CertificateBundleSecrets map[string]*CertificateBundleSecret
-
-type CertificateBundleSecret struct {
-	Engine   string `json:"engine,omitempty"`
-	SecretId string `json:"secretId,omitempty"`
-	Type     string `json:"type,omitempty"`
-}
-
 func resourceSidecar() *schema.Resource {
 	return &schema.Resource{
 		Description:   "Manages [sidecars](https://cyral.com/docs/sidecars/sidecar-manage).",
@@ -154,7 +90,6 @@ func resourceSidecar() *schema.Resource {
 					"If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.",
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "failover",
 				ValidateFunc: validation.StringInSlice(
 					[]string{
 						"always",
@@ -212,10 +147,11 @@ func resourceSidecar() *schema.Resource {
 				},
 			},
 			"service_configs": {
-				Description: "A set of sidecar services configurations that can be used to configure specific sidecar " +
-					"services through a key-value map config",
+				Description: "A set of sidecar services configurations that can be used to define specific sidecar " +
+					"service configurations through a key-value map `config`.",
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_name": {
@@ -233,9 +169,42 @@ func resourceSidecar() *schema.Resource {
 				},
 			},
 		},
+
+		CustomizeDiff: func(ctx context.Context, resourceDiff *schema.ResourceDiff, i interface{}) error {
+			return setServiceConfigsCustomDiff(resourceDiff)
+		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+	}
+}
+
+func setServiceConfigsCustomDiff(resourceDiff *schema.ResourceDiff) error {
+	serviceConfigs, err := getSidecarServiceConfigs(resourceDiff)
+	if err != nil {
+		return fmt.Errorf("error getting sidecar service configs")
+	}
+	log.Printf("[DEBUG] computeServiceConfigsCustomDiff: serviceConfigs: %+v", serviceConfigs)
+	setSidecarServiceConfigsDefault(serviceConfigs)
+	log.Printf("[DEBUG] computeServiceConfigsCustomDiff: serviceConfigs with default values: %+v", serviceConfigs)
+	return resourceDiff.SetNew("service_configs", serviceConfigs.SidecarServiceConfigsAsInterfaceList())
+}
+
+// setSidecarServiceConfigsDefault iterates over a serviceConfigs map and set the default
+// value for configurations that are not explicitly set.
+func setSidecarServiceConfigsDefault(serviceConfigs SidecarServiceConfigs) {
+	serviceConfigsDefault := getSidecarServiceConfigsDefault()
+	for serviceName, serviceDefaultConfig := range serviceConfigsDefault {
+		if serviceConfig, hasServiceConfigs := serviceConfigs[serviceName]; hasServiceConfigs {
+			for configName, configDefaultValue := range serviceDefaultConfig {
+				if _, hasConfig := serviceConfig[configName]; !hasConfig {
+					serviceConfig[configName] = configDefaultValue
+				}
+			}
+		} else {
+			serviceConfigs[serviceName] = serviceDefaultConfig
+		}
 	}
 }
 
@@ -317,9 +286,9 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 	d.Set("labels", response.Labels)
 	d.Set("user_endpoint", response.UserEndpoint)
-	d.Set("service_configs", response.ServiceConfigs.SidecarServiceConfigsAsInterface())
-	if bypassMode := response.BypassMode(); bypassMode != "" {
-		d.Set("bypass_mode", bypassMode)
+	d.Set("service_configs", response.ServiceConfigs.SidecarServiceConfigsAsInterfaceList())
+	if _, isBypassModeSet := d.GetOk("bypass_mode"); isBypassModeSet {
+		d.Set("bypass_mode", response.ServiceConfigs.getBypassMode())
 	}
 	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(response.CertificateBundleSecrets))
 
@@ -369,7 +338,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 	properties := getSidecarProperties(d)
 	serviceConfigs, err := getSidecarServiceConfigs(d)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting sidecar service configs")
 	}
 	labels := d.Get("labels").([]interface{})
 	sidecarDataLabels := []string{}
@@ -403,9 +372,9 @@ func getSidecarProperties(d *schema.ResourceData) *SidecarProperties {
 	return properties
 }
 
-func getSidecarServiceConfigs(d *schema.ResourceData) (SidecarServiceConfigs, error) {
+func getSidecarServiceConfigs(resource schemaResource) (SidecarServiceConfigs, error) {
 	serviceConfigs := SidecarServiceConfigs{}
-	serviceConfigsList := d.Get("service_configs").(*schema.Set).List()
+	serviceConfigsList := resource.Get("service_configs").(*schema.Set).List()
 	for _, serviceConfigObject := range serviceConfigsList {
 		serviceConfigObject := serviceConfigObject.(map[string]any)
 		serviceName := serviceConfigObject["service_name"].(string)
@@ -415,13 +384,17 @@ func getSidecarServiceConfigs(d *schema.ResourceData) (SidecarServiceConfigs, er
 		}
 		serviceConfigs[serviceName] = serviceConfig
 	}
-	if serviceConfigs["dispatcher"] == nil {
-		serviceConfigs["dispatcher"] = map[string]string{}
+	if bypassMode, isBypassModeSet := resource.GetOk("bypass_mode"); isBypassModeSet {
+		if serviceConfigs["dispatcher"] == nil {
+			serviceConfigs["dispatcher"] = map[string]string{}
+		}
+		serviceConfigs["dispatcher"]["bypass"] = bypassMode.(string)
 	}
-	serviceConfigs["dispatcher"]["bypass"] = d.Get("bypass_mode").(string)
-	// Removes weird empty key that gets added by the terraform when
-	// applying changes to the `service_configs`` argument. TODO: confirm
-	// why this issue is happening and if thats the best approach to avoid it.
+	// Removes weird empty key that gets added by a terraform issue when
+	// applying changes to the `service_configs` argument. This line of code
+	// should be removed once the following issue is fixed in the terraform
+	// project:
+	// - https://github.com/hashicorp/terraform-plugin-sdk/issues/652
 	delete(serviceConfigs, "")
 	return serviceConfigs, nil
 }
