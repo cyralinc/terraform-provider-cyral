@@ -1,17 +1,36 @@
 package cyral
 
 const (
-	dataLabelTypeUnknown    = "UNKNOWN"
+	typeUnknown    = "UNKNOWN"
+	statusEnabled  = "ENABLED"
+	statusDisabled = "DISABLED"
+	// Data label type
 	dataLabelTypePredefined = "PREDEFINED"
 	dataLabelTypeCustom     = "CUSTOM"
-	defaultDataLabelType    = dataLabelTypeUnknown
+	defaultDataLabelType    = typeUnknown
+	// Classification rule type
+	classificationRuleTypeRego = "REGO"
 )
 
 func dataLabelTypes() []string {
 	return []string{
-		dataLabelTypeUnknown,
+		typeUnknown,
 		dataLabelTypePredefined,
 		dataLabelTypeCustom,
+	}
+}
+
+func classificationRuleTypes() []string {
+	return []string{
+		typeUnknown,
+		classificationRuleTypeRego,
+	}
+}
+
+func classificationRuleStatus() []string {
+	return []string{
+		statusEnabled,
+		statusDisabled,
 	}
 }
 

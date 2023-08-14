@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
@@ -52,9 +53,10 @@ func resourceDatalabel() *schema.Resource {
 						"rule_type": {
 							Description: "Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`. Defaults " +
 								"to `UNKNOWN`.",
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "UNKNOWN",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "UNKNOWN",
+							ValidateFunc: validation.StringInSlice(classificationRuleTypes(), false),
 						},
 						"rule_code": {
 							Description: "Actual code of the classification rule. For example, this attribute may contain " +
@@ -65,9 +67,10 @@ func resourceDatalabel() *schema.Resource {
 						"rule_status": {
 							Description: "Status of the classification rule. Valid values are: `ENABLED` and  `DISABLED`. " +
 								"Defaults to `ENABLED`.",
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "ENABLED",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "ENABLED",
+							ValidateFunc: validation.StringInSlice(classificationRuleStatus(), false),
 						},
 					},
 				},
