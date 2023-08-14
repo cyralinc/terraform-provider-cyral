@@ -147,11 +147,10 @@ func resourceSidecar() *schema.Resource {
 				},
 			},
 			"service_configs": {
-				Description: "A set of sidecar services configurations that can be used to define specific sidecar " +
-					"service configurations through a key-value map `config`.",
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
+				Description: "A set of key-value maps (`config`) that can be used to configure specific sidecar services.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_name": {

@@ -34,11 +34,12 @@ resource "cyral_sidecar" "some_resource_name" {
 ### Optional
 
 - `activity_log_integration_id` (String) ID of the log integration mapped to this sidecar, used for Cyral activity logs.
-- `bypass_mode` (String) This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `always`, `failover` or `never`. Defaults to `failover`. If `always` is specified, the sidecar will run in [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode). If `failover` is specified, the sidecar will run in [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.
+- `bypass_mode` (String) This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user's session. Valid modes are: `always`, `failover` or `never`. Defaults to `failover`. This argument overrides the `dispatcher.bypass` configuration set in the `service_configs` argument. If `always` is specified, the sidecar will run in [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode). If `failover` is specified, the sidecar will run in [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.
 - `certificate_bundle_secrets` (Block Set, Max: 1, Deprecated) Certificate Bundle Secret is a configuration that holds data about the location of a particular TLS certificate bundle in a secrets manager. (see [below for nested schema](#nestedblock--certificate_bundle_secrets))
 - `diagnostic_log_integration_id` (String) ID of the log integration mapped to this sidecar, used for sidecar diagnostic logs.
 - `labels` (List of String) Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.
 - `log_integration_id` (String, Deprecated) ID of the log integration mapped to this sidecar, used for Cyral activity logs.
+- `service_configs` (Block Set) A set of key-value maps (`config`) that can be used to configure specific sidecar services. (see [below for nested schema](#nestedblock--service_configs))
 - `user_endpoint` (String) User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.
 
 ### Read-Only
@@ -65,3 +66,12 @@ Required:
 Optional:
 
 - `engine` (String) Engine is the name of the engine used with the given secrets manager type, when applicable.
+
+<a id="nestedblock--service_configs"></a>
+
+### Nested Schema for `service_configs`
+
+Optional:
+
+- `config` (Map of String)
+- `service_name` (String)
