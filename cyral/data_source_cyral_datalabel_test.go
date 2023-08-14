@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/cyral/model"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -11,17 +12,17 @@ const (
 	datalabelDataSourceName = "data-datalabel"
 )
 
-func datalabelDataSourceTestDataLabels() []*DataLabel {
-	return []*DataLabel{
+func datalabelDataSourceTestDataLabels() []*model.DataLabel {
+	return []*model.DataLabel{
 		{
 			Name:        accTestName(datalabelDataSourceName, "1"),
-			Type:        dataLabelTypeCustom,
+			Type:        model.DataLabelTypeCustom,
 			Description: "description-1",
 			Tags:        []string{"tag-1", "tag-2"},
 		},
 		{
 			Name:        accTestName(datalabelDataSourceName, "2"),
-			Type:        dataLabelTypeCustom,
+			Type:        model.DataLabelTypeCustom,
 			Description: "description-2",
 			Tags:        []string{"tag-3"},
 		},
@@ -36,9 +37,9 @@ func TestAccDatalabelDataSource(t *testing.T) {
 	testConfigNameFilter2, testFuncNameFilter2 := testDatalabelDataSource(t,
 		"name_filter_2", dataLabels, dataLabels[1].Name, "")
 	testConfigTypeFilterPredefined, testFuncTypeFilterPredefined := testDatalabelDataSource(t,
-		"type_filter_predefined", dataLabels, "", dataLabelTypePredefined)
+		"type_filter_predefined", dataLabels, "", model.DataLabelTypePredefined)
 	testConfigTypeFilterCustom, testFuncTypeFilterCustom := testDatalabelDataSource(t,
-		"type_filter_custom", dataLabels, "", dataLabelTypeCustom)
+		"type_filter_custom", dataLabels, "", model.DataLabelTypeCustom)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -66,7 +67,7 @@ func TestAccDatalabelDataSource(t *testing.T) {
 func testDatalabelDataSource(
 	t *testing.T,
 	dsourceName string,
-	dataLabels []*DataLabel,
+	dataLabels []*model.DataLabel,
 	nameFilter, typeFilter string,
 ) (
 	string, resource.TestCheckFunc,
@@ -77,7 +78,7 @@ func testDatalabelDataSource(
 
 func testDatalabelDataSourceConfig(
 	dsourceName string,
-	dataLabels []*DataLabel,
+	dataLabels []*model.DataLabel,
 	nameFilter,
 	typeFilter string,
 ) string {
@@ -141,8 +142,8 @@ func testDatalabelDataSourceChecks(
 	return resource.ComposeTestCheckFunc(checkFuncs...)
 }
 
-func filterDataLabels(dataLabels []*DataLabel, nameFilter, typeFilter string) []*DataLabel {
-	var filteredDataLabels []*DataLabel
+func filterDataLabels(dataLabels []*model.DataLabel, nameFilter, typeFilter string) []*DataLabel {
+	var filteredDataLabels []*model.DataLabel
 	for _, dataLabel := range dataLabels {
 		if (nameFilter == "" || dataLabel.Name == nameFilter) &&
 			(typeFilter == "" || dataLabel.Type == typeFilter) {

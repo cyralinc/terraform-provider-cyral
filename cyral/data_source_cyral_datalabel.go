@@ -9,12 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/model"
 )
 
-type GetDataLabelResponse DataLabel
+type GetDataLabelResponse model.DataLabel
 
 func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData) error {
-	if err := writeDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(resp)}, d); err != nil {
+	if err := writeDataLabelsToDataSourceSchema([]*model.DataLabel{(*model.DataLabel)(resp)}, d); err != nil {
 		return err
 	}
 	d.SetId(uuid.New().String())
@@ -22,7 +23,7 @@ func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData) error {
 }
 
 type GetDataLabelsResponse struct {
-	Labels []*DataLabel `json:"labels"`
+	Labels []*model.DataLabel `json:"labels"`
 }
 
 func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
@@ -33,15 +34,15 @@ func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-func writeDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceData) error {
+func writeDataLabelsToDataSourceSchema(labels []*model.DataLabel, d *schema.ResourceData) error {
 	var labelsList []interface{}
 	for _, label := range labels {
 		labelsList = append(labelsList, map[string]interface{}{
 			"name":                label.Name,
 			"description":         label.Description,
 			"type":                label.Type,
-			"tags":                label.TagsAsInterface(),
-			"classification_rule": label.ClassificationRuleAsInterface(),
+			"tags":                label.Tags.AsInterface(),
+			"classification_rule": label.ClassificationRule.AsInterface(),
 			"implicit":            label.Implicit,
 		})
 	}
@@ -90,11 +91,11 @@ func dataSourceDatalabel() *schema.Resource {
 				Optional:    true,
 			},
 			"type": {
-				Description:  fmt.Sprintf("Filter the results by type of data label. Defaults to `%s`, which will return all label types. The labels you create will always have type `CUSTOM`. Labels that come pre-configured in the control plane have type `PREDEFINED`. List of supported types:", defaultDataLabelType) + supportedTypesMarkdown(dataLabelTypes()),
+				Description:  fmt.Sprintf("Filter the results by type of data label. Defaults to `%s`, which will return all label types. The labels you create will always have type `CUSTOM`. Labels that come pre-configured in the control plane have type `PREDEFINED`. List of supported types:", model.DefaultDataLabelType) + supportedTypesMarkdown(model.DataLabelTypes()),
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      defaultDataLabelType,
-				ValidateFunc: validation.StringInSlice(append(dataLabelTypes(), ""), false),
+				Default:      model.DefaultDataLabelType,
+				ValidateFunc: validation.StringInSlice(append(model.DataLabelTypes(), ""), false),
 			},
 			"datalabel_list": {
 				Description: "List of existing data labels satisfying the filter criteria.",
