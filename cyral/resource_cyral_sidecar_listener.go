@@ -14,28 +14,40 @@ import (
 // create a constant block for schema keys
 
 const (
-	RepoTypesKey         = "repo_types"
-	NetworkAddressKey    = "network_address"
-	MySQLSettingsKey     = "mysql_settings"
-	DbVersionKey         = "db_version"
-	CharacterSetKey      = "character_set"
-	S3SettingsKey        = "s3_settings"
-	ProxyModeKey         = "proxy_mode"
-	DynamoDbSettingsKey  = "dynamodb_settings"
-	SQLServerSettingsKey = "sqlserver_settings"
-	VersionKey           = "version"
+	RepoTypesKey                     = "repo_types"
+	NetworkAddressKey                = "network_address"
+	MySQLSettingsKey                 = "mysql_settings"
+	DbVersionKey                     = "db_version"
+	CharacterSetKey                  = "character_set"
+	S3SettingsKey                    = "s3_settings"
+	ProxyModeKey                     = "proxy_mode"
+	DynamoDbSettingsKey              = "dynamodb_settings"
+	SQLServerSettingsKey             = "sqlserver_settings"
+	VersionKey                       = "version"
+	OverrideRepoClientTlsSettingsKey = "override_repo_client_tls_settings"
+	TlsModeKey                       = "tls_mode"
 )
+
+func tlsModes() []string {
+	return []string{
+		"allow", // default, must be kept at position 0
+		"require",
+		"disable",
+	}
+}
 
 // SidecarListener struct for sidecar listener.
 type SidecarListener struct {
-	SidecarId         string             `json:"-"`
-	ListenerId        string             `json:"id"`
-	RepoTypes         []string           `json:"repoTypes"`
-	NetworkAddress    *NetworkAddress    `json:"address,omitempty"`
-	MySQLSettings     *MySQLSettings     `json:"mysqlSettings,omitempty"`
-	S3Settings        *S3Settings        `json:"s3Settings,omitempty"`
-	DynamoDbSettings  *DynamoDbSettings  `json:"dynamoDbSettings,omitempty"`
-	SQLServerSettings *SQLServerSettings `json:"sqlServerSettings,omitempty"`
+	SidecarId                     string             `json:"-"`
+	ListenerId                    string             `json:"id"`
+	RepoTypes                     []string           `json:"repoTypes"`
+	NetworkAddress                *NetworkAddress    `json:"address,omitempty"`
+	MySQLSettings                 *MySQLSettings     `json:"mysqlSettings,omitempty"`
+	S3Settings                    *S3Settings        `json:"s3Settings,omitempty"`
+	DynamoDbSettings              *DynamoDbSettings  `json:"dynamoDbSettings,omitempty"`
+	SQLServerSettings             *SQLServerSettings `json:"sqlServerSettings,omitempty"`
+	OverrideRepoClientTlsSettings bool               `json:"overrideRepoClientTlsSettings,omitempty"`
+	TlsMode                       string             `json:"tlsMode,omitempty"`
 }
 type NetworkAddress struct {
 	Host string `json:"host,omitempty"`
@@ -91,6 +103,8 @@ func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData)
 		_ = d.Set(MySQLSettingsKey, data.ListenerConfig.MySQLSettingsAsInterface())
 		_ = d.Set(DynamoDbSettingsKey, data.ListenerConfig.DynamoDbSettingsAsInterface())
 		_ = d.Set(SQLServerSettingsKey, data.ListenerConfig.SQLServerSettingsAsInterface())
+		_ = d.Set(OverrideRepoClientTlsSettingsKey, data.ListenerConfig.OverrideRepoClientTlsSettings)
+		_ = d.Set(TlsModeKey, data.ListenerConfig.TlsMode)
 	}
 	log.Printf("[DEBUG] End ReadSidecarListenerAPIResponse.WriteToSchema")
 	return nil
@@ -208,8 +222,10 @@ type SidecarListenerResource struct {
 // ReadFromSchema populates the SidecarListenerResource from the schema
 func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 	s.ListenerConfig = SidecarListener{
-		SidecarId:  d.Get(SidecarIDKey).(string),
-		ListenerId: d.Get(ListenerIDKey).(string),
+		SidecarId:                     d.Get(SidecarIDKey).(string),
+		ListenerId:                    d.Get(ListenerIDKey).(string),
+		OverrideRepoClientTlsSettings: d.Get(OverrideRepoClientTlsSettingsKey).(bool),
+		TlsMode:                       d.Get(TlsModeKey).(string),
 	}
 	s.ListenerConfig.RepoTypesFromInterface(d.Get(RepoTypesKey).([]interface{}))
 	s.ListenerConfig.NetworkAddressFromInterface(d.Get(NetworkAddressKey).(*schema.Set).List())
@@ -217,6 +233,7 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 	s.ListenerConfig.S3SettingsFromInterface(d.Get(S3SettingsKey).(*schema.Set).List())
 	s.ListenerConfig.DynamoDbSettingsFromInterface(d.Get(DynamoDbSettingsKey).(*schema.Set).List())
 	s.ListenerConfig.SQLServerSettingsFromInterface(d.Get(SQLServerSettingsKey).(*schema.Set).List())
+
 	return nil
 }
 
@@ -230,7 +247,7 @@ func resourceSidecarListener() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners)." +
 			"\n~> **Warning** Multiple listeners can be associated to a single sidecar as long as " +
-			"`host` and `port` are unique. If `host` is ommitted, then `port` must be unique.",
+			"`host` and `port` are unique. If `host` is omitted, then `port` must be unique.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SidecarListenersResourceCreate",
@@ -454,6 +471,20 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 					},
 				},
 			},
+		},
+		OverrideRepoClientTlsSettingsKey: {
+			Description: "Override TLS settings defined in the repo",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Default:     false,
+		},
+		TlsModeKey: {
+			Description: "TLS mode. Optional. Defaults to '" + tlsModes()[0] + "'. " +
+				"Allowed values: " + supportedTypesMarkdown(tlsModes()) + ". " +
+				"Note! This field is in effect only if OverrideRepoClientTlsSettings is set to true or the listener is a SMART port.",
+			Type:     schema.TypeString,
+			Optional: true,
+			Default:  tlsModes()[0],
 		},
 	}
 }

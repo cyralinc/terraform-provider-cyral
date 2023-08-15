@@ -52,10 +52,12 @@ Read-Only:
 - `listener_id` (String)
 - `mysql_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--mysql_settings))
 - `network_address` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--network_address))
+- `override_repo_client_tls_settings` (Boolean)
 - `repo_types` (List of String)
 - `s3_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--s3_settings))
 - `sidecar_id` (String)
 - `sqlserver_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--sqlserver_settings))
+- `tls_mode` (String)
 
 <a id="nestedobjatt--listener_list--dynamodb_settings"></a>
 

@@ -1,7 +1,7 @@
 # cyral_sidecar_listener (Resource)
 
 Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
-~> **Warning** Multiple listeners can be associated to a single sidecar as long as `host` and `port` are unique. If `host` is ommitted, then `port` must be unique.
+~> **Warning** Multiple listeners can be associated to a single sidecar as long as `host` and `port` are unique. If `host` is omitted, then `port` must be unique.
 
 -> Import ID syntax is `{sidecar_id}/{listener_id}`.
 
@@ -105,8 +105,13 @@ resource "cyral_sidecar_listener" "listener_dynamodb" {
 
 - `dynamodb_settings` (Block Set, Max: 1) DynamoDB settings. (see [below for nested schema](#nestedblock--dynamodb_settings))
 - `mysql_settings` (Block Set, Max: 1) MySQL settings represents the listener settings for a [`mysql`, `galera`, `mariadb`] data repository. (see [below for nested schema](#nestedblock--mysql_settings))
+- `override_repo_client_tls_settings` (Boolean) Override TLS settings defined in the repo
 - `s3_settings` (Block Set, Max: 1) S3 settings. (see [below for nested schema](#nestedblock--s3_settings))
 - `sqlserver_settings` (Block Set, Max: 1) SQL Server settings. (see [below for nested schema](#nestedblock--sqlserver_settings))
+- `tls_mode` (String) TLS mode. Optional. Defaults to 'allow'. Allowed values: 
+  - `allow`
+  - `require`
+  - `disable`. Note! This field is in effect only if OverrideRepoClientTlsSettings is set to true or the listener is a SMART port.
 
 ### Read-Only
 
