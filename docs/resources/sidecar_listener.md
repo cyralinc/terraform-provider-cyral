@@ -108,10 +108,10 @@ resource "cyral_sidecar_listener" "listener_dynamodb" {
 - `override_repo_client_tls_settings` (Boolean) Override TLS settings defined in the repo
 - `s3_settings` (Block Set, Max: 1) S3 settings. (see [below for nested schema](#nestedblock--s3_settings))
 - `sqlserver_settings` (Block Set, Max: 1) SQL Server settings. (see [below for nested schema](#nestedblock--sqlserver_settings))
-- `tls_mode` (String) TLS mode. Optional. Defaults to 'allow'. Allowed values: 
+- `tls_mode` (String) TLS mode. Optional. Defaults to 'allow'. Note! This field is in effect only if OverrideRepoClientTlsSettings is set to true or the listener is a SMART port. Allowed values:
   - `allow`
   - `require`
-  - `disable`. Note! This field is in effect only if OverrideRepoClientTlsSettings is set to true or the listener is a SMART port.
+  - `disable`.
 
 ### Read-Only
 

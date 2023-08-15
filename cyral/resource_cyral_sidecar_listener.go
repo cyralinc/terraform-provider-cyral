@@ -480,8 +480,8 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 		},
 		TlsModeKey: {
 			Description: "TLS mode. Optional. Defaults to '" + tlsModes()[0] + "'. " +
-				"Allowed values: " + supportedTypesMarkdown(tlsModes()) + ". " +
-				"Note! This field is in effect only if OverrideRepoClientTlsSettings is set to true or the listener is a SMART port.",
+				"Note! This field is in effect only if OverrideRepoClientTlsSettings is set to true or the listener is a SMART port. " +
+				"Allowed values: " + supportedTypesMarkdown(tlsModes()) + ".",
 			Type:     schema.TypeString,
 			Optional: true,
 			Default:  tlsModes()[0],
