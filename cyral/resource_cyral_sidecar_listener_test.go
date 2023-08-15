@@ -68,6 +68,19 @@ func updateTest() []resource.TestStep {
 			DbVersion: "3.4.0",
 		},
 	}
+	// Override repo client TLS settings.
+	overrideRepoClientTLS := SidecarListener{
+		RepoTypes: []string{"mysql"},
+		NetworkAddress: &NetworkAddress{
+			Port: 443,
+			Host: "https://s3.test.com",
+		},
+		MySQLSettings: &MySQLSettings{
+			DbVersion: "3.4.0",
+		},
+		OverrideRepoClientTlsSettings: true,
+		TlsMode:                       "require",
+	}
 
 	return []resource.TestStep{
 		setupSidecarListenerTestStep(
@@ -85,6 +98,10 @@ func updateTest() []resource.TestStep {
 		setupSidecarListenerTestStep(
 			"update_test",
 			addSettings,
+		),
+		setupSidecarListenerTestStep(
+			"update_test",
+			overrideRepoClientTLS,
 		),
 	}
 }
@@ -135,6 +152,17 @@ func settingsTest() []resource.TestStep {
 			ProxyMode: true,
 		},
 	}
+	// SQL Server settings test step
+	sqlServerSettings := SidecarListener{
+		RepoTypes: []string{"sqlserver"},
+		NetworkAddress: &NetworkAddress{
+			Port: 8004,
+			Host: "https://sqlserver.test.com",
+		},
+		SQLServerSettings: &SQLServerSettings{
+			Version: "16.0.1000",
+		},
+	}
 
 	return []resource.TestStep{
 		setupSidecarListenerTestStep(
@@ -152,6 +180,10 @@ func settingsTest() []resource.TestStep {
 		setupSidecarListenerTestStep(
 			"dynamo_db_with_proxy",
 			dynamodb,
+		),
+		setupSidecarListenerTestStep(
+			"sql_server_settings",
+			sqlServerSettings,
 		),
 	}
 }
