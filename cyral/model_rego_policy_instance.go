@@ -74,6 +74,9 @@ func NewScopeFromInterface(scopeInterface any) *RegoPolicyInstanceScope {
 		return nil
 	}
 	scopeInterfaceList := scopeInterface.(*schema.Set).List()
+	if len(scopeInterfaceList) == 0 {
+		return nil
+	}
 	scopeMap := scopeInterfaceList[0].(map[string]any)
 	repoIDsInterfaceList := scopeMap[regoPolicyInstanceRepoIDsKey].([]any)
 	repoIDs := make([]string, len(repoIDsInterfaceList))
