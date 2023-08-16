@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"strings"
@@ -128,4 +129,21 @@ func convertSchemaFieldsToComputed(s map[string]*schema.Schema) map[string]*sche
 	}
 
 	return s
+}
+
+// setKeysAsNewComputedIfPlanHasChanges is intended to be used in resource CustomizeDiff functions to set
+// computed fields that are expected to change as "new computed" (known after apply) so that terraform can
+// detect changes in those fields and update them in the resource state correctly in the same plan operation.
+// Otherwise, if this function is not called, terraform will not detect a change in those computed fields during
+// the initial update operation and the changes will only be detected in the subsequent terraform plan.
+func setKeysAsNewComputedIfPlanHasChanges(resourceDiff *schema.ResourceDiff, keys []string) {
+	changedKeys := resourceDiff.GetChangedKeysPrefix("")
+	log.Printf("[DEBUG] changedKeys: %+v", changedKeys)
+	hasChanges := len(changedKeys) > 0
+	log.Printf("[DEBUG] hasChanges: %t", hasChanges)
+	if hasChanges {
+		for _, key := range keys {
+			resourceDiff.SetNewComputed(key)
+		}
+	}
 }

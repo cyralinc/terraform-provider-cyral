@@ -1,6 +1,7 @@
 package cyral
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -88,7 +89,7 @@ func resourceRegoPolicyInstance() *schema.Resource {
 					return &RegoPolicyInstancePayload{}
 				},
 				NewResponseData: func(_ *schema.ResourceData) ResponseData {
-					return &RegoPolicyInstanceCreateResponse{}
+					return &IDBasedResponse{}
 				},
 			},
 			ReadRegoPolicyInstanceConfig,
@@ -110,7 +111,7 @@ func resourceRegoPolicyInstance() *schema.Resource {
 					return &RegoPolicyInstancePayload{}
 				},
 			},
-			ReadRepositoryConfig,
+			ReadRegoPolicyInstanceConfig,
 		),
 		DeleteContext: DeleteResource(
 			ResourceOperationConfig{
@@ -209,16 +210,20 @@ func resourceRegoPolicyInstance() *schema.Resource {
 				Description: "Information regarding the policy last update.",
 				Type:        schema.TypeSet,
 				Computed:    true,
-				MaxItems:    1,
 				Elem:        regoPolicyChangeInformation,
 			},
 			regoPolicyInstanceCreatedKey: {
 				Description: "Information regarding the policy creation.",
 				Type:        schema.TypeSet,
 				Computed:    true,
-				MaxItems:    1,
 				Elem:        regoPolicyChangeInformation,
 			},
+		},
+
+		CustomizeDiff: func(ctx context.Context, resourceDiff *schema.ResourceDiff, i interface{}) error {
+			computedKeysToChange := []string{regoPolicyInstanceLastUpdatedKey}
+			setKeysAsNewComputedIfPlanHasChanges(resourceDiff, computedKeysToChange)
+			return nil
 		},
 
 		Importer: &schema.ResourceImporter{

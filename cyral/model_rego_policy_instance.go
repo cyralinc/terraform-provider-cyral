@@ -1,15 +1,12 @@
 package cyral
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type RegoPolicyInstancePayload struct {
 	RegoPolicyInstance RegoPolicyInstance `json:"instance"`
-	Duration           time.Duration      `json:"duration"`
+	Duration           string             `json:"duration,omitempty"`
 }
 
 func (policy *RegoPolicyInstancePayload) ReadFromSchema(d *schema.ResourceData) error {
@@ -20,25 +17,7 @@ func (policy *RegoPolicyInstancePayload) ReadFromSchema(d *schema.ResourceData) 
 	policy.RegoPolicyInstance.Enabled = d.Get(regoPolicyInstanceEnabledKey).(bool)
 	policy.RegoPolicyInstance.Scope = NewScopeFromInterface(d.Get(regoPolicyInstanceScopeKey))
 	policy.RegoPolicyInstance.TagsFromInterfaceList(d.Get(regoPolicyInstanceTagsKey).([]any))
-	duration, err := time.ParseDuration(d.Get(regoPolicyInstanceDurationKey).(string))
-	if err != nil {
-		return fmt.Errorf("unable to parse policy duration: %w", err)
-	}
-	policy.Duration = duration
-	return nil
-}
-
-type RegoPolicyInstanceCreateResponse struct {
-	Key Key `json:"key"`
-}
-
-type Key struct {
-	ID       string `json:"id"`
-	Category string `json:"category"`
-}
-
-func (response *RegoPolicyInstanceCreateResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(response.Key.ID)
+	policy.Duration = d.Get(regoPolicyInstanceDurationKey).(string)
 	return nil
 }
 
@@ -87,7 +66,7 @@ func (policy *RegoPolicyInstance) TagsFromInterfaceList(tagsInterfaceList []any)
 }
 
 type RegoPolicyInstanceScope struct {
-	RepoIDs []string `json:"repoIds"`
+	RepoIDs []string `json:"repoIds,omitempty"`
 }
 
 func NewScopeFromInterface(scopeInterface any) *RegoPolicyInstanceScope {
@@ -129,9 +108,9 @@ func (scope *RegoPolicyInstanceScope) RepoIDsToInterfaceList() []any {
 }
 
 type RegoPolicyInstanceChangeInfo struct {
-	Actor     string `json:"repoIds"`
-	ActorType string `json:"actorType"`
-	Timestamp string `json:"timestamp"`
+	Actor     string `json:"actor,omitempty"`
+	ActorType string `json:"actorType,omitempty"`
+	Timestamp string `json:"timestamp,omitempty"`
 }
 
 func (changeInfo *RegoPolicyInstanceChangeInfo) ToInterfaceList() []any {
