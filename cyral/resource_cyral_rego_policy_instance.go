@@ -200,11 +200,12 @@ func resourceRegoPolicyInstance() *schema.Resource {
 				},
 			},
 			regoPolicyInstanceDurationKey: {
-				Description: "Policy duration. The policy expires after the duration specified. Should follow the Go " +
-					"duration string format, which corresponds to a sequence of decimal numbers and a unit suffix. For " +
-					"example: `300ms`, `2h45m`, `100s`, etc",
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Policy duration. The policy expires after the duration specified. Should follow the protobuf " +
+					"duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the " +
+					"end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s` etc",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validationDurationString,
 			},
 			regoPolicyInstanceLastUpdatedKey: {
 				Description: "Information regarding the policy last update.",
