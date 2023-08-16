@@ -1,6 +1,6 @@
 # cyral_sidecar_cft_template (Data Source)
 
-Retrieves the CloudFormation deployment template for a given sidecar. This data source only supports sidecars with `cloudFormation` deployment method. For Terraform template, use our `terraform-cyral-sidecar-aws` module.
+~> **DEPRECATED** This data source was deprecated. It will be removed in the next major version of the provider.
 
 ## Example Usage
 

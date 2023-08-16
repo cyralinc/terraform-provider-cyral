@@ -16,6 +16,11 @@ func initialDataLabelConfig() *DataLabel {
 		Name:        accTestName(datalabelResourceName, "label1"),
 		Description: "label1-description",
 		Tags:        []string{"tag1", "tag2"},
+		ClassificationRule: &DataLabelClassificationRule{
+			RuleType:   "UNKNOWN",
+			RuleCode:   "",
+			RuleStatus: "ENABLED",
+		},
 	}
 }
 
@@ -24,6 +29,11 @@ func updatedDataLabelConfig() *DataLabel {
 		Name:        accTestName(datalabelResourceName, "label2"),
 		Description: "label2-description",
 		Tags:        []string{"tag1", "tag2"},
+		ClassificationRule: &DataLabelClassificationRule{
+			RuleType:   "REGO",
+			RuleCode:   "int main() {cout << 'Hello World' << endl; return 0;}",
+			RuleStatus: "DISABLED",
+		},
 	}
 }
 
@@ -59,12 +69,24 @@ func setupDatalabelTest(t *testing.T, resName string, dataLabel *DataLabel) (str
 	resourceFullName := datalabelConfigResourceFullName(resName)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr(resourceFullName,
-			"name", dataLabel.Name),
-		resource.TestCheckResourceAttr(resourceFullName,
-			"description", dataLabel.Description),
-		resource.TestCheckResourceAttr(resourceFullName,
-			"tags.#", "2"),
+		resource.TestCheckResourceAttr(resourceFullName, "name", dataLabel.Name),
+		resource.TestCheckResourceAttr(resourceFullName, "description", dataLabel.Description),
+		resource.TestCheckResourceAttr(resourceFullName, "tags.#", "2"),
+		resource.TestCheckResourceAttr(
+			resourceFullName,
+			"classification_rule.0.rule_type",
+			dataLabel.ClassificationRule.RuleType,
+		),
+		resource.TestCheckResourceAttr(
+			resourceFullName,
+			"classification_rule.0.rule_code",
+			dataLabel.ClassificationRule.RuleCode,
+		),
+		resource.TestCheckResourceAttr(
+			resourceFullName,
+			"classification_rule.0.rule_status",
+			dataLabel.ClassificationRule.RuleStatus,
+		),
 	)
 
 	return configuration, testFunction
@@ -75,11 +97,30 @@ func datalabelConfigResourceFullName(resName string) string {
 }
 
 func formatDataLabelIntoConfig(resName string, dataLabel *DataLabel) string {
+	var classificationRuleConfig string
+	if dataLabel.ClassificationRule != nil {
+		classificationRuleConfig = fmt.Sprintf(`
+		classification_rule {
+			rule_type = "%s"
+			rule_code = "%s"
+			rule_status = "%s"
+		}`,
+			dataLabel.ClassificationRule.RuleType,
+			dataLabel.ClassificationRule.RuleCode,
+			dataLabel.ClassificationRule.RuleStatus,
+		)
+	}
 	return fmt.Sprintf(`
 	resource "cyral_datalabel" "%s" {
 		name  = "%s"
 		description = "%s"
 		tags = %s
-	}`, resName, dataLabel.Name, dataLabel.Description,
-		listToStr(dataLabel.Tags))
+		%s
+	}`,
+		resName,
+		dataLabel.Name,
+		dataLabel.Description,
+		listToStr(dataLabel.Tags),
+		classificationRuleConfig,
+	)
 }

@@ -9,22 +9,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
-
-func writeDataLabelToResourceSchema(label DataLabel, d *schema.ResourceData) error {
-	if err := d.Set("description", label.Description); err != nil {
-		return err
-	}
-
-	tagIfaces := label.TagsAsInterface()
-	if err := d.Set("tags", tagIfaces); err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func resourceDatalabel() *schema.Resource {
 	return &schema.Resource{
@@ -53,12 +41,46 @@ func resourceDatalabel() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"classification_rule": {
+				Description: "Classification rules are used by the " +
+					"[Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map " +
+					"data locations to labels.",
+				Optional: true,
+				Type:     schema.TypeSet,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"rule_type": {
+							Description: "Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`. Defaults " +
+								"to `UNKNOWN`.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "UNKNOWN",
+							ValidateFunc: validation.StringInSlice(classificationRuleTypes(), false),
+						},
+						"rule_code": {
+							Description: "Actual code of the classification rule. For example, this attribute may contain " +
+								"REGO code for `REGO`-type classification rules.",
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"rule_status": {
+							Description: "Status of the classification rule. Valid values are: `ENABLED` and  `DISABLED`. " +
+								"Defaults to `ENABLED`.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "ENABLED",
+							ValidateFunc: validation.StringInSlice(classificationRuleStatus(), false),
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: func(
 				ctx context.Context,
 				d *schema.ResourceData,
-				m interface{},
+				m any,
 			) ([]*schema.ResourceData, error) {
 				d.Set("name", d.Id())
 				return []*schema.ResourceData{d}, nil
@@ -67,7 +89,7 @@ func resourceDatalabel() *schema.Resource {
 	}
 }
 
-func resourceDatalabelCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceDatalabelCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceDatalabelCreate")
 	c := m.(*client.Client)
 
@@ -88,7 +110,7 @@ func resourceDatalabelCreate(ctx context.Context, d *schema.ResourceData, m inte
 	return resourceDatalabelRead(ctx, d, m)
 }
 
-func resourceDatalabelRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceDatalabelRead(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceDatalabelRead")
 	c := m.(*client.Client)
 
@@ -115,7 +137,7 @@ func resourceDatalabelRead(ctx context.Context, d *schema.ResourceData, m interf
 	return diag.Diagnostics{}
 }
 
-func resourceDatalabelUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceDatalabelUpdate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceDatalabelUpdate")
 	c := m.(*client.Client)
 
@@ -134,7 +156,7 @@ func resourceDatalabelUpdate(ctx context.Context, d *schema.ResourceData, m inte
 	return resourceDatalabelRead(ctx, d, m)
 }
 
-func resourceDatalabelDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceDatalabelDelete(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	log.Printf("[DEBUG] Init resourceDatalabelDelete")
 	c := m.(*client.Client)
 
@@ -153,15 +175,45 @@ func resourceDatalabelDelete(ctx context.Context, d *schema.ResourceData, m inte
 
 func getDataLabelFromResource(d *schema.ResourceData) DataLabel {
 	var tags []string
-	tagIfaces := d.Get("tags").([]interface{})
+	tagIfaces := d.Get("tags").([]any)
 	for _, tagIface := range tagIfaces {
 		tags = append(tags, tagIface.(string))
 	}
 
-	return DataLabel{
-		Name:        d.Get("name").(string),
-		Type:        dataLabelTypeCustom,
-		Description: d.Get("description").(string),
-		Tags:        tags,
+	var classificationRule *DataLabelClassificationRule
+	classificationRuleList := d.Get("classification_rule").(*schema.Set).List()
+	if len(classificationRuleList) > 0 {
+		classificationRuleMap := classificationRuleList[0].(map[string]any)
+		classificationRule = &DataLabelClassificationRule{
+			RuleType:   classificationRuleMap["rule_type"].(string),
+			RuleCode:   classificationRuleMap["rule_code"].(string),
+			RuleStatus: classificationRuleMap["rule_status"].(string),
+		}
 	}
+
+	return DataLabel{
+		Name:               d.Get("name").(string),
+		Type:               dataLabelTypeCustom,
+		Description:        d.Get("description").(string),
+		Tags:               tags,
+		ClassificationRule: classificationRule,
+	}
+}
+
+func writeDataLabelToResourceSchema(label DataLabel, d *schema.ResourceData) error {
+	if err := d.Set("description", label.Description); err != nil {
+		return fmt.Errorf("error setting 'description' field: %w", err)
+	}
+
+	tagIfaces := label.TagsAsInterface()
+	if err := d.Set("tags", tagIfaces); err != nil {
+		return fmt.Errorf("error setting 'tags' field: %w", err)
+	}
+
+	classificationRule := label.ClassificationRuleAsInterface()
+	if err := d.Set("classification_rule", classificationRule); err != nil {
+		return fmt.Errorf("error setting 'classification_rule' field: %w", err)
+	}
+
+	return nil
 }

@@ -17,6 +17,11 @@ resource "cyral_datalabel" "NAME" {
   name        = "NAME"
   description = "Customer name"
   tags        = ["PII", "SENSITIVE"]
+  classification_rule {
+    rule_type = "REGO"
+    rule_code = "some-rego-code"
+    rule_status = "ENABLED"
+  }
 }
 ```
 
@@ -30,9 +35,20 @@ resource "cyral_datalabel" "NAME" {
 
 ### Optional
 
+- `classification_rule` (Block Set, Max: 1) Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. (see [below for nested schema](#nestedblock--classification_rule))
 - `description` (String) Description of the data label.
 - `tags` (List of String) Tags that can be used to categorize data labels.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+
+<a id="nestedblock--classification_rule"></a>
+
+### Nested Schema for `classification_rule`
+
+Optional:
+
+- `rule_code` (String) Actual code of the classification rule. For example, this attribute may contain REGO code for `REGO`-type classification rules.
+- `rule_status` (String) Status of the classification rule. Valid values are: `ENABLED` and `DISABLED`. Defaults to `ENABLED`.
+- `rule_type` (String) Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`. Defaults to `UNKNOWN`.
