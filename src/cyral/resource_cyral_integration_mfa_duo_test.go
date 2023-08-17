@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -14,14 +15,14 @@ const (
 
 func initialDuoMFAIntegrationConfig() *IntegrationConfExtension {
 	integration := NewIntegrationConfExtension(duoMFATemplateType)
-	integration.Name = accTestName(integrationDuoMFAResourceName, "integration")
+	integration.Name = utils.AccTestName(integrationDuoMFAResourceName, "integration")
 	integration.Parameters = `{"integrationKey": "integration-key-1", "secretKey": "secret-key-1", "apiHostname": "api-hostname-1"}`
 	return integration
 }
 
 func updatedDuoMFAIntegrationConfig() *IntegrationConfExtension {
 	integration := NewIntegrationConfExtension(duoMFATemplateType)
-	integration.Name = accTestName(integrationDuoMFAResourceName, "integration-updated")
+	integration.Name = utils.AccTestName(integrationDuoMFAResourceName, "integration-updated")
 	integration.Parameters = `{"integrationKey": "integration-key-2", "secretKey": "secret-key-2", "apiHostname": "api-hostname-2"}`
 	return integration
 }

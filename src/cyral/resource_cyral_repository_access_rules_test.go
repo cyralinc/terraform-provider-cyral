@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -144,22 +145,22 @@ func setupRepositoryAccessRulesTest(
 	bareBones bool,
 ) (string, resource.TestCheckFunc) {
 	var configuration string
-	configuration += formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
-		accTestName(repositoryAccessRulesResourceName, "repository1"),
+	configuration += utils.FormatBasicRepositoryIntoConfig(
+		BasicRepositoryResName,
+		utils.AccTestName(repositoryAccessRulesResourceName, "repository1"),
 		"mongodb",
 		"mongo.local",
 		3333,
 	) + "\n"
 
 	configuration += userAccConfig(
-		basicRepositoryID,
-		accTestName(repositoryAccessRulesResourceName, "user_acount"),
+		BasicRepositoryID,
+		utils.AccTestName(repositoryAccessRulesResourceName, "user_acount"),
 	) + "\n"
 
 	configuration += accessRulesToConfig(
 		accessRulesData,
-		basicRepositoryID,
+		BasicRepositoryID,
 		"cyral_repository_user_account.my_test_user_account.user_account_id",
 		bareBones,
 	) + "\n"

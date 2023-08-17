@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
 )
@@ -147,8 +148,8 @@ func TestPolicyRuleResourceUpgradeV0(t *testing.T) {
 func setupPolicyRuleTest(policyRule PolicyRuleConfig) (string, resource.TestCheckFunc) {
 	testLabelName := "TEST_CCN"
 	var config string
-	config += formatBasicPolicyIntoConfig(
-		accTestName(policyRuleResourceName, "policy"),
+	config += utils.FormatBasicPolicyIntoConfig(
+		utils.AccTestName(policyRuleResourceName, "policy"),
 		[]string{testLabelName},
 	)
 	config += formatPolicyRuleConfigIntoConfig(

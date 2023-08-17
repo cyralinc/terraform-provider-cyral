@@ -23,12 +23,33 @@ type RequestErrorHandler interface {
 	HandleError(d *schema.ResourceData, c *client.Client, err error) error
 }
 
+// TODO Rename as `SchemaReader` and document properly.
 type ResourceData interface {
 	ReadFromSchema(d *schema.ResourceData) error
 }
 
+// TODO Rename as `SchemaWriter` and document properly.
 type ResponseData interface {
 	WriteToSchema(d *schema.ResourceData) error
+}
+
+type SchemaType string
+
+const (
+	DataSourceSchema = SchemaType("dataSource")
+	ResourceSchema   = SchemaType("resource")
+)
+
+// Registers a data source or resource to the provider.
+// This avoids the provider having to know about all data
+// sources and resources and inverts the responsibility
+// making these elements responsible for registering
+// themselves to the provider.
+type SchemaRegister struct {
+	// Rsource or data source name
+	Name   string
+	Type   SchemaType
+	Schema func() *schema.Resource
 }
 
 type ResourceOperationConfig struct {
@@ -37,15 +58,16 @@ type ResourceOperationConfig struct {
 	CreateURL  URLCreatorFunc
 	RequestErrorHandler
 	NewResourceData func() ResourceData
+	// TODO provide a default implementation
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
 func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
-	return HandleRequests(resourceOperations)
+	return handleRequests(resourceOperations)
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeCreate,
@@ -60,7 +82,7 @@ func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.Cre
 }
 
 func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeRead,
@@ -71,7 +93,7 @@ func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
 }
 
 func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.UpdateContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeUpdate,
@@ -86,7 +108,7 @@ func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.Upd
 }
 
 func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeDelete,
@@ -96,7 +118,7 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 	)
 }
 
-func HandleRequests(
+func handleRequests(
 	resourceOperations []ResourceOperation,
 ) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -109,7 +131,7 @@ func HandleRequests(
 				if resourceData = operation.Config.NewResourceData(); resourceData != nil {
 					if err := resourceData.ReadFromSchema(d); err != nil {
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource", operation.Type),
+							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
 							err.Error(),
 						)
 					}
@@ -124,7 +146,7 @@ func HandleRequests(
 			}
 			if err != nil {
 				return utils.CreateError(
-					fmt.Sprintf("Unable to %s resource", operation.Type),
+					fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
 					err.Error(),
 				)
 			}
@@ -138,7 +160,7 @@ func HandleRequests(
 
 					if err := responseData.WriteToSchema(d); err != nil {
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource", operation.Type),
+							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
 							err.Error(),
 						)
 					}

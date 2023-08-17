@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +17,7 @@ const (
 
 func genericSAMLDraftConfigInitial() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
-		DisplayName: accTestName(
+		DisplayName: utils.AccTestName(
 			integrationIdPSAMLDraftResourceName, "integration-1"),
 		DisableIdPInitiatedLogin: false,
 		IdpType:                  "some-idp-type-1",
@@ -31,7 +32,7 @@ func genericSAMLDraftConfigInitial() *GenericSAMLDraft {
 
 func genericSAMLDraftConfigUpdated() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
-		DisplayName: accTestName(
+		DisplayName: utils.AccTestName(
 			integrationIdPSAMLDraftResourceName, "integration-2"),
 		DisableIdPInitiatedLogin: true,
 		IdpType:                  "some-idp-type-2",
@@ -46,7 +47,7 @@ func genericSAMLDraftConfigUpdated() *GenericSAMLDraft {
 
 func genericSAMLDraftConfigNoAttributes() *GenericSAMLDraft {
 	return &GenericSAMLDraft{
-		DisplayName: accTestName(
+		DisplayName: utils.AccTestName(
 			integrationIdPSAMLDraftResourceName, "integration-2"),
 		DisableIdPInitiatedLogin: true,
 		IdpType:                  "some-idp-type-2",

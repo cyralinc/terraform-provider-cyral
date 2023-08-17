@@ -7,10 +7,20 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/src/client"
 	"github.com/cyralinc/terraform-provider-cyral/src/core"
+	"github.com/cyralinc/terraform-provider-cyral/src/cyral"
 	"github.com/cyralinc/terraform-provider-cyral/src/cyral/datalabel/classificationrule"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+func init() {
+	sr := core.SchemaRegister{
+		Name:   "cyral_datalabel",
+		Schema: ResourceSchema,
+		Type:   core.ResourceSchema,
+	}
+	cyral.RegisterToProvider(sr)
+}
 
 func ResourceSchema() *schema.Resource {
 	return &schema.Resource{
@@ -128,6 +138,6 @@ var ReadDataLabelConfig = core.ResourceOperationConfig{
 			c.ControlPlane,
 			d.Get("name").(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &GetDataLabelResponse{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &DataLabel{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Label"},
 }

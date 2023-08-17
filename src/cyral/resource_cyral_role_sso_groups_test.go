@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +21,7 @@ const (
 )
 
 func roleSSOGroupsTestRoleName() string {
-	return accTestName(roleSSOGroupsResourceName, "role")
+	return utils.AccTestName(roleSSOGroupsResourceName, "role")
 }
 
 func roleSSOGroupsTestRole() string {
@@ -31,10 +32,10 @@ func roleSSOGroupsTestRole() string {
 }
 
 func roleSSOGroupsTestOktaIntegration() string {
-	return formatBasicIntegrationIdPOktaIntoConfig(
+	return utils.FormatBasicIntegrationIdPOktaIntoConfig(
 		testRoleSSOGroupsIntegrationResName,
-		accTestName(roleSSOGroupsResourceName, "integration"),
-		testSingleSignOnURL,
+		utils.AccTestName(roleSSOGroupsResourceName, "integration"),
+		utils.TestSingleSignOnURL,
 	)
 }
 

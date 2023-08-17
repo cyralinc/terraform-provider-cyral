@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,7 +14,7 @@ const (
 )
 
 func TestAccIdPIntegrationResource(t *testing.T) {
-	idpDisplayName := accTestName(integrationIdPResourceName, "integration")
+	idpDisplayName := utils.AccTestName(integrationIdPResourceName, "integration")
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -110,7 +111,7 @@ func testAccIdPIntegrationConfig_ADFS_DefaultValues(idpDisplayName string) strin
 			}
 		}
 	}
-	`, idpDisplayName, testSingleSignOnURL)
+	`, idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_ADFS_DefaultValues() resource.TestCheckFunc {
@@ -118,7 +119,7 @@ func testAccIdPIntegrationCheck_ADFS_DefaultValues() resource.TestCheckFunc {
 		resource.TestMatchResourceAttr("cyral_integration_idp_adfs.test_idp_integration",
 			"id", regexp.MustCompile(`adfs.`)),
 		resource.TestCheckResourceAttr("cyral_integration_idp_adfs.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 	)
 }
 
@@ -132,7 +133,7 @@ func testAccIdPIntegrationConfig_AAD_DefaultValues(idpDisplayName string) string
 			}
 		}
 	}
-	`, idpDisplayName, testSingleSignOnURL)
+	`, idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_AAD_DefaultValues() resource.TestCheckFunc {
@@ -140,7 +141,7 @@ func testAccIdPIntegrationCheck_AAD_DefaultValues() resource.TestCheckFunc {
 		resource.TestMatchResourceAttr("cyral_integration_idp_aad.test_idp_integration",
 			"id", regexp.MustCompile(`aad.`)),
 		resource.TestCheckResourceAttr("cyral_integration_idp_aad.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 	)
 }
 
@@ -154,7 +155,7 @@ func testAccIdPIntegrationConfig_Forgerock_DefaultValues(idpDisplayName string) 
 			}
 		}
 	}
-	`, idpDisplayName, testSingleSignOnURL)
+	`, idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_Forgerock_DefaultValues() resource.TestCheckFunc {
@@ -162,7 +163,7 @@ func testAccIdPIntegrationCheck_Forgerock_DefaultValues() resource.TestCheckFunc
 		resource.TestMatchResourceAttr("cyral_integration_idp_forgerock.test_idp_integration",
 			"id", regexp.MustCompile(`forgerock.`)),
 		resource.TestCheckResourceAttr("cyral_integration_idp_forgerock.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 	)
 }
 
@@ -176,7 +177,7 @@ func testAccIdPIntegrationConfig_GSuite_DefaultValues(idpDisplayName string) str
 			}
 		}
 	}
-	`, idpDisplayName, testSingleSignOnURL)
+	`, idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_GSuite_DefaultValues() resource.TestCheckFunc {
@@ -184,7 +185,7 @@ func testAccIdPIntegrationCheck_GSuite_DefaultValues() resource.TestCheckFunc {
 		resource.TestMatchResourceAttr("cyral_integration_idp_gsuite.test_idp_integration",
 			"id", regexp.MustCompile(`gsuite.`)),
 		resource.TestCheckResourceAttr("cyral_integration_idp_gsuite.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 	)
 }
 
@@ -198,7 +199,7 @@ func testAccIdPIntegrationConfig_PingOne_DefaultValues(idpDisplayName string) st
 			}
 		}
 	}
-	`, idpDisplayName, testSingleSignOnURL)
+	`, idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_PingOne_DefaultValues() resource.TestCheckFunc {
@@ -206,7 +207,7 @@ func testAccIdPIntegrationCheck_PingOne_DefaultValues() resource.TestCheckFunc {
 		resource.TestMatchResourceAttr("cyral_integration_idp_ping_one.test_idp_integration",
 			"id", regexp.MustCompile(`pingone.`)),
 		resource.TestCheckResourceAttr("cyral_integration_idp_ping_one.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 	)
 }
 
@@ -220,7 +221,7 @@ func testAccIdPIntegrationConfig_Okta_DefaultValues(idpDisplayName string) strin
 			}
 		}
 	}
-	`, idpDisplayName, testSingleSignOnURL)
+	`, idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_Okta_DefaultValues() resource.TestCheckFunc {
@@ -228,7 +229,7 @@ func testAccIdPIntegrationCheck_Okta_DefaultValues() resource.TestCheckFunc {
 		resource.TestMatchResourceAttr("cyral_integration_idp_okta.test_idp_integration",
 			"id", regexp.MustCompile(`okta.`)),
 		resource.TestCheckResourceAttr("cyral_integration_idp_okta.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 	)
 }
 
@@ -244,7 +245,7 @@ func testAccIdPIntegrationConfig_Updated(idpDisplayName string) string {
 			}
 		}
 	}
-	`, idpDisplayName, testSingleSignOnURL)
+	`, idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_Updated(idpDisplayName string) resource.TestCheckFunc {
@@ -256,7 +257,7 @@ func testAccIdPIntegrationCheck_Updated(idpDisplayName string) resource.TestChec
 		resource.TestCheckResourceAttr("cyral_integration_idp_okta.test_idp_integration",
 			"samlp.0.disabled", "true"),
 		resource.TestCheckResourceAttr("cyral_integration_idp_okta.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 		resource.TestCheckResourceAttr("cyral_integration_idp_okta.test_idp_integration",
 			"samlp.0.config.0.back_channel_supported", "true"),
 	)
@@ -273,17 +274,17 @@ func testAccIdPIntegrationConfig_NotEmptyAlias(idpDisplayName string) string {
 			}
 		}
 	}
-	`, accTestName(integrationIdPResourceName, "test-alias"), idpDisplayName, testSingleSignOnURL)
+	`, utils.AccTestName(integrationIdPResourceName, "test-alias"), idpDisplayName, utils.TestSingleSignOnURL)
 }
 
 func testAccIdPIntegrationCheck_NotEmptyAlias() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_idp_okta.test_idp_integration",
-			"draft_alias", accTestName(integrationIdPResourceName, "test-alias")),
+			"draft_alias", utils.AccTestName(integrationIdPResourceName, "test-alias")),
 		resource.TestCheckResourceAttrPair(
 			"cyral_integration_idp_okta.test_idp_integration", "id",
 			"cyral_integration_idp_okta.test_idp_integration", "draft_alias"),
 		resource.TestCheckResourceAttr("cyral_integration_idp_okta.test_idp_integration",
-			"samlp.0.config.0.single_sign_on_service_url", testSingleSignOnURL),
+			"samlp.0.config.0.single_sign_on_service_url", utils.TestSingleSignOnURL),
 	)
 }

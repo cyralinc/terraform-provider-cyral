@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -87,8 +88,8 @@ func setupIntegrationIdPSAMLTest(resName, metadataDoc string) (
 	resource.TestCheckFunc,
 ) {
 	var config string
-	config += formatBasicIntegrationIdPSAMLDraftIntoConfig(resName,
-		accTestName(integrationIdPSAMLResourceName, "saml-draft"),
+	config += utils.FormatBasicIntegrationIdPSAMLDraftIntoConfig(resName,
+		utils.AccTestName(integrationIdPSAMLResourceName, "saml-draft"),
 		"some-idp-type")
 	config += integrationIdPSAMLResourceConfig(resName, resName, metadataDoc)
 

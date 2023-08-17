@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -12,12 +13,12 @@ const (
 )
 
 var initialSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: accTestName(integrationSlackAlertsResourceName, "slack-alerts"),
+	Name: utils.AccTestName(integrationSlackAlertsResourceName, "slack-alerts"),
 	URL:  "https://slack.local",
 }
 
 var updatedSlackAlertsConfig SlackAlertsIntegration = SlackAlertsIntegration{
-	Name: accTestName(integrationSlackAlertsResourceName, "slack-alerts-updated"),
+	Name: utils.AccTestName(integrationSlackAlertsResourceName, "slack-alerts-updated"),
 	URL:  "https://slack-updated.local",
 }
 

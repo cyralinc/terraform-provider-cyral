@@ -5,6 +5,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
 )
@@ -17,9 +18,9 @@ const (
 )
 
 func repositoryDatamapSampleRepositoryConfig(resName string) string {
-	return formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
-		accTestName(repositoryDatamapResourceName, resName),
+	return utils.FormatBasicRepositoryIntoConfig(
+		BasicRepositoryResName,
+		utils.AccTestName(repositoryDatamapResourceName, resName),
 		"sqlserver",
 		"localhost",
 		1433,
@@ -27,7 +28,7 @@ func repositoryDatamapSampleRepositoryConfig(resName string) string {
 }
 
 func testRepositoryDatamapCustomLabel() string {
-	return accTestName(repositoryDatamapResourceName, "custom-label")
+	return utils.AccTestName(repositoryDatamapResourceName, "custom-label")
 }
 
 func initialDataMapConfigRemoveMapping() *DataMap {
@@ -121,7 +122,7 @@ func testRepositoryDatamapInitialConfigRemoveMapping(t *testing.T) resource.Test
 	config := initialDataMapConfigRemoveMapping()
 	var tfConfig string
 	tfConfig += repositoryDatamapSampleRepositoryConfig(resName)
-	tfConfig += formatDataMapIntoConfig(resName, basicRepositoryID, config)
+	tfConfig += formatDataMapIntoConfig(resName, BasicRepositoryID, config)
 	check := setupRepositoryDatamapTestFunc(t, resName, config)
 	return resource.TestStep{Config: tfConfig, Check: check}
 }
@@ -131,7 +132,7 @@ func testRepositoryDatamapUpdatedConfigRemoveMapping(t *testing.T) resource.Test
 	config := updatedDataMapConfigRemoveMapping()
 	var tfConfig string
 	tfConfig += repositoryDatamapSampleRepositoryConfig(resName)
-	tfConfig += formatDataMapIntoConfig(resName, basicRepositoryID, config)
+	tfConfig += formatDataMapIntoConfig(resName, BasicRepositoryID, config)
 	check := setupRepositoryDatamapTestFunc(t, resName, config)
 	return resource.TestStep{Config: tfConfig, Check: check}
 }
@@ -141,7 +142,7 @@ func testRepositoryDatamapInitialConfigRemoveAttribute(t *testing.T) resource.Te
 	config := initialDataMapConfigRemoveAttribute()
 	var tfConfig string
 	tfConfig += repositoryDatamapSampleRepositoryConfig(resName)
-	tfConfig += formatDataMapIntoConfig(resName, basicRepositoryID, config)
+	tfConfig += formatDataMapIntoConfig(resName, BasicRepositoryID, config)
 	check := setupRepositoryDatamapTestFunc(t, resName, config)
 	return resource.TestStep{Config: tfConfig, Check: check}
 }
@@ -151,7 +152,7 @@ func testRepositoryDatamapUpdatedConfigRemoveAttribute(t *testing.T) resource.Te
 	config := updatedDataMapConfigRemoveAttribute()
 	var tfConfig string
 	tfConfig += repositoryDatamapSampleRepositoryConfig(resName)
-	tfConfig += formatDataMapIntoConfig(resName, basicRepositoryID, config)
+	tfConfig += formatDataMapIntoConfig(resName, BasicRepositoryID, config)
 	check := setupRepositoryDatamapTestFunc(t, resName, config)
 	return resource.TestStep{Config: tfConfig, Check: check}
 }
@@ -161,7 +162,7 @@ func testRepositoryDatamapWithDataLabel(t *testing.T) resource.TestStep {
 	configDM, configDL := dataMapConfigWithDataLabel()
 	var tfConfig string
 	tfConfig += repositoryDatamapSampleRepositoryConfig(resName)
-	tfConfig += (formatDataMapIntoConfig(resName, basicRepositoryID, configDM) +
+	tfConfig += (formatDataMapIntoConfig(resName, BasicRepositoryID, configDM) +
 		formatDataLabelIntoConfig(configDL.Name, configDL))
 	check := setupRepositoryDatamapTestFunc(t, resName, configDM)
 	return resource.TestStep{Config: tfConfig, Check: check}
@@ -187,7 +188,7 @@ func setupRepositoryDatamapTestFunc(
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			resFullName, "repository_id",
-			fmt.Sprintf("cyral_repository.%s", basicRepositoryResName), "id",
+			fmt.Sprintf("cyral_repository.%s", BasicRepositoryResName), "id",
 		),
 	}
 

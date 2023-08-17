@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,9 +14,9 @@ const (
 )
 
 func dsourceSidecarBoundPortsSampleSidecarConfig() string {
-	return formatBasicSidecarIntoConfig(
-		basicSidecarResName,
-		accTestName(sidecarBoundPortsDataSourceName, "sidecar"),
+	return utils.FormatBasicSidecarIntoConfig(
+		BasicSidecarResName,
+		utils.AccTestName(sidecarBoundPortsDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)
 }
@@ -56,7 +57,7 @@ func testAccSidecarBoundPortsConfig_NoBindings() string {
 		`
 	data "cyral_sidecar_bound_ports" "sidecar_bound_ports_1" {
 		sidecar_id = %s
-	}`, basicSidecarID,
+	}`, utils.BasicSidecarID,
 	)
 	return config
 }
@@ -75,82 +76,82 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 	config += dsourceSidecarBoundPortsSampleSidecarConfig()
 
 	// Repo 1
-	config += formatBasicRepositoryIntoConfig(
+	config += utils.FormatBasicRepositoryIntoConfig(
 		"repo_1",
-		accTestName(sidecarBoundPortsDataSourceName, "repo1"),
+		utils.AccTestName(sidecarBoundPortsDataSourceName, "repo1"),
 		"mysql",
 		"mysql.com",
 		3306,
 	)
-	config += formatBasicSidecarListenerIntoConfig(
+	config += utils.FormatBasicSidecarListenerIntoConfig(
 		"listener_1",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"mysql",
 		3306,
 	)
-	config += formatBasicRepositoryBindingIntoConfig(
+	config += utils.FormatBasicRepositoryBindingIntoConfig(
 		"binding_1",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"cyral_repository.repo_1.id",
 		"cyral_sidecar_listener.listener_1.listener_id",
 	)
 	// Repo 2
-	config += formatBasicRepositoryIntoConfig(
+	config += utils.FormatBasicRepositoryIntoConfig(
 		"repo_2",
-		accTestName(sidecarBoundPortsDataSourceName, "repo2"),
+		utils.AccTestName(sidecarBoundPortsDataSourceName, "repo2"),
 		"mongodb",
 		"mongo.com",
 		27017,
 	)
-	config += formatBasicSidecarListenerIntoConfig(
+	config += utils.FormatBasicSidecarListenerIntoConfig(
 		"listener_2",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"mongodb",
 		27017,
 	)
-	config += formatBasicRepositoryBindingIntoConfig(
+	config += utils.FormatBasicRepositoryBindingIntoConfig(
 		"binding_2",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"cyral_repository.repo_2.id",
 		"cyral_sidecar_listener.listener_2.listener_id",
 	)
 	// Repo 3
-	config += formatBasicRepositoryIntoConfig(
+	config += utils.FormatBasicRepositoryIntoConfig(
 		"repo_3",
-		accTestName(sidecarBoundPortsDataSourceName, "repo3"),
+		utils.AccTestName(sidecarBoundPortsDataSourceName, "repo3"),
 		"oracle",
 		"oracle.com",
 		1234,
 	)
-	config += formatBasicSidecarListenerIntoConfig(
+	config += utils.FormatBasicSidecarListenerIntoConfig(
 		"listener_3",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"oracle",
 		1234,
 	)
-	config += formatBasicRepositoryBindingIntoConfig(
+	config += utils.FormatBasicRepositoryBindingIntoConfig(
 		"binding_3",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"cyral_repository.repo_3.id",
 		"cyral_sidecar_listener.listener_3.listener_id",
 	)
 	// Repo 4
-	config += formatBasicRepositoryIntoConfig(
+	config += utils.FormatBasicRepositoryIntoConfig(
 		"repo_4",
-		accTestName(sidecarBoundPortsDataSourceName, "repo4"),
+		utils.AccTestName(sidecarBoundPortsDataSourceName, "repo4"),
 		"s3",
 		"s3.com",
 		5678,
 	)
-	config += formatBasicSidecarListenerIntoConfig(
+	config += utils.FormatBasicSidecarListenerIntoConfig(
 		"listener_4",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"s3",
 		5678,
 	)
-	config += formatBasicRepositoryBindingIntoConfig(
+	config += utils.FormatBasicRepositoryBindingIntoConfig(
 		"binding_4",
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"cyral_repository.repo_4.id",
 		"cyral_sidecar_listener.listener_4.listener_id",
 	)
@@ -168,7 +169,7 @@ func testAccSidecarBoundPortsConfig_MultipleBindings() string {
 			cyral_repository_binding.binding_4
 		]
 		sidecar_id = %s
-	}`, basicSidecarID,
+	}`, utils.BasicSidecarID,
 	)
 
 	return config

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,7 +14,7 @@ const (
 
 var initialLogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash.local/",
-	Name:                       accTestName(integrationLogstashResourceName, "logstash-test"),
+	Name:                       utils.AccTestName(integrationLogstashResourceName, "logstash-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     false,
@@ -21,7 +22,7 @@ var initialLogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated1LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       accTestName(integrationLogstashResourceName, "logstash-update-test"),
+	Name:                       utils.AccTestName(integrationLogstashResourceName, "logstash-update-test"),
 	UseMutualAuthentication:    true,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     false,
@@ -29,7 +30,7 @@ var updated1LogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated2LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       accTestName(integrationLogstashResourceName, "logstash-update-test"),
+	Name:                       utils.AccTestName(integrationLogstashResourceName, "logstash-update-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: true,
 	UseTLS:                     false,
@@ -37,7 +38,7 @@ var updated2LogstashConfig LogstashIntegration = LogstashIntegration{
 
 var updated3LogstashConfig LogstashIntegration = LogstashIntegration{
 	Endpoint:                   "logstash-updated.local/",
-	Name:                       accTestName(integrationLogstashResourceName, "logstash-update-test"),
+	Name:                       utils.AccTestName(integrationLogstashResourceName, "logstash-update-test"),
 	UseMutualAuthentication:    false,
 	UsePrivateCertificateChain: false,
 	UseTLS:                     true,

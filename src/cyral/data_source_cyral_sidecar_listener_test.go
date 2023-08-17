@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"golang.org/x/exp/slices"
 )
@@ -81,9 +82,9 @@ func testListenerDataSourceConfig(listeners []SidecarListener, repoTypeFilter st
 		config += setupSidecarListenerConfig(resourceName, listener)
 		dependsOn = append(dependsOn, fmt.Sprintf("cyral_sidecar_listener.%s", resourceName))
 	}
-	sidecarConfig := formatBasicSidecarIntoConfig(
-		basicSidecarResName,
-		accTestName("ds-sidecar-listener", "sidecar"),
+	sidecarConfig := utils.FormatBasicSidecarIntoConfig(
+		BasicSidecarResName,
+		utils.AccTestName("ds-sidecar-listener", "sidecar"),
 		"docker", "",
 	)
 	config += sidecarConfig + listenerDataSourceConfig(repoTypeFilter, portFilter, dependsOn)
@@ -132,20 +133,20 @@ func listenerDataSourceConfig(repoTypeFilter string, portFilter int, dependsOn [
 				sidecar_id = %s
 				repo_type = "%s"
 				port = %d
-			}`, utils.ListToStr(dependsOn), basicSidecarID, repoTypeFilter, portFilter)
+			}`, utils.ListToStr(dependsOn), utils.BasicSidecarID, repoTypeFilter, portFilter)
 	} else if repoTypeFilter != "" {
 		return fmt.Sprintf(`
 			data "cyral_sidecar_listener" "test_listener" {
 				depends_on = %s
 				sidecar_id = %s
 				repo_type = "%s"
-			}`, utils.ListToStr(dependsOn), basicSidecarID, repoTypeFilter)
+			}`, utils.ListToStr(dependsOn), utils.BasicSidecarID, repoTypeFilter)
 	} else {
 		return fmt.Sprintf(`
 			data "cyral_sidecar_listener" "test_listener" {
 				depends_on = %s
 				sidecar_id = %s
 				port = %d
-			}`, utils.ListToStr(dependsOn), basicSidecarID, portFilter)
+			}`, utils.ListToStr(dependsOn), utils.BasicSidecarID, portFilter)
 	}
 }

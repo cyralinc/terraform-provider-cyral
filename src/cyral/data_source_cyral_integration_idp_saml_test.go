@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +18,7 @@ func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 	return []GenericSAMLIntegration{
 		{
 			ID: "id-1",
-			DisplayName: accTestName(
+			DisplayName: utils.AccTestName(
 				integrationIdPSAMLDataSourceName, "integration-1"),
 			IdpType:  "idp-type-1",
 			Disabled: false,
@@ -39,7 +40,7 @@ func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 		},
 		{
 			ID: "id-2",
-			DisplayName: accTestName(
+			DisplayName: utils.AccTestName(
 				integrationIdPSAMLDataSourceName, "integration-2"),
 			IdpType:  "idp-type-2",
 			Disabled: true,
@@ -63,11 +64,11 @@ func integrationIdPSAMLDataSourceTestIdps() []GenericSAMLIntegration {
 }
 
 func testIntegrationIdPSAMLDataSourceName1() string {
-	return accTestName(integrationIdPSAMLDataSourceName, "1")
+	return utils.AccTestName(integrationIdPSAMLDataSourceName, "1")
 }
 
 func testIntegrationIdPSAMLDataSourceName2() string {
-	return accTestName(integrationIdPSAMLDataSourceName, "2")
+	return utils.AccTestName(integrationIdPSAMLDataSourceName, "2")
 }
 
 func TestAccIntegrationIdPSAMLDataSource(t *testing.T) {
@@ -104,7 +105,7 @@ func testIntegrationIdPSAMLDataSourceConfigDependencies(resName string) string {
 	resName2 := resName + "_2"
 
 	var config string
-	config += formatBasicIntegrationIdPSAMLDraftIntoConfig(
+	config += utils.FormatBasicIntegrationIdPSAMLDraftIntoConfig(
 		resName1,
 		testIntegrationIdPSAMLDataSourceName1(),
 		"type1")
@@ -112,7 +113,7 @@ func testIntegrationIdPSAMLDataSourceConfigDependencies(resName string) string {
 		resName1,
 		resName1,
 		samlMetadataDocumentSample("fake-certificate"))
-	config += formatBasicIntegrationIdPSAMLDraftIntoConfig(
+	config += utils.FormatBasicIntegrationIdPSAMLDraftIntoConfig(
 		resName2,
 		testIntegrationIdPSAMLDataSourceName2(),
 		"type2")

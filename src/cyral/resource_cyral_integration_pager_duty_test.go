@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,14 +14,14 @@ const (
 
 func initialPagerDutyIntegrationConfig() *IntegrationConfExtension {
 	integration := NewIntegrationConfExtension(pagerDutyTemplateType)
-	integration.Name = accTestName(integrationPagerDutyResourceName, "pager-duty")
+	integration.Name = utils.AccTestName(integrationPagerDutyResourceName, "pager-duty")
 	integration.Parameters = "unitTest-parameters"
 	return integration
 }
 
 func updatedPagerDutyIntegrationConfig() *IntegrationConfExtension {
 	integration := NewIntegrationConfExtension(pagerDutyTemplateType)
-	integration.Name = accTestName(integrationPagerDutyResourceName, "pager-duty-updated")
+	integration.Name = utils.AccTestName(integrationPagerDutyResourceName, "pager-duty-updated")
 	integration.Parameters = "unitTest-parameters-updated"
 	return integration
 }

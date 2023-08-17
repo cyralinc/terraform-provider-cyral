@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
 )
@@ -15,9 +16,9 @@ const (
 )
 
 func repositoryConfAnalysisSampleRepositoryConfig() string {
-	return formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
-		accTestName(repositoryConfAnalysisResourceName, "repository"),
+	return utils.FormatBasicRepositoryIntoConfig(
+		BasicRepositoryResName,
+		utils.AccTestName(repositoryConfAnalysisResourceName, "repository"),
 		"postgresql",
 		"some-hostname",
 		3067,
@@ -79,7 +80,7 @@ func testAccRepoConfAnalysisConfig_ErrorRedact() string {
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
 		repository_id = %s
 		redact = "some-invalid-value"
-	}`, basicRepositoryID)
+	}`, BasicRepositoryID)
 	return config
 }
 
@@ -92,7 +93,7 @@ func testAccRepoConfAnalysisConfig_ErrorAnnotationGroups() string {
 		comment_annotation_groups = [
 			"some-invalid-value"
 		]
-	}`, basicRepositoryID)
+	}`, BasicRepositoryID)
 	return config
 }
 
@@ -105,7 +106,7 @@ func testAccRepoConfAnalysisConfig_ErrorLogGroups() string {
 		log_groups = [
 			"some-invalid-value"
 		]
-	}`, basicRepositoryID)
+	}`, BasicRepositoryID)
 	return config
 }
 
@@ -115,7 +116,7 @@ func testAccRepoConfAnalysisConfig_DefaultValues() string {
 	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
 		repository_id = %s
-	}`, basicRepositoryID)
+	}`, BasicRepositoryID)
 	return config
 }
 
@@ -164,7 +165,7 @@ func testAccRepoConfAnalysisConfig_Updated() string {
 			"sensitive & dml",
 			"sensitive & ddl"
 		]
-	}`, basicRepositoryID)
+	}`, BasicRepositoryID)
 	return config
 }
 

@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -30,26 +31,26 @@ func TestAccSidecarCftTemplateDataSource(t *testing.T) {
 
 func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
 	var configuration string
-	configuration += formatBasicSidecarIntoConfig(
-		basicSidecarResName,
-		accTestName(sidecarCftTemplateDataSourceName, "sidecar"),
+	configuration += utils.FormatBasicSidecarIntoConfig(
+		BasicSidecarResName,
+		utils.AccTestName(sidecarCftTemplateDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)
 	configuration += formatELKIntegrationDataIntoConfig(
 		ELKIntegration{
-			Name:      accTestName(sidecarCftTemplateDataSourceName, "elk"),
+			Name:      utils.AccTestName(sidecarCftTemplateDataSourceName, "elk"),
 			KibanaURL: "kibana.local",
 			ESURL:     "es.local",
 		},
 	)
 	configuration += formatDatadogIntegrationDataIntoConfig(
 		DatadogIntegration{
-			Name:   accTestName(sidecarCftTemplateDataSourceName, "datadog"),
+			Name:   utils.AccTestName(sidecarCftTemplateDataSourceName, "datadog"),
 			APIKey: "datadog-api-key",
 		},
 	)
 	configuration += formatSidecarCftTemplateDataIntoConfig(
-		basicSidecarID,
+		utils.BasicSidecarID,
 		"cyral_integration_elk.elk_integration.id",
 		"cyral_integration_datadog.datadog_integration.id",
 		true,

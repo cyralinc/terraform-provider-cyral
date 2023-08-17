@@ -10,8 +10,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/src/client"
-	"github.com/cyralinc/terraform-provider-cyral/src/cyral/datalabel"
+	"github.com/cyralinc/terraform-provider-cyral/src/core"
+	mapset "github.com/deckarep/golang-set"
 )
+
+var schemas = mapset.NewSet()
+
+func RegisterToProvider(schemaRegister core.SchemaRegister) {
+	schemas.Add(schemaRegister.Schema())
+}
 
 func init() {
 	schema.ResourceDescriptionBuilder = func(s *schema.Resource) string {
@@ -25,7 +32,6 @@ func init() {
 
 // Provider defines and initializes the Cyral provider
 func Provider() *schema.Provider {
-	var idpDeprecationMessage = "Use resource and data source `cyral_integration_idp_saml` instead."
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"client_id": {
@@ -62,63 +68,84 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc(client.EnvVarTLSSkipVerify, nil),
 			},
 		},
-		DataSourcesMap: map[string]*schema.Resource{
-			"cyral_datalabel":            datalabel.DataSourceSchema(),
-			"cyral_integration_idp":      dataSourceIntegrationIdP(),
-			"cyral_integration_idp_saml": dataSourceIntegrationIdPSAML(),
-			"cyral_integration_logging":  dataSourceIntegrationLogging(),
-			"cyral_repository":           dataSourceRepository(),
-			"cyral_role":                 dataSourceRole(),
-			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
-			"cyral_saml_configuration":   dataSourceSAMLConfiguration(),
-			"cyral_sidecar_bound_ports":  dataSourceSidecarBoundPorts(),
-			"cyral_sidecar_cft_template": dataSourceSidecarCftTemplate(),
-			"cyral_sidecar_id":           dataSourceSidecarID(),
-			"cyral_sidecar_instance_ids": dataSourceSidecarInstanceIDs(),
-			"cyral_sidecar_listener":     dataSourceSidecarListener(),
-		},
-
-		ResourcesMap: map[string]*schema.Resource{
-			"cyral_datalabel":                        datalabel.ResourceSchema(),
-			"cyral_integration_datadog":              resourceIntegrationDatadog(),
-			"cyral_integration_mfa_duo":              resourceIntegrationMFADuo(),
-			"cyral_integration_elk":                  resourceIntegrationELK(),
-			"cyral_integration_hc_vault":             resourceIntegrationHCVault(),
-			"cyral_integration_logstash":             resourceIntegrationLogstash(),
-			"cyral_integration_looker":               resourceIntegrationLooker(),
-			"cyral_integration_microsoft_teams":      resourceIntegrationMsTeams(),
-			"cyral_integration_pager_duty":           resourceIntegrationPagerDuty(),
-			"cyral_integration_slack_alerts":         resourceIntegrationSlackAlerts(),
-			"cyral_integration_splunk":               resourceIntegrationSplunk(),
-			"cyral_integration_idp_aad":              resourceIntegrationIdP("aad", idpDeprecationMessage),
-			"cyral_integration_idp_adfs":             resourceIntegrationIdP("adfs-2016", idpDeprecationMessage),
-			"cyral_integration_idp_forgerock":        resourceIntegrationIdP("forgerock", ""),
-			"cyral_integration_idp_gsuite":           resourceIntegrationIdP("gsuite", idpDeprecationMessage),
-			"cyral_integration_idp_okta":             resourceIntegrationIdP("okta", idpDeprecationMessage),
-			"cyral_integration_idp_ping_one":         resourceIntegrationIdP("pingone", idpDeprecationMessage),
-			"cyral_integration_idp_saml":             resourceIntegrationIdPSAML(),
-			"cyral_integration_idp_saml_draft":       resourceIntegrationIdPSAMLDraft(),
-			"cyral_integration_sumo_logic":           resourceIntegrationSumoLogic(),
-			"cyral_integration_logging":              resourceIntegrationLogging(),
-			"cyral_policy":                           resourcePolicy(),
-			"cyral_policy_rule":                      resourcePolicyRule(),
-			"cyral_repository":                       resourceRepository(),
-			"cyral_repository_binding":               resourceRepositoryBinding(),
-			"cyral_repository_conf_analysis":         resourceRepositoryConfAnalysis(),
-			"cyral_repository_conf_auth":             resourceRepositoryConfAuth(),
-			"cyral_repository_datamap":               resourceRepositoryDatamap(),
-			"cyral_repository_user_account":          resourceRepositoryUserAccount(),
-			"cyral_repository_network_access_policy": resourceRepositoryNetworkAccessPolicy(),
-			"cyral_repository_access_rules":          resourceRepositoryAccessRules(),
-			"cyral_repository_access_gateway":        resourceRepositoryAccessGateway(),
-			"cyral_role":                             resourceRole(),
-			"cyral_role_sso_groups":                  resourceRoleSSOGroups(),
-			"cyral_sidecar":                          resourceSidecar(),
-			"cyral_sidecar_credentials":              resourceSidecarCredentials(),
-			"cyral_sidecar_listener":                 resourceSidecarListener(),
-		},
+		DataSourcesMap:       dataSourceSchemas(),
+		ResourcesMap:         resourceSchemas(),
 		ConfigureContextFunc: providerConfigure,
 	}
+}
+
+func dataSourceSchemas() map[string]*schema.Resource {
+	schemaMap := map[string]*schema.Resource{}
+	schemaMap["cyral_integration_idp"] = dataSourceIntegrationIdP()
+	schemaMap["cyral_integration_idp_saml"] = dataSourceIntegrationIdPSAML()
+	schemaMap["cyral_integration_logging"] = dataSourceIntegrationLogging()
+	schemaMap["cyral_repository"] = dataSourceRepository()
+	schemaMap["cyral_role"] = dataSourceRole()
+	schemaMap["cyral_saml_certificate"] = dataSourceSAMLCertificate()
+	schemaMap["cyral_saml_configuration"] = dataSourceSAMLConfiguration()
+	schemaMap["cyral_sidecar_bound_ports"] = dataSourceSidecarBoundPorts()
+	schemaMap["cyral_sidecar_cft_template"] = dataSourceSidecarCftTemplate()
+	schemaMap["cyral_sidecar_id"] = dataSourceSidecarID()
+	schemaMap["cyral_sidecar_instance_ids"] = dataSourceSidecarInstanceIDs()
+	schemaMap["cyral_sidecar_listener"] = dataSourceSidecarListener()
+
+	for s := range schemas.Iter() {
+		if s.(core.SchemaRegister).Type == core.DataSourceSchema {
+			schemaMap[s.(core.SchemaRegister).Name] = s.(core.SchemaRegister).Schema()
+		}
+	}
+	return schemaMap
+}
+
+func resourceSchemas() map[string]*schema.Resource {
+	var idpDeprecationMessage = "Use resource and data source `cyral_integration_idp_saml` instead."
+	schemaMap := map[string]*schema.Resource{}
+
+	// TODO Once the resources are migrated to the new SchemaRegister
+	// abstraction, these calls from provider to resource will be removed.
+	schemaMap["cyral_integration_datadog"] = resourceIntegrationDatadog()
+	schemaMap["cyral_integration_mfa_duo"] = resourceIntegrationMFADuo()
+	schemaMap["cyral_integration_elk"] = resourceIntegrationELK()
+	schemaMap["cyral_integration_hc_vault"] = resourceIntegrationHCVault()
+	schemaMap["cyral_integration_logstash"] = resourceIntegrationLogstash()
+	schemaMap["cyral_integration_looker"] = resourceIntegrationLooker()
+	schemaMap["cyral_integration_microsoft_teams"] = resourceIntegrationMsTeams()
+	schemaMap["cyral_integration_pager_duty"] = resourceIntegrationPagerDuty()
+	schemaMap["cyral_integration_slack_alerts"] = resourceIntegrationSlackAlerts()
+	schemaMap["cyral_integration_splunk"] = resourceIntegrationSplunk()
+	schemaMap["cyral_integration_idp_aad"] = resourceIntegrationIdP("aad", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_adfs"] = resourceIntegrationIdP("adfs-2016", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_forgerock"] = resourceIntegrationIdP("forgerock", "")
+	schemaMap["cyral_integration_idp_gsuite"] = resourceIntegrationIdP("gsuite", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_okta"] = resourceIntegrationIdP("okta", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_ping_one"] = resourceIntegrationIdP("pingone", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_saml"] = resourceIntegrationIdPSAML()
+	schemaMap["cyral_integration_idp_saml_draft"] = resourceIntegrationIdPSAMLDraft()
+	schemaMap["cyral_integration_sumo_logic"] = resourceIntegrationSumoLogic()
+	schemaMap["cyral_integration_logging"] = resourceIntegrationLogging()
+	schemaMap["cyral_policy"] = resourcePolicy()
+	schemaMap["cyral_policy_rule"] = resourcePolicyRule()
+	schemaMap["cyral_repository"] = resourceRepository()
+	schemaMap["cyral_repository_binding"] = resourceRepositoryBinding()
+	schemaMap["cyral_repository_conf_analysis"] = resourceRepositoryConfAnalysis()
+	schemaMap["cyral_repository_conf_auth"] = resourceRepositoryConfAuth()
+	schemaMap["cyral_repository_datamap"] = resourceRepositoryDatamap()
+	schemaMap["cyral_repository_user_account"] = resourceRepositoryUserAccount()
+	schemaMap["cyral_repository_network_access_policy"] = resourceRepositoryNetworkAccessPolicy()
+	schemaMap["cyral_repository_access_rules"] = resourceRepositoryAccessRules()
+	schemaMap["cyral_repository_access_gateway"] = resourceRepositoryAccessGateway()
+	schemaMap["cyral_role"] = resourceRole()
+	schemaMap["cyral_role_sso_groups"] = resourceRoleSSOGroups()
+	schemaMap["cyral_sidecar"] = resourceSidecar()
+	schemaMap["cyral_sidecar_credentials"] = resourceSidecarCredentials()
+	schemaMap["cyral_sidecar_listener"] = resourceSidecarListener()
+
+	for s := range schemas.Iter() {
+		if s.(core.SchemaRegister).Type == core.ResourceSchema {
+			schemaMap[s.(core.SchemaRegister).Name] = s.(core.SchemaRegister).Schema()
+		}
+	}
+	return schemaMap
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {

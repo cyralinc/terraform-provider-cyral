@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -12,7 +13,7 @@ const (
 )
 
 var initialSplunkConfig SplunkIntegration = SplunkIntegration{
-	Name:        accTestName(integrationSplunkResourceName, "splunk-test"),
+	Name:        utils.AccTestName(integrationSplunkResourceName, "splunk-test"),
 	AccessToken: "access-token",
 	Port:        3333,
 	Host:        "splunk.local",
@@ -21,7 +22,7 @@ var initialSplunkConfig SplunkIntegration = SplunkIntegration{
 }
 
 var updatedSplunkConfig SplunkIntegration = SplunkIntegration{
-	Name:        accTestName(integrationSplunkResourceName, "splunk-test-update"),
+	Name:        utils.AccTestName(integrationSplunkResourceName, "splunk-test-update"),
 	AccessToken: "access-token-update",
 	Port:        6666,
 	Host:        "splunk-update.local",

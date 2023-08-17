@@ -73,7 +73,7 @@ func sweepRepository(_ string) error {
 		return err
 	}
 	url := fmt.Sprintf("https://%s/v1/repos?name=^%s", c.ControlPlane,
-		tprovACCPrefix)
+		TFProvACCPrefix)
 	reposBytes, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
 		return fmt.Errorf("get request returned error: %w", err)
@@ -102,7 +102,7 @@ func sweepSidecar(_ string) error {
 		return err
 	}
 	for _, sidecar := range sidecars {
-		if !hasAccTestPrefix(sidecar.Sidecar.Name) {
+		if !utils.HasAccTestPrefix(sidecar.Sidecar.Name) {
 			continue
 		}
 		url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane,
@@ -126,7 +126,7 @@ func sweepRole(_ string) error {
 	}
 	roles := resp.Groups
 	for _, role := range roles {
-		if !hasAccTestPrefix(role.Name) {
+		if !utils.HasAccTestPrefix(role.Name) {
 			continue
 		}
 		url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane,
@@ -149,7 +149,7 @@ func sweepPolicy(_ string) error {
 		return err
 	}
 	for _, policy := range policies {
-		if !hasAccTestPrefix(policy.Meta.Name) {
+		if !utils.HasAccTestPrefix(policy.Meta.Name) {
 			continue
 		}
 		url := fmt.Sprintf("https://%s/v1/policies/%s",
@@ -174,7 +174,7 @@ func sweepIntegrationIdP(_ string) error {
 
 	integrations := resp.Connections.Connections
 	for _, integration := range integrations {
-		if !hasAccTestPrefix(integration.DisplayName) {
+		if !utils.HasAccTestPrefix(integration.DisplayName) {
 			continue
 		}
 		url := fmt.Sprintf("https://%s/v1/integrations/saml/%s",

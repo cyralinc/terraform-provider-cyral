@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -66,9 +67,9 @@ func testIntegrationLoggingDataSourceConfigDependencies(resName string) string {
 
 func TestAccLoggingIntegrationDataSource(t *testing.T) {
 	testConfig1, testFunc1 := testIntegrationLoggingDataSource(t,
-		accTestName(integrationLogsDataSourceName, "test1"), "CLOUDWATCH")
+		utils.AccTestName(integrationLogsDataSourceName, "test1"), "CLOUDWATCH")
 	testConfig2, testFunc2 := testIntegrationLoggingDataSource(t,
-		accTestName(integrationLogsDataSourceName, "test2"), "DATADOG")
+		utils.AccTestName(integrationLogsDataSourceName, "test2"), "DATADOG")
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,

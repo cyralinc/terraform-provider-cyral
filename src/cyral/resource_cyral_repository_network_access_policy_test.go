@@ -131,9 +131,9 @@ func setupRepositoryNetworkAccessPolicyConfig(
 	// Repository
 	repoResName := "test_repo"
 	repoID := fmt.Sprintf("cyral_repository.%s.id", repoResName)
-	config += formatBasicRepositoryIntoConfig(
+	config += utils.FormatBasicRepositoryIntoConfig(
 		repoResName,
-		accTestName(repositoryNetworkAccessPolicyResourceName, resName),
+		utils.AccTestName(repositoryNetworkAccessPolicyResourceName, resName),
 		"sqlserver",
 		"my.host.com",
 		1433,
@@ -214,7 +214,7 @@ func formatNetworkAccessPolicyIntoConfig(
 		%s
 		depends_on = %s
 	}`, resName, repositoryID, nap.Enabled, nap.NetworkAccessRules.RulesBlockAccess,
-		narStr, utils.utils.ListToStrNoQuotes(dependsOn))
+		narStr, utils.ListToStrNoQuotes(dependsOn))
 
 	return config
 }

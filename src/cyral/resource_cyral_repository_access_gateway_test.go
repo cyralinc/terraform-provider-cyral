@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -31,30 +32,30 @@ func (ag *accessGatewayTestConfig) listenerID() string {
 }
 
 func accessGatewayConfig(ag accessGatewayTestConfig) string {
-	config := formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
+	config := utils.FormatBasicRepositoryIntoConfig(
+		BasicRepositoryResName,
 		accTestName(repoAccessGatewayResourceName, "repo"),
 		"mongodb",
 		"mongo.local",
 		ag.listenerPort,
 	)
-	config += formatBasicSidecarIntoConfig(
+	config += utils.FormatBasicSidecarIntoConfig(
 		ag.sidecarResName,
 		accTestName(repoAccessGatewayResourceName, ag.sidecarResName),
 		"docker", "",
 	)
 
-	config += formatBasicSidecarListenerIntoConfig(
+	config += utils.FormatBasicSidecarListenerIntoConfig(
 		ag.listenerResName,
 		ag.sidecarID(),
 		"mongodb",
 		ag.listenerPort,
 	)
 
-	config += formatBasicRepositoryBindingIntoConfig(
+	config += utils.FormatBasicRepositoryBindingIntoConfig(
 		ag.bindingResName,
 		ag.sidecarID(),
-		basicRepositoryID,
+		BasicRepositoryID,
 		ag.listenerID(),
 	)
 	return config
@@ -119,7 +120,7 @@ func repoAccessGatewayCheck(resName, sidecarResName, bindingResName string) reso
 		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, RepositoryIDKey,
-			fmt.Sprintf("cyral_repository.%s", basicRepositoryResName), "id",
+			fmt.Sprintf("cyral_repository.%s", BasicRepositoryResName), "id",
 		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, BindingIDKey,
@@ -136,6 +137,6 @@ func repoAccessGatewayConfig(resName, sidecarID, bindingID string) string {
 		repository_id  = %s
 		sidecar_id  = %s
 		binding_id = %s
-	}`, resName, basicRepositoryID, sidecarID, bindingID,
+	}`, resName, BasicRepositoryID, sidecarID, bindingID,
 	)
 }

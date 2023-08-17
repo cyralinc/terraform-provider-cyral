@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -15,7 +16,7 @@ var initialHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
 	AuthMethod: "unitTest-auth_method",
 	ID:         "unitTest-id",
 	AuthType:   "unitTest-auth_type",
-	Name:       accTestName(integrationHCVaultResourceName, "hcvault"),
+	Name:       utils.AccTestName(integrationHCVaultResourceName, "hcvault"),
 	Server:     "unitTest-server",
 }
 
@@ -23,7 +24,7 @@ var updatedHCVaultIntegrationConfig HCVaultIntegration = HCVaultIntegration{
 	AuthMethod: "unitTest-auth_method-updated",
 	ID:         "unitTest-id-updated",
 	AuthType:   "unitTest-auth_type-updated",
-	Name:       accTestName(integrationHCVaultResourceName, "hcvault-updated"),
+	Name:       utils.AccTestName(integrationHCVaultResourceName, "hcvault-updated"),
 	Server:     "unitTest-server-updated",
 }
 

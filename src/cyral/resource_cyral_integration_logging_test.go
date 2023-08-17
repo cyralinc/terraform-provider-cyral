@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -15,7 +16,7 @@ const (
 )
 
 var initialLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		CloudWatch: &CloudWatchConfig{
@@ -27,7 +28,7 @@ var initialLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
 }
 
 var initialLogsConfigDataDog LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Datadog"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Datadog"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Datadog: &DataDogConfig{
@@ -36,7 +37,7 @@ var initialLogsConfigDataDog LoggingIntegration = LoggingIntegration{
 	},
 }
 var initialLogsConfigElk LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsElkComplete"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "LogsElkComplete"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Elk: &ElkConfig{
@@ -51,7 +52,7 @@ var initialLogsConfigElk LoggingIntegration = LoggingIntegration{
 }
 
 var initialLogsConfigElkEmptyEsCredentials LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsElkEmptyEsCredentials"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "LogsElkEmptyEsCredentials"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Elk: &ElkConfig{
@@ -61,7 +62,7 @@ var initialLogsConfigElkEmptyEsCredentials LoggingIntegration = LoggingIntegrati
 }
 
 var initialLogsConfigSplunk LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Splunk"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Splunk"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Splunk: &SplunkConfig{
@@ -75,7 +76,7 @@ var initialLogsConfigSplunk LoggingIntegration = LoggingIntegration{
 }
 
 var initialLogsConfigSumologic LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Sumologic"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Sumologic"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		SumoLogic: &SumoLogicConfig{
@@ -85,7 +86,7 @@ var initialLogsConfigSumologic LoggingIntegration = LoggingIntegration{
 }
 
 var initialLogsConfigFluentbit LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Fluentbit"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Fluentbit"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		FluentBit: &FluentBitConfig{
@@ -97,7 +98,7 @@ Match        *`,
 }
 
 var updatedLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "LogsCloudWatchTest"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		CloudWatch: &CloudWatchConfig{
@@ -109,7 +110,7 @@ var updatedLogsConfigCloudWatch LoggingIntegration = LoggingIntegration{
 }
 
 var updatedLogsConfigDataDog LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Datadog"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Datadog"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Datadog: &DataDogConfig{
@@ -119,7 +120,7 @@ var updatedLogsConfigDataDog LoggingIntegration = LoggingIntegration{
 }
 
 var updatedLogsConfigElk LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsElkComplete"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "LogsElkComplete"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Elk: &ElkConfig{
@@ -134,7 +135,7 @@ var updatedLogsConfigElk LoggingIntegration = LoggingIntegration{
 }
 
 var updatedLogsConfigElkEmptyEsCredentials LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "LogsElkEmptyEsCredentials"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "LogsElkEmptyEsCredentials"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Elk: &ElkConfig{
@@ -144,7 +145,7 @@ var updatedLogsConfigElkEmptyEsCredentials LoggingIntegration = LoggingIntegrati
 }
 
 var updatedLogsConfigSplunk LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Splunk"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Splunk"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		Splunk: &SplunkConfig{
@@ -158,7 +159,7 @@ var updatedLogsConfigSplunk LoggingIntegration = LoggingIntegration{
 }
 
 var updatedLogsConfigSumologic LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Sumologic"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Sumologic"),
 	ReceiveAuditLogs: true,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		SumoLogic: &SumoLogicConfig{
@@ -168,7 +169,7 @@ var updatedLogsConfigSumologic LoggingIntegration = LoggingIntegration{
 }
 
 var updatedLogsConfigFluentbit LoggingIntegration = LoggingIntegration{
-	Name:             accTestName(integrationLogsResourceName, "Fluentbit"),
+	Name:             utils.AccTestName(integrationLogsResourceName, "Fluentbit"),
 	ReceiveAuditLogs: false,
 	LoggingIntegrationConfig: LoggingIntegrationConfig{
 		FluentBit: &FluentBitConfig{

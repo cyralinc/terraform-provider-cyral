@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -14,7 +15,7 @@ const (
 
 var (
 	initialRepoConfig = RepoInfo{
-		Name:   accTestName(repositoryResourceName, "repo"),
+		Name:   utils.AccTestName(repositoryResourceName, "repo"),
 		Type:   MongoDB,
 		Labels: []string{"rds", "us-east-2"},
 		RepoNodes: []*RepoNode{
@@ -29,7 +30,7 @@ var (
 	}
 
 	updatedRepoConfig = RepoInfo{
-		Name:   accTestName(repositoryResourceName, "repo-updated"),
+		Name:   utils.AccTestName(repositoryResourceName, "repo-updated"),
 		Type:   MongoDB,
 		Labels: []string{"rds", "us-east-1"},
 		RepoNodes: []*RepoNode{
@@ -44,7 +45,7 @@ var (
 	}
 
 	emptyConnDrainingConfig = RepoInfo{
-		Name: accTestName(repositoryResourceName, "repo-empty-conn-draining"),
+		Name: utils.AccTestName(repositoryResourceName, "repo-empty-conn-draining"),
 		Type: MongoDB,
 		ConnParams: &ConnParams{
 			ConnDraining: &ConnDraining{},
@@ -61,7 +62,7 @@ var (
 	}
 
 	connDrainingConfig = RepoInfo{
-		Name: accTestName(repositoryResourceName, "repo-conn-draining"),
+		Name: utils.AccTestName(repositoryResourceName, "repo-conn-draining"),
 		Type: MongoDB,
 		ConnParams: &ConnParams{
 			ConnDraining: &ConnDraining{
@@ -81,7 +82,7 @@ var (
 	}
 
 	mixedMultipleNodesConfig = RepoInfo{
-		Name: accTestName(repositoryResourceName, "repo-mixed-multi-node"),
+		Name: utils.AccTestName(repositoryResourceName, "repo-mixed-multi-node"),
 		Type: MongoDB,
 		ConnParams: &ConnParams{
 			ConnDraining: &ConnDraining{
@@ -120,7 +121,7 @@ var (
 	}
 
 	allRepoNodesAreDynamic = RepoInfo{
-		Name: accTestName(repositoryResourceName, "repo-all-repo-nodes-are-dynamic"),
+		Name: utils.AccTestName(repositoryResourceName, "repo-all-repo-nodes-are-dynamic"),
 		Type: "mongodb",
 		RepoNodes: []*RepoNode{
 			{

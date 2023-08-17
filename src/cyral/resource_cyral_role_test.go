@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,11 +14,11 @@ const (
 )
 
 func initialRoleName() string {
-	return accTestName(roleResourceName, "role")
+	return utils.AccTestName(roleResourceName, "role")
 }
 
 func updatedRoleName() string {
-	return accTestName(roleResourceName, "role-updated")
+	return utils.AccTestName(roleResourceName, "role-updated")
 }
 
 var onlyFalsePermissions = map[string]string{

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	cs "github.com/cyralinc/terraform-provider-cyral/src/cyral/datalabel/classificationrule"
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,17 +15,27 @@ const (
 
 func initialDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        accTestName(datalabelResourceName, "label1"),
+		Name:        utils.AccTestName(datalabelResourceName, "label1"),
 		Description: "label1-description",
 		Tags:        []string{"tag1", "tag2"},
+		ClassificationRule: &cs.ClassificationRule{
+			RuleType:   "UNKNOWN",
+			RuleCode:   "",
+			RuleStatus: "ENABLED",
+		},
 	}
 }
 
 func updatedDataLabelConfig() *DataLabel {
 	return &DataLabel{
-		Name:        accTestName(datalabelResourceName, "label2"),
+		Name:        utils.AccTestName(datalabelResourceName, "label2"),
 		Description: "label2-description",
 		Tags:        []string{"tag1", "tag2"},
+		ClassificationRule: &cs.ClassificationRule{
+			RuleType:   "REGO",
+			RuleCode:   "int main() {cout << 'Hello World' << endl; return 0;}",
+			RuleStatus: "DISABLED",
+		},
 	}
 }
 
@@ -32,9 +44,9 @@ func TestAccDatalabelResource(t *testing.T) {
 		"main_test", initialDataLabelConfig())
 	testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
 		"main_test", updatedDataLabelConfig())
-
+	//cyral.InitializeProviderFactories()
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		//	ProviderFactories: cyral.ProviderFactories["cyral"],
 		Steps: []resource.TestStep{
 			{
 				Config: testInitialConfig,
@@ -59,12 +71,24 @@ func setupDatalabelTest(t *testing.T, resName string, dataLabel *DataLabel) (str
 	resourceFullName := datalabelConfigResourceFullName(resName)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr(resourceFullName,
-			"name", dataLabel.Name),
-		resource.TestCheckResourceAttr(resourceFullName,
-			"description", dataLabel.Description),
-		resource.TestCheckResourceAttr(resourceFullName,
-			"tags.#", "2"),
+		resource.TestCheckResourceAttr(resourceFullName, "name", dataLabel.Name),
+		resource.TestCheckResourceAttr(resourceFullName, "description", dataLabel.Description),
+		resource.TestCheckResourceAttr(resourceFullName, "tags.#", "2"),
+		resource.TestCheckResourceAttr(
+			resourceFullName,
+			"classification_rule.0.rule_type",
+			dataLabel.ClassificationRule.RuleType,
+		),
+		resource.TestCheckResourceAttr(
+			resourceFullName,
+			"classification_rule.0.rule_code",
+			dataLabel.ClassificationRule.RuleCode,
+		),
+		resource.TestCheckResourceAttr(
+			resourceFullName,
+			"classification_rule.0.rule_status",
+			dataLabel.ClassificationRule.RuleStatus,
+		),
 	)
 
 	return configuration, testFunction
@@ -75,11 +99,30 @@ func datalabelConfigResourceFullName(resName string) string {
 }
 
 func formatDataLabelIntoConfig(resName string, dataLabel *DataLabel) string {
+	var classificationRuleConfig string
+	if dataLabel.ClassificationRule != nil {
+		classificationRuleConfig = fmt.Sprintf(`
+ 		classification_rule {
+ 			rule_type = "%s"
+ 			rule_code = "%s"
+ 			rule_status = "%s"
+ 		}`,
+			dataLabel.ClassificationRule.RuleType,
+			dataLabel.ClassificationRule.RuleCode,
+			dataLabel.ClassificationRule.RuleStatus,
+		)
+	}
 	return fmt.Sprintf(`
 	resource "cyral_datalabel" "%s" {
 		name  = "%s"
 		description = "%s"
 		tags = %s
-	}`, resName, dataLabel.Name, dataLabel.Description,
-		utils.ListToStr(dataLabel.Tags))
+		%s
+	}`,
+		resName,
+		dataLabel.Name,
+		dataLabel.Description,
+		utils.ListToStr(dataLabel.Tags),
+		classificationRuleConfig,
+	)
 }

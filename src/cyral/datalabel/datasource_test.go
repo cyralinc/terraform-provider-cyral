@@ -4,7 +4,8 @@ package datalabel
 // 	"fmt"
 // 	"testing"
 
-// 	"github.com/cyralinc/terraform-provider-cyral/src/cyral/model"
+// 	"github.com/cyralinc/terraform-provider-cyral/src/cyral/test"
+// 	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 // 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 // )
 
@@ -12,17 +13,17 @@ package datalabel
 // 	datalabelDataSourceName = "data-datalabel"
 // )
 
-// func datalabelDataSourceTestDataLabels() []*model.DataLabel {
-// 	return []*model.DataLabel{
+// func datalabelDataSourceTestDataLabels() []*DataLabel {
+// 	return []*DataLabel{
 // 		{
-// 			Name:        accTestName(datalabelDataSourceName, "1"),
-// 			Type:        model.DataLabelTypeCustom,
+// 			Name:        utils.AccTestName(datalabelDataSourceName, "1"),
+// 			Type:        Custom,
 // 			Description: "description-1",
 // 			Tags:        []string{"tag-1", "tag-2"},
 // 		},
 // 		{
-// 			Name:        accTestName(datalabelDataSourceName, "2"),
-// 			Type:        model.DataLabelTypeCustom,
+// 			Name:        utils.AccTestName(datalabelDataSourceName, "2"),
+// 			Type:        Custom,
 // 			Description: "description-2",
 // 			Tags:        []string{"tag-3"},
 // 		},
@@ -37,12 +38,12 @@ package datalabel
 // 	testConfigNameFilter2, testFuncNameFilter2 := testDatalabelDataSource(t,
 // 		"name_filter_2", dataLabels, dataLabels[1].Name, "")
 // 	testConfigTypeFilterPredefined, testFuncTypeFilterPredefined := testDatalabelDataSource(t,
-// 		"type_filter_predefined", dataLabels, "", model.DataLabelTypePredefined)
+// 		"type_filter_predefined", dataLabels, "", Predefined)
 // 	testConfigTypeFilterCustom, testFuncTypeFilterCustom := testDatalabelDataSource(t,
-// 		"type_filter_custom", dataLabels, "", model.DataLabelTypeCustom)
+// 		"type_filter_custom", dataLabels, "", Custom)
 
 // 	resource.ParallelTest(t, resource.TestCase{
-// 		ProviderFactories: providerFactories,
+// 		ProviderFactories: test.ProviderFactories,
 // 		Steps: []resource.TestStep{
 // 			{
 // 				Config: testConfigNameFilter1,
@@ -67,8 +68,8 @@ package datalabel
 // func testDatalabelDataSource(
 // 	t *testing.T,
 // 	dsourceName string,
-// 	dataLabels []*model.DataLabel,
-// 	nameFilter, typeFilter string,
+// 	dataLabels []*DataLabel,
+// 	nameFilter string, typeFilter Type,
 // ) (
 // 	string, resource.TestCheckFunc,
 // ) {
@@ -78,9 +79,9 @@ package datalabel
 
 // func testDatalabelDataSourceConfig(
 // 	dsourceName string,
-// 	dataLabels []*model.DataLabel,
-// 	nameFilter,
-// 	typeFilter string,
+// 	dataLabels []*DataLabel,
+// 	nameFilter string,
+// 	typeFilter Type,
 // ) string {
 // 	var config string
 // 	var dependsOn []string
@@ -106,9 +107,9 @@ package datalabel
 // 		return resource.ComposeTestCheckFunc(
 // 			resource.TestMatchResourceAttr(dataSourceFullName,
 // 				"datalabel_list.#",
-// 				notZeroRegex(),
+// 				utils.NotZeroRegex(),
 // 			),
-// 			dsourceCheckTypeFilter(
+// 			utils.DSourceCheckTypeFilter(
 // 				dataSourceFullName,
 // 				"datalabel_list.%d.type",
 // 				typeFilter,
@@ -142,8 +143,8 @@ package datalabel
 // 	return resource.ComposeTestCheckFunc(checkFuncs...)
 // }
 
-// func filterDataLabels(dataLabels []*model.DataLabel, nameFilter, typeFilter string) []*DataLabel {
-// 	var filteredDataLabels []*model.DataLabel
+// func filterDataLabels(dataLabels []*DataLabel, nameFilter, typeFilter string) []*DataLabel {
+// 	var filteredDataLabels []*DataLabel
 // 	for _, dataLabel := range dataLabels {
 // 		if (nameFilter == "" || dataLabel.Name == nameFilter) &&
 // 			(typeFilter == "" || dataLabel.Type == typeFilter) {
@@ -153,11 +154,11 @@ package datalabel
 // 	return filteredDataLabels
 // }
 
-// func datalabelDataSourceConfig(dsourceName, nameFilter, typeFilter string, dependsOn []string) string {
+// func datalabelDataSourceConfig(dsourceName, nameFilter string, typeFilter Type, dependsOn []string) string {
 // 	return fmt.Sprintf(`
 // 	data "cyral_datalabel" "%s" {
 // 		name = "%s"
 // 		type = "%s"
 // 		depends_on = %s
-// 	}`, dsourceName, nameFilter, typeFilter, utils.ListToStr(dependsOn))
+// 	}`, dsourceName, nameFilter, string(typeFilter), utils.ListToStr(dependsOn))
 // }

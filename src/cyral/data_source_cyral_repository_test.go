@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -15,7 +16,7 @@ const (
 func repositoryDataSourceTestRepos() []RepoInfo {
 	return []RepoInfo{
 		{
-			Name:   accTestName(repositoryDataSourceName, "sqlserver-1"),
+			Name:   utils.AccTestName(repositoryDataSourceName, "sqlserver-1"),
 			Type:   "sqlserver",
 			Labels: []string{"rds", "us-east-2"},
 			RepoNodes: []*RepoNode{
@@ -26,7 +27,7 @@ func repositoryDataSourceTestRepos() []RepoInfo {
 			},
 		},
 		{
-			Name:   accTestName(repositoryDataSourceName, "mongodb-1"),
+			Name:   utils.AccTestName(repositoryDataSourceName, "mongodb-1"),
 			Type:   "mongodb",
 			Labels: []string{"rds", "us-east-1"},
 			RepoNodes: []*RepoNode{
@@ -96,9 +97,9 @@ func testRepositoryDataSourceChecks(repoDatas []RepoInfo, nameFilter, typeFilter
 		return resource.ComposeTestCheckFunc(
 			resource.TestMatchResourceAttr(dataSourceFullName,
 				"repository_list.#",
-				notZeroRegex(),
+				utils.NotZeroRegex(),
 			),
-			dsourceCheckTypeFilter(
+			utils.DSourceCheckTypeFilter(
 				dataSourceFullName,
 				"repository_list.%d.type",
 				typeFilter,

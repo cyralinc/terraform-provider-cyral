@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -66,9 +67,9 @@ func testAccSidecarInstanceIDsConfig_NoSidecarInstances() string {
 	// Creates a sidecar that doesn't have any instances, since it was not
 	// deployed.
 	var config string
-	config += formatBasicSidecarIntoConfig(
-		basicSidecarResName,
-		accTestName(sidecarInstanceIDsDataSourceName, "sidecar"),
+	config += utils.FormatBasicSidecarIntoConfig(
+		BasicSidecarResName,
+		utils.AccTestName(sidecarInstanceIDsDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)
 
@@ -76,7 +77,7 @@ func testAccSidecarInstanceIDsConfig_NoSidecarInstances() string {
 		`
 	data "cyral_sidecar_instance_ids" "instance_ids" {
 		sidecar_id = %s
-	}`, basicSidecarID,
+	}`, utils.BasicSidecarID,
 	)
 	return config
 }

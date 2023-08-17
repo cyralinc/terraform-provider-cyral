@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -12,13 +13,13 @@ const (
 )
 
 var initialELKConfig ELKIntegration = ELKIntegration{
-	Name:      accTestName(integrationELKResourceName, "ELK"),
+	Name:      utils.AccTestName(integrationELKResourceName, "ELK"),
 	KibanaURL: "kibana.local",
 	ESURL:     "es.local",
 }
 
 var updatedELKConfig ELKIntegration = ELKIntegration{
-	Name:      accTestName(integrationELKResourceName, "ELK-updated"),
+	Name:      utils.AccTestName(integrationELKResourceName, "ELK-updated"),
 	KibanaURL: "kibana-update.local",
 	ESURL:     "es-update.local",
 }

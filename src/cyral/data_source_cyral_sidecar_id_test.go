@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -60,16 +61,16 @@ func testAccSidecarIDConfig_NoSidecarFoundForGivenName(nonExistentSidecarName st
 
 func testAccSidecarIDConfig_ExistentSidecar() string {
 	var config string
-	config += formatBasicSidecarIntoConfig(
-		basicSidecarResName,
-		accTestName(sidecarIDDataSourceName, "sidecar"),
+	config += utils.FormatBasicSidecarIntoConfig(
+		BasicSidecarResName,
+		utils.AccTestName(sidecarIDDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)
 	config += fmt.Sprintf(
 		`
 	data "cyral_sidecar_id" "sidecar_id" {
 		sidecar_name = cyral_sidecar.%s.name
-	}`, basicSidecarResName,
+	}`, BasicSidecarResName,
 	)
 	return config
 }
@@ -77,7 +78,7 @@ func testAccSidecarIDConfig_ExistentSidecar() string {
 func testAccSidecarIDCheck_ExistentSidecar() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair(
-			fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id",
+			fmt.Sprintf("cyral_sidecar.%s", BasicSidecarResName), "id",
 			"data.cyral_sidecar_id.sidecar_id", "id",
 		),
 	)

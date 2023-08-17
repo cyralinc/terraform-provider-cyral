@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,9 +14,9 @@ const (
 )
 
 func sidecarListenerSidecarConfig() string {
-	return formatBasicSidecarIntoConfig(
-		basicSidecarResName,
-		accTestName(sidecarListenerTestSidecarResourceName, "sidecar"),
+	return utils.FormatBasicSidecarIntoConfig(
+		BasicSidecarResName,
+		utils.AccTestName(sidecarListenerTestSidecarResourceName, "sidecar"),
 		"docker", "",
 	)
 }
@@ -228,7 +229,7 @@ func setupSidecarListenerCheck(resourceName string, listener SidecarListener) re
 		checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttrPair(
 				resFullName, SidecarIDKey,
-				fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id",
+				fmt.Sprintf("cyral_sidecar.%s", BasicSidecarResName), "id",
 			),
 			resource.TestCheckResourceAttr(
 				resFullName,
@@ -394,7 +395,7 @@ func setupSidecarListenerConfig(resourceName string, listener SidecarListener) s
 		repo_types = ["%s"]
 		%s
 		%s
-	}`, resourceName, basicSidecarID, listener.RepoTypes[0], networkAddressStr, settings,
+	}`, resourceName, utils.BasicSidecarID, listener.RepoTypes[0], networkAddressStr, settings,
 	)
 	return config
 }

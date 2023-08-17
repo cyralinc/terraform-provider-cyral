@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,9 +14,9 @@ const (
 )
 
 func repositoryUserAccountRepositoryConfig() string {
-	return formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
-		accTestName(repositoryUserAccountResourceName, "main-repo"),
+	return utils.FormatBasicRepositoryIntoConfig(
+		BasicRepositoryResName,
+		utils.AccTestName(repositoryUserAccountResourceName, "main-repo"),
 		"mongodb",
 		"mongodb.local",
 		27017,
@@ -239,7 +240,7 @@ func setupRepositoryUserAccountCheck(resName string, userAccount UserAccountReso
 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			resFullName, "repository_id",
-			fmt.Sprintf("cyral_repository.%s", basicRepositoryResName), "id"),
+			fmt.Sprintf("cyral_repository.%s", BasicRepositoryResName), "id"),
 		resource.TestCheckResourceAttr(resFullName,
 			"name", userAccount.Name),
 		resource.TestCheckResourceAttr(resFullName,
@@ -384,7 +385,7 @@ func setupRepositoryUserAccountConfig(resName string, userAccount UserAccountRes
 			%s
 		}
 		%s
-	}`, resName, basicRepositoryID, userAccount.Name,
+	}`, resName, BasicRepositoryID, userAccount.Name,
 		userAccount.AuthDatabaseName, authSchemeStr, approvalConfigStr)
 
 	return config

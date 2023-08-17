@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -12,12 +13,12 @@ const (
 )
 
 var initialTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: accTestName(integrationTeamsResourceName, "msteams-alerts"),
+	Name: utils.AccTestName(integrationTeamsResourceName, "msteams-alerts"),
 	URL:  "https://msteams.local",
 }
 
 var updatedTeamsConfig MsTeamsIntegration = MsTeamsIntegration{
-	Name: accTestName(integrationTeamsResourceName, "msteams-alerts"),
+	Name: utils.AccTestName(integrationTeamsResourceName, "msteams-alerts"),
 	URL:  "https://msteams-updated.local",
 }
 

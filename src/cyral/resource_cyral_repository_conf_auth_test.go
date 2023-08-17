@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
 )
@@ -14,9 +15,9 @@ const (
 )
 
 func repositoryConfAuthDependencyConfig() string {
-	return formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
-		accTestName(repositoryConfAuthResourceName, "repository"),
+	return utils.FormatBasicRepositoryIntoConfig(
+		BasicRepositoryResName,
+		utils.AccTestName(repositoryConfAuthResourceName, "repository"),
 		"mysql",
 		"http://mysql.local/",
 		3306,
@@ -56,7 +57,7 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_auth" "%s" {
 		repository_id = %s
-	}`, resName, basicRepositoryID)
+	}`, resName, BasicRepositoryID)
 
 	return resource.TestStep{
 		Config: config,
@@ -121,7 +122,7 @@ func setupRepositoryConfAuthConfig(resName string, repositoryConf RepositoryConf
 	var config string
 	config += repositoryConfAuthDependencyConfig()
 	config += formatRepositoryConfAuthDataIntoConfig(
-		resName, repositoryConf, basicRepositoryID)
+		resName, repositoryConf, BasicRepositoryID)
 
 	return config
 }

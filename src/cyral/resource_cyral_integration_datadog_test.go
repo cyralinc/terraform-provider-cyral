@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -12,12 +13,12 @@ const (
 )
 
 var initialDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   accTestName(integrationDatadogResourceName, "datadog"),
+	Name:   utils.AccTestName(integrationDatadogResourceName, "datadog"),
 	APIKey: "some-api-key",
 }
 
 var updatedDatadogConfig DatadogIntegration = DatadogIntegration{
-	Name:   accTestName(integrationDatadogResourceName, "datadog-updated"),
+	Name:   utils.AccTestName(integrationDatadogResourceName, "datadog-updated"),
 	APIKey: "some-api-key-updated",
 }
 

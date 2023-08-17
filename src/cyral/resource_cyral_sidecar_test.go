@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -22,7 +23,7 @@ func getTestCBS() CertificateBundleSecrets {
 }
 
 var cloudFormationSidecarConfig = SidecarData{
-	Name:                     accTestName(sidecarResourceName, "cft"),
+	Name:                     utils.AccTestName(sidecarResourceName, "cft"),
 	Labels:                   []string{"test1"},
 	SidecarProperties:        NewSidecarProperties("cloudFormation", "foo", ""),
 	UserEndpoint:             "some.cft.user.endpoint",
@@ -30,7 +31,7 @@ var cloudFormationSidecarConfig = SidecarData{
 }
 
 var dockerSidecarConfig = SidecarData{
-	Name:                     accTestName(sidecarResourceName, "docker"),
+	Name:                     utils.AccTestName(sidecarResourceName, "docker"),
 	Labels:                   []string{"test2"},
 	SidecarProperties:        NewSidecarProperties("docker", "bar", ""),
 	UserEndpoint:             "some.docker.user.endpoint",
@@ -38,7 +39,7 @@ var dockerSidecarConfig = SidecarData{
 }
 
 var helmSidecarConfig = SidecarData{
-	Name:                     accTestName(sidecarResourceName, "helm"),
+	Name:                     utils.AccTestName(sidecarResourceName, "helm"),
 	Labels:                   []string{"test3"},
 	SidecarProperties:        NewSidecarProperties("helm", "baz", ""),
 	UserEndpoint:             "some.helm.user.endpoint",
@@ -46,7 +47,7 @@ var helmSidecarConfig = SidecarData{
 }
 
 var tfSidecarConfig = SidecarData{
-	Name:                     accTestName(sidecarResourceName, "tf"),
+	Name:                     utils.AccTestName(sidecarResourceName, "tf"),
 	Labels:                   []string{"test4"},
 	SidecarProperties:        NewSidecarProperties("terraform", "qux", ""),
 	UserEndpoint:             "some.tf.user.endpoint",
@@ -54,7 +55,7 @@ var tfSidecarConfig = SidecarData{
 }
 
 var singleContainerSidecarConfig = SidecarData{
-	Name:                     accTestName(sidecarResourceName, "singleContainer"),
+	Name:                     utils.AccTestName(sidecarResourceName, "singleContainer"),
 	Labels:                   []string{"test5"},
 	SidecarProperties:        NewSidecarProperties("singleContainer", "quxx", ""),
 	UserEndpoint:             "some.singleContainer.user.endpoint",
@@ -62,7 +63,7 @@ var singleContainerSidecarConfig = SidecarData{
 }
 
 var linuxSidecarConfig = SidecarData{
-	Name:                     accTestName(sidecarResourceName, "linux"),
+	Name:                     utils.AccTestName(sidecarResourceName, "linux"),
 	Labels:                   []string{"test6"},
 	SidecarProperties:        NewSidecarProperties("linux", "empty", ""),
 	UserEndpoint:             "some.linux.user.endpoint",
@@ -70,7 +71,7 @@ var linuxSidecarConfig = SidecarData{
 }
 
 var bypassNeverSidecarConfig = SidecarData{
-	Name:              accTestName(sidecarResourceName, "bypassNeverSidecar"),
+	Name:              utils.AccTestName(sidecarResourceName, "bypassNeverSidecar"),
 	SidecarProperties: NewSidecarProperties("terraform", "a", ""),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -81,7 +82,7 @@ var bypassNeverSidecarConfig = SidecarData{
 }
 
 var bypassAlwaysSidecarConfig = SidecarData{
-	Name:              accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
+	Name:              utils.AccTestName(sidecarResourceName, "bypassAlwaysSidecar"),
 	SidecarProperties: NewSidecarProperties("terraform", "b", ""),
 	ServicesConfig: SidecarServicesConfig{
 		"dispatcher": map[string]string{

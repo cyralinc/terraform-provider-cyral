@@ -10,17 +10,17 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/src/client"
 	"github.com/cyralinc/terraform-provider-cyral/src/core"
+	"github.com/cyralinc/terraform-provider-cyral/src/cyral"
 	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 )
 
-type GetDataLabelResponse DataLabel
-
-func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData) error {
-	if err := writeDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(resp)}, d); err != nil {
-		return err
+func init() {
+	sr := core.SchemaRegister{
+		Name:   "cyral_datalabel",
+		Schema: DataSourceSchema,
+		Type:   core.DataSourceSchema,
 	}
-	d.SetId(uuid.New().String())
-	return nil
+	cyral.RegisterToProvider(sr)
 }
 
 type GetDataLabelsResponse struct {
@@ -28,16 +28,8 @@ type GetDataLabelsResponse struct {
 }
 
 func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
-	if err := writeDataLabelsToDataSourceSchema(resp.Labels, d); err != nil {
-		return err
-	}
-	d.SetId(uuid.New().String())
-	return nil
-}
-
-func writeDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceData) error {
 	var labelsList []interface{}
-	for _, label := range labels {
+	for _, label := range resp.Labels {
 		labelsList = append(labelsList, map[string]interface{}{
 			"name":                label.Name,
 			"description":         label.Description,
@@ -50,6 +42,7 @@ func writeDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceDa
 	if err := d.Set("datalabel_list", labelsList); err != nil {
 		return err
 	}
+	d.SetId(uuid.New().String())
 	return nil
 }
 
@@ -75,7 +68,7 @@ func readConfig() core.ResourceOperationConfig {
 			if nameFilter == "" {
 				return &GetDataLabelsResponse{}
 			} else {
-				return &GetDataLabelResponse{}
+				return &DataLabel{}
 			}
 		},
 	}

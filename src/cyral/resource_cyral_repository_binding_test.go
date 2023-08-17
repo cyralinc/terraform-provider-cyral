@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -32,22 +33,22 @@ var updatedConfig = Binding{
 }
 
 func bindingRepoSidecarListenerConfig() string {
-	config := formatBasicRepositoryIntoConfig(
-		basicRepositoryResName,
-		accTestName(repoBindingRepoName, "repo"),
+	config := utils.FormatBasicRepositoryIntoConfig(
+		BasicRepositoryResName,
+		utils.AccTestName(repoBindingRepoName, "repo"),
 		"mongodb",
 		"mongo.local",
 		27017,
 	)
-	config += formatBasicSidecarIntoConfig(
-		basicSidecarResName,
-		accTestName(repoBindingSidecarName, "sidecar"),
+	config += utils.FormatBasicSidecarIntoConfig(
+		BasicSidecarResName,
+		utils.AccTestName(repoBindingSidecarName, "sidecar"),
 		"docker", "",
 	)
 
-	config += formatBasicSidecarListenerIntoConfig(
-		basicListenerResName,
-		basicSidecarID,
+	config += utils.FormatBasicSidecarListenerIntoConfig(
+		BasicListenerResName,
+		utils.BasicSidecarID,
 		"mongodb",
 		27017,
 	)
@@ -89,11 +90,11 @@ func repoBindingCheck(resName string, binding Binding) resource.TestCheckFunc {
 	checkFuncs := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			resFullName, SidecarIDKey,
-			fmt.Sprintf("cyral_sidecar.%s", basicSidecarResName), "id",
+			fmt.Sprintf("cyral_sidecar.%s", BasicSidecarResName), "id",
 		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, RepositoryIDKey,
-			fmt.Sprintf("cyral_repository.%s", basicRepositoryResName), "id",
+			fmt.Sprintf("cyral_repository.%s", BasicRepositoryResName), "id",
 		),
 		resource.TestCheckResourceAttr(
 			resFullName,
@@ -106,7 +107,7 @@ func repoBindingCheck(resName string, binding Binding) resource.TestCheckFunc {
 			checkFuncs, []resource.TestCheckFunc{
 				resource.TestCheckResourceAttrPair(
 					resFullName, fmt.Sprintf("%s.%d.%s", ListenerBindingKey, i, ListenerIDKey),
-					fmt.Sprintf("cyral_sidecar_listener.%s", basicListenerResName),
+					fmt.Sprintf("cyral_sidecar_listener.%s", BasicListenerResName),
 					ListenerIDKey,
 				),
 				resource.TestCheckResourceAttr(
@@ -127,7 +128,7 @@ func repoBindingConfig(resName string, binding Binding) string {
 		sidecar_id  = %s
 		repository_id  = %s
 		enabled = %s`,
-		resName, basicSidecarID, basicRepositoryID,
+		resName, utils.BasicSidecarID, BasicRepositoryID,
 		strconv.FormatBool(binding.Enabled),
 	)
 
@@ -137,7 +138,7 @@ func repoBindingConfig(resName string, binding Binding) string {
 		listener_binding {
 			listener_id = %s
 			node_index = %d
-		}`, basicListenerID, binding.NodeIndex,
+		}`, BasicListenerID, binding.NodeIndex,
 		)
 	}
 	config += `

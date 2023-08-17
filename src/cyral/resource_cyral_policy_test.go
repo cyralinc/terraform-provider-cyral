@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -13,7 +14,7 @@ const (
 
 var initialPolicyConfig = Policy{
 	Meta: &PolicyMetadata{
-		Name:        accTestName(policyResourceName, "test"),
+		Name:        utils.AccTestName(policyResourceName, "test"),
 		Description: "description",
 		Enabled:     false,
 		Tags:        []string{"tag"},
@@ -24,7 +25,7 @@ var initialPolicyConfig = Policy{
 
 var updatedPolicyConfig = Policy{
 	Meta: &PolicyMetadata{
-		Name:        accTestName(policyResourceName, "test-updated"),
+		Name:        utils.AccTestName(policyResourceName, "test-updated"),
 		Description: "desctiption-updated",
 		Enabled:     true,
 		Tags:        []string{"tag-updated"},

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -12,12 +13,12 @@ const (
 )
 
 var initialSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic"),
+	Name:    utils.AccTestName(integrationSumoLogicResourceName, "sumo-logic"),
 	Address: "https://sumologic.local/initial",
 }
 
 var updatedSumoLogicConfig SumoLogicIntegration = SumoLogicIntegration{
-	Name:    accTestName(integrationSumoLogicResourceName, "sumo-logic-updated"),
+	Name:    utils.AccTestName(integrationSumoLogicResourceName, "sumo-logic-updated"),
 	Address: "https://sumologic.local/updated",
 }
 
