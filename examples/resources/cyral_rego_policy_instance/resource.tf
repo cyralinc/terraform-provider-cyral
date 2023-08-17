@@ -18,6 +18,16 @@ output "policy_created" {
 }
 
 ### Repo-level policy
+resource "cyral_repository" "repo" {
+  type = "mysql"
+  name = "my_mysql"
+
+  repo_node {
+      host = "mysql.cyral.com"
+      port = 3306
+  }
+}
+
 resource "cyral_rego_policy_instance" "policy" {
   name = "some-data-masking-policy"
   category = "SECURITY"
@@ -26,7 +36,7 @@ resource "cyral_rego_policy_instance" "policy" {
   parameters = "{\"labels\":[\"ADDRESS\"],\"maskType\":\"NULL_MASK\"}"
   enabled = true
   scope {
-    repo_ids = ["2U4prk5o6yi1rTvvXyImz8lgbgG"]
+    repo_ids = [cyral_repository.repo.id]
   }
   tags = ["tag1", "tag2"]
 }
