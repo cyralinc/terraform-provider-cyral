@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"strings"
@@ -102,6 +103,21 @@ func validationStringLenAtLeast(min int) schema.SchemaValidateFunc {
 	return validation.StringLenBetween(min, math.MaxInt)
 }
 
+func validationDurationString(value interface{}, key string) (warnings []string, errors []error) {
+	duration, ok := value.(string)
+	if !ok {
+		errors = append(errors, fmt.Errorf("expected type of %s to be string", key))
+		return warnings, errors
+	}
+	if !strings.HasSuffix(duration, "s") {
+		errors = append(errors, fmt.Errorf(
+			"expected %s to end with a 's' suffix. For example: `300s`, `60s`, `10.50s` etc. Got `%v`",
+			key, duration,
+		))
+	}
+	return warnings, errors
+}
+
 func typeSetNonEmpty(d *schema.ResourceData, attname string) bool {
 	return len(d.Get(attname).(*schema.Set).List()) > 0
 }
@@ -128,4 +144,23 @@ func convertSchemaFieldsToComputed(s map[string]*schema.Schema) map[string]*sche
 	}
 
 	return s
+}
+
+// setKeysAsNewComputedIfPlanHasChanges is intended to be used in resource CustomizeDiff functions to set
+// computed fields that are expected to change as "new computed" (known after apply) so that terraform can
+// detect changes in those fields and update them in the resource state correctly in the same plan operation.
+// Otherwise, if this function is not called, terraform will not detect a change in those computed fields during
+// the initial update operation and the changes will only be detected in the subsequent terraform plan.
+// For reference:
+// - https://github.com/hashicorp/terraform/issues/15857
+func setKeysAsNewComputedIfPlanHasChanges(resourceDiff *schema.ResourceDiff, keys []string) {
+	changedKeys := resourceDiff.GetChangedKeysPrefix("")
+	log.Printf("[DEBUG] changedKeys: %+v", changedKeys)
+	hasChanges := len(changedKeys) > 0
+	log.Printf("[DEBUG] hasChanges: %t", hasChanges)
+	if hasChanges {
+		for _, key := range keys {
+			resourceDiff.SetNewComputed(key)
+		}
+	}
 }
