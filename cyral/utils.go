@@ -23,6 +23,14 @@ const (
 	ListenerIDKey   = "listener_id"
 )
 
+// schemaResource is a common interface between schema.ResourceData and schema.ResourceDiff.
+// This is often used by functions that can be called using both of these concrete types as
+// arguments.
+type schemaResource interface {
+	Get(key string) interface{}
+	GetOk(key string) (interface{}, bool)
+}
+
 func urlQuery(kv map[string]string) string {
 	queryStr := "?"
 	for k, v := range kv {

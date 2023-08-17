@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	create = OperationType("create")
-	read   = OperationType("read")
-	update = OperationType("update")
-	delete = OperationType("delete")
+	CREATE = OperationType("create")
+	READ   = OperationType("read")
+	UPDATE = OperationType("update")
+	DELETE = OperationType("delete")
 )
 
 type OperationType string
@@ -56,11 +56,11 @@ func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.Cre
 	return HandleRequests(
 		[]ResourceOperation{
 			{
-				Type:   create,
+				Type:   CREATE,
 				Config: createConfig,
 			},
 			{
-				Type:   read,
+				Type:   READ,
 				Config: readConfig,
 			},
 		},
@@ -71,7 +71,7 @@ func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
 	return HandleRequests(
 		[]ResourceOperation{
 			{
-				Type:   read,
+				Type:   READ,
 				Config: readConfig,
 			},
 		},
@@ -82,11 +82,11 @@ func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.Upd
 	return HandleRequests(
 		[]ResourceOperation{
 			{
-				Type:   update,
+				Type:   UPDATE,
 				Config: updateConfig,
 			},
 			{
-				Type:   read,
+				Type:   READ,
 				Config: readConfig,
 			},
 		},
@@ -97,7 +97,7 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 	return HandleRequests(
 		[]ResourceOperation{
 			{
-				Type:   delete,
+				Type:   DELETE,
 				Config: deleteConfig,
 			},
 		},

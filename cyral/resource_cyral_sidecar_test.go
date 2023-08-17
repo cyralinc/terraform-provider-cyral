@@ -72,7 +72,7 @@ var linuxSidecarConfig = SidecarData{
 var bypassNeverSidecarConfig = SidecarData{
 	Name:              accTestName(sidecarResourceName, "bypassNeverSidecar"),
 	SidecarProperties: NewSidecarProperties("terraform", "a", ""),
-	ServicesConfig: SidecarServicesConfig{
+	ServiceConfigs: SidecarServiceConfigs{
 		"dispatcher": map[string]string{
 			"bypass": "never",
 		},
@@ -83,7 +83,7 @@ var bypassNeverSidecarConfig = SidecarData{
 var bypassAlwaysSidecarConfig = SidecarData{
 	Name:              accTestName(sidecarResourceName, "bypassAlwaysSidecar"),
 	SidecarProperties: NewSidecarProperties("terraform", "b", ""),
-	ServicesConfig: SidecarServicesConfig{
+	ServiceConfigs: SidecarServiceConfigs{
 		"dispatcher": map[string]string{
 			"bypass": "always",
 		},
@@ -165,7 +165,7 @@ func setupSidecarTest(sidecarData SidecarData) (string, resource.TestCheckFunc) 
 		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "activity_log_integration_id", logIntegrationID),
 	}
 
-	if bypassMode := sidecarData.BypassMode(); bypassMode != "" {
+	if bypassMode := sidecarData.ServiceConfigs.getBypassMode(); bypassMode != "" {
 		testFunctions = append(
 			testFunctions,
 			resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "bypass_mode", bypassMode),
@@ -194,7 +194,7 @@ func formatSidecarDataIntoConfig(sidecarData SidecarData) string {
 	}
 
 	var servicesConfig string
-	if bypassMode := sidecarData.BypassMode(); bypassMode != "" {
+	if bypassMode := sidecarData.ServiceConfigs.getBypassMode(); bypassMode != "" {
 		servicesConfig += fmt.Sprintf(
 			`
 		bypass_mode = "%s"`, bypassMode,
