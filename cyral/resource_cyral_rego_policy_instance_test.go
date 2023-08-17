@@ -133,7 +133,7 @@ func testAccRegoPolicyInstanceConfig_AllArguments(
 		}
 		tags = %s
 		duration = %q
-		
+
 	}
 	`,
 		parameters.policy.RegoPolicyInstance.Name,

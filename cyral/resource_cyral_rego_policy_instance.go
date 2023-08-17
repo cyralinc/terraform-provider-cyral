@@ -159,11 +159,10 @@ func resourceRegoPolicyInstance() *schema.Resource {
 				Optional:    true,
 			},
 			regoPolicyInstanceTemplateIDKey: {
-				Description: "Policy template identifier. Valid templates are:" +
+				Description: "Policy template identifier. Predefined templates are:" +
 					supportedTypesMarkdown(regoPolicyTemplateIDs()),
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice(regoPolicyTemplateIDs(), false),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			regoPolicyInstanceParametersKey: {
 				Description: "Policy parameters. The parameters vary based on the policy template schema.",

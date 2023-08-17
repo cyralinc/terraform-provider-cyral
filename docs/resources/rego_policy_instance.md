@@ -66,7 +66,7 @@ resource "cyral_rego_policy_instance" "policy" {
   - `GRANT`
   - `USER_DEFINED`
 - `name` (String) Policy name.
-- `template_id` (String) Policy template identifier. Valid templates are:
+- `template_id` (String) Policy template identifier. Predefined templates are:
   - `data-firewall`
   - `data-masking`
   - `data-protection`
