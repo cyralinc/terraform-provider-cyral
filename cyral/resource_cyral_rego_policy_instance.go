@@ -188,7 +188,7 @@ func resourceRegoPolicyInstance() *schema.Resource {
 								"will be applied at repo-level for every repository ID included in this list. This is equivalent " +
 								"of creating a repo-level policy in the UI for a given repository.",
 							Type:     schema.TypeList,
-							Optional: true,
+							Required: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

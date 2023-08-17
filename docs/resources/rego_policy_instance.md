@@ -97,7 +97,7 @@ resource "cyral_rego_policy_instance" "policy" {
 
 ### Nested Schema for `scope`
 
-Optional:
+Required:
 
 - `repo_ids` (List of String) A list of repository identifiers that belongs to the policy scope. The policy will be applied at repo-level for every repository ID included in this list. This is equivalent of creating a repo-level policy in the UI for a given repository.
 
