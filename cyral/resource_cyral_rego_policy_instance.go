@@ -73,7 +73,7 @@ var (
 func resourceRegoPolicyInstance() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages a [Rego Policy](https://cyral.com/docs/policy/rego-policy/overview#) instance." +
-			"\n\n-> **NOTE** This resource can be used to create repo-level policies by specifying the repo IDs " +
+			"\n\n-> **Note** This resource can be used to create repo-level policies by specifying the repo IDs " +
 			"associated to the policy `scope`. For more information, see the [scope](#nestedblock--scope) field.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
