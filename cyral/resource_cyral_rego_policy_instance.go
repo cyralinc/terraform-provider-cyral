@@ -12,7 +12,8 @@ import (
 
 const (
 	// Schema keys
-	regoPolicyInstanceIDKey          = "id"
+	regoPolicyInstanceResourceIDKey  = "id"
+	regoPolicyInstancePolicyIDKey    = "policy_id"
 	regoPolicyInstanceCategoryKey    = "category"
 	regoPolicyInstanceNameKey        = "name"
 	regoPolicyInstanceDescriptionKey = "description"
@@ -38,8 +39,8 @@ var (
 			return fmt.Sprintf(
 				"https://%s/v1/regopolicies/instances/%s/%s",
 				c.ControlPlane,
-				d.Get("category"),
-				d.Id(),
+				d.Get(regoPolicyInstanceCategoryKey),
+				d.Get(regoPolicyInstancePolicyIDKey),
 			)
 		},
 		NewResponseData: func(_ *schema.ResourceData) ResponseData {
@@ -82,14 +83,14 @@ func resourceRegoPolicyInstance() *schema.Resource {
 					return fmt.Sprintf(
 						"https://%s/v1/regopolicies/instances/%s",
 						c.ControlPlane,
-						d.Get("category"),
+						d.Get(regoPolicyInstanceCategoryKey),
 					)
 				},
 				NewResourceData: func() ResourceData {
 					return &RegoPolicyInstancePayload{}
 				},
 				NewResponseData: func(_ *schema.ResourceData) ResponseData {
-					return &IDBasedResponse{}
+					return &RegoPolicyInstanceKey{}
 				},
 			},
 			ReadRegoPolicyInstanceConfig,
@@ -103,8 +104,8 @@ func resourceRegoPolicyInstance() *schema.Resource {
 					return fmt.Sprintf(
 						"https://%s/v1/regopolicies/instances/%s/%s",
 						c.ControlPlane,
-						d.Get("category"),
-						d.Id(),
+						d.Get(regoPolicyInstanceCategoryKey),
+						d.Get(regoPolicyInstancePolicyIDKey),
 					)
 				},
 				NewResourceData: func() ResourceData {
@@ -121,16 +122,21 @@ func resourceRegoPolicyInstance() *schema.Resource {
 					return fmt.Sprintf(
 						"https://%s/v1/regopolicies/instances/%s/%s",
 						c.ControlPlane,
-						d.Get("category"),
-						d.Id(),
+						d.Get(regoPolicyInstanceCategoryKey),
+						d.Get(regoPolicyInstancePolicyIDKey),
 					)
 				},
 			},
 		),
 
 		Schema: map[string]*schema.Schema{
-			regoPolicyInstanceIDKey: {
-				Description: "ID of this resource in Cyral environment.",
+			regoPolicyInstanceResourceIDKey: {
+				Description: "The resource identifier. It is a composed ID that follows the format `{category}/{policy_id}`.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+			regoPolicyInstancePolicyIDKey: {
+				Description: "ID of this rego policy instance in Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
@@ -228,7 +234,19 @@ func resourceRegoPolicyInstance() *schema.Resource {
 		},
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: func(
+				ctx context.Context,
+				d *schema.ResourceData,
+				m interface{},
+			) ([]*schema.ResourceData, error) {
+				ids, err := unmarshalComposedID(d.Id(), "/", 2)
+				if err != nil {
+					return nil, err
+				}
+				_ = d.Set(regoPolicyInstanceCategoryKey, ids[0])
+				_ = d.Set(regoPolicyInstancePolicyIDKey, ids[1])
+				return []*schema.ResourceData{d}, nil
+			},
 		},
 	}
 }

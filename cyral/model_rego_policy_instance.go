@@ -128,3 +128,14 @@ func (changeInfo *RegoPolicyInstanceChangeInfo) ToInterfaceList() []any {
 		},
 	}
 }
+
+type RegoPolicyInstanceKey struct {
+	Category string `json:"category"`
+	ID       string `json:"id"`
+}
+
+func (key RegoPolicyInstanceKey) WriteToSchema(d *schema.ResourceData) error {
+	d.SetId(marshalComposedID([]string{key.Category, key.ID}, "/"))
+	d.Set(regoPolicyInstancePolicyIDKey, key.ID)
+	return nil
+}
