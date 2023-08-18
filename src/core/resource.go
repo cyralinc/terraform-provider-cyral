@@ -46,7 +46,7 @@ const (
 // making these elements responsible for registering
 // themselves to the provider.
 type SchemaRegister struct {
-	// Rsource or data source name
+	// Resource or data source name
 	Name   string
 	Type   SchemaType
 	Schema func() *schema.Resource
