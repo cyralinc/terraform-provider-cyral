@@ -34,16 +34,14 @@ func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.Res
 		if (repoTypeFilter == "" || slices.Contains(listenerConfig.RepoTypes, repoTypeFilter)) &&
 			(portFilter == 0 || listenerConfig.NetworkAddress.Port == portFilter) {
 			listener := map[string]any{
-				ListenerIDKey:                    listenerConfig.ListenerId,
-				SidecarIDKey:                     d.Get(SidecarIDKey).(string),
-				RepoTypesKey:                     listenerConfig.RepoTypes,
-				NetworkAddressKey:                listenerConfig.NetworkAddressAsInterface(),
-				MySQLSettingsKey:                 listenerConfig.MySQLSettingsAsInterface(),
-				S3SettingsKey:                    listenerConfig.S3SettingsAsInterface(),
-				DynamoDbSettingsKey:              listenerConfig.DynamoDbSettingsAsInterface(),
-				SQLServerSettingsKey:             listenerConfig.SQLServerSettingsAsInterface(),
-				OverrideRepoClientTlsSettingsKey: listenerConfig.OverrideRepoClientTlsSettings,
-				TlsModeKey:                       listenerConfig.TlsMode,
+				ListenerIDKey:        listenerConfig.ListenerId,
+				SidecarIDKey:         d.Get(SidecarIDKey).(string),
+				RepoTypesKey:         listenerConfig.RepoTypes,
+				NetworkAddressKey:    listenerConfig.NetworkAddressAsInterface(),
+				MySQLSettingsKey:     listenerConfig.MySQLSettingsAsInterface(),
+				S3SettingsKey:        listenerConfig.S3SettingsAsInterface(),
+				DynamoDbSettingsKey:  listenerConfig.DynamoDbSettingsAsInterface(),
+				SQLServerSettingsKey: listenerConfig.SQLServerSettingsAsInterface(),
 			}
 			log.Printf("[DEBUG] listener: %q", listener)
 			listenersList = append(listenersList, listener)

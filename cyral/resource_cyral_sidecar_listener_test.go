@@ -68,19 +68,6 @@ func updateTest() []resource.TestStep {
 			DbVersion: "3.4.0",
 		},
 	}
-	// Override repo client TLS settings.
-	overrideRepoClientTLS := SidecarListener{
-		RepoTypes: []string{"mysql"},
-		NetworkAddress: &NetworkAddress{
-			Port: 443,
-			Host: "https://s3.test.com",
-		},
-		MySQLSettings: &MySQLSettings{
-			DbVersion: "3.4.0",
-		},
-		OverrideRepoClientTlsSettings: true,
-		TlsMode:                       "require",
-	}
 
 	return []resource.TestStep{
 		setupSidecarListenerTestStep(
@@ -98,10 +85,6 @@ func updateTest() []resource.TestStep {
 		setupSidecarListenerTestStep(
 			"update_test",
 			addSettings,
-		),
-		setupSidecarListenerTestStep(
-			"update_test",
-			overrideRepoClientTLS,
 		),
 	}
 }
