@@ -24,11 +24,15 @@ type RequestErrorHandler interface {
 }
 
 // TODO Rename as `SchemaReader` and document properly.
+// Teaches a resource or data source how to read from the Terraform schema and
+// store in the data structure defined for it.
 type ResourceData interface {
 	ReadFromSchema(d *schema.ResourceData) error
 }
 
 // TODO Rename as `SchemaWriter` and document properly.
+// Teaches a resource or data source how to write to the Terraform schema from
+// the data stored in the data structure defined for it.
 type ResponseData interface {
 	WriteToSchema(d *schema.ResourceData) error
 }
@@ -40,11 +44,18 @@ const (
 	ResourceSchema   = SchemaType("resource")
 )
 
-// Registers a data source or resource to the provider.
-// This avoids the provider having to know about all data
-// sources and resources and inverts the responsibility
-// making these elements responsible for registering
-// themselves to the provider.
+// The `SchemaRegister` register was created to decouple the Provider schema from the
+// resources and data sources definition. Instead of having the provider to depend on
+// each of the resources and data sources, the `SchemaRegister` inverts the dependency
+// and makes resources and data sources responsible for registering themselves to the
+// provider, thus making the provider code unaware of particular implementations of
+// each of its components.
+//
+// In order to use the `SchemaRegister`, implement an `init()` function that will
+// be responsible for providing the resource or data source name, the schema and
+// also the resource type. In order to better organize the code, it is
+// recommended that this initialization is performed in the `datasource.go` and
+// `resource.go` files.
 type SchemaRegister struct {
 	// Resource or data source name
 	Name   string
