@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
 	"golang.org/x/exp/slices"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"

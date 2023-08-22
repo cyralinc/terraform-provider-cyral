@@ -23,16 +23,8 @@ const (
 	ProxyModeKey         = "proxy_mode"
 	DynamoDbSettingsKey  = "dynamodb_settings"
 	SQLServerSettingsKey = "sqlserver_settings"
-	VersionKey           = "version"
+	SQLServerVersionKey  = "version"
 )
-
-func tlsModes() []string {
-	return []string{
-		"allow", // default, must be kept at position 0
-		"require",
-		"disable",
-	}
-}
 
 // SidecarListener struct for sidecar listener.
 type SidecarListener struct {
@@ -196,7 +188,7 @@ func (l *SidecarListener) SQLServerSettingsAsInterface() []interface{} {
 		return nil
 	}
 	return []interface{}{map[string]interface{}{
-		VersionKey: l.SQLServerSettings.Version,
+		SQLServerVersionKey: l.SQLServerSettings.Version,
 	}}
 }
 func (l *SidecarListener) SQLServerSettingsFromInterface(anInterface []interface{}) {
@@ -204,7 +196,7 @@ func (l *SidecarListener) SQLServerSettingsFromInterface(anInterface []interface
 		return
 	}
 	l.SQLServerSettings = &SQLServerSettings{
-		Version: anInterface[0].(map[string]interface{})[VersionKey].(string),
+		Version: anInterface[0].(map[string]interface{})[SQLServerVersionKey].(string),
 	}
 }
 
@@ -445,7 +437,7 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 			ConflictsWith: []string{S3SettingsKey, MySQLSettingsKey, DynamoDbSettingsKey},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
-					VersionKey: {
+					SQLServerVersionKey: {
 						Description: "Advertised SQL Server version. Required (and only relevant) for " +
 							"Listeners of type 'sqlserver' " +
 							"The format of the version should be <major>.<minor>.<build_number> " +
