@@ -103,6 +103,13 @@ func resourcePolicy() *schema.Resource {
 				Computed:    true,
 			},
 		},
+
+		CustomizeDiff: func(ctx context.Context, resourceDiff *schema.ResourceDiff, i interface{}) error {
+			computedKeysToChange := []string{"last_updated", "version"}
+			utils.SetKeysAsNewComputedIfPlanHasChanges(resourceDiff, computedKeysToChange)
+			return nil
+		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},

@@ -129,6 +129,7 @@ func resourceSchemas() map[string]*schema.Resource {
 	schemaMap["cyral_integration_logging"] = resourceIntegrationLogging()
 	schemaMap["cyral_policy"] = resourcePolicy()
 	schemaMap["cyral_policy_rule"] = resourcePolicyRule()
+	schemaMap["cyral_rego_policy_instance"] = resourceRegoPolicyInstance()
 	schemaMap["cyral_repository"] = resourceRepository()
 	schemaMap["cyral_repository_access_rules"] = resourceRepositoryAccessRules()
 	schemaMap["cyral_repository_access_gateway"] = resourceRepositoryAccessGateway()
