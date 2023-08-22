@@ -129,12 +129,14 @@ func handleRequests(
 			var resourceData ResourceData
 			if operation.Config.NewResourceData != nil {
 				if resourceData = operation.Config.NewResourceData(); resourceData != nil {
+					log.Printf("[DEBUG] Calling ReadFromSchema. Schema: %#v", d)
 					if err := resourceData.ReadFromSchema(d); err != nil {
 						return utils.CreateError(
 							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
 							err.Error(),
 						)
 					}
+					log.Printf("[DEBUG] Succesful call to ReadFromSchema. resourceData: %#v", resourceData)
 				}
 			}
 
@@ -153,17 +155,19 @@ func handleRequests(
 
 			if body != nil && operation.Config.NewResponseData != nil {
 				if responseData := operation.Config.NewResponseData(d); responseData != nil {
+					log.Printf("[DEBUG] NewResponseData function call performed. d: %#v", d)
 					if err := json.Unmarshal(body, responseData); err != nil {
 						return utils.CreateError("Unable to unmarshall JSON", err.Error())
 					}
 					log.Printf("[DEBUG] Response body (unmarshalled): %#v", responseData)
-
+					log.Printf("[DEBUG] Calling WriteToSchema: responseData: %#v", responseData)
 					if err := responseData.WriteToSchema(d); err != nil {
 						return utils.CreateError(
 							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
 							err.Error(),
 						)
 					}
+					log.Printf("[DEBUG] Succesful call to WriteToSchema. d: %#v", d)
 				}
 			}
 

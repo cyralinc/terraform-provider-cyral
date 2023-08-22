@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/cyral"
 	cs "github.com/cyralinc/terraform-provider-cyral/src/cyral/datalabel/classificationrule"
 	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
@@ -44,9 +46,12 @@ func TestAccDatalabelResource(t *testing.T) {
 		"main_test", initialDataLabelConfig())
 	testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
 		"main_test", updatedDataLabelConfig())
-	//cyral.InitializeProviderFactories()
 	resource.ParallelTest(t, resource.TestCase{
-		//	ProviderFactories: cyral.ProviderFactories["cyral"],
+		ProviderFactories: map[string]func() (*schema.Provider, error){
+			"cyral": func() (*schema.Provider, error) {
+				return cyral.Provider(), nil
+			},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testInitialConfig,

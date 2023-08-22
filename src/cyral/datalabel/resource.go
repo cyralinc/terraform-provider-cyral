@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	sr := core.SchemaRegister{
+	sr := &core.SchemaRegister{
 		Name:   "cyral_datalabel",
 		Schema: ResourceSchema,
 		Type:   core.ResourceSchema,
@@ -28,7 +28,7 @@ func ResourceSchema() *schema.Resource {
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
 				Name:       "DataLabelResourceCreate",
-				HttpMethod: http.MethodPost,
+				HttpMethod: http.MethodPut,
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/datalabels/%s",
 						c.ControlPlane,
@@ -97,7 +97,7 @@ func ResourceSchema() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "UNKNOWN",
-							ValidateFunc: validation.StringInSlice(TypesAsString(), false),
+							ValidateFunc: validation.StringInSlice(classificationrule.TypesAsString(), false),
 						},
 						"rule_code": {
 							Description: "Actual code of the classification rule. For example, this attribute may contain " +

@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	sr := core.SchemaRegister{
+	sr := &core.SchemaRegister{
 		Name:   "cyral_datalabel",
 		Schema: DataSourceSchema,
 		Type:   core.DataSourceSchema,
@@ -23,13 +23,32 @@ func init() {
 	cyral.RegisterToProvider(sr)
 }
 
+type GetDataLabelResponse DataLabel
+
+func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData) error {
+	if err := writeDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(resp)}, d); err != nil {
+		return err
+	}
+	d.SetId(uuid.New().String())
+	return nil
+}
+
 type GetDataLabelsResponse struct {
 	Labels []*DataLabel `json:"labels"`
 }
 
-func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
+func (dl *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
+	if err := writeDataLabelsToDataSourceSchema(dl.Labels, d); err != nil {
+		return err
+	}
+
+	d.SetId(uuid.New().String())
+	return nil
+}
+
+func writeDataLabelsToDataSourceSchema(labels []*DataLabel, d *schema.ResourceData) error {
 	var labelsList []interface{}
-	for _, label := range resp.Labels {
+	for _, label := range labels {
 		labelsList = append(labelsList, map[string]interface{}{
 			"name":                label.Name,
 			"description":         label.Description,
@@ -42,7 +61,6 @@ func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("datalabel_list", labelsList); err != nil {
 		return err
 	}
-	d.SetId(uuid.New().String())
 	return nil
 }
 
@@ -68,7 +86,7 @@ func readConfig() core.ResourceOperationConfig {
 			if nameFilter == "" {
 				return &GetDataLabelsResponse{}
 			} else {
-				return &DataLabel{}
+				return &GetDataLabelResponse{}
 			}
 		},
 	}

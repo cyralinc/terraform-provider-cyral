@@ -11,13 +11,13 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/src/client"
 	"github.com/cyralinc/terraform-provider-cyral/src/core"
-	mapset "github.com/deckarep/golang-set"
+	mapset "github.com/deckarep/golang-set/v2"
 )
 
-var schemas = mapset.NewSet()
+var schemas = mapset.NewSet[*core.SchemaRegister]()
 
-func RegisterToProvider(schemaRegister core.SchemaRegister) {
-	schemas.Add(schemaRegister.Schema())
+func RegisterToProvider(schemaRegister *core.SchemaRegister) {
+	schemas.Add(schemaRegister)
 }
 
 func init() {
@@ -75,6 +75,7 @@ func Provider() *schema.Provider {
 }
 
 func dataSourceSchemas() map[string]*schema.Resource {
+	log.Printf("[DEBUG] Init dataSourceSchemas")
 	schemaMap := map[string]*schema.Resource{}
 	schemaMap["cyral_integration_idp"] = dataSourceIntegrationIdP()
 	schemaMap["cyral_integration_idp_saml"] = dataSourceIntegrationIdPSAML()
@@ -90,14 +91,17 @@ func dataSourceSchemas() map[string]*schema.Resource {
 	schemaMap["cyral_sidecar_listener"] = dataSourceSidecarListener()
 
 	for s := range schemas.Iter() {
-		if s.(core.SchemaRegister).Type == core.DataSourceSchema {
-			schemaMap[s.(core.SchemaRegister).Name] = s.(core.SchemaRegister).Schema()
+		log.Printf(fmt.Sprintf("[DEBUG] dataSourceSchemas schemas.Iter(). s: %#v", s))
+		if s.Type == core.DataSourceSchema {
+			schemaMap[s.Name] = s.Schema()
 		}
 	}
+	log.Printf("[DEBUG] End dataSourceSchemas")
 	return schemaMap
 }
 
 func resourceSchemas() map[string]*schema.Resource {
+	log.Printf("[DEBUG] Init resourceSchemas")
 	var idpDeprecationMessage = "Use resource and data source `cyral_integration_idp_saml` instead."
 	schemaMap := map[string]*schema.Resource{}
 
@@ -141,10 +145,13 @@ func resourceSchemas() map[string]*schema.Resource {
 	schemaMap["cyral_sidecar_listener"] = resourceSidecarListener()
 
 	for s := range schemas.Iter() {
-		if s.(core.SchemaRegister).Type == core.ResourceSchema {
-			schemaMap[s.(core.SchemaRegister).Name] = s.(core.SchemaRegister).Schema()
+		log.Printf(fmt.Sprintf("[DEBUG] resourceSchemas schemas.Iter(). s: %#v", s))
+		if s.Type == core.ResourceSchema {
+			schemaMap[s.Name] = s.Schema()
 		}
 	}
+	log.Printf("[DEBUG] End resourceSchemas")
+
 	return schemaMap
 }
 

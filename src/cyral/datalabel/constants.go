@@ -1,5 +1,7 @@
 package datalabel
 
+import "github.com/cyralinc/terraform-provider-cyral/src/utils"
+
 type Type string
 
 const (
@@ -18,10 +20,7 @@ func Types() []Type {
 }
 
 func TypesAsString() []string {
-	types := Types()
-	result := make([]string, len(types))
-	for i, v := range types {
-		result[i] = string(v)
-	}
-	return result
+	return utils.ToSliceOfString[Type](Types(), func(t Type) string {
+		return string(t)
+	})
 }

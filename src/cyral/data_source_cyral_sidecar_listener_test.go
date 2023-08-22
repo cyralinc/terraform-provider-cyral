@@ -83,7 +83,7 @@ func testListenerDataSourceConfig(listeners []SidecarListener, repoTypeFilter st
 		dependsOn = append(dependsOn, fmt.Sprintf("cyral_sidecar_listener.%s", resourceName))
 	}
 	sidecarConfig := utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName("ds-sidecar-listener", "sidecar"),
 		"docker", "",
 	)

@@ -5,6 +5,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/cyralinc/terraform-provider-cyral/src/cyral/datalabel"
 	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/stretchr/testify/require"
@@ -85,7 +86,7 @@ func updatedDataMapConfigRemoveAttribute() *DataMap {
 	}
 }
 
-func dataMapConfigWithDataLabel() (*DataMap, *DataLabel) {
+func dataMapConfigWithDataLabel() (*DataMap, *datalabel.DataLabel) {
 	return &DataMap{
 			Labels: map[string]*DataMapMapping{
 				testRepositoryDatamapCustomLabel(): &DataMapMapping{

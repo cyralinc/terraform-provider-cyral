@@ -41,7 +41,7 @@ func bindingRepoSidecarListenerConfig() string {
 		27017,
 	)
 	config += utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName(repoBindingSidecarName, "sidecar"),
 		"docker", "",
 	)
@@ -90,7 +90,7 @@ func repoBindingCheck(resName string, binding Binding) resource.TestCheckFunc {
 	checkFuncs := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			resFullName, SidecarIDKey,
-			fmt.Sprintf("cyral_sidecar.%s", BasicSidecarResName), "id",
+			fmt.Sprintf("cyral_sidecar.%s", utils.BasicSidecarResName), "id",
 		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, RepositoryIDKey,

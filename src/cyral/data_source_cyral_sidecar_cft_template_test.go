@@ -32,7 +32,7 @@ func TestAccSidecarCftTemplateDataSource(t *testing.T) {
 func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
 	var configuration string
 	configuration += utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarCftTemplateDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)

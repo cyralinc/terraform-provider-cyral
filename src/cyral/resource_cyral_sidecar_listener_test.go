@@ -15,7 +15,7 @@ const (
 
 func sidecarListenerSidecarConfig() string {
 	return utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarListenerTestSidecarResourceName, "sidecar"),
 		"docker", "",
 	)
@@ -229,7 +229,7 @@ func setupSidecarListenerCheck(resourceName string, listener SidecarListener) re
 		checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttrPair(
 				resFullName, SidecarIDKey,
-				fmt.Sprintf("cyral_sidecar.%s", BasicSidecarResName), "id",
+				fmt.Sprintf("cyral_sidecar.%s", utils.BasicSidecarResName), "id",
 			),
 			resource.TestCheckResourceAttr(
 				resFullName,

@@ -15,7 +15,7 @@ const (
 
 func dsourceSidecarBoundPortsSampleSidecarConfig() string {
 	return utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarBoundPortsDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)

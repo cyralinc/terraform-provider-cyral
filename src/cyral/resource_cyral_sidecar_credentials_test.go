@@ -62,7 +62,7 @@ func setupSidecarCredentialsTest() (string, resource.TestCheckFunc) {
 func createSidecarCredentialsConfig() string {
 	var config string
 	config += utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarCredentialsResourceName, "sidecar"),
 		"docker", "",
 	)

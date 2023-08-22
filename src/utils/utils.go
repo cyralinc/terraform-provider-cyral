@@ -130,3 +130,11 @@ func CreateError(summary, detail string) diag.Diagnostics {
 
 	return diags
 }
+
+func ToSliceOfString[T any](s []T, f func(T) string) []string {
+	result := make([]string, len(s))
+	for i, v := range s {
+		result[i] = f(v)
+	}
+	return result
+}

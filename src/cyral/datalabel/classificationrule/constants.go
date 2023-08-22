@@ -1,5 +1,7 @@
 package classificationrule
 
+import "github.com/cyralinc/terraform-provider-cyral/src/utils"
+
 type Type string
 
 const (
@@ -21,6 +23,12 @@ func Types() []Type {
 	}
 }
 
+func TypesAsString() []string {
+	return utils.ToSliceOfString[Type](Types(), func(t Type) string {
+		return string(t)
+	})
+}
+
 func Statuses() []Status {
 	return []Status{
 		Enabled,
@@ -29,10 +37,7 @@ func Statuses() []Status {
 }
 
 func StatusesAsString() []string {
-	statuses := Statuses()
-	result := make([]string, len(statuses))
-	for i, v := range statuses {
-		result[i] = string(v)
-	}
-	return result
+	return utils.ToSliceOfString[Status](Statuses(), func(s Status) string {
+		return string(s)
+	})
 }

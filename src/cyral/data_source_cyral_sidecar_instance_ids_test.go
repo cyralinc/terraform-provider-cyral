@@ -68,7 +68,7 @@ func testAccSidecarInstanceIDsConfig_NoSidecarInstances() string {
 	// deployed.
 	var config string
 	config += utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarInstanceIDsDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)

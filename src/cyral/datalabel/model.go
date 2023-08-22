@@ -27,6 +27,14 @@ type DataLabel struct {
 }
 
 func (dl *DataLabel) WriteToSchema(d *schema.ResourceData) error {
+	// // If the `description` field is not in the root of the schema, then
+	// // it is a data source that is returning multiple entries.
+	// if _, ok := d.GetOk("description"); ok {
+	// 	if err := writeDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(dl)}, d); err != nil {
+	// 		return err
+	// 	}
+	// 	d.SetId(uuid.New().String())
+	// } else {
 	if err := d.Set("description", dl.Description); err != nil {
 		return fmt.Errorf("error setting 'description' field: %w", err)
 	}
@@ -38,6 +46,9 @@ func (dl *DataLabel) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("classification_rule", dl.ClassificationRule.AsInterface()); err != nil {
 		return fmt.Errorf("error setting 'classification_rule' field: %w", err)
 	}
+
+	d.SetId(dl.Name)
+	// }
 
 	return nil
 }

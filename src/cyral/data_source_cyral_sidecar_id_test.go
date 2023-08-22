@@ -62,7 +62,7 @@ func testAccSidecarIDConfig_NoSidecarFoundForGivenName(nonExistentSidecarName st
 func testAccSidecarIDConfig_ExistentSidecar() string {
 	var config string
 	config += utils.FormatBasicSidecarIntoConfig(
-		BasicSidecarResName,
+		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarIDDataSourceName, "sidecar"),
 		"cloudFormation", "",
 	)
@@ -70,7 +70,7 @@ func testAccSidecarIDConfig_ExistentSidecar() string {
 		`
 	data "cyral_sidecar_id" "sidecar_id" {
 		sidecar_name = cyral_sidecar.%s.name
-	}`, BasicSidecarResName,
+	}`, utils.BasicSidecarResName,
 	)
 	return config
 }
@@ -78,7 +78,7 @@ func testAccSidecarIDConfig_ExistentSidecar() string {
 func testAccSidecarIDCheck_ExistentSidecar() resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttrPair(
-			fmt.Sprintf("cyral_sidecar.%s", BasicSidecarResName), "id",
+			fmt.Sprintf("cyral_sidecar.%s", utils.BasicSidecarResName), "id",
 			"data.cyral_sidecar_id.sidecar_id", "id",
 		),
 	)
