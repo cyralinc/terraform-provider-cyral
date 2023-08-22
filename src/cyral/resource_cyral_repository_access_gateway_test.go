@@ -33,15 +33,15 @@ func (ag *accessGatewayTestConfig) listenerID() string {
 
 func accessGatewayConfig(ag accessGatewayTestConfig) string {
 	config := utils.FormatBasicRepositoryIntoConfig(
-		BasicRepositoryResName,
-		accTestName(repoAccessGatewayResourceName, "repo"),
+		utils.BasicRepositoryResName,
+		utils.AccTestName(repoAccessGatewayResourceName, "repo"),
 		"mongodb",
 		"mongo.local",
 		ag.listenerPort,
 	)
 	config += utils.FormatBasicSidecarIntoConfig(
 		ag.sidecarResName,
-		accTestName(repoAccessGatewayResourceName, ag.sidecarResName),
+		utils.AccTestName(repoAccessGatewayResourceName, ag.sidecarResName),
 		"docker", "",
 	)
 
@@ -55,7 +55,7 @@ func accessGatewayConfig(ag accessGatewayTestConfig) string {
 	config += utils.FormatBasicRepositoryBindingIntoConfig(
 		ag.bindingResName,
 		ag.sidecarID(),
-		BasicRepositoryID,
+		utils.BasicRepositoryID,
 		ag.listenerID(),
 	)
 	return config
@@ -120,7 +120,7 @@ func repoAccessGatewayCheck(resName, sidecarResName, bindingResName string) reso
 		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, RepositoryIDKey,
-			fmt.Sprintf("cyral_repository.%s", BasicRepositoryResName), "id",
+			fmt.Sprintf("cyral_repository.%s", utils.BasicRepositoryResName), "id",
 		),
 		resource.TestCheckResourceAttrPair(
 			resFullName, BindingIDKey,
@@ -137,6 +137,6 @@ func repoAccessGatewayConfig(resName, sidecarID, bindingID string) string {
 		repository_id  = %s
 		sidecar_id  = %s
 		binding_id = %s
-	}`, resName, BasicRepositoryID, sidecarID, bindingID,
+	}`, resName, utils.BasicRepositoryID, sidecarID, bindingID,
 	)
 }

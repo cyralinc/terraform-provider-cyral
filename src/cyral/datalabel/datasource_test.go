@@ -91,8 +91,8 @@ func testDatalabelDataSourceConfig(
 	var dependsOn []string
 	for i, dataLabel := range dataLabels {
 		resName := fmt.Sprintf("test_datalabel_%d", i)
-		config += formatDataLabelIntoConfig(resName, dataLabel)
-		dependsOn = append(dependsOn, datalabelConfigResourceFullName(resName))
+		config += FormatDataLabelIntoConfig(resName, dataLabel)
+		dependsOn = append(dependsOn, DatalabelConfigResourceFullName(resName))
 	}
 	config += datalabelDataSourceConfig(dsourceName, nameFilter, typeFilter, dependsOn)
 

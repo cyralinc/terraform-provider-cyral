@@ -1,4 +1,4 @@
-package cyral
+package datamap
 
 import (
 	"context"
@@ -11,57 +11,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/src/client"
+	"github.com/cyralinc/terraform-provider-cyral/src/core"
+	"github.com/cyralinc/terraform-provider-cyral/src/cyral"
 	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 )
 
-type DataMapRequest struct {
-	DataMap `json:"dataMap,omitempty"`
-}
-
-// This is called 'DataMap' and not 'Datamap', because although we consider
-// 'datamap' to be a single word in the resource name 'cyral_repository_datamap'
-// for ease of writing, 'data map' is actually two words in English.
-type DataMap struct {
-	Labels map[string]*DataMapMapping `json:"labels,omitempty"`
-}
-
-func (dm *DataMap) WriteToSchema(d *schema.ResourceData) error {
-	var mappings []interface{}
-	for label, mapping := range dm.Labels {
-		mappingContents := make(map[string]interface{})
-
-		var attributes []string
-		if mapping != nil {
-			attributes = mapping.Attributes
-		}
-
-		mappingContents["label"] = label
-		mappingContents["attributes"] = attributes
-
-		mappings = append(mappings, mappingContents)
+func init() {
+	sr := &core.SchemaRegister{
+		Name:   "cyral_repository_datamap",
+		Schema: ResourceSchema,
+		Type:   core.ResourceSchema,
 	}
-
-	return d.Set("mapping", mappings)
+	cyral.RegisterToProvider(sr)
 }
 
-func (dm *DataMap) equal(other DataMap) bool {
-	for label, thisMapping := range dm.Labels {
-		if otherMapping, ok := other.Labels[label]; ok {
-			if !utils.ElementsMatch(thisMapping.Attributes, otherMapping.Attributes) {
-				return false
-			}
-		} else {
-			return false
-		}
-	}
-	return true
-}
-
-type DataMapMapping struct {
-	Attributes []string `json:"attributes,omitempty"`
-}
-
-func resourceRepositoryDatamap() *schema.Resource {
+// TODO Migrate *Context functions to `core.ResourceOperationConfig`.
+func ResourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description:   "Manages [Data Map](https://cyral.com/docs/policy/datamap).",
 		CreateContext: resourceRepositoryDatamapCreate,

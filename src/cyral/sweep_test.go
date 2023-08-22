@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/cyralinc/terraform-provider-cyral/src/client"
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -68,12 +69,12 @@ func sweepSidecarAndRepository(_ string) error {
 }
 
 func sweepRepository(_ string) error {
-	c, err := newClientFromEnv()
+	c, err := client.FromEnv()
 	if err != nil {
 		return err
 	}
 	url := fmt.Sprintf("https://%s/v1/repos?name=^%s", c.ControlPlane,
-		TFProvACCPrefix)
+		utils.TFProvACCPrefix)
 	reposBytes, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
 		return fmt.Errorf("get request returned error: %w", err)
@@ -116,7 +117,7 @@ func sweepSidecar(_ string) error {
 }
 
 func sweepRole(_ string) error {
-	c, err := newClientFromEnv()
+	c, err := client.FromEnv()
 	if err != nil {
 		return err
 	}
@@ -140,7 +141,7 @@ func sweepRole(_ string) error {
 }
 
 func sweepPolicy(_ string) error {
-	c, err := newClientFromEnv()
+	c, err := client.FromEnv()
 	if err != nil {
 		return err
 	}
@@ -163,7 +164,7 @@ func sweepPolicy(_ string) error {
 }
 
 func sweepIntegrationIdP(_ string) error {
-	c, err := newClientFromEnv()
+	c, err := client.FromEnv()
 	if err != nil {
 		return err
 	}

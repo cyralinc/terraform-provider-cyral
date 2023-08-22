@@ -146,7 +146,7 @@ func setupRepositoryAccessRulesTest(
 ) (string, resource.TestCheckFunc) {
 	var configuration string
 	configuration += utils.FormatBasicRepositoryIntoConfig(
-		BasicRepositoryResName,
+		utils.BasicRepositoryResName,
 		utils.AccTestName(repositoryAccessRulesResourceName, "repository1"),
 		"mongodb",
 		"mongo.local",
@@ -154,13 +154,13 @@ func setupRepositoryAccessRulesTest(
 	) + "\n"
 
 	configuration += userAccConfig(
-		BasicRepositoryID,
+		utils.BasicRepositoryID,
 		utils.AccTestName(repositoryAccessRulesResourceName, "user_acount"),
 	) + "\n"
 
 	configuration += accessRulesToConfig(
 		accessRulesData,
-		BasicRepositoryID,
+		utils.BasicRepositoryID,
 		"cyral_repository_user_account.my_test_user_account.user_account_id",
 		bareBones,
 	) + "\n"

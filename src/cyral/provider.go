@@ -105,8 +105,8 @@ func resourceSchemas() map[string]*schema.Resource {
 	var idpDeprecationMessage = "Use resource and data source `cyral_integration_idp_saml` instead."
 	schemaMap := map[string]*schema.Resource{}
 
-	// TODO Once the resources are migrated to the new SchemaRegister
-	// abstraction, these calls from provider to resource will be removed.
+	// // TODO Once the resources are migrated to the new SchemaRegister
+	// // abstraction, these calls from provider to resource will be removed.
 	schemaMap["cyral_integration_datadog"] = resourceIntegrationDatadog()
 	schemaMap["cyral_integration_mfa_duo"] = resourceIntegrationMFADuo()
 	schemaMap["cyral_integration_elk"] = resourceIntegrationELK()
@@ -130,14 +130,13 @@ func resourceSchemas() map[string]*schema.Resource {
 	schemaMap["cyral_policy"] = resourcePolicy()
 	schemaMap["cyral_policy_rule"] = resourcePolicyRule()
 	schemaMap["cyral_repository"] = resourceRepository()
-	schemaMap["cyral_repository_binding"] = resourceRepositoryBinding()
-	schemaMap["cyral_repository_conf_analysis"] = resourceRepositoryConfAnalysis()
-	schemaMap["cyral_repository_conf_auth"] = resourceRepositoryConfAuth()
-	schemaMap["cyral_repository_datamap"] = resourceRepositoryDatamap()
-	schemaMap["cyral_repository_user_account"] = resourceRepositoryUserAccount()
-	schemaMap["cyral_repository_network_access_policy"] = resourceRepositoryNetworkAccessPolicy()
 	schemaMap["cyral_repository_access_rules"] = resourceRepositoryAccessRules()
 	schemaMap["cyral_repository_access_gateway"] = resourceRepositoryAccessGateway()
+	schemaMap["cyral_repository_binding"] = resourceRepositoryBinding()
+	schemaMap["cyral_repository_conf_auth"] = resourceRepositoryConfAuth()
+	schemaMap["cyral_repository_conf_analysis"] = resourceRepositoryConfAnalysis()
+	schemaMap["cyral_repository_network_access_policy"] = resourceRepositoryNetworkAccessPolicy()
+	schemaMap["cyral_repository_user_account"] = resourceRepositoryUserAccount()
 	schemaMap["cyral_role"] = resourceRole()
 	schemaMap["cyral_role_sso_groups"] = resourceRoleSSOGroups()
 	schemaMap["cyral_sidecar"] = resourceSidecar()

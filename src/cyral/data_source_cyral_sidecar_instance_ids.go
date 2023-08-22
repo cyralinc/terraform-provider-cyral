@@ -84,9 +84,7 @@ func dataSourceSidecarInstanceIDsRead(
 
 func getSidecarDetails(c *client.Client, sidecarID string) (SidecarDetails, error) {
 	log.Printf("[DEBUG] Init getSidecarDetails")
-	// Remove port from control plane to make request to Jeeves server
-	controlPlaneWithoutPort := removePortFromURL(c.ControlPlane)
-	url := fmt.Sprintf("https://%s/sidecars/%s/details", controlPlaneWithoutPort, sidecarID)
+	url := fmt.Sprintf("https://%s/sidecars/%s/details", c.ControlPlane, sidecarID)
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
 		return SidecarDetails{}, err

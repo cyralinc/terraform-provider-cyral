@@ -17,7 +17,7 @@ const (
 
 func repositoryConfAnalysisSampleRepositoryConfig() string {
 	return utils.FormatBasicRepositoryIntoConfig(
-		BasicRepositoryResName,
+		utils.BasicRepositoryResName,
 		utils.AccTestName(repositoryConfAnalysisResourceName, "repository"),
 		"postgresql",
 		"some-hostname",
@@ -80,7 +80,7 @@ func testAccRepoConfAnalysisConfig_ErrorRedact() string {
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
 		repository_id = %s
 		redact = "some-invalid-value"
-	}`, BasicRepositoryID)
+	}`, utils.BasicRepositoryID)
 	return config
 }
 
@@ -93,7 +93,7 @@ func testAccRepoConfAnalysisConfig_ErrorAnnotationGroups() string {
 		comment_annotation_groups = [
 			"some-invalid-value"
 		]
-	}`, BasicRepositoryID)
+	}`, utils.BasicRepositoryID)
 	return config
 }
 
@@ -106,7 +106,7 @@ func testAccRepoConfAnalysisConfig_ErrorLogGroups() string {
 		log_groups = [
 			"some-invalid-value"
 		]
-	}`, BasicRepositoryID)
+	}`, utils.BasicRepositoryID)
 	return config
 }
 
@@ -116,7 +116,7 @@ func testAccRepoConfAnalysisConfig_DefaultValues() string {
 	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_analysis" "test_conf_analysis" {
 		repository_id = %s
-	}`, BasicRepositoryID)
+	}`, utils.BasicRepositoryID)
 	return config
 }
 
@@ -165,7 +165,7 @@ func testAccRepoConfAnalysisConfig_Updated() string {
 			"sensitive & dml",
 			"sensitive & ddl"
 		]
-	}`, BasicRepositoryID)
+	}`, utils.BasicRepositoryID)
 	return config
 }
 

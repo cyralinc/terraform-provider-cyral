@@ -1,7 +1,6 @@
 package datalabel
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/cyralinc/terraform-provider-cyral/src/cyral"
@@ -71,9 +70,9 @@ func TestAccDatalabelResource(t *testing.T) {
 }
 
 func setupDatalabelTest(t *testing.T, resName string, dataLabel *DataLabel) (string, resource.TestCheckFunc) {
-	configuration := formatDataLabelIntoConfig(resName, dataLabel)
+	configuration := FormatDataLabelIntoConfig(resName, dataLabel)
 
-	resourceFullName := datalabelConfigResourceFullName(resName)
+	resourceFullName := DatalabelConfigResourceFullName(resName)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName, "name", dataLabel.Name),
@@ -97,37 +96,4 @@ func setupDatalabelTest(t *testing.T, resName string, dataLabel *DataLabel) (str
 	)
 
 	return configuration, testFunction
-}
-
-func datalabelConfigResourceFullName(resName string) string {
-	return fmt.Sprintf("cyral_datalabel.%s", resName)
-}
-
-func formatDataLabelIntoConfig(resName string, dataLabel *DataLabel) string {
-	var classificationRuleConfig string
-	if dataLabel.ClassificationRule != nil {
-		classificationRuleConfig = fmt.Sprintf(`
- 		classification_rule {
- 			rule_type = "%s"
- 			rule_code = "%s"
- 			rule_status = "%s"
- 		}`,
-			dataLabel.ClassificationRule.RuleType,
-			dataLabel.ClassificationRule.RuleCode,
-			dataLabel.ClassificationRule.RuleStatus,
-		)
-	}
-	return fmt.Sprintf(`
-	resource "cyral_datalabel" "%s" {
-		name  = "%s"
-		description = "%s"
-		tags = %s
-		%s
-	}`,
-		resName,
-		dataLabel.Name,
-		dataLabel.Description,
-		utils.ListToStr(dataLabel.Tags),
-		classificationRuleConfig,
-	)
 }

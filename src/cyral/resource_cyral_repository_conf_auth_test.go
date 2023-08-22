@@ -16,7 +16,7 @@ const (
 
 func repositoryConfAuthDependencyConfig() string {
 	return utils.FormatBasicRepositoryIntoConfig(
-		BasicRepositoryResName,
+		utils.BasicRepositoryResName,
 		utils.AccTestName(repositoryConfAuthResourceName, "repository"),
 		"mysql",
 		"http://mysql.local/",
@@ -57,7 +57,7 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 	config += fmt.Sprintf(`
 	resource "cyral_repository_conf_auth" "%s" {
 		repository_id = %s
-	}`, resName, BasicRepositoryID)
+	}`, resName, utils.BasicRepositoryID)
 
 	return resource.TestStep{
 		Config: config,
@@ -122,7 +122,7 @@ func setupRepositoryConfAuthConfig(resName string, repositoryConf RepositoryConf
 	var config string
 	config += repositoryConfAuthDependencyConfig()
 	config += formatRepositoryConfAuthDataIntoConfig(
-		resName, repositoryConf, BasicRepositoryID)
+		resName, repositoryConf, utils.BasicRepositoryID)
 
 	return config
 }

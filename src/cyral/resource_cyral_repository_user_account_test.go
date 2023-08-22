@@ -15,7 +15,7 @@ const (
 
 func repositoryUserAccountRepositoryConfig() string {
 	return utils.FormatBasicRepositoryIntoConfig(
-		BasicRepositoryResName,
+		utils.BasicRepositoryResName,
 		utils.AccTestName(repositoryUserAccountResourceName, "main-repo"),
 		"mongodb",
 		"mongodb.local",
@@ -240,7 +240,7 @@ func setupRepositoryUserAccountCheck(resName string, userAccount UserAccountReso
 	checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 		resource.TestCheckResourceAttrPair(
 			resFullName, "repository_id",
-			fmt.Sprintf("cyral_repository.%s", BasicRepositoryResName), "id"),
+			fmt.Sprintf("cyral_repository.%s", utils.BasicRepositoryResName), "id"),
 		resource.TestCheckResourceAttr(resFullName,
 			"name", userAccount.Name),
 		resource.TestCheckResourceAttr(resFullName,
@@ -385,7 +385,7 @@ func setupRepositoryUserAccountConfig(resName string, userAccount UserAccountRes
 			%s
 		}
 		%s
-	}`, resName, BasicRepositoryID, userAccount.Name,
+	}`, resName, utils.BasicRepositoryID, userAccount.Name,
 		userAccount.AuthDatabaseName, authSchemeStr, approvalConfigStr)
 
 	return config
