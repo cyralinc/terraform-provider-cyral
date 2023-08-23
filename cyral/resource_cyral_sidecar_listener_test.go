@@ -241,7 +241,7 @@ func settingsConflictsTest() []resource.TestStep {
 	// Generate test steps for every pair of conflicting repo types
 	for i := 0; i < len(repoTypes); i++ {
 		for j := i + 1; j < len(repoTypes); j++ {
-			// Create a listener with both all types
+			// Create a listener with all conflicting repo types
 			// Downstream test code will cut at [0], but this is fine for what we are testing here
 			listener := SidecarListener{
 				RepoTypes: repoTypes,
