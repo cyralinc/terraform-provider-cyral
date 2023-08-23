@@ -9,6 +9,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/src/core"
 	"github.com/cyralinc/terraform-provider-cyral/src/cyral"
 	"github.com/cyralinc/terraform-provider-cyral/src/cyral/datalabel/classificationrule"
+	"github.com/cyralinc/terraform-provider-cyral/src/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -92,11 +93,11 @@ func ResourceSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"rule_type": {
-							Description: "Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`. Defaults " +
-								"to `UNKNOWN`.",
+							Description: "Type of the classification rule. List of supported values: " +
+								utils.SupportedValuesAsMarkdown(classificationrule.TypesAsString()),
 							Type:         schema.TypeString,
 							Optional:     true,
-							Default:      "UNKNOWN",
+							Default:      classificationrule.Unknown,
 							ValidateFunc: validation.StringInSlice(classificationrule.TypesAsString(), false),
 						},
 						"rule_code": {
@@ -106,11 +107,11 @@ func ResourceSchema() *schema.Resource {
 							Optional: true,
 						},
 						"rule_status": {
-							Description: "Status of the classification rule. Valid values are: `ENABLED` and  `DISABLED`. " +
-								"Defaults to `ENABLED`.",
+							Description: "Status of the classification rule. List of supported values: " +
+								utils.SupportedValuesAsMarkdown(classificationrule.StatusesAsString()),
 							Type:         schema.TypeString,
 							Optional:     true,
-							Default:      "ENABLED",
+							Default:      classificationrule.Enabled,
 							ValidateFunc: validation.StringInSlice(classificationrule.StatusesAsString(), false),
 						},
 					},

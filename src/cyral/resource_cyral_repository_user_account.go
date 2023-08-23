@@ -478,7 +478,7 @@ func resourceRepositoryUserAccount() *schema.Resource {
 
 			"auth_scheme": {
 				Description: "Credential option. List of supported types: " +
-					utils.SupportedTypesMarkdown(allAuthSchemes),
+					utils.SupportedValuesAsMarkdown(allAuthSchemes),
 				Required: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,

@@ -103,7 +103,7 @@ func DataSourceSchema() *schema.Resource {
 				Optional:    true,
 			},
 			"type": {
-				Description:  fmt.Sprintf("Filter the results by type of data label. Defaults to `%s`, which will return all label types. The labels you create will always have type `CUSTOM`. Labels that come pre-configured in the control plane have type `PREDEFINED`. List of supported types:", Default) + utils.SupportedTypesMarkdown(TypesAsString()),
+				Description:  fmt.Sprintf("Filter the results by type of data label. Defaults to `%s`, which will return all label types. The labels you create will always have type `CUSTOM`. Labels that come pre-configured in the control plane have type `PREDEFINED`. List of supported types:", Default) + utils.SupportedValuesAsMarkdown(TypesAsString()),
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      Default,

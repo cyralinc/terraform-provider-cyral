@@ -66,7 +66,7 @@ func ListToStrNoQuotes(l []string) string {
 	return s
 }
 
-func SupportedTypesMarkdown(types []string) string {
+func SupportedValuesAsMarkdown(types []string) string {
 	var s string
 	for _, typ := range types {
 		s += fmt.Sprintf("\n  - `%s`", typ)

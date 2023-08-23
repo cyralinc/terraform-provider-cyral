@@ -59,7 +59,7 @@ var (
 				Computed:    true,
 			},
 			regoPolicyInstanceActorTypeKey: {
-				Description: "Actor type. Valid types are:" + utils.SupportedTypesMarkdown(actorTypes()),
+				Description: "Actor type. Valid types are:" + utils.SupportedValuesAsMarkdown(actorTypes()),
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
@@ -144,7 +144,7 @@ func resourceRegoPolicyInstance() *schema.Resource {
 			},
 			regoPolicyInstanceCategoryKey: {
 				Description: "Policy category. List of supported categories:" +
-					utils.SupportedTypesMarkdown(regoPolicyCategories()),
+					utils.SupportedValuesAsMarkdown(regoPolicyCategories()),
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -162,7 +162,7 @@ func resourceRegoPolicyInstance() *schema.Resource {
 			},
 			regoPolicyInstanceTemplateIDKey: {
 				Description: "Policy template identifier. Predefined templates are:" +
-					utils.SupportedTypesMarkdown(regoPolicyTemplateIDs()),
+					utils.SupportedValuesAsMarkdown(regoPolicyTemplateIDs()),
 				Type:     schema.TypeString,
 				Required: true,
 			},

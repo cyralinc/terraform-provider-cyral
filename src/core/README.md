@@ -47,9 +47,9 @@ func init() {
         // Data source name
 		Name:   "cyral_datalabel",
         // this is a function that will return the actual schema
-		Schema: ResourceSchema,
+		Schema: DataSourceSchema,
         // Schema type
-		Type:   core.ResourceSchema,
+		Type:   core.DataSourceSchema,
 	}
 	cyral.RegisterToProvider(sr)
 }

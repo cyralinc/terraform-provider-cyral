@@ -69,7 +69,8 @@ type ResourceOperationConfig struct {
 	CreateURL  URLCreatorFunc
 	RequestErrorHandler
 	NewResourceData func() ResourceData
-	// TODO provide a default implementation
+	// TODO provide a default implementation returning the IDBasedResponse:
+	// func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} }
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 

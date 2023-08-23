@@ -349,7 +349,7 @@ func resourceRepository() *schema.Resource {
 				Computed:    true,
 			},
 			RepoTypeKey: {
-				Description:  "Repository type. List of supported types:" + utils.SupportedTypesMarkdown(repositoryTypes()),
+				Description:  "Repository type. List of supported types:" + utils.SupportedValuesAsMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -443,7 +443,7 @@ func resourceRepository() *schema.Resource {
 							Optional:    true,
 						},
 						RepoMongoDBServerTypeKey: {
-							Description: "Type of the MongoDB server. Allowed values: " + utils.SupportedTypesMarkdown(mongoServerTypes()) +
+							Description: "Type of the MongoDB server. Allowed values: " + utils.SupportedValuesAsMarkdown(mongoServerTypes()) +
 								"\n\n  The following conditions apply:\n" +
 								"  - If `" + Sharded + "` and `" + RepoMongoDBSRVRecordName + "` *not* provided, then all `" +
 								RepoNodesKey + "` blocks must be static (see [`" + RepoNodeDynamicKey + "`](#" + RepoNodeDynamicKey + ")).\n" +

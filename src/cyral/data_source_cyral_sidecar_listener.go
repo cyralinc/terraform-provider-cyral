@@ -90,7 +90,7 @@ func dataSourceSidecarListener() *schema.Resource {
 				Required:    true,
 			},
 			DSRepoTypeKey: {
-				Description: "Filter the results per repository type. Supported repo types:" + utils.SupportedTypesMarkdown(repositoryTypes()),
+				Description: "Filter the results per repository type. Supported repo types:" + utils.SupportedValuesAsMarkdown(repositoryTypes()),
 				Type:        schema.TypeString,
 				Optional:    true,
 			},

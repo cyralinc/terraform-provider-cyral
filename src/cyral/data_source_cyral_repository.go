@@ -82,7 +82,7 @@ func dataSourceRepository() *schema.Resource {
 				Optional:    true,
 			},
 			RepoTypeKey: {
-				Description:  "Filter the results by type of repository. List of supported types:" + utils.SupportedTypesMarkdown(repositoryTypes()),
+				Description:  "Filter the results by type of repository. List of supported types:" + utils.SupportedValuesAsMarkdown(repositoryTypes()),
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(append(repositoryTypes(), ""), false),
@@ -177,7 +177,7 @@ func dataSourceRepository() *schema.Resource {
 										Computed:    true,
 									},
 									RepoMongoDBServerTypeKey: {
-										Description: "Type of the MongoDB server. Allowed values: " + utils.SupportedTypesMarkdown(mongoServerTypes()),
+										Description: "Type of the MongoDB server. Allowed values: " + utils.SupportedValuesAsMarkdown(mongoServerTypes()),
 										Type:        schema.TypeString,
 										Computed:    true,
 									},

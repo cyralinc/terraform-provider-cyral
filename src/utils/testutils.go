@@ -25,7 +25,7 @@ const (
 	TestSingleSignOnURL = "https://some-test-sso-url.com"
 )
 
-// A attempts to make resource names unique to a specific resource
+// AccTestName attempts to make resource names unique to a specific resource
 // type, and avoid name clashes with other resources that exist in the testing
 // control plane.
 //
@@ -33,11 +33,11 @@ const (
 //
 // Example usage for cyral_datalabel resource:
 //
-//	A("datalabel", "label1")
+//	AccTestName("datalabel", "label1")
 //
 // Example usage for cyral_datalabel data source:
 //
-//	A("data-datalabel", "label1")
+//	AccTestName("data-datalabel", "label1")
 //
 // Note that doing it like above will prevent that the tests attempt to create a
 // label called LABEL1 simultaneously, which would cause a failure.

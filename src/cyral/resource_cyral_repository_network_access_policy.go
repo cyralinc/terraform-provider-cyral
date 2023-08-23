@@ -151,7 +151,7 @@ func deleteRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 
 func resourceRepositoryNetworkAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages the network access policy of a repository. Network access policies are also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/). This feature is supported for the following repository types:" + utils.SupportedTypesMarkdown(repositoryTypesNetworkShield()),
+		Description:   "Manages the network access policy of a repository. Network access policies are also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/). This feature is supported for the following repository types:" + utils.SupportedValuesAsMarkdown(repositoryTypesNetworkShield()),
 		CreateContext: core.CreateResource(createRepositoryNetworkAccessPolicy(), readRepositoryNetworkAccessPolicy()),
 		ReadContext:   core.ReadResource(readRepositoryNetworkAccessPolicy()),
 		UpdateContext: core.UpdateResource(updateRepositoryNetworkAccessPolicy(), readRepositoryNetworkAccessPolicy()),

@@ -249,7 +249,7 @@ func resourceRepositoryAccessRules() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"type": {
 										Description: "Identity type. List of supported values: " +
-											utils.SupportedTypesMarkdown([]string{
+											utils.SupportedValuesAsMarkdown([]string{
 												"username",
 												"email",
 												"group",

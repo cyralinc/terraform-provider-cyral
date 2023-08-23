@@ -283,7 +283,7 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 			ForceNew:    true,
 		},
 		RepoTypesKey: {
-			Description: "List of repository types that the listener supports. Currently limited to one repo type from supported repo types:" + utils.SupportedTypesMarkdown(repositoryTypes()),
+			Description: "List of repository types that the listener supports. Currently limited to one repo type from supported repo types:" + utils.SupportedValuesAsMarkdown(repositoryTypes()),
 			Type:        schema.TypeList,
 			Required:    true,
 			Elem: &schema.Schema{

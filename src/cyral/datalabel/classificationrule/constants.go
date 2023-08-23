@@ -12,8 +12,8 @@ const (
 type Status string
 
 const (
-	Enabled  = "ENABLED"
-	Disabled = "DISABLED"
+	Enabled  = Status("ENABLED")
+	Disabled = Status("DISABLED")
 )
 
 func Types() []Type {
