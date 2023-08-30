@@ -168,6 +168,10 @@ Required:
 
 - `config` (String) Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
 
+Optional:
+
+- `skip_validate` (Boolean) Whether to validate the Fluent Bit config.
+
 <a id="nestedblock--splunk"></a>
 
 ### Nested Schema for `splunk`
