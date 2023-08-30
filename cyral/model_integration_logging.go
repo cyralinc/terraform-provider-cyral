@@ -38,7 +38,8 @@ type SumoLogicConfig struct {
 }
 
 type FluentBitConfig struct {
-	Config string `json:"config"`
+	Config       string `json:"config"`
+	SkipValidate bool   `json:"skipValidate"`
 }
 
 type LoggingIntegration struct {
@@ -250,6 +251,11 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 						Description: "Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file",
 						Required:    true,
 						Type:        schema.TypeString,
+					},
+					"skip_validate": {
+						Optional:    true,
+						Type:        schema.TypeBool,
+						Description: "Whether to validate the Fluent Bit config.",
 					},
 				},
 			},
