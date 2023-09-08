@@ -61,6 +61,8 @@ pre-commit run --show-diff-on-failure --color=always --all-files
 find docs -exec sudo chown <your_username> {} \;
 ```
 
+> The `make docker-compose/docs` command can sometimes fail. If this is your case, you can use the `tfplugindocs generate` command, which will do the same as `make docker-compose/docs`. You can get the binary from [this link](https://github.com/hashicorp/terraform-plugin-docs)
+
 ### Test Instructions
 
 The test framework requires basic configuration before it can be executed as follows:
