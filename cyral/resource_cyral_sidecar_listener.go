@@ -408,7 +408,7 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 			Optional:    true,
 			// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
 			MaxItems:      1,
-			ConflictsWith: []string{S3SettingsKey, MySQLSettingsKey},
+			ConflictsWith: []string{S3SettingsKey, MySQLSettingsKey, SQLServerSettingsKey},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					ProxyModeKey: {
