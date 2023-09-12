@@ -14,25 +14,28 @@ import (
 // create a constant block for schema keys
 
 const (
-	RepoTypesKey        = "repo_types"
-	NetworkAddressKey   = "network_address"
-	MySQLSettingsKey    = "mysql_settings"
-	DbVersionKey        = "db_version"
-	CharacterSetKey     = "character_set"
-	S3SettingsKey       = "s3_settings"
-	ProxyModeKey        = "proxy_mode"
-	DynamoDbSettingsKey = "dynamodb_settings"
+	RepoTypesKey         = "repo_types"
+	NetworkAddressKey    = "network_address"
+	MySQLSettingsKey     = "mysql_settings"
+	DbVersionKey         = "db_version"
+	CharacterSetKey      = "character_set"
+	S3SettingsKey        = "s3_settings"
+	ProxyModeKey         = "proxy_mode"
+	DynamoDbSettingsKey  = "dynamodb_settings"
+	SQLServerSettingsKey = "sqlserver_settings"
+	SQLServerVersionKey  = "version"
 )
 
 // SidecarListener struct for sidecar listener.
 type SidecarListener struct {
-	SidecarId        string            `json:"-"`
-	ListenerId       string            `json:"id"`
-	RepoTypes        []string          `json:"repoTypes"`
-	NetworkAddress   *NetworkAddress   `json:"address,omitempty"`
-	MySQLSettings    *MySQLSettings    `json:"mysqlSettings,omitempty"`
-	S3Settings       *S3Settings       `json:"s3Settings,omitempty"`
-	DynamoDbSettings *DynamoDbSettings `json:"dynamoDbSettings,omitempty"`
+	SidecarId         string             `json:"-"`
+	ListenerId        string             `json:"id"`
+	RepoTypes         []string           `json:"repoTypes"`
+	NetworkAddress    *NetworkAddress    `json:"address,omitempty"`
+	MySQLSettings     *MySQLSettings     `json:"mysqlSettings,omitempty"`
+	S3Settings        *S3Settings        `json:"s3Settings,omitempty"`
+	DynamoDbSettings  *DynamoDbSettings  `json:"dynamoDbSettings,omitempty"`
+	SQLServerSettings *SQLServerSettings `json:"sqlServerSettings,omitempty"`
 }
 type NetworkAddress struct {
 	Host string `json:"host,omitempty"`
@@ -47,6 +50,10 @@ type S3Settings struct {
 }
 type DynamoDbSettings struct {
 	ProxyMode bool `json:"proxyMode,omitempty"`
+}
+
+type SQLServerSettings struct {
+	Version string `json:"version,omitempty"`
 }
 
 var ReadSidecarListenersConfig = ResourceOperationConfig{
@@ -83,6 +90,7 @@ func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData)
 		_ = d.Set(S3SettingsKey, data.ListenerConfig.S3SettingsAsInterface())
 		_ = d.Set(MySQLSettingsKey, data.ListenerConfig.MySQLSettingsAsInterface())
 		_ = d.Set(DynamoDbSettingsKey, data.ListenerConfig.DynamoDbSettingsAsInterface())
+		_ = d.Set(SQLServerSettingsKey, data.ListenerConfig.SQLServerSettingsAsInterface())
 	}
 	log.Printf("[DEBUG] End ReadSidecarListenerAPIResponse.WriteToSchema")
 	return nil
@@ -175,6 +183,22 @@ func (l *SidecarListener) DynamoDbSettingsFromInterface(anInterface []interface{
 		ProxyMode: anInterface[0].(map[string]interface{})[ProxyModeKey].(bool),
 	}
 }
+func (l *SidecarListener) SQLServerSettingsAsInterface() []interface{} {
+	if l.SQLServerSettings == nil {
+		return nil
+	}
+	return []interface{}{map[string]interface{}{
+		SQLServerVersionKey: l.SQLServerSettings.Version,
+	}}
+}
+func (l *SidecarListener) SQLServerSettingsFromInterface(anInterface []interface{}) {
+	if len(anInterface) == 0 {
+		return
+	}
+	l.SQLServerSettings = &SQLServerSettings{
+		Version: anInterface[0].(map[string]interface{})[SQLServerVersionKey].(string),
+	}
+}
 
 // SidecarListenerResource represents the payload of a create or update a listener request
 type SidecarListenerResource struct {
@@ -192,6 +216,8 @@ func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
 	s.ListenerConfig.MySQLSettingsFromInterface(d.Get(MySQLSettingsKey).(*schema.Set).List())
 	s.ListenerConfig.S3SettingsFromInterface(d.Get(S3SettingsKey).(*schema.Set).List())
 	s.ListenerConfig.DynamoDbSettingsFromInterface(d.Get(DynamoDbSettingsKey).(*schema.Set).List())
+	s.ListenerConfig.SQLServerSettingsFromInterface(d.Get(SQLServerSettingsKey).(*schema.Set).List())
+
 	return nil
 }
 
@@ -205,7 +231,7 @@ func resourceSidecarListener() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners)." +
 			"\n~> **Warning** Multiple listeners can be associated to a single sidecar as long as " +
-			"`host` and `port` are unique. If `host` is ommitted, then `port` must be unique.",
+			"`host` and `port` are unique. If `host` is omitted, then `port` must be unique.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "SidecarListenersResourceCreate",
@@ -315,7 +341,7 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 			Optional:    true,
 			// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
 			MaxItems:      1,
-			ConflictsWith: []string{S3SettingsKey, DynamoDbSettingsKey},
+			ConflictsWith: []string{S3SettingsKey, DynamoDbSettingsKey, SQLServerSettingsKey},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					DbVersionKey: {
@@ -352,7 +378,7 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 			Optional:    true,
 			// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
 			MaxItems:      1,
-			ConflictsWith: []string{MySQLSettingsKey, DynamoDbSettingsKey},
+			ConflictsWith: []string{MySQLSettingsKey, DynamoDbSettingsKey, SQLServerSettingsKey},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					ProxyModeKey: {
@@ -382,7 +408,7 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 			Optional:    true,
 			// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
 			MaxItems:      1,
-			ConflictsWith: []string{S3SettingsKey, MySQLSettingsKey},
+			ConflictsWith: []string{S3SettingsKey, MySQLSettingsKey, SQLServerSettingsKey},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					ProxyModeKey: {
@@ -398,6 +424,34 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 							"is currently not allowed and is reserved for future use.",
 						Type:     schema.TypeBool,
 						Optional: true,
+					},
+				},
+			},
+		},
+		SQLServerSettingsKey: {
+			Description: "SQL Server settings.",
+			Type:        schema.TypeSet,
+			Optional:    true,
+			// Notice the MaxItems: 1 here. This ensures that the user can only specify one this block.
+			MaxItems:      1,
+			ConflictsWith: []string{S3SettingsKey, MySQLSettingsKey, DynamoDbSettingsKey},
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					SQLServerVersionKey: {
+						Description: "Advertised SQL Server version. Required (and only relevant) for " +
+							"Listeners of type 'sqlserver' " +
+							"The format of the version should be <major>.<minor>.<build_number> " +
+							"API will validate that the version is a valid version number. " +
+							"Major version is an integer in range 0-255. " +
+							"Minor version is an integer in range 0-255. " +
+							"Build number is an integer in range 0-65535. " +
+							"Example: 16.0.1000 " +
+							"To get the version of the SQL Server runtime, run the following query: " +
+							"SELECT SERVERPROPERTY('productversion') " +
+							"Note: If the query returns a four part version number, only the first three parts " +
+							"should be used. Example: 16.0.1000.6 -> 16.0.1000",
+						Type:     schema.TypeString,
+						Required: true,
 					},
 				},
 			},

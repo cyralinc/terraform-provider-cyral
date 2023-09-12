@@ -2,6 +2,7 @@ package cyral
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"testing"
 
@@ -19,9 +20,9 @@ func sidecarListenerSidecarConfig() string {
 		"docker", "",
 	)
 }
-
 func TestSidecarListenerResource(t *testing.T) {
 	testSteps := make([]resource.TestStep, 0, 10)
+	testSteps = append(testSteps, settingsConflictsTest()...)
 	testSteps = append(testSteps, updateTest()...)
 	testSteps = append(testSteps, settingsTest()...)
 	testSteps = append(testSteps, multipleListenersAndImportTest()...)
@@ -135,6 +136,17 @@ func settingsTest() []resource.TestStep {
 			ProxyMode: true,
 		},
 	}
+	// SQL Server settings test step
+	sqlServerSettings := SidecarListener{
+		RepoTypes: []string{"sqlserver"},
+		NetworkAddress: &NetworkAddress{
+			Port: 8004,
+			Host: "https://sqlserver.test.com",
+		},
+		SQLServerSettings: &SQLServerSettings{
+			Version: "16.0.1000",
+		},
+	}
 
 	return []resource.TestStep{
 		setupSidecarListenerTestStep(
@@ -152,6 +164,10 @@ func settingsTest() []resource.TestStep {
 		setupSidecarListenerTestStep(
 			"dynamo_db_with_proxy",
 			dynamodb,
+		),
+		setupSidecarListenerTestStep(
+			"sqlserver_settings",
+			sqlServerSettings,
 		),
 	}
 }
@@ -208,6 +224,67 @@ func multipleListenersAndImportTest() []resource.TestStep {
 	return []resource.TestStep{
 		multipleListenersTest,
 		importTest,
+	}
+}
+
+// settingsConflictsTest generates a test matrix to ensure that conflicting settings
+// for different repository types produce appropriate errors.
+func settingsConflictsTest() []resource.TestStep {
+	// List of repo types with conflicting settings
+	repoTypes := []string{
+		"mysql",
+		"s3",
+		"dynamodb",
+		"sqlserver",
+	}
+	var testSteps []resource.TestStep
+	// Generate test steps for every pair of conflicting repo types
+	for i := 0; i < len(repoTypes); i++ {
+		for j := i + 1; j < len(repoTypes); j++ {
+			// Create a listener with all conflicting repo types
+			// Downstream test code will cut at [0], but this is fine for what we are testing here
+			listener := SidecarListener{
+				RepoTypes: repoTypes,
+				NetworkAddress: &NetworkAddress{
+					Port: 8000,
+					Host: "https://mysql.test.com",
+				},
+			}
+			// Apply conflicting settings to the listener
+			appendSetting(&listener, repoTypes[i])
+			appendSetting(&listener, repoTypes[j])
+			// Create a test step with the listener
+			testSteps = append(testSteps, resource.TestStep{
+				Config: sidecarListenerSidecarConfig() + setupSidecarListenerConfig("settings_conflict", listener),
+				ExpectError: regexp.MustCompile(
+					".*conflicts with.*",
+				),
+			})
+		}
+	}
+	return testSteps
+}
+
+// appendSetting applies settings for a given repository type to the provided listener.
+// The listener's repository types are updated accordingly using default values.
+func appendSetting(listener *SidecarListener, repoType string) {
+	switch repoType {
+	case "mysql":
+		listener.MySQLSettings = &MySQLSettings{
+			DbVersion: "5.7",
+		}
+	case "s3":
+		listener.S3Settings = &S3Settings{
+			ProxyMode: true,
+		}
+	case "dynamodb":
+		listener.DynamoDbSettings = &DynamoDbSettings{
+			ProxyMode: true,
+		}
+	case "sqlserver":
+		listener.SQLServerSettings = &SQLServerSettings{
+			Version: "16.0.1000",
+		}
 	}
 }
 
@@ -355,8 +432,8 @@ func setupSidecarListenerConfig(resourceName string, listener SidecarListener) s
 	}
 
 	var settings string
-	switch {
-	case listener.MySQLSettings != nil:
+
+	if listener.MySQLSettings != nil {
 		dbVersion, charSet := "null", "null"
 		if listener.MySQLSettings.CharacterSet != "" {
 			charSet = fmt.Sprintf(`"%s"`, listener.MySQLSettings.CharacterSet)
@@ -364,26 +441,38 @@ func setupSidecarListenerConfig(resourceName string, listener SidecarListener) s
 		if listener.MySQLSettings.DbVersion != "" {
 			dbVersion = fmt.Sprintf(`"%s"`, listener.MySQLSettings.DbVersion)
 		}
-		settings = fmt.Sprintf(
+		settings += fmt.Sprintf(
 			`
 		mysql_settings {
 			db_version = %s
 			character_set = %s
 		}`, dbVersion, charSet,
 		)
-	case listener.DynamoDbSettings != nil:
-		settings = fmt.Sprintf(
+	}
+
+	if listener.DynamoDbSettings != nil {
+		settings += fmt.Sprintf(
 			`
 		dynamodb_settings {
 			proxy_mode = %s
 		}`, strconv.FormatBool(listener.DynamoDbSettings.ProxyMode),
 		)
-	case listener.S3Settings != nil:
-		settings = fmt.Sprintf(
+	}
+
+	if listener.S3Settings != nil {
+		settings += fmt.Sprintf(
 			`
 		s3_settings {
 			proxy_mode = %s
 		}`, strconv.FormatBool(listener.S3Settings.ProxyMode),
+		)
+	}
+	if listener.SQLServerSettings != nil {
+		settings += fmt.Sprintf(
+			`
+		sqlserver_settings {
+			version = "%s"
+		}`, listener.SQLServerSettings.Version,
 		)
 	}
 
