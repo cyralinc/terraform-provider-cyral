@@ -451,7 +451,6 @@ func getSidecarListenerSchema() map[string]*schema.Schema {
 							"Note: If the query returns a four part version number, only the first three parts " +
 							"should be used. Example: 16.0.1000.6 -> 16.0.1000",
 						Type:     schema.TypeString,
-						Optional: false,
 						Required: true,
 					},
 				},
