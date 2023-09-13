@@ -36,7 +36,7 @@ func update1RepositoryConfAuthConfig() RepositoryConfAuthData {
 		AllowNativeAuth: true,
 		ClientTLS:       "enable",
 		RepoTLS:         "disable",
-		AuthType:        1,
+		AuthType:        "AWS_IAM",
 	}
 }
 
@@ -45,7 +45,7 @@ func update2RepositoryConfAuthConfig() RepositoryConfAuthData {
 		AllowNativeAuth: false,
 		ClientTLS:       "enable",
 		RepoTLS:         "disable",
-		AuthType:        0,
+		AuthType:        "ACCESS_TOKEN",
 	}
 }
 
@@ -139,7 +139,7 @@ func setupRepositoryConfAuthCheck(resName string, repositoryConf RepositoryConfA
 		resource.TestCheckResourceAttr(resourceFullName,
 			"repo_tls", repositoryConf.RepoTLS),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"auth_type", fmt.Sprintf("%d", repositoryConf.AuthType),
+			"auth_type", repositoryConf.AuthType,
 		),
 	)
 }
@@ -156,7 +156,7 @@ func formatRepositoryConfAuthDataIntoConfig(
 		client_tls = "%s"
 		identity_provider = "tf_test_conf_auth_okta"
 		repo_tls = "%s"
-		auth_type = %d
+		auth_type = "%s"
 	}`, resName, repositoryID, data.AllowNativeAuth, data.ClientTLS,
 		data.RepoTLS, data.AuthType)
 }

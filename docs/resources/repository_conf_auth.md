@@ -33,7 +33,9 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 ### Optional
 
 - `allow_native_auth` (Boolean) Should the communication allow native authentication?
-- `auth_type` (Number) Authentication type for this repository. 0 for Opaque Token, 1 for AWS IAM. Defaults to 0
+- `auth_type` (String) Authentication type for this repository. List of supported types:
+  - `ACCESS_TOKEN`
+  - `AWS_IAM`
 - `client_tls` (String) Is the repo Client using TLS? Default is "disable".
 - `identity_provider` (String) The ID (Alias) of the identity provider integration.
 - `repo_tls` (String) Is TLS enabled for the repository? Default is "disable".
