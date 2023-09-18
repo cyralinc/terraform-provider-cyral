@@ -10,6 +10,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
@@ -17,6 +18,8 @@ const (
 
 	defaultClientTLS = "disable"
 	defaultRepoTLS   = "disable"
+
+	defaultAuthType = "ACCESS_TOKEN"
 )
 
 type RepositoryConfAuthData struct {
@@ -25,6 +28,7 @@ type RepositoryConfAuthData struct {
 	ClientTLS        string  `json:"clientTLS"`
 	IdentityProvider string  `json:"identityProvider"`
 	RepoTLS          string  `json:"repoTLS"`
+	AuthType         string  `json:"authType"`
 }
 
 func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
@@ -48,6 +52,8 @@ func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
 
 	d.Set("repo_tls", data.RepoTLS)
 
+	d.Set("auth_type", data.AuthType)
+
 	return nil
 }
 
@@ -58,6 +64,7 @@ func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) error
 	}
 
 	data.AllowNativeAuth = d.Get("allow_native_auth").(bool)
+	data.AuthType = d.Get("auth_type").(string)
 	data.ClientTLS = d.Get("client_tls").(string)
 	data.IdentityProvider = d.Get("identity_provider").(string)
 	data.RepoTLS = d.Get("repo_tls").(string)
@@ -169,6 +176,11 @@ func DeleteConfAuthConfig() ResourceOperationConfig {
 	}
 }
 
+var authTypes = []string{
+	"ACCESS_TOKEN",
+	"AWS_IAM",
+}
+
 func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -203,6 +215,14 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     defaultRepoTLS,
+			},
+			"auth_type": {
+				Description: "Authentication type for this repository. List of supported types: " +
+					supportedTypesMarkdown(authTypes),
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      defaultAuthType,
+				ValidateFunc: validation.StringInSlice(authTypes, false),
 			},
 		},
 	}

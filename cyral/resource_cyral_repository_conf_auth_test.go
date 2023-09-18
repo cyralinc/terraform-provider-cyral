@@ -36,6 +36,7 @@ func update1RepositoryConfAuthConfig() RepositoryConfAuthData {
 		AllowNativeAuth: true,
 		ClientTLS:       "enable",
 		RepoTLS:         "disable",
+		AuthType:        "AWS_IAM",
 	}
 }
 
@@ -44,6 +45,7 @@ func update2RepositoryConfAuthConfig() RepositoryConfAuthData {
 		AllowNativeAuth: false,
 		ClientTLS:       "enable",
 		RepoTLS:         "disable",
+		AuthType:        "ACCESS_TOKEN",
 	}
 }
 
@@ -130,11 +132,15 @@ func setupRepositoryConfAuthCheck(resName string, repositoryConf RepositoryConfA
 	resourceFullName := fmt.Sprintf("cyral_repository_conf_auth.%s", resName)
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
-			"allow_native_auth", fmt.Sprintf("%t", repositoryConf.AllowNativeAuth)),
+			"allow_native_auth", fmt.Sprintf("%t", repositoryConf.AllowNativeAuth),
+		),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"client_tls", repositoryConf.ClientTLS),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"repo_tls", repositoryConf.RepoTLS),
+		resource.TestCheckResourceAttr(resourceFullName,
+			"auth_type", repositoryConf.AuthType,
+		),
 	)
 }
 
@@ -150,6 +156,7 @@ func formatRepositoryConfAuthDataIntoConfig(
 		client_tls = "%s"
 		identity_provider = "tf_test_conf_auth_okta"
 		repo_tls = "%s"
+		auth_type = "%s"
 	}`, resName, repositoryID, data.AllowNativeAuth, data.ClientTLS,
-		data.RepoTLS)
+		data.RepoTLS, data.AuthType)
 }

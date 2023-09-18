@@ -5,8 +5,8 @@ services:
     image: golang:1.19
     container_name: terraform_provider_cyral
     volumes:
-      - .:/go/src/cyral
-    working_dir: /go/src/cyral
+      - .:/go/src/terraform-provider-cyral
+    working_dir: /go/src/terraform-provider-cyral
 
   build:
     build: .
