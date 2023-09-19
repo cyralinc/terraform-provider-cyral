@@ -35,7 +35,7 @@ type AccessRulesResponse struct {
 
 // WriteToSchema is used when reading a resource. It takes whatever the API
 // read call returned and translates it into the Terraform schema.
-func (arr *AccessRulesResponse) WriteToSchema(d *schema.ResourceData) error {
+func (arr *AccessRulesResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.SetId(
 		marshalComposedID(
 			[]string{
@@ -78,7 +78,7 @@ func (arr *AccessRulesResponse) WriteToSchema(d *schema.ResourceData) error {
 // Essentially, it translates the stuff from the .tf file into whatever the
 // API expects. The `AccessRulesResource` will be marshalled verbatim, so
 // make sure that it matches *exactly* what the API needs.
-func (arr *AccessRulesResource) ReadFromSchema(d *schema.ResourceData) error {
+func (arr *AccessRulesResource) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	rules := d.Get("rule").([]interface{})
 	var accessRules []*AccessRule
 

@@ -32,11 +32,11 @@ type RequestErrorHandler interface {
 }
 
 type ResourceData interface {
-	ReadFromSchema(d *schema.ResourceData) error
+	ReadFromSchema(d *schema.ResourceData, c *client.Client) error
 }
 
 type ResponseData interface {
-	WriteToSchema(d *schema.ResourceData) error
+	WriteToSchema(d *schema.ResourceData, c *client.Client) error
 }
 
 type ResourceOperationConfig struct {
@@ -115,7 +115,7 @@ func HandleRequests(
 			var resourceData ResourceData
 			if operation.Config.NewResourceData != nil {
 				if resourceData = operation.Config.NewResourceData(); resourceData != nil {
-					if err := resourceData.ReadFromSchema(d); err != nil {
+					if err := resourceData.ReadFromSchema(d, c); err != nil {
 						return createError(
 							fmt.Sprintf("Unable to %s resource", operation.Type),
 							err.Error(),
@@ -144,7 +144,7 @@ func HandleRequests(
 					}
 					log.Printf("[DEBUG] Response body (unmarshalled): %#v", responseData)
 
-					if err := responseData.WriteToSchema(d); err != nil {
+					if err := responseData.WriteToSchema(d, c); err != nil {
 						return createError(
 							fmt.Sprintf("Unable to %s resource", operation.Type),
 							err.Error(),
@@ -163,7 +163,7 @@ type IDBasedResponse struct {
 	ID string `json:"id"`
 }
 
-func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData) error {
+func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.SetId(response.ID)
 	return nil
 }

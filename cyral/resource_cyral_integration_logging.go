@@ -80,7 +80,7 @@ func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, erro
 	return configType, configScheme, nil
 }
 
-func (resource *LoggingIntegration) WriteToSchema(d *schema.ResourceData) error {
+func (resource *LoggingIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	if err := d.Set("name", resource.Name); err != nil {
 		return fmt.Errorf("error setting 'name': %w", err)
 	}
@@ -101,7 +101,7 @@ func (resource *LoggingIntegration) WriteToSchema(d *schema.ResourceData) error 
 }
 
 // ReadFromSchema is used to parse the resource schema into a logging integration structure that is expected by the API
-func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.ResourceData) error {
+func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	integrationLogConfig.Id = d.Id() //Get("integration_id").(string)
 	integrationLogConfig.Name = d.Get("name").(string)
 	integrationLogConfig.ReceiveAuditLogs = d.Get("receive_audit_logs").(bool)

@@ -22,7 +22,7 @@ type CreateGenericSAMLRequest struct {
 	IdpDescriptor *GenericSAMLIdpDescriptor `json:"idpDescriptor,omitempty"`
 }
 
-func (req *CreateGenericSAMLRequest) ReadFromSchema(d *schema.ResourceData) error {
+func (req *CreateGenericSAMLRequest) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	req.SAMLDraftId = d.Get("saml_draft_id").(string)
 	if url := d.Get("idp_metadata_url").(string); url != "" {
 		req.IdpMetadata = &GenericSAMLIdpMetadata{
@@ -43,16 +43,16 @@ type CreateGenericSAMLResponse struct {
 	Integration GenericSAMLIntegration `json:"integration"`
 }
 
-func (resp *CreateGenericSAMLResponse) WriteToSchema(d *schema.ResourceData) error {
-	return resp.Integration.WriteToSchema(d)
+func (resp *CreateGenericSAMLResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+	return resp.Integration.WriteToSchema(d, c)
 }
 
 type ReadGenericSAMLResponse struct {
 	IdentityProvider GenericSAMLIntegration `json:"identityProvider"`
 }
 
-func (resp *ReadGenericSAMLResponse) WriteToSchema(d *schema.ResourceData) error {
-	return resp.IdentityProvider.WriteToSchema(d)
+func (resp *ReadGenericSAMLResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+	return resp.IdentityProvider.WriteToSchema(d, c)
 }
 
 func CreateGenericSAMLConfig() ResourceOperationConfig {

@@ -18,14 +18,14 @@ type GetOrUpdateAccessGateway struct {
 	AccessGateway *AccessGateway `json:"accessGateway,omitempty"`
 }
 
-func (r *GetOrUpdateAccessGateway) WriteToSchema(d *schema.ResourceData) error {
+func (r *GetOrUpdateAccessGateway) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.SetId(d.Get(RepositoryIDKey).(string))
 	d.Set(SidecarIDKey, r.AccessGateway.SidecarId)
 	d.Set(BindingIDKey, r.AccessGateway.BindingId)
 	return nil
 }
 
-func (r *GetOrUpdateAccessGateway) ReadFromSchema(d *schema.ResourceData) error {
+func (r *GetOrUpdateAccessGateway) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	r.AccessGateway = &AccessGateway{
 		BindingId: d.Get(BindingIDKey).(string),
 		SidecarId: d.Get(SidecarIDKey).(string),

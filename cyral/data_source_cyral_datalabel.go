@@ -13,7 +13,7 @@ import (
 
 type GetDataLabelResponse DataLabel
 
-func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData) error {
+func (resp *GetDataLabelResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	if err := writeDataLabelsToDataSourceSchema([]*DataLabel{(*DataLabel)(resp)}, d); err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ type GetDataLabelsResponse struct {
 	Labels []*DataLabel `json:"labels"`
 }
 
-func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData) error {
+func (resp *GetDataLabelsResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	if err := writeDataLabelsToDataSourceSchema(resp.Labels, d); err != nil {
 		return err
 	}

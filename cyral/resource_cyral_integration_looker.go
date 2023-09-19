@@ -14,14 +14,14 @@ type LookerIntegration struct {
 	URL          string `json:"url"`
 }
 
-func (data LookerIntegration) WriteToSchema(d *schema.ResourceData) error {
+func (data LookerIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.Set("client_secret", data.ClientSecret)
 	d.Set("client_id", data.ClientId)
 	d.Set("url", data.URL)
 	return nil
 }
 
-func (data *LookerIntegration) ReadFromSchema(d *schema.ResourceData) error {
+func (data *LookerIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	data.ClientSecret = d.Get("client_secret").(string)
 	data.ClientId = d.Get("client_id").(string)
 	data.URL = d.Get("url").(string)

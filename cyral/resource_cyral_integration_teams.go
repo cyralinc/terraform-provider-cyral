@@ -13,13 +13,13 @@ type MsTeamsIntegration struct {
 	URL  string `json:"url"`
 }
 
-func (data MsTeamsIntegration) WriteToSchema(d *schema.ResourceData) error {
+func (data MsTeamsIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.Set("name", data.Name)
 	d.Set("url", data.URL)
 	return nil
 }
 
-func (data *MsTeamsIntegration) ReadFromSchema(d *schema.ResourceData) error {
+func (data *MsTeamsIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	data.Name = d.Get("name").(string)
 	data.URL = d.Get("url").(string)
 	return nil

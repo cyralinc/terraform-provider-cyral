@@ -15,14 +15,14 @@ type ELKIntegration struct {
 	ESURL     string `json:"esUrl"`
 }
 
-func (data ELKIntegration) WriteToSchema(d *schema.ResourceData) error {
+func (data ELKIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.Set("name", data.Name)
 	d.Set("kibana_url", data.KibanaURL)
 	d.Set("es_url", data.ESURL)
 	return nil
 }
 
-func (data *ELKIntegration) ReadFromSchema(d *schema.ResourceData) error {
+func (data *ELKIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	data.ID = d.Id()
 	data.Name = d.Get("name").(string)
 	data.KibanaURL = d.Get("kibana_url").(string)

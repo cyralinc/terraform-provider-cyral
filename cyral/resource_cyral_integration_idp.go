@@ -451,7 +451,7 @@ func idpDefaultValues(identityProvider, fieldName string) interface{} {
 	return defaultValuesMap[fieldName]
 }
 
-func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) error {
+func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	samlSetting := data.SAMLSetting
 	samlp := make([]interface{}, 0, 1)
 	if samlSetting.Samlp != nil {
@@ -502,7 +502,7 @@ func (data SAMLIntegrationData) WriteToSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData) error {
+func (data *SAMLIntegrationData) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	samlp := new(IdentityProviderConfig)
 	for _, samlpMap := range d.Get("samlp").(*schema.Set).List() {
 		samlpMap := samlpMap.(map[string]interface{})
@@ -560,7 +560,7 @@ type AliasBasedResponse struct {
 	Alias string `json:"alias"`
 }
 
-func (response AliasBasedResponse) WriteToSchema(d *schema.ResourceData) error {
+func (response AliasBasedResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.SetId(response.Alias)
 	return nil
 }
@@ -571,10 +571,10 @@ type IdentityProviderData struct {
 	Keycloak KeycloakProvider `json:"keycloakProvider"`
 }
 
-func (data IdentityProviderData) WriteToSchema(d *schema.ResourceData) error {
+func (data IdentityProviderData) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	return nil
 }
 
-func (data *IdentityProviderData) ReadFromSchema(d *schema.ResourceData) error {
+func (data *IdentityProviderData) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	return nil
 }

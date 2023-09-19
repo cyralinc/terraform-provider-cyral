@@ -14,7 +14,7 @@ type ListIntegrationLogsResponse struct {
 	Integrations []LoggingIntegration `json:"integrations"`
 }
 
-func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) error {
+func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	integrations := make([]interface{}, len(resp.Integrations))
 	for i, integration := range resp.Integrations {
 		// write in config scheme

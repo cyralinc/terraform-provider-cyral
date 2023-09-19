@@ -42,7 +42,7 @@ type IntegrationConfExtensionParameters struct {
 	APIHostname    string `json:"apiHostname,omitempty"`
 }
 
-func (data *IntegrationConfExtension) WriteToSchema(d *schema.ResourceData) error {
+func (data *IntegrationConfExtension) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.Set("id", data.ID)
 	d.Set("name", data.Name)
 
@@ -64,7 +64,7 @@ func (data *IntegrationConfExtension) WriteToSchema(d *schema.ResourceData) erro
 	return nil
 }
 
-func (data *IntegrationConfExtension) ReadFromSchema(d *schema.ResourceData) error {
+func (data *IntegrationConfExtension) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	data.ID = d.Get("id").(string)
 	data.Name = d.Get("name").(string)
 

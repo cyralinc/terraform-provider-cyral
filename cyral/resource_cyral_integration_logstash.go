@@ -16,7 +16,7 @@ type LogstashIntegration struct {
 	UseTLS                     bool   `json:"useTLS"`
 }
 
-func (data LogstashIntegration) WriteToSchema(d *schema.ResourceData) error {
+func (data LogstashIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	d.Set("name", data.Name)
 	d.Set("endpoint", data.Endpoint)
 	d.Set("use_mutual_authentication", data.UseMutualAuthentication)
@@ -25,7 +25,7 @@ func (data LogstashIntegration) WriteToSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData) error {
+func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	data.Name = d.Get("name").(string)
 	data.Endpoint = d.Get("endpoint").(string)
 	data.UseMutualAuthentication = d.Get("use_mutual_authentication").(bool)

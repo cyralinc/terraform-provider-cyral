@@ -76,12 +76,12 @@ type CreateListenerAPIResponse struct {
 	ListenerId string `json:"listenerId"`
 }
 
-func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(marshalComposedID([]string{d.Get(SidecarIDKey).(string), c.ListenerId}, "/"))
-	return d.Set(ListenerIDKey, c.ListenerId)
+func (response CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+	d.SetId(marshalComposedID([]string{d.Get(SidecarIDKey).(string), response.ListenerId}, "/"))
+	return d.Set(ListenerIDKey, response.ListenerId)
 }
 
-func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
+func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
 	log.Printf("[DEBUG] Init ReadSidecarListenerAPIResponse.WriteToSchema")
 	if data.ListenerConfig != nil {
 		_ = d.Set(ListenerIDKey, data.ListenerConfig.ListenerId)
@@ -206,7 +206,7 @@ type SidecarListenerResource struct {
 }
 
 // ReadFromSchema populates the SidecarListenerResource from the schema
-func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData) error {
+func (s *SidecarListenerResource) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
 	s.ListenerConfig = SidecarListener{
 		SidecarId:  d.Get(SidecarIDKey).(string),
 		ListenerId: d.Get(ListenerIDKey).(string),
