@@ -122,6 +122,7 @@ func Provider() *schema.Provider {
 			"cyral_repository_access_gateway":        resourceRepositoryAccessGateway(),
 			"cyral_role":                             resourceRole(),
 			"cyral_role_sso_groups":                  resourceRoleSSOGroups(),
+			"cyral_service_account":                  resourceServiceAccount(),
 			"cyral_sidecar":                          resourceSidecar(),
 			"cyral_sidecar_credentials":              resourceSidecarCredentials(),
 			"cyral_sidecar_listener":                 resourceSidecarListener(),

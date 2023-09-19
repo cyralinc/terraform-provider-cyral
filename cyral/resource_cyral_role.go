@@ -17,7 +17,7 @@ import (
 type RoleDataRequest struct {
 	Name string `json:"name,omitempty"`
 	// Permissions correspond to Roles in API.
-	Permissions []string `json:"roles,omitempty"`
+	PermissionIDs []string `json:"roles,omitempty"`
 }
 
 // Roles correspond to Groups in API.
@@ -59,62 +59,7 @@ func resourceRole() *schema.Resource {
 				Optional:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"modify_sidecars_and_repositories": {
-							Description: "Allows modifying sidecars and repositories for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_users": {
-							Description: "Allows modifying users for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_policies": {
-							Description: "Allows modifying policies for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"view_audit_logs": {
-							Description: "Allows viewing audit logs for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_integrations": {
-							Description: "Allows modifying integrations for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_roles": {
-							Description: "Allows modifying roles for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"view_datamaps": {
-							Description: "Allows viewing datamaps for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"approval_management": {
-							Description: "Allows approving or denying approval requests. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"repo_crawler": {
-							Description: "Allows reporting of cyral_repository_user_accounts. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-					},
+					Schema: permissionsSchema,
 				},
 			},
 		},
@@ -226,29 +171,19 @@ func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleDataRequest, error) {
-	var resourcePermissionsIds []string
+	var permissionIds []string
+	var err error
 
-	if permissions, ok := d.GetOk("permissions"); ok {
-		permissions := permissions.(*schema.Set).List()
-
-		resourcePermissions := permissions[0].(map[string]interface{})
-
-		apiPermissions, err := getPermissionsFromAPI(c)
+	if permissionsInterface, ok := d.GetOk("permissions"); ok {
+		permissionIds, err = NewPermissionIDsFromInterface(permissionsInterface, c)
 		if err != nil {
 			return RoleDataRequest{}, err
-		}
-
-		for _, apiPermission := range apiPermissions {
-			resourcePermission := resourcePermissions[formatPermissionName(apiPermission.Name)]
-			if v, ok := resourcePermission.(bool); ok && v {
-				resourcePermissionsIds = append(resourcePermissionsIds, apiPermission.Id)
-			}
 		}
 	}
 
 	return RoleDataRequest{
-		Name:        d.Get("name").(string),
-		Permissions: resourcePermissionsIds,
+		Name:          d.Get("name").(string),
+		PermissionIDs: permissionIds,
 	}, nil
 }
 
