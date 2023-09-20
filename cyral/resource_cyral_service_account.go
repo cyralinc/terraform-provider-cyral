@@ -25,7 +25,7 @@ var (
 			return fmt.Sprintf(
 				"https://%s/v1/users/serviceAccounts/%s",
 				c.ControlPlane,
-				d.Get(serviceAccountResourceClientIDKey),
+				d.Id(),
 			)
 		},
 		NewResponseData: func(_ *schema.ResourceData) ResponseData {
@@ -38,7 +38,9 @@ var (
 func resourceServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages a Cyral Service Account (A.k.a: " +
-			"[Cyral API Access Key](https://cyral.com/docs/api-ref/api-intro/#api-access-key)).",
+			"[Cyral API Access Key](https://cyral.com/docs/api-ref/api-intro/#api-access-key))." +
+			"\n\n-> **Note** This resource does not support importing, since the client secret cannot " +
+			"be read after the resource creation.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "ServiceAccountCreate",
@@ -67,7 +69,7 @@ func resourceServiceAccount() *schema.Resource {
 					return fmt.Sprintf(
 						"https://%s/v1/users/serviceAccounts/%s",
 						c.ControlPlane,
-						d.Get(serviceAccountResourceClientIDKey),
+						d.Id(),
 					)
 				},
 				NewResourceData: func() ResourceData {
@@ -84,7 +86,7 @@ func resourceServiceAccount() *schema.Resource {
 					return fmt.Sprintf(
 						"https://%s/v1/users/serviceAccounts/%s",
 						c.ControlPlane,
-						d.Get(serviceAccountResourceClientIDKey),
+						d.Id(),
 					)
 				},
 			},
@@ -127,10 +129,6 @@ func resourceServiceAccount() *schema.Resource {
 				Computed:  true,
 				Sensitive: true,
 			},
-		},
-
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
