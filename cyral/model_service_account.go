@@ -11,7 +11,7 @@ type ServiceAccount struct {
 	DisplayName  string `json:"displayName"`
 	ClientID     string `json:"clientId,omitempty"`
 	ClientSecret string `json:"clientSecret,omitempty"`
-	// PermissionIDs correspond to Roles in Cyral APIs.
+	// Permissions correspond to Roles in Cyral APIs.
 	PermissionIDs []string `json:"roleIds"`
 }
 
@@ -36,7 +36,7 @@ func (serviceAccount *ServiceAccount) WriteToSchema(d *schema.ResourceData, c *c
 	if isCreateResponse {
 		d.Set(serviceAccountResourceClientSecretKey, serviceAccount.ClientSecret)
 	}
-	permissionsInterfaceList, err := serviceAccount.PermissionIDsToInterfaceList(c)
+	permissionsInterfaceList, err := PermissionIDsToInterfaceList(serviceAccount.PermissionIDs, c)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func NewPermissionIDsFromInterface(permissionsInterface any, c *client.Client) (
 	if len(permissionsList) == 0 {
 		return nil, nil
 	}
-	resourcePermissions := permissionsList[0].(map[string]interface{})
+	resourcePermissions := permissionsList[0].(map[string]any)
 	apiPermissions, err := getPermissionsFromAPI(c)
 	if err != nil {
 		return nil, fmt.Errorf("error getting permissions from API")
@@ -67,18 +67,17 @@ func NewPermissionIDsFromInterface(permissionsInterface any, c *client.Client) (
 	return resourcePermissionIds, nil
 }
 
-func (serviceAccount *ServiceAccount) PermissionIDsToInterfaceList(c *client.Client) ([]any, error) {
-	if serviceAccount.PermissionIDs == nil {
+func PermissionIDsToInterfaceList(permissionIDs []string, c *client.Client) ([]any, error) {
+	if permissionIDs == nil {
 		return nil, nil
 	}
 	apiPermissions, err := getPermissionsFromAPI(c)
 	if err != nil {
 		return nil, fmt.Errorf("error getting permissions from API")
 	}
-
-	permissionsInterfaceList := make([]interface{}, 1)
-	permissionsMap := make(map[string]interface{})
-	for _, permissionID := range serviceAccount.PermissionIDs {
+	permissionsInterfaceList := make([]any, 1)
+	permissionsMap := make(map[string]any)
+	for _, permissionID := range permissionIDs {
 		for _, apiPermission := range apiPermissions {
 			if permissionID == apiPermission.Id {
 				permissionsMap[formatPermissionName(apiPermission.Name)] = true

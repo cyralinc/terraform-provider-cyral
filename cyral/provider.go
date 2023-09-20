@@ -131,7 +131,7 @@ func Provider() *schema.Provider {
 	}
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 	log.Printf("[DEBUG] Init providerConfigure")
 
 	clientID, clientSecret, diags := getCredentials(d)
