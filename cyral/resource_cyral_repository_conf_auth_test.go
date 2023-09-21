@@ -17,9 +17,9 @@ func repositoryConfAuthDependencyConfig() string {
 	return formatBasicRepositoryIntoConfig(
 		basicRepositoryResName,
 		accTestName(repositoryConfAuthResourceName, "repository"),
-		"mysql",
-		"http://mysql.local/",
-		3306,
+		"mongodb",
+		"http://mongodb.local/",
+		27017,
 	)
 }
 
@@ -28,6 +28,7 @@ func initialRepositoryConfAuthConfig() RepositoryConfAuthData {
 		AllowNativeAuth: false,
 		ClientTLS:       "disable",
 		RepoTLS:         "enable",
+		AuthType:        "ACCESS_TOKEN",
 	}
 }
 
@@ -67,6 +68,7 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 			RepositoryConfAuthData{
 				ClientTLS: defaultClientTLS,
 				RepoTLS:   defaultRepoTLS,
+				AuthType:  defaultAuthType,
 			},
 		),
 	}
@@ -74,7 +76,6 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 
 func TestAccRepositoryConfAuthResource(t *testing.T) {
 	testMinimal := repositoryConfAuthMinimalConfigTest("main_test")
-
 	mainTest := setupRepositoryConfAuthTest("main_test", initialRepositoryConfAuthConfig())
 	mainTestUpdate1 := setupRepositoryConfAuthTest("main_test", update1RepositoryConfAuthConfig())
 	mainTestUpdate2 := setupRepositoryConfAuthTest("main_test", update2RepositoryConfAuthConfig())
@@ -83,11 +84,9 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			testMinimal,
-
 			mainTest,
 			mainTestUpdate1,
 			mainTestUpdate2,
-
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
