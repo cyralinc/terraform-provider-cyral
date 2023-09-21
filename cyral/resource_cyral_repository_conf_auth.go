@@ -19,8 +19,15 @@ const (
 	defaultClientTLS = "disable"
 	defaultRepoTLS   = "disable"
 
-	defaultAuthType = "ACCESS_TOKEN"
+	accessTokenAuthType = "ACCESS_TOKEN"
+	awsIAMAuthType      = "AWS_IAM"
+	defaultAuthType     = accessTokenAuthType
 )
+
+var authTypes = []string{
+	accessTokenAuthType,
+	awsIAMAuthType,
+}
 
 type RepositoryConfAuthData struct {
 	RepoID           *string `json:"-"`
@@ -176,11 +183,6 @@ func DeleteConfAuthConfig() ResourceOperationConfig {
 	}
 }
 
-var authTypes = []string{
-	"ACCESS_TOKEN",
-	"AWS_IAM",
-}
-
 func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -217,8 +219,9 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 				Default:     defaultRepoTLS,
 			},
 			"auth_type": {
-				Description: "Authentication type for this repository. List of supported types: " +
-					supportedTypesMarkdown(authTypes),
+				Description: fmt.Sprintf("Authentication type for this repository. **Note**: `%s` is currently "+
+					"only supported by `%s` repo type. List of supported values: %s",
+					awsIAMAuthType, MongoDB, supportedTypesMarkdown(authTypes)),
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultAuthType,

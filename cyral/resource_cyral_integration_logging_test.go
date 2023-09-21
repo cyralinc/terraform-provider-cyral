@@ -417,7 +417,7 @@ func setupLogsTest(integrationData LoggingIntegration) (string, resource.TestChe
 					},
 				),
 				resource.TestCheckResourceAttr(
-					integrationELKResourceName,
+					integrationLogsFullTerraformResourceName,
 					"fluent_bit.0.skip_validate",
 					fmt.Sprint(integrationData.FluentBit.SkipValidate),
 				),

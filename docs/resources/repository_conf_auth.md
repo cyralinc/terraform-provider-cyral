@@ -33,7 +33,7 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 ### Optional
 
 - `allow_native_auth` (Boolean) Should the communication allow native authentication?
-- `auth_type` (String) Authentication type for this repository. List of supported types:
+- `auth_type` (String) Authentication type for this repository. **Note**: `AWS_IAM` is currently only supported by `mongodb` repo type. List of supported values:
   - `ACCESS_TOKEN`
   - `AWS_IAM`
 - `client_tls` (String) Is the repo Client using TLS? Default is "disable".
