@@ -25,13 +25,7 @@ type RoleDataResponse struct {
 	Id   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	// Permissions correspond to Roles in API.
-	Permissions []*PermissionInfo `json:"roles,omitempty"`
-}
-
-type PermissionInfo struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Permissions []*Permission `json:"roles,omitempty"`
 }
 
 func resourceRole() *schema.Resource {
@@ -187,7 +181,7 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 	}, nil
 }
 
-func flattenPermissions(permissions []*PermissionInfo) []interface{} {
+func flattenPermissions(permissions []*Permission) []interface{} {
 	flatPermissions := make([]interface{}, 1)
 
 	permissionsMap := make(map[string]interface{})
@@ -206,17 +200,17 @@ func formatPermissionName(permissionName string) string {
 	return permissionName
 }
 
-func getPermissionsFromAPI(c *client.Client) ([]*PermissionInfo, error) {
+func getPermissionsFromAPI(c *client.Client) ([]*Permission, error) {
 	url := fmt.Sprintf("https://%s/v1/users/roles", c.ControlPlane)
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
-		return []*PermissionInfo{}, err
+		return []*Permission{}, err
 	}
 
 	response := RoleDataResponse{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return []*PermissionInfo{}, err
+		return []*Permission{}, err
 	}
 
 	return response.Permissions, nil

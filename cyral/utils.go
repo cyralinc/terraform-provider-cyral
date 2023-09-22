@@ -14,6 +14,8 @@ import (
 // Common keys.
 const (
 	IDKey           = "id"
+	NameKey         = "name"
+	DescriptionKey  = "description"
 	HostKey         = "host"
 	PortKey         = "port"
 	TypeKey         = "type"
