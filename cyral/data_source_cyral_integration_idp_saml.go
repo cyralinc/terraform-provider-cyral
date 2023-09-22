@@ -19,7 +19,7 @@ type ListGenericSAMLIdpsResponse struct {
 	IdentityProviders []GenericSAMLIntegration `json:"identityProviders"`
 }
 
-func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData) error {
 	var idpList []interface{}
 	for _, idp := range resp.IdentityProviders {
 		var idpDescriptor []interface{}

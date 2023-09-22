@@ -18,7 +18,7 @@ type SplunkIntegration struct {
 	CyralActivityLogsEnabled bool   `json:"cyralActivityLogsEnabled"`
 }
 
-func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("access_token", data.AccessToken)
 	d.Set("port", data.Port)
@@ -28,7 +28,7 @@ func (data SplunkIntegration) WriteToSchema(d *schema.ResourceData, c *client.Cl
 	return nil
 }
 
-func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.AccessToken = d.Get("access_token").(string)
 	data.Port = d.Get("port").(int)

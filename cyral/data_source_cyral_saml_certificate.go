@@ -40,7 +40,7 @@ type SAMLCertificateData struct {
 	Certificate string `json:"certificate,omitempty"`
 }
 
-func (data SAMLCertificateData) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data SAMLCertificateData) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(uuid.New().String())
 	d.Set("certificate", data.Certificate)
 	return nil

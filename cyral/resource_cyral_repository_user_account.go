@@ -81,7 +81,7 @@ type CreateUserAccountResponse struct {
 	UserAccountID string `json:"userAccountID,omitempty"`
 }
 
-func (resp *CreateUserAccountResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (resp *CreateUserAccountResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(marshalComposedID(
 		[]string{
 			d.Get("repository_id").(string),
@@ -92,7 +92,7 @@ func (resp *CreateUserAccountResponse) WriteToSchema(d *schema.ResourceData, c *
 	return nil
 }
 
-func (resource *UserAccountResource) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (resource *UserAccountResource) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("user_account_id", resource.UserAccountID); err != nil {
 		return fmt.Errorf("error setting 'user_account_id': %w", err)
 	}
@@ -205,7 +205,7 @@ func (resource *UserAccountResource) WriteToSchema(d *schema.ResourceData, c *cl
 
 // ReadFromSchema is used to translate a .tf file into whatever the
 // UserAccounts API expects.
-func (userAccount *UserAccountResource) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (userAccount *UserAccountResource) ReadFromSchema(d *schema.ResourceData) error {
 	// Set basic values required fields (UserID is computed).
 	userAccount.Name = d.Get("name").(string)
 	userAccount.AuthDatabaseName = d.Get("auth_database_name").(string)

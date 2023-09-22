@@ -32,11 +32,11 @@ type RequestErrorHandler interface {
 }
 
 type ResourceData interface {
-	ReadFromSchema(d *schema.ResourceData, c *client.Client) error
+	ReadFromSchema(d *schema.ResourceData) error
 }
 
 type ResponseData interface {
-	WriteToSchema(d *schema.ResourceData, c *client.Client) error
+	WriteToSchema(d *schema.ResourceData) error
 }
 
 type ResourceOperationConfig struct {
@@ -48,7 +48,7 @@ type ResourceOperationConfig struct {
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
-func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
+func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
 	return HandleRequests(resourceOperations)
 }
 
@@ -106,8 +106,8 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 
 func HandleRequests(
 	resourceOperations []ResourceOperation,
-) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
-	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		for _, operation := range resourceOperations {
 			log.Printf("[DEBUG] Init %s", operation.Config.Name)
 			c := m.(*client.Client)
@@ -115,7 +115,7 @@ func HandleRequests(
 			var resourceData ResourceData
 			if operation.Config.NewResourceData != nil {
 				if resourceData = operation.Config.NewResourceData(); resourceData != nil {
-					if err := resourceData.ReadFromSchema(d, c); err != nil {
+					if err := resourceData.ReadFromSchema(d); err != nil {
 						return createError(
 							fmt.Sprintf("Unable to %s resource", operation.Type),
 							err.Error(),
@@ -144,7 +144,7 @@ func HandleRequests(
 					}
 					log.Printf("[DEBUG] Response body (unmarshalled): %#v", responseData)
 
-					if err := responseData.WriteToSchema(d, c); err != nil {
+					if err := responseData.WriteToSchema(d); err != nil {
 						return createError(
 							fmt.Sprintf("Unable to %s resource", operation.Type),
 							err.Error(),
@@ -163,7 +163,7 @@ type IDBasedResponse struct {
 	ID string `json:"id"`
 }
 
-func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (response IDBasedResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(response.ID)
 	return nil
 }

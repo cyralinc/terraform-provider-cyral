@@ -15,7 +15,7 @@ type GetUserGroupsResponse struct {
 	Groups []*UserGroup `json:"groups,omitempty"`
 }
 
-func (resp *GetUserGroupsResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (resp *GetUserGroupsResponse) WriteToSchema(d *schema.ResourceData) error {
 	nameFilter := d.Get("name").(string)
 	var nameFilterRegexp *regexp.Regexp
 	if nameFilter != "" {

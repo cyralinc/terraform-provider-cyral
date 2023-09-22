@@ -1,7 +1,6 @@
 package cyral
 
 import (
-	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -10,7 +9,7 @@ type RegoPolicyInstancePayload struct {
 	Duration           string             `json:"duration,omitempty"`
 }
 
-func (policy *RegoPolicyInstancePayload) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (policy *RegoPolicyInstancePayload) ReadFromSchema(d *schema.ResourceData) error {
 	policy.RegoPolicyInstance.Name = d.Get(regoPolicyInstanceNameKey).(string)
 	policy.RegoPolicyInstance.Description = d.Get(regoPolicyInstanceDescriptionKey).(string)
 	policy.RegoPolicyInstance.TemplateID = d.Get(regoPolicyInstanceTemplateIDKey).(string)
@@ -34,7 +33,7 @@ type RegoPolicyInstance struct {
 	Created     *RegoPolicyInstanceChangeInfo `json:"created,omitempty"`
 }
 
-func (policy *RegoPolicyInstance) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (policy *RegoPolicyInstance) WriteToSchema(d *schema.ResourceData) error {
 	d.Set(regoPolicyInstanceNameKey, policy.Name)
 	d.Set(regoPolicyInstanceDescriptionKey, policy.Description)
 	d.Set(regoPolicyInstanceTemplateIDKey, policy.TemplateID)
@@ -135,7 +134,7 @@ type RegoPolicyInstanceKey struct {
 	ID       string `json:"id"`
 }
 
-func (key RegoPolicyInstanceKey) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (key RegoPolicyInstanceKey) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(marshalComposedID([]string{key.Category, key.ID}, "/"))
 	d.Set(regoPolicyInstancePolicyIDKey, key.ID)
 	return nil

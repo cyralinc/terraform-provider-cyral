@@ -14,13 +14,13 @@ type DatadogIntegration struct {
 	APIKey string `json:"apiKey"`
 }
 
-func (data DatadogIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data DatadogIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("api_key", data.APIKey)
 	return nil
 }
 
-func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.ID = d.Id()
 	data.Name = d.Get("name").(string)
 	data.APIKey = d.Get("api_key").(string)

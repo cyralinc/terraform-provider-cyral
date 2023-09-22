@@ -38,7 +38,7 @@ type RepositoryConfAuthData struct {
 	AuthType         string  `json:"authType"`
 }
 
-func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
 	if data.RepoID != nil {
 		d.Set("repository_id", data.RepoID)
 	}
@@ -64,7 +64,7 @@ func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData, c *clie
 	return nil
 }
 
-func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) error {
 	if repoIdData, hasRepoId := d.GetOk("repository_id"); hasRepoId {
 		repoId := repoIdData.(string)
 		data.RepoID = &repoId
@@ -95,7 +95,7 @@ func (data RepositoryConfAuthData) isRepoTLSValid() error {
 
 type CreateRepositoryConfAuthResponse struct{}
 
-func (data CreateRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data CreateRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(d.Get("repository_id").(string))
 	return nil
 }
@@ -104,8 +104,8 @@ type ReadRepositoryConfAuthResponse struct {
 	AuthInfo RepositoryConfAuthData `json:"authInfo"`
 }
 
-func (data ReadRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
-	data.AuthInfo.WriteToSchema(d, c)
+func (data ReadRepositoryConfAuthResponse) WriteToSchema(d *schema.ResourceData) error {
+	data.AuthInfo.WriteToSchema(d)
 	return nil
 }
 

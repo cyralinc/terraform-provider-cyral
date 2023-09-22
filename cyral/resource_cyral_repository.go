@@ -119,11 +119,11 @@ type GetRepoByIDResponse struct {
 	Repo RepoInfo `json:"repo"`
 }
 
-func (res *GetRepoByIDResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
-	return res.Repo.WriteToSchema(d, c)
+func (res *GetRepoByIDResponse) WriteToSchema(d *schema.ResourceData) error {
+	return res.Repo.WriteToSchema(d)
 }
 
-func (res *RepoInfo) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (res *RepoInfo) WriteToSchema(d *schema.ResourceData) error {
 	d.Set(RepoTypeKey, res.Type)
 	d.Set(RepoNameKey, res.Name)
 	d.Set(RepoLabelsKey, res.LabelsAsInterface())
@@ -133,7 +133,7 @@ func (res *RepoInfo) WriteToSchema(d *schema.ResourceData, c *client.Client) err
 	return nil
 }
 
-func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 	r.ID = d.Id()
 	r.Name = d.Get(RepoNameKey).(string)
 	r.Type = d.Get(RepoTypeKey).(string)

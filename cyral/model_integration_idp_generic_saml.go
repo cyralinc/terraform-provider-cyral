@@ -3,7 +3,6 @@ package cyral
 import (
 	"fmt"
 
-	"github.com/cyralinc/terraform-provider-cyral/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -63,7 +62,7 @@ func NewRequiredUserAttributes(firstName, lastName, email, groups string) *Requi
 	}
 }
 
-func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData) error {
 	var attributes []interface{}
 	attributes = append(attributes, map[string]interface{}{
 		"first_name": uatt.FirstName.Name,
@@ -74,7 +73,7 @@ func (uatt *RequiredUserAttributes) WriteToSchema(d *schema.ResourceData, c *cli
 	return d.Set("attributes", attributes)
 }
 
-func (spMetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (spMetadataObj *GenericSAMLSPMetadata) WriteToSchema(d *schema.ResourceData) error {
 	return d.Set("service_provider_metadata", spMetadataObj.ToList())
 }
 
@@ -133,7 +132,7 @@ type GenericSAMLIntegration struct {
 	Attributes    *RequiredUserAttributes   `json:"attributes"`
 }
 
-func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(integ.ID)
 	if integ.IdpDescriptor != nil {
 		if err := d.Set("single_sign_on_service_url",
@@ -145,7 +144,7 @@ func (integ *GenericSAMLIntegration) WriteToSchema(d *schema.ResourceData, c *cl
 	return nil
 }
 
-func (integ *GenericSAMLIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (integ *GenericSAMLIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	integ.ID = d.Id()
 	integ.IdpDescriptor = &GenericSAMLIdpDescriptor{
 		SingleSignOnServiceURL: d.Get("single_sign_on_service_url").(string),

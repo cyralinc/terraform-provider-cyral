@@ -27,8 +27,8 @@ type NetworkAccessPolicyUpsertResp struct {
 	Policy NetworkAccessPolicy `json:"policy"`
 }
 
-func (resp NetworkAccessPolicyUpsertResp) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
-	return resp.Policy.WriteToSchema(d, c)
+func (resp NetworkAccessPolicyUpsertResp) WriteToSchema(d *schema.ResourceData) error {
+	return resp.Policy.WriteToSchema(d)
 }
 
 type NetworkAccessPolicy struct {
@@ -49,7 +49,7 @@ type NetworkAccessRule struct {
 	SourceIPs   []string `json:"sourceIPs,omitempty"`
 }
 
-func (nap *NetworkAccessPolicy) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (nap *NetworkAccessPolicy) ReadFromSchema(d *schema.ResourceData) error {
 	nap.Enabled = d.Get("enabled").(bool)
 
 	var networkAccessRulesIfaces []interface{}
@@ -77,7 +77,7 @@ func (nap *NetworkAccessPolicy) ReadFromSchema(d *schema.ResourceData, c *client
 	return nil
 }
 
-func (nap *NetworkAccessPolicy) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (nap *NetworkAccessPolicy) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(d.Get("repository_id").(string))
 	d.Set("enabled", nap.Enabled)
 	d.Set("network_access_rules_block_access", nap.NetworkAccessRules.RulesBlockAccess)

@@ -21,7 +21,7 @@ type ReadDataSourceSidecarListenerAPIResponse struct {
 	ListenerConfigs []SidecarListener `json:"listenerConfigs"`
 }
 
-func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 	log.Printf("[DEBUG] Init ReadDataSourceSidecarListenerAPIResponse.WriteToSchema")
 	var listenersList []any
 	log.Printf("[DEBUG] data.ListenerConfig: %+v", data.ListenerConfigs)

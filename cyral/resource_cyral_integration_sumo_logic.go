@@ -13,13 +13,13 @@ type SumoLogicIntegration struct {
 	Address string `json:"address"`
 }
 
-func (data SumoLogicIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data SumoLogicIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("name", data.Name)
 	d.Set("address", data.Address)
 	return nil
 }
 
-func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.Address = d.Get("address").(string)
 	return nil

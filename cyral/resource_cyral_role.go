@@ -165,19 +165,29 @@ func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleDataRequest, error) {
-	var permissionIds []string
-	var err error
+	var resourcePermissionsIds []string
 
-	if permissionsInterface, ok := d.GetOk("permissions"); ok {
-		permissionIds, err = NewPermissionIDsFromInterface(permissionsInterface, c)
+	if permissions, ok := d.GetOk("permissions"); ok {
+		permissions := permissions.(*schema.Set).List()
+
+		resourcePermissions := permissions[0].(map[string]interface{})
+
+		apiPermissions, err := getPermissionsFromAPI(c)
 		if err != nil {
 			return RoleDataRequest{}, err
+		}
+
+		for _, apiPermission := range apiPermissions {
+			resourcePermission := resourcePermissions[formatPermissionName(apiPermission.Name)]
+			if v, ok := resourcePermission.(bool); ok && v {
+				resourcePermissionsIds = append(resourcePermissionsIds, apiPermission.Id)
+			}
 		}
 	}
 
 	return RoleDataRequest{
 		Name:          d.Get("name").(string),
-		PermissionIDs: permissionIds,
+		PermissionIDs: resourcePermissionsIds,
 	}, nil
 }
 

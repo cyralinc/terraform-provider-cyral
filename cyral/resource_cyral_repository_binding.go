@@ -40,7 +40,7 @@ type GetBindingResponse struct {
 	Binding *Binding `json:"binding,omitempty"`
 }
 
-func (r *CreateBindingResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (r *CreateBindingResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.Set(BindingIDKey, r.BindingID)
 	d.SetId(marshalComposedID(
 		[]string{
@@ -50,11 +50,11 @@ func (r *CreateBindingResponse) WriteToSchema(d *schema.ResourceData, c *client.
 	return nil
 }
 
-func (r *GetBindingResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
-	return r.Binding.WriteToSchema(d, c)
+func (r *GetBindingResponse) WriteToSchema(d *schema.ResourceData) error {
+	return r.Binding.WriteToSchema(d)
 }
 
-func (r *Binding) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (r *Binding) WriteToSchema(d *schema.ResourceData) error {
 	d.Set(BindingIDKey, r.BindingID)
 	d.Set(BindingEnabledKey, r.Enabled)
 	d.Set(RepositoryIDKey, r.RepoId)
@@ -62,13 +62,13 @@ func (r *Binding) WriteToSchema(d *schema.ResourceData, c *client.Client) error 
 	return nil
 }
 
-func (r *CreateBindingRequest) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (r *CreateBindingRequest) ReadFromSchema(d *schema.ResourceData) error {
 	r.SidecarID = d.Get(SidecarIDKey).(string)
 	r.Binding = &Binding{}
-	return r.Binding.ReadFromSchema(d, c)
+	return r.Binding.ReadFromSchema(d)
 }
 
-func (r *Binding) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (r *Binding) ReadFromSchema(d *schema.ResourceData) error {
 	r.BindingID = d.Get(BindingIDKey).(string)
 	r.Enabled = d.Get(BindingEnabledKey).(bool)
 	r.RepoId = d.Get(RepositoryIDKey).(string)

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func (data HCVaultIntegration) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (data HCVaultIntegration) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("auth_method", data.AuthMethod)
 	d.Set("id", data.ID)
 	d.Set("auth_type", data.AuthType)
@@ -17,7 +17,7 @@ func (data HCVaultIntegration) WriteToSchema(d *schema.ResourceData, c *client.C
 	return nil
 }
 
-func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.AuthMethod = d.Get("auth_method").(string)
 	data.ID = d.Get("id").(string)
 	data.AuthType = d.Get("auth_type").(string)

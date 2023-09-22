@@ -35,7 +35,7 @@ type CreateGenericSAMLDraftRequest struct {
 	Attributes               *RequiredUserAttributes `json:"attributes,omitempty"`
 }
 
-func (req *CreateGenericSAMLDraftRequest) ReadFromSchema(d *schema.ResourceData, c *client.Client) error {
+func (req *CreateGenericSAMLDraftRequest) ReadFromSchema(d *schema.ResourceData) error {
 	req.DisplayName = d.Get("display_name").(string)
 	req.DisableIdPInitiatedLogin = d.Get("disable_idp_initiated_login").(bool)
 	req.IdpType = d.Get("idp_type").(string)
@@ -53,7 +53,7 @@ type GenericSAMLDraftResponse struct {
 	Draft GenericSAMLDraft `json:"draft"`
 }
 
-func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(resp.Draft.ID)
 	if err := d.Set("display_name", resp.Draft.DisplayName); err != nil {
 		return err
@@ -65,7 +65,7 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData, c *c
 		return err
 	}
 	if resp.Draft.SPMetadata != nil {
-		if err := resp.Draft.SPMetadata.WriteToSchema(d, c); err != nil {
+		if err := resp.Draft.SPMetadata.WriteToSchema(d); err != nil {
 			return err
 		}
 	}
@@ -73,7 +73,7 @@ func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData, c *c
 		return err
 	}
 	if resp.Draft.Attributes != nil && typeSetNonEmpty(d, "attributes") {
-		if err := resp.Draft.Attributes.WriteToSchema(d, c); err != nil {
+		if err := resp.Draft.Attributes.WriteToSchema(d); err != nil {
 			return err
 		}
 	}

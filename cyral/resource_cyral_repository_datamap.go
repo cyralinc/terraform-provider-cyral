@@ -24,7 +24,7 @@ type DataMap struct {
 	Labels map[string]*DataMapMapping `json:"labels,omitempty"`
 }
 
-func (dm *DataMap) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (dm *DataMap) WriteToSchema(d *schema.ResourceData) error {
 	var mappings []interface{}
 	for label, mapping := range dm.Labels {
 		mappingContents := make(map[string]interface{})
@@ -143,7 +143,7 @@ func resourceRepositoryDatamapCreate(ctx context.Context, d *schema.ResourceData
 	//
 	// TODO: If in the future the order of the list of attributes the API
 	// returns becomes deterministic, this can be removed. -aholmquist 2022-08-04
-	if err := dataMap.WriteToSchema(d, c); err != nil {
+	if err := dataMap.WriteToSchema(d); err != nil {
 		return createError("Unable to create repository datamap", err.Error())
 	}
 
@@ -174,7 +174,7 @@ func resourceRepositoryDatamapRead(ctx context.Context, d *schema.ResourceData, 
 	// returns becomes deterministic, this check can be removed. -aholmquist 2022-08-04
 	currentDataMap := getDatamapFromResource(d)
 	if !currentDataMap.equal(dataMap) {
-		if err := dataMap.WriteToSchema(d, c); err != nil {
+		if err := dataMap.WriteToSchema(d); err != nil {
 			return createError("Unable to read repository datamap", err.Error())
 		}
 	}

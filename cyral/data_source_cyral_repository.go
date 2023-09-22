@@ -27,7 +27,7 @@ type GetReposResponse struct {
 	Repos []GetReposSubResponse `json:"repos"`
 }
 
-func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData, c *client.Client) error {
+func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 	var repoList []interface{}
 	for _, repo := range resp.Repos {
 		argumentVals := map[string]interface{}{
