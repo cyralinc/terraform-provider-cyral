@@ -25,6 +25,28 @@ const (
 	ListenerIDKey   = "listener_id"
 )
 
+func convertToInterfaceList[T any](list []T) []any {
+	if list == nil {
+		return nil
+	}
+	interfaceList := make([]any, len(list))
+	for index, item := range list {
+		interfaceList[index] = item
+	}
+	return interfaceList
+}
+
+func convertFromInterfaceList[A any](interfaceList []any) []A {
+	if interfaceList == nil {
+		return nil
+	}
+	list := make([]A, len(interfaceList))
+	for _, item := range interfaceList {
+		list = append(list, item.(A))
+	}
+	return list
+}
+
 func urlQuery(kv map[string]string) string {
 	queryStr := "?"
 	for k, v := range kv {

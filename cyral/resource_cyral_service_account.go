@@ -10,11 +10,11 @@ import (
 
 const (
 	// Schema keys
-	serviceAccountResourceIDKey           = "id"
-	serviceAccountResourceDisplayNameKey  = "display_name"
-	serviceAccountResourceClientIDKey     = "client_id"
-	serviceAccountResourceClientSecretKey = "client_secret"
-	serviceAccountResourcePermissionsKey  = "permissions"
+	serviceAccountResourceIDKey            = "id"
+	serviceAccountResourceDisplayNameKey   = "display_name"
+	serviceAccountResourceClientIDKey      = "client_id"
+	serviceAccountResourceClientSecretKey  = "client_secret"
+	serviceAccountResourcePermissionIDsKey = "permission_ids"
 )
 
 var (
@@ -38,7 +38,8 @@ var (
 func resourceServiceAccount() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages a Cyral Service Account (A.k.a: " +
-			"[Cyral API Access Key](https://cyral.com/docs/api-ref/api-intro/#api-access-key))." +
+			"[Cyral API Access Key](https://cyral.com/docs/api-ref/api-intro/#api-access-key)). See also " +
+			"data source [`cyral_permission`](../data-sources/permission.md)." +
 			"\n\n-> **Note** This resource does not support importing, since the client secret cannot " +
 			"be read after the resource creation.",
 		CreateContext: CreateResource(
@@ -98,13 +99,14 @@ func resourceServiceAccount() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			serviceAccountResourcePermissionsKey: {
-				Description: "A block responsible for configuring the service account permissions.",
-				Type:        schema.TypeSet,
-				Required:    true,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: permissionsSchema,
+			serviceAccountResourcePermissionIDsKey: {
+				Description: "A list of permission IDs that will be assigned to this service account. See " +
+					"also data source [`cyral_permission`](../data-sources/permission.md)",
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 			IDKey: {

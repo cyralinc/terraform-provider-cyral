@@ -57,7 +57,7 @@ func accTestStepServiceAccountResource_RequiredArgumentPermissions(resourceName 
 		ExpectError: regexp.MustCompile(
 			fmt.Sprintf(
 				`At least 1 "%s" blocks are required.`,
-				serviceAccountResourcePermissionsKey,
+				serviceAccountResourcePermissionIDsKey,
 			),
 		),
 	}
@@ -96,11 +96,11 @@ func accTestStepServiceAccountResource_SinglePermissionTrue(resourceName string)
 		),
 		resource.TestCheckResourceAttr(
 			resourceFullName,
-			fmt.Sprintf("%s.#", serviceAccountResourcePermissionsKey), "1",
+			fmt.Sprintf("%s.#", serviceAccountResourcePermissionIDsKey), "1",
 		),
 		resource.TestCheckTypeSetElemNestedAttrs(
 			resourceFullName,
-			fmt.Sprintf("%s.*", serviceAccountResourcePermissionsKey), map[string]string{
+			fmt.Sprintf("%s.*", serviceAccountResourcePermissionIDsKey), map[string]string{
 				modifySidecarAndRepositoriesPermissionKey: "true",
 				modifyPoliciesPermissionKey:               "false",
 				modifyIntegrationsPermissionKey:           "false",
@@ -161,11 +161,11 @@ func accTestStepServiceAccountResource_AllPermissionsTrue(resourceName string) r
 		),
 		resource.TestCheckResourceAttr(
 			resourceFullName,
-			fmt.Sprintf("%s.#", serviceAccountResourcePermissionsKey), "1",
+			fmt.Sprintf("%s.#", serviceAccountResourcePermissionIDsKey), "1",
 		),
 		resource.TestCheckTypeSetElemNestedAttrs(
 			resourceFullName,
-			fmt.Sprintf("%s.*", serviceAccountResourcePermissionsKey), map[string]string{
+			fmt.Sprintf("%s.*", serviceAccountResourcePermissionIDsKey), map[string]string{
 				modifySidecarAndRepositoriesPermissionKey: "true",
 				modifyPoliciesPermissionKey:               "true",
 				modifyIntegrationsPermissionKey:           "true",
@@ -226,11 +226,11 @@ func accTestStepServiceAccountResource_UpdatedFields(resourceName string) resour
 		),
 		resource.TestCheckResourceAttr(
 			resourceFullName,
-			fmt.Sprintf("%s.#", serviceAccountResourcePermissionsKey), "1",
+			fmt.Sprintf("%s.#", serviceAccountResourcePermissionIDsKey), "1",
 		),
 		resource.TestCheckTypeSetElemNestedAttrs(
 			resourceFullName,
-			fmt.Sprintf("%s.*", serviceAccountResourcePermissionsKey), map[string]string{
+			fmt.Sprintf("%s.*", serviceAccountResourcePermissionIDsKey), map[string]string{
 				modifySidecarAndRepositoriesPermissionKey: "true",
 				modifyPoliciesPermissionKey:               "false",
 				modifyIntegrationsPermissionKey:           "true",
