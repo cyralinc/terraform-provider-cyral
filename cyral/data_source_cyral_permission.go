@@ -63,6 +63,11 @@ func dataSourcePermission() *schema.Resource {
 			},
 		),
 		Schema: map[string]*schema.Schema{
+			IDKey: {
+				Description: "The data source identifier.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			PermissionDataSourcePermissionNamesKey: {
 				Description: "Filter to retrieve only the permissions that match any of the names present in this " +
 					"list. Valid values are: " + supportedTypesMarkdown(permissionNames),

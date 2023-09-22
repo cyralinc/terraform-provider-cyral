@@ -75,6 +75,7 @@ func Provider() *schema.Provider {
 			"cyral_integration_idp":      dataSourceIntegrationIdP(),
 			"cyral_integration_idp_saml": dataSourceIntegrationIdPSAML(),
 			"cyral_integration_logging":  dataSourceIntegrationLogging(),
+			"cyral_permission":           dataSourcePermission(),
 			"cyral_repository":           dataSourceRepository(),
 			"cyral_role":                 dataSourceRole(),
 			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
