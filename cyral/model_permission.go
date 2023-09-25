@@ -10,20 +10,16 @@ type Permission struct {
 	Description string `json:"description"`
 }
 
-var permissionNames = []string{
-	"Approval Management",
-	"Modify Policies",
-	"Modify Roles",
-	"Modify Sidecars and Repositories",
-	"Modify Users",
-	"Repo Crawler",
-	"View Audit Logs",
-	"View Datamaps",
-	"View Integrations",
-	"View Policies",
-	"View Roles",
-	"View Users",
-	"Modify Integrations",
+func permissionsToInterfaceList(permissions []Permission) []any {
+	permissionsInterfaceList := make([]any, len(permissions))
+	for _, permission := range permissions {
+		permissionsInterfaceList = append(permissionsInterfaceList, map[string]any{
+			IDKey:          permission.Id,
+			NameKey:        permission.Name,
+			DescriptionKey: permission.Description,
+		})
+	}
+	return permissionsInterfaceList
 }
 
 const (

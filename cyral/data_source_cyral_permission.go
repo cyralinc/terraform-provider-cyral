@@ -6,15 +6,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/cyralinc/terraform-provider-cyral/client"
 )
 
 const (
 	// Schema keys
-	PermissionDataSourcePermissionNamesKey = "permission_names"
-	PermissionDataSourcePermissionListKey  = "permission_list"
+	PermissionDataSourcePermissionListKey = "permission_list"
 )
 
 type PermissionDataSourceResponse struct {
@@ -24,31 +22,13 @@ type PermissionDataSourceResponse struct {
 
 func (response *PermissionDataSourceResponse) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(uuid.New().String())
-	d.Set(PermissionDataSourcePermissionListKey, getFilteredPermissionsInterfaceList(d, response.Permissions))
+	d.Set(PermissionDataSourcePermissionListKey, permissionsToInterfaceList(response.Permissions))
 	return nil
-}
-
-func getFilteredPermissionsInterfaceList(d *schema.ResourceData, permissions []Permission) []any {
-	var filteredPermissionsInterfaceList []any
-	permissionNamesFilterInterfaceList := d.Get(PermissionDataSourcePermissionNamesKey).([]any)
-	for _, permissionNameFilter := range permissionNamesFilterInterfaceList {
-		permissionNameFilter := permissionNameFilter.(string)
-		for _, permission := range permissions {
-			if permission.Name == permissionNameFilter {
-				filteredPermissionsInterfaceList = append(filteredPermissionsInterfaceList, map[string]any{
-					IDKey:          permission.Id,
-					NameKey:        permission.Name,
-					DescriptionKey: permission.Description,
-				})
-			}
-		}
-	}
-	return filteredPermissionsInterfaceList
 }
 
 func dataSourcePermission() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieve and filter Cyral permissions. See also resources " +
+		Description: "Retrieve all Cyral permissions. See also resources " +
 			"[`cyral_role`](../resources/role.md) and [`cyral_service_account`](../resources/service_account.md).",
 		ReadContext: ReadResource(
 			ResourceOperationConfig{
@@ -68,18 +48,8 @@ func dataSourcePermission() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
-			PermissionDataSourcePermissionNamesKey: {
-				Description: "Filter to retrieve only the permissions that match any of the names present in this " +
-					"list. Valid values are: " + supportedTypesMarkdown(permissionNames),
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validation.StringInSlice(permissionNames, false),
-				},
-			},
 			PermissionDataSourcePermissionListKey: {
-				Description: "List of existing Cyral permissions satisfying the filter criteria.",
+				Description: "List of all existing Cyral permissions.",
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem: &schema.Resource{
