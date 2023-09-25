@@ -41,8 +41,8 @@ func convertFromInterfaceList[T any](interfaceList []any) []T {
 		return nil
 	}
 	list := make([]T, len(interfaceList))
-	for _, item := range interfaceList {
-		list = append(list, item.(T))
+	for index, item := range interfaceList {
+		list[index] = item.(T)
 	}
 	return list
 }

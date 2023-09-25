@@ -12,12 +12,12 @@ type Permission struct {
 
 func permissionsToInterfaceList(permissions []Permission) []any {
 	permissionsInterfaceList := make([]any, len(permissions))
-	for _, permission := range permissions {
-		permissionsInterfaceList = append(permissionsInterfaceList, map[string]any{
+	for index, permission := range permissions {
+		permissionsInterfaceList[index] = map[string]any{
 			IDKey:          permission.Id,
 			NameKey:        permission.Name,
 			DescriptionKey: permission.Description,
-		})
+		}
 	}
 	return permissionsInterfaceList
 }

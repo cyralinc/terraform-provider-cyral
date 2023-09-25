@@ -16,7 +16,9 @@ type ServiceAccount struct {
 
 func (serviceAccount *ServiceAccount) ReadFromSchema(d *schema.ResourceData) error {
 	serviceAccount.DisplayName = d.Get(serviceAccountResourceDisplayNameKey).(string)
-	permissionIDs := convertFromInterfaceList[string](d.Get(serviceAccountResourcePermissionIDsKey).([]any))
+	permissionIDs := convertFromInterfaceList[string](
+		d.Get(serviceAccountResourcePermissionIDsKey).(*schema.Set).List(),
+	)
 	if len(permissionIDs) == 0 {
 		return fmt.Errorf("at least one permission must be specified for the service account")
 	}

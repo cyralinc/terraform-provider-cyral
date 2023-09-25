@@ -10,11 +10,10 @@ import (
 
 const (
 	// Schema keys
-	serviceAccountResourceIDKey            = "id"
 	serviceAccountResourceDisplayNameKey   = "display_name"
+	serviceAccountResourcePermissionIDsKey = "permission_ids"
 	serviceAccountResourceClientIDKey      = "client_id"
 	serviceAccountResourceClientSecretKey  = "client_secret"
-	serviceAccountResourcePermissionIDsKey = "permission_ids"
 )
 
 var (
@@ -102,9 +101,8 @@ func resourceServiceAccount() *schema.Resource {
 			serviceAccountResourcePermissionIDsKey: {
 				Description: "A list of permission IDs that will be assigned to this service account. See " +
 					"also data source [`cyral_permission`](../data-sources/permission.md)",
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
-				MaxItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
