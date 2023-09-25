@@ -7,22 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var expectedPermissionNames = []string{
-	"Approval Management",
-	"Modify Policies",
-	"Modify Roles",
-	"Modify Sidecars and Repositories",
-	"Modify Users",
-	"Repo Crawler",
-	"View Audit Logs",
-	"View Datamaps",
-	"View Integrations",
-	"View Policies",
-	"View Roles",
-	"View Users",
-	"Modify Integrations",
-}
-
 func TestAccPermissionDataSource(t *testing.T) {
 	testSteps := []resource.TestStep{}
 	dataSourceName1 := "permissions_1"
@@ -46,7 +30,7 @@ func accTestStepPermissionDataSource_RetrieveAllPermissions(dataSourceName strin
 		}
 	`, dataSourceName)
 	var checks []resource.TestCheckFunc
-	for index, expectedPermissionName := range expectedPermissionNames {
+	for index, expectedPermissionName := range allPermissionNames {
 		checks = append(checks,
 			[]resource.TestCheckFunc{
 				resource.TestCheckResourceAttrSet(

@@ -22,6 +22,22 @@ func permissionsToInterfaceList(permissions []Permission) []any {
 	return permissionsInterfaceList
 }
 
+var allPermissionNames = []string{
+	"Approval Management",
+	"Modify Policies",
+	"Modify Roles",
+	"Modify Sidecars and Repositories",
+	"Modify Users",
+	"Repo Crawler",
+	"View Audit Logs",
+	"View Datamaps",
+	"View Integrations",
+	"View Policies",
+	"View Roles",
+	"View Users",
+	"Modify Integrations",
+}
+
 const (
 	// Schema keys
 	approvalManagementPermissionKey           = "approval_management"

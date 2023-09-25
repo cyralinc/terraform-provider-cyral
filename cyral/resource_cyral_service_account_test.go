@@ -113,6 +113,12 @@ func accTestStepServiceAccountResource_DuplicatedPermission(resourceName string)
 			fmt.Sprintf("%s.#", serviceAccountResourcePermissionIDsKey),
 			"1",
 		),
+		resource.TestCheckResourceAttrPair(
+			resourceFullName,
+			IDKey,
+			resourceFullName,
+			serviceAccountResourceClientIDKey,
+		),
 		resource.TestCheckResourceAttrSet(
 			resourceFullName,
 			serviceAccountResourceClientIDKey,
@@ -130,25 +136,10 @@ func accTestStepServiceAccountResource_DuplicatedPermission(resourceName string)
 
 func accTestStepServiceAccountResource_AllPermissions(resourceName string) resource.TestStep {
 	displayName := accTestName("service-account", "service-account-1")
-	permissionNames := []string{
-		"Approval Management",
-		"Modify Policies",
-		"Modify Roles",
-		"Modify Sidecars and Repositories",
-		"Modify Users",
-		"Repo Crawler",
-		"View Audit Logs",
-		"View Datamaps",
-		"View Integrations",
-		"View Policies",
-		"View Roles",
-		"View Users",
-		"Modify Integrations",
-	}
 	config, check := getAccTestStepForServiceAccountResourceFullConfig(
 		resourceName,
 		displayName,
-		permissionNames,
+		allPermissionNames,
 	)
 	return resource.TestStep{
 		Config: config,
