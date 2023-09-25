@@ -36,13 +36,13 @@ func convertToInterfaceList[T any](list []T) []any {
 	return interfaceList
 }
 
-func convertFromInterfaceList[A any](interfaceList []any) []A {
+func convertFromInterfaceList[T any](interfaceList []any) []T {
 	if interfaceList == nil {
 		return nil
 	}
-	list := make([]A, len(interfaceList))
+	list := make([]T, len(interfaceList))
 	for _, item := range interfaceList {
-		list = append(list, item.(A))
+		list = append(list, item.(T))
 	}
 	return list
 }
