@@ -194,7 +194,7 @@ func getAccTestStepForServiceAccountResourceFullConfig(
 		resource "cyral_service_account" "%s" {
 			display_name = %q
 			permission_ids = [
-				for permission in data.cyral_permission.permissions.%s: permission.id 
+				for permission in data.cyral_permission.permissions.%s: permission.id
 				if contains(local.serviceAccountPermissions, permission.name)
 			]
 		}

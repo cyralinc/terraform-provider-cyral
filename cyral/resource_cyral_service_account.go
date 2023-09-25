@@ -100,7 +100,7 @@ func resourceServiceAccount() *schema.Resource {
 			},
 			serviceAccountResourcePermissionIDsKey: {
 				Description: "A list of permission IDs that will be assigned to this service account. See " +
-					"also data source [`cyral_permission`](../data-sources/permission.md)",
+					"also data source [`cyral_permission`](../data-sources/permission.md).",
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Schema{

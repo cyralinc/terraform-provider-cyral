@@ -28,8 +28,8 @@ func (response *PermissionDataSourceResponse) WriteToSchema(d *schema.ResourceDa
 
 func dataSourcePermission() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieve all Cyral permissions. See also resources " +
-			"[`cyral_role`](../resources/role.md) and [`cyral_service_account`](../resources/service_account.md).",
+		Description: "Retrieve all Cyral permissions. See also resource " +
+			"[`cyral_service_account`](../resources/service_account.md).",
 		ReadContext: ReadResource(
 			ResourceOperationConfig{
 				Name:       "PermissionDataSourceRead",

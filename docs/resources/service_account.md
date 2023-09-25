@@ -1,6 +1,6 @@
 # cyral_service_account (Resource)
 
-Manages a Cyral Service Account (A.k.a: [Cyral API Access Key](https://cyral.com/docs/api-ref/api-intro/#api-access-key)).
+Manages a Cyral Service Account (A.k.a: [Cyral API Access Key](https://cyral.com/docs/api-ref/api-intro/#api-access-key)). See also data source [`cyral_permission`](../data-sources/permission.md).
 
 -> **Note** This resource does not support importing, since the client secret cannot be read after the resource creation.
 
@@ -8,32 +8,40 @@ Manages a Cyral Service Account (A.k.a: [Cyral API Access Key](https://cyral.com
 
 ```terraform
 ### Service account with all permissions
-resource "cyral_service_account" "sa_1" {
+data "cyral_permission" "this" {}
+
+resource "cyral_service_account" "this" {
   display_name = "cyral-service-account-1"
-  permissions {
-    modify_sidecars_and_repositories = true
-    modify_policies = true
-    modify_integrations = true
-    modify_users = true
-    modify_roles = true
-    view_users = true
-    view_audit_logs = true
-    repo_crawler = true
-    view_datamaps = true
-    view_roles = true
-    view_policies = true
-    approval_management = true
-    view_integrations = true
-  }
+  permission_ids = [
+    for p in data.cyral_permission.this.permission_list: p.id
+  ]
 }
 
 output "client_id" {
-  value = cyral_service_account.sa_1.client_id
+  value = cyral_service_account.this.client_id
 }
 
 output "client_secret" {
   sensitive = true
-  value = cyral_service_account.sa_1.client_secret
+  value = cyral_service_account.this.client_secret
+}
+
+### Service account with specific permissions
+data "cyral_permission" "this" {}
+
+locals {
+  saPermissions = [
+		"Modify Policies",
+		"Modify Integrations",
+  ]
+}
+
+resource "cyral_service_account" "this" {
+  display_name = "cyral-service-account-1"
+  permission_ids = [
+    for p in data.cyral_permission.this.permission_list: p.id
+    if contains(local.saPermissions, p.name)
+  ]
 }
 ```
 
@@ -44,30 +52,10 @@ output "client_secret" {
 ### Required
 
 - `display_name` (String) The service account display name.
-- `permissions` (Block Set, Min: 1, Max: 1) A block responsible for configuring the service account permissions. (see [below for nested schema](#nestedblock--permissions))
+- `permission_ids` (Set of String) A list of permission IDs that will be assigned to this service account. See also data source [`cyral_permission`](../data-sources/permission.md).
 
 ### Read-Only
 
 - `client_id` (String) The service account client ID.
 - `client_secret` (String, Sensitive) The service account client secret. **Note**: This resource is not able to recognize changes to the client secret after its creation, so keep in mind that if the client secret is rotated, the value present in this attribute will be outdated. If you need to rotate the client secret it's recommended that you recreate this terraform resource.
 - `id` (String) The resource identifier. It's equal to `client_id`.
-
-<a id="nestedblock--permissions"></a>
-
-### Nested Schema for `permissions`
-
-Optional:
-
-- `approval_management` (Boolean) Allows approving or denying approval requests on Cyral Control Plane. Defaults to `false`.
-- `modify_integrations` (Boolean) Allows modifying integrations on Cyral Control Plane. Defaults to `false`.
-- `modify_policies` (Boolean) Allows modifying policies on Cyral Control Plane. Defaults to `false`.
-- `modify_roles` (Boolean) Allows modifying roles on Cyral Control Plane. Defaults to `false`.
-- `modify_sidecars_and_repositories` (Boolean) Allows modifying sidecars and repositories on Cyral Control Plane. Defaults to `false`.
-- `modify_users` (Boolean) Allows modifying users on Cyral Control Plane. Defaults to `false`.
-- `repo_crawler` (Boolean) Allows running the Cyral repo crawler data classifier and user discovery. Defaults to `false`.
-- `view_audit_logs` (Boolean) Allows viewing audit logs on Cyral Control Plane. Defaults to `false`.
-- `view_datamaps` (Boolean) Allows viewing datamaps on Cyral Control Plane. Defaults to `false`.
-- `view_integrations` (Boolean) Allows viewing integrations on Cyral Control Plane. Defaults to `false`.
-- `view_policies` (Boolean) Allows viewing policies on Cyral Control Plane. Defaults to `false`.
-- `view_roles` (Boolean) Allows viewing roles on Cyral Control Plane. Defaults to `false`.
-- `view_users` (Boolean) Allows viewing users on Cyral Control Plane. Defaults to `false`.
