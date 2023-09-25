@@ -10,17 +10,17 @@ import (
 
 func TestAccServiceAccountResource(t *testing.T) {
 	testSteps := []resource.TestStep{}
-	serviceAccountName1 := accTestName("service-account", "1")
+	resourceName1 := "service_account_1"
 	testSteps = append(
 		testSteps,
 		[]resource.TestStep{
-			accTestStepServiceAccountResource_RequiredArgumentDisplayName(serviceAccountName1),
-			accTestStepServiceAccountResource_RequiredArgumentPermissions(serviceAccountName1),
-			accTestStepServiceAccountResource_EmptyPermissions(serviceAccountName1),
-			accTestStepServiceAccountResource_SinglePermission(serviceAccountName1),
-			accTestStepServiceAccountResource_DuplicatedPermission(serviceAccountName1),
-			accTestStepServiceAccountResource_AllPermissions(serviceAccountName1),
-			accTestStepServiceAccountResource_UpdatedFields(serviceAccountName1),
+			accTestStepServiceAccountResource_RequiredArgumentDisplayName(resourceName1),
+			accTestStepServiceAccountResource_RequiredArgumentPermissions(resourceName1),
+			accTestStepServiceAccountResource_EmptyPermissions(resourceName1),
+			accTestStepServiceAccountResource_SinglePermission(resourceName1),
+			accTestStepServiceAccountResource_DuplicatedPermission(resourceName1),
+			accTestStepServiceAccountResource_AllPermissions(resourceName1),
+			accTestStepServiceAccountResource_UpdatedFields(resourceName1),
 		}...,
 	)
 
@@ -211,6 +211,12 @@ func getAccTestStepForServiceAccountResourceFullConfig(
 			resourceFullName,
 			fmt.Sprintf("%s.#", serviceAccountResourcePermissionIDsKey),
 			fmt.Sprintf("%d", len(permissionNames)),
+		),
+		resource.TestCheckResourceAttrPair(
+			resourceFullName,
+			IDKey,
+			resourceFullName,
+			serviceAccountResourceClientIDKey,
 		),
 		resource.TestCheckResourceAttrSet(
 			resourceFullName,
