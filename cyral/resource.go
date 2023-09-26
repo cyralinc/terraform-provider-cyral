@@ -48,7 +48,7 @@ type ResourceOperationConfig struct {
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
-func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
+func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
 	return HandleRequests(resourceOperations)
 }
 
@@ -106,8 +106,8 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 
 func HandleRequests(
 	resourceOperations []ResourceOperation,
-) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
-	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		for _, operation := range resourceOperations {
 			log.Printf("[DEBUG] Init %s", operation.Config.Name)
 			c := m.(*client.Client)

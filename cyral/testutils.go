@@ -173,6 +173,14 @@ func formatBasicIntegrationIdPSAMLDraftIntoConfig(resName, displayName, idpType 
 	)
 }
 
+func formatBasicDataSourcePermissionIntoConfig(resourceName string) string {
+	return fmt.Sprintf(
+		`
+	data "cyral_permission" "%s" {}
+	`, resourceName,
+	)
+}
+
 func notZeroRegex() *regexp.Regexp {
 	return regexp.MustCompile("[^0]|([0-9]{2,})")
 }

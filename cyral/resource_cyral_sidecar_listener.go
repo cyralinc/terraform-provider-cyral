@@ -76,9 +76,9 @@ type CreateListenerAPIResponse struct {
 	ListenerId string `json:"listenerId"`
 }
 
-func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(marshalComposedID([]string{d.Get(SidecarIDKey).(string), c.ListenerId}, "/"))
-	return d.Set(ListenerIDKey, c.ListenerId)
+func (response CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
+	d.SetId(marshalComposedID([]string{d.Get(SidecarIDKey).(string), response.ListenerId}, "/"))
+	return d.Set(ListenerIDKey, response.ListenerId)
 }
 
 func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {

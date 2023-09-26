@@ -75,6 +75,7 @@ func Provider() *schema.Provider {
 			"cyral_integration_idp":      dataSourceIntegrationIdP(),
 			"cyral_integration_idp_saml": dataSourceIntegrationIdPSAML(),
 			"cyral_integration_logging":  dataSourceIntegrationLogging(),
+			"cyral_permission":           dataSourcePermission(),
 			"cyral_repository":           dataSourceRepository(),
 			"cyral_role":                 dataSourceRole(),
 			"cyral_saml_certificate":     dataSourceSAMLCertificate(),
@@ -122,6 +123,7 @@ func Provider() *schema.Provider {
 			"cyral_repository_access_gateway":        resourceRepositoryAccessGateway(),
 			"cyral_role":                             resourceRole(),
 			"cyral_role_sso_groups":                  resourceRoleSSOGroups(),
+			"cyral_service_account":                  resourceServiceAccount(),
 			"cyral_sidecar":                          resourceSidecar(),
 			"cyral_sidecar_credentials":              resourceSidecarCredentials(),
 			"cyral_sidecar_listener":                 resourceSidecarListener(),
@@ -130,7 +132,7 @@ func Provider() *schema.Provider {
 	}
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 	log.Printf("[DEBUG] Init providerConfigure")
 
 	clientID, clientSecret, diags := getCredentials(d)

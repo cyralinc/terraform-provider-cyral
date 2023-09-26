@@ -34,5 +34,5 @@ module "cyral_sidecar" {
   client_id     = cyral_sidecar_credentials.creds.client_id
   client_secret = cyral_sidecar_credentials.creds.client_secret
 
-  ...
+  # ...
 }

@@ -14,6 +14,8 @@ import (
 // Common keys.
 const (
 	IDKey           = "id"
+	NameKey         = "name"
+	DescriptionKey  = "description"
 	HostKey         = "host"
 	PortKey         = "port"
 	TypeKey         = "type"
@@ -22,6 +24,28 @@ const (
 	SidecarIDKey    = "sidecar_id"
 	ListenerIDKey   = "listener_id"
 )
+
+func convertToInterfaceList[T any](list []T) []any {
+	if list == nil {
+		return nil
+	}
+	interfaceList := make([]any, len(list))
+	for index, item := range list {
+		interfaceList[index] = item
+	}
+	return interfaceList
+}
+
+func convertFromInterfaceList[T any](interfaceList []any) []T {
+	if interfaceList == nil {
+		return nil
+	}
+	list := make([]T, len(interfaceList))
+	for index, item := range interfaceList {
+		list[index] = item.(T)
+	}
+	return list
+}
 
 func urlQuery(kv map[string]string) string {
 	queryStr := "?"
