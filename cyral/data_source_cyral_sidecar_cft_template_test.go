@@ -33,7 +33,7 @@ func setupSidecarCftTemplateTest() (string, resource.TestCheckFunc) {
 	configuration += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
 		accTestName(sidecarCftTemplateDataSourceName, "sidecar"),
-		"cloudFormation", "",
+		"cft-ec2", "",
 	)
 	configuration += formatELKIntegrationDataIntoConfig(
 		ELKIntegration{

@@ -24,7 +24,7 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 
 ### Required
 
-- `aws_configuration` (Block Set, Min: 1) AWS parameters for `cloudFormation` deployment method. (see [below for nested schema](#nestedblock--aws_configuration))
+- `aws_configuration` (Block Set, Min: 1) AWS parameters for `cft-ec2` deployment method. (see [below for nested schema](#nestedblock--aws_configuration))
 - `sidecar_id` (String) ID of the sidecar which the template will be generated.
 
 ### Optional

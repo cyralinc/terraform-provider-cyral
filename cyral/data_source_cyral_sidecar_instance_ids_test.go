@@ -69,7 +69,7 @@ func testAccSidecarInstanceIDsConfig_NoSidecarInstances() string {
 	config += formatBasicSidecarIntoConfig(
 		basicSidecarResName,
 		accTestName(sidecarInstanceIDsDataSourceName, "sidecar"),
-		"cloudFormation", "",
+		"cft-ec2", "",
 	)
 
 	config += fmt.Sprintf(

@@ -24,7 +24,7 @@ func getTestCBS() CertificateBundleSecrets {
 var cloudFormationSidecarConfig = SidecarData{
 	Name:                     accTestName(sidecarResourceName, "cft"),
 	Labels:                   []string{"test1"},
-	SidecarProperties:        NewSidecarProperties("cloudFormation", "foo", ""),
+	SidecarProperties:        NewSidecarProperties("cft-ec2", "foo", ""),
 	UserEndpoint:             "some.cft.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
@@ -38,10 +38,10 @@ var dockerSidecarConfig = SidecarData{
 }
 
 var helmSidecarConfig = SidecarData{
-	Name:                     accTestName(sidecarResourceName, "helm"),
+	Name:                     accTestName(sidecarResourceName, "helm3"),
 	Labels:                   []string{"test3"},
-	SidecarProperties:        NewSidecarProperties("helm", "baz", ""),
-	UserEndpoint:             "some.helm.user.endpoint",
+	SidecarProperties:        NewSidecarProperties("helm3", "baz", ""),
+	UserEndpoint:             "some.helm3.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
