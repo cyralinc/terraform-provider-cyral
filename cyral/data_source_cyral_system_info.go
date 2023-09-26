@@ -30,7 +30,7 @@ func (systemInfo *SystemInfo) WriteToSchema(d *schema.ResourceData) error {
 
 func dataSourceSystemInfo() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieve information from Cyral systems.",
+		Description: "Retrieve information from Cyral system.",
 		ReadContext: ReadResource(ResourceOperationConfig{
 			Name:       "SystemInfoDataSourceRead",
 			HttpMethod: http.MethodGet,
@@ -43,17 +43,17 @@ func dataSourceSystemInfo() *schema.Resource {
 		}),
 		Schema: map[string]*schema.Schema{
 			IDKey: {
-				Description: "The data source identifier.",
+				Description: "Data source identifier.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
 			ControlPlaneVersionKey: {
-				Description: "The Control Plane version.",
+				Description: "Control Plane version.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
 			SidecarLatestVersionKey: {
-				Description: "The latest Sidecar version available to this Control Plane.",
+				Description: "Latest Sidecar version available to this Control Plane.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
