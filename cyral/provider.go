@@ -85,6 +85,7 @@ func Provider() *schema.Provider {
 			"cyral_sidecar_health":       dataSourceSidecarHealth(),
 			"cyral_sidecar_id":           dataSourceSidecarID(),
 			"cyral_sidecar_instance_ids": dataSourceSidecarInstanceIDs(),
+			"cyral_sidecar_instance":     dataSourceSidecarInstance(),
 			"cyral_sidecar_listener":     dataSourceSidecarListener(),
 			"cyral_system_info":          dataSourceSystemInfo(),
 		},
