@@ -3,12 +3,12 @@
 page_title: "cyral_sidecar_instance_ids Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieves the IDs of all the current instances of a given sidecar.
+  ~> DEPRECATED This data source was deprecated. It will be removed in the next major version of the provider. Use the data source cyral_sidecar_instance instead
 ---
 
 # cyral_sidecar_instance_ids (Data Source)
 
-Retrieves the IDs of all the current instances of a given sidecar.
+~> **DEPRECATED** This data source was deprecated. It will be removed in the next major version of the provider. Use the data source `cyral_sidecar_instance` instead
 
 ## Example Usage
 
