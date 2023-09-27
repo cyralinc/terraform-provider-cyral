@@ -15,15 +15,17 @@ import (
 )
 
 type SidecarDetails struct {
-	Instances []SidecarInstance `json:"instances,omitempty"`
+	Instances []SidecarInstanceIDWrapper `json:"instances,omitempty"`
 }
 
-type SidecarInstance struct {
+type SidecarInstanceIDWrapper struct {
 	ASGInstanceID string `json:"asg_instance,omitempty"`
 }
 
 func dataSourceSidecarInstanceIDs() *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: "This data source was deprecated. It will be removed in the next major version of " +
+			"the provider. Use the data source `cyral_sidecar_instance` instead",
 		Description: "Retrieves the IDs of all the current instances of a given sidecar.",
 		ReadContext: dataSourceSidecarInstanceIDsRead,
 		Schema: map[string]*schema.Schema{
