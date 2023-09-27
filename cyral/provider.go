@@ -82,6 +82,7 @@ func Provider() *schema.Provider {
 			"cyral_saml_configuration":   dataSourceSAMLConfiguration(),
 			"cyral_sidecar_bound_ports":  dataSourceSidecarBoundPorts(),
 			"cyral_sidecar_cft_template": dataSourceSidecarCftTemplate(),
+			"cyral_sidecar_health":       dataSourceSidecarHealth(),
 			"cyral_sidecar_id":           dataSourceSidecarID(),
 			"cyral_sidecar_instance_ids": dataSourceSidecarInstanceIDs(),
 			"cyral_sidecar_listener":     dataSourceSidecarListener(),
