@@ -1,7 +1,6 @@
 package cyral
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -9,58 +8,55 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type APIWrapper struct {
-	Integration *AWSIAMIntegrationResource `json:"iamIntegration"`
+const (
+	AWSIAMIntegrationNameKey        = "name"
+	AWSIAMIntegratioNDescriptionKey = "description"
+	AWSIAMIntegrationARNsKey        = "role_arns"
+)
+
+type AWSIAMIntegrationWrapper struct {
+	Integration *AWSIAMIntegration `json:"iamIntegration"`
 }
 
-type AWSIAMIntegrationResource struct {
+type AWSIAMIntegration struct {
 	ID          string   `json:"id,omitempty"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	IAMRoleARNs []string `json:"iamRoleARNs"`
 }
 
-func (wrapper *APIWrapper) WriteToSchema(d *schema.ResourceData) error {
+func (wrapper *AWSIAMIntegrationWrapper) WriteToSchema(d *schema.ResourceData) error {
 	integration := wrapper.Integration
 
 	d.SetId(integration.ID)
 
-	if err := d.Set("name", integration.Name); err != nil {
-		return fmt.Errorf("error setting 'name': %w", err)
+	if err := d.Set(AWSIAMIntegrationNameKey, integration.Name); err != nil {
+		return fmt.Errorf("error setting '%s': %w", AWSIAMIntegrationNameKey, err)
 	}
 
-	if err := d.Set("description", integration.Description); err != nil {
-		return fmt.Errorf("error setting 'description': %w", err)
+	if err := d.Set(AWSIAMIntegratioNDescriptionKey, integration.Description); err != nil {
+		return fmt.Errorf("error setting '%s': %w", AWSIAMIntegratioNDescriptionKey, err)
 	}
 
-	if err := d.Set("arns", integration.IAMRoleARNs); err != nil {
-		return fmt.Errorf("error setting 'arns': %w", err)
+	if err := d.Set(AWSIAMIntegrationARNsKey, integration.IAMRoleARNs); err != nil {
+		return fmt.Errorf("error setting '%s': %w", AWSIAMIntegrationARNsKey, err)
 	}
 	return nil
 }
 
-func (wrapper *APIWrapper) ReadFromSchema(d *schema.ResourceData) error {
-	wrapper.Integration = &AWSIAMIntegrationResource{}
+func (wrapper *AWSIAMIntegrationWrapper) ReadFromSchema(d *schema.ResourceData) error {
+	wrapper.Integration = &AWSIAMIntegration{}
 
-	wrapper.Integration.Name = d.Get("name").(string)
-	wrapper.Integration.Description = d.Get("description").(string)
+	wrapper.Integration.Name = d.Get(AWSIAMIntegrationNameKey).(string)
+	wrapper.Integration.Description = d.Get(AWSIAMIntegratioNDescriptionKey).(string)
 
-	arns := d.Get("arns").([]interface{})
+	arns := d.Get(AWSIAMIntegrationARNsKey).([]interface{})
 	stringARNs := make([]string, 0, len(arns))
 	for _, arn := range arns {
 		stringARNs = append(stringARNs, arn.(string))
 	}
 
 	wrapper.Integration.IAMRoleARNs = stringARNs
-	return nil
-}
-
-type CreateAWSIAMIntegrationResponse struct {
-	ID string `json:"id"`
-}
-
-func (c *CreateAWSIAMIntegrationResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(c.ID)
 	return nil
 }
 
@@ -75,12 +71,12 @@ var ReadAWSIAMIntegration = ResourceOperationConfig{
 		)
 	},
 	NewResponseData: func(_ *schema.ResourceData) ResponseData {
-		return &APIWrapper{}
+		return &AWSIAMIntegrationWrapper{}
 	},
-	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "AWS IAM AuthN Integration"},
+	RequestErrorHandler: &ReadIgnoreHttpNotFound{resName: "AWS IAM Integration"},
 }
 
-func resourceIntegrationAWSIAMAuthN() *schema.Resource {
+func resourceIntegrationAWSIAM() *schema.Resource {
 	return &schema.Resource{
 		Description: "Authenticate users based on AWS IAM credentials",
 		CreateContext: CreateResource(
@@ -91,10 +87,10 @@ func resourceIntegrationAWSIAMAuthN() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/aws/iam", c.ControlPlane)
 				},
 				NewResourceData: func() ResourceData {
-					return &APIWrapper{}
+					return &AWSIAMIntegrationWrapper{}
 				},
 				NewResponseData: func(_ *schema.ResourceData) ResponseData {
-					return &CreateAWSIAMIntegrationResponse{}
+					return &IDBasedResponse{}
 				},
 			},
 			ReadAWSIAMIntegration,
@@ -112,7 +108,7 @@ func resourceIntegrationAWSIAMAuthN() *schema.Resource {
 					)
 				},
 				NewResourceData: func() ResourceData {
-					return &APIWrapper{}
+					return &AWSIAMIntegrationWrapper{}
 				},
 			},
 			ReadAWSIAMIntegration,
@@ -132,41 +128,30 @@ func resourceIntegrationAWSIAMAuthN() *schema.Resource {
 		),
 
 		Importer: &schema.ResourceImporter{
-			StateContext: func(
-				ctx context.Context,
-				d *schema.ResourceData,
-				i interface{},
-			) ([]*schema.ResourceData, error) {
-				id := d.Id()
-				err := d.Set("id", id)
-				if err != nil {
-					return nil, fmt.Errorf("failed to set 'id': %w", err)
-				}
-				return []*schema.ResourceData{d}, nil
-			},
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "Terraform ID of this resource",
+				Description: "ID of this resource in Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
 
-			"name": {
-				Description: "The name of this AWS IAM Authentication integration",
+			AWSIAMIntegrationNameKey: {
+				Description: "The name of this AWS IAM Authentication integration.",
 				Required:    true,
 				Type:        schema.TypeString,
 			},
 
-			"description": {
-				Description: "Optional description of this integration",
+			AWSIAMIntegratioNDescriptionKey: {
+				Description: "Optional description of this integration.",
 				Optional:    true,
 				Type:        schema.TypeString,
 			},
 
-			"arns": {
-				Description: "List of role ARNs which will be used for authentication",
+			AWSIAMIntegrationARNsKey: {
+				Description: "List of role ARNs which will be used for authentication.",
 				Required:    true,
 				MinItems:    1,
 				Type:        schema.TypeList,

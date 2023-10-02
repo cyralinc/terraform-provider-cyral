@@ -13,11 +13,12 @@ const (
 )
 
 func TestIntegrationAWSIAMAuthN(t *testing.T) {
-	testCreate := getCreateStep("main_test")
-	testUpdate1 := getUpdateStepRemoveARN("main_test")
-	testUpdate2 := getUpdateStepAddARN("main_test")
-	testUpdate3 := getUpdateStepChangeName("main_test")
-	testUpdate4 := getUpdateStepChangeDescription("main_test")
+	resourceName := accTestName("aws-iam-integration", "main_test")
+	testCreate := getCreateStep(resourceName)
+	testUpdate1 := getUpdateStepRemoveARN(resourceName)
+	testUpdate2 := getUpdateStepAddARN(resourceName)
+	testUpdate3 := getUpdateStepChangeName(resourceName)
+	testUpdate4 := getUpdateStepChangeDescription(resourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: providerFactories,
@@ -30,7 +31,7 @@ func TestIntegrationAWSIAMAuthN(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      "cyral_integration_aws_iam_authn.main_test",
+				ResourceName:      fmt.Sprintf("cyral_integration_aws_iam.%s", resourceName),
 			},
 		},
 	})
@@ -38,10 +39,10 @@ func TestIntegrationAWSIAMAuthN(t *testing.T) {
 
 func getCreateStep(resName string) resource.TestStep {
 	config := `
-resource "cyral_integration_aws_iam_authn" "%s" {
+resource "cyral_integration_aws_iam" "%s" {
   name = "terraform_aws_integration_1"
   description = "whatever"
-  arns = ["%s", "%s"]
+  role_arns = ["%s", "%s"]
 }
 	`
 
@@ -56,28 +57,28 @@ resource "cyral_integration_aws_iam_authn" "%s" {
 }
 
 func AWSIAMCreateCheck(resName string) resource.TestCheckFunc {
-	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam_authn.%s", resName)
+	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam.%s", resName)
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
 			"name", "terraform_aws_integration_1"),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"description", "whatever"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.#", "2"),
+			"role_arns.#", "2"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.0", arn0),
+			"role_arns.0", arn0),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.1", arn1),
+			"role_arns.1", arn1),
 	)
 }
 
 func getUpdateStepRemoveARN(resName string) resource.TestStep {
 	// We will delete one ARN
 	config := `
-resource "cyral_integration_aws_iam_authn" "%s" {
+resource "cyral_integration_aws_iam" "%s" {
   name = "terraform_aws_integration_1"
   description = "whatever"
-  arns = ["%s"]
+  role_arns = ["%s"]
 }
 	`
 
@@ -92,26 +93,26 @@ resource "cyral_integration_aws_iam_authn" "%s" {
 }
 
 func AWSIAMUpdateCheck1(resName string) resource.TestCheckFunc {
-	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam_authn.%s", resName)
+	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam.%s", resName)
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
 			"name", "terraform_aws_integration_1"),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"description", "whatever"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.#", "1"),
+			"role_arns.#", "1"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.0", arn0),
+			"role_arns.0", arn0),
 	)
 }
 
 func getUpdateStepAddARN(resName string) resource.TestStep {
 	// Add the ARN back. Also, we'll add them in a different order.
 	config := `
-resource "cyral_integration_aws_iam_authn" "%s" {
+resource "cyral_integration_aws_iam" "%s" {
   name = "terraform_aws_integration_1"
   description = "whatever"
-  arns = ["%s", "%s"]
+  role_arns = ["%s", "%s"]
 }
 	`
 
@@ -126,27 +127,27 @@ resource "cyral_integration_aws_iam_authn" "%s" {
 }
 
 func AWSIAMUpdateCheck2(resName string) resource.TestCheckFunc {
-	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam_authn.%s", resName)
+	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam.%s", resName)
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
 			"name", "terraform_aws_integration_1"),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"description", "whatever"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.#", "2"),
+			"role_arns.#", "2"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.0", arn1),
+			"role_arns.0", arn1),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.1", arn0),
+			"role_arns.1", arn0),
 	)
 }
 
 func getUpdateStepChangeName(resName string) resource.TestStep {
 	config := `
-resource "cyral_integration_aws_iam_authn" "%s" {
+resource "cyral_integration_aws_iam" "%s" {
   name = "terraform_aws_integration_2"
   description = "whatever"
-  arns = ["%s", "%s"]
+  role_arns = ["%s", "%s"]
 }
 	`
 
@@ -161,27 +162,27 @@ resource "cyral_integration_aws_iam_authn" "%s" {
 }
 
 func AWSIAMUpdateCheck3(resName string) resource.TestCheckFunc {
-	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam_authn.%s", resName)
+	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam.%s", resName)
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
 			"name", "terraform_aws_integration_2"),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"description", "whatever"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.#", "2"),
+			"role_arns.#", "2"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.0", arn1),
+			"role_arns.0", arn1),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.1", arn0),
+			"role_arns.1", arn0),
 	)
 }
 
 func getUpdateStepChangeDescription(resName string) resource.TestStep {
 	config := `
-resource "cyral_integration_aws_iam_authn" "%s" {
+resource "cyral_integration_aws_iam" "%s" {
   name = "terraform_aws_integration_2"
   description = "whatever whatever"
-  arns = ["%s", "%s"]
+  role_arns = ["%s", "%s"]
 }
 	`
 
@@ -196,17 +197,17 @@ resource "cyral_integration_aws_iam_authn" "%s" {
 }
 
 func AWSIAMUpdateCheck4(resName string) resource.TestCheckFunc {
-	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam_authn.%s", resName)
+	resourceFullName := fmt.Sprintf("cyral_integration_aws_iam.%s", resName)
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
 			"name", "terraform_aws_integration_2"),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"description", "whatever whatever"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.#", "2"),
+			"role_arns.#", "2"),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.0", arn1),
+			"role_arns.0", arn1),
 		resource.TestCheckResourceAttr(resourceFullName,
-			"arns.1", arn0),
+			"role_arns.1", arn0),
 	)
 }
