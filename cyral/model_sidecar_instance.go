@@ -5,17 +5,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type SidecarInstancesWrapper struct {
+type SidecarInstances struct {
 	Instances []SidecarInstance `json:"instances"`
 }
 
-func (wrapper *SidecarInstancesWrapper) WriteToSchema(d *schema.ResourceData) error {
+func (wrapper *SidecarInstances) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(uuid.New().String())
 	d.Set(SidecarInstanceListKey, wrapper.InstancesToInterfaceList())
 	return nil
 }
 
-func (wrapper *SidecarInstancesWrapper) InstancesToInterfaceList() []any {
+func (wrapper *SidecarInstances) InstancesToInterfaceList() []any {
 	instancesInterfaceList := make([]any, len(wrapper.Instances))
 	for index, instance := range wrapper.Instances {
 		instancesInterfaceList[index] = instance.ToMap()

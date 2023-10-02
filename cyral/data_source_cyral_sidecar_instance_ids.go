@@ -15,10 +15,10 @@ import (
 )
 
 type SidecarDetails struct {
-	Instances []SidecarInstanceIDWrapper `json:"instances,omitempty"`
+	Instances []DeprecatedSidecarInstances `json:"instances,omitempty"`
 }
 
-type SidecarInstanceIDWrapper struct {
+type DeprecatedSidecarInstances struct {
 	ASGInstanceID string `json:"asg_instance,omitempty"`
 }
 

@@ -39,7 +39,7 @@ func dataSourceSidecarInstance() *schema.Resource {
 				)
 			},
 			NewResponseData: func(_ *schema.ResourceData) ResponseData {
-				return &SidecarInstancesWrapper{}
+				return &SidecarInstances{}
 			},
 		}),
 		Schema: map[string]*schema.Schema{
