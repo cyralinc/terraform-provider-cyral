@@ -16,8 +16,8 @@ const (
 )
 
 type SidecarInstanceStats struct {
-	QueriesPerSecond  string `json:"queriesPerSecond"`
-	ActiveConnections string `json:"activeConnections"`
+	QueriesPerSecond  float32 `json:"queriesPerSecond"`
+	ActiveConnections uint32  `json:"activeConnections"`
 }
 
 func (stats *SidecarInstanceStats) WriteToSchema(d *schema.ResourceData) error {
@@ -66,12 +66,12 @@ func dataSourceSidecarInstanceStats() *schema.Resource {
 			},
 			QueriesPerSecondKey: {
 				Description: "Amount of queries that the sidecar instance receives per second.",
-				Type:        schema.TypeString,
+				Type:        schema.TypeFloat,
 				Computed:    true,
 			},
 			ActiveConnectionsKey: {
 				Description: "Number of active connections.",
-				Type:        schema.TypeString,
+				Type:        schema.TypeInt,
 				Computed:    true,
 			},
 		},
