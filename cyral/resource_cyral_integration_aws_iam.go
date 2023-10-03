@@ -78,7 +78,7 @@ var ReadAWSIAMIntegration = ResourceOperationConfig{
 
 func resourceIntegrationAWSIAM() *schema.Resource {
 	return &schema.Resource{
-		Description: "Authenticate users based on AWS IAM credentials",
+		Description: "Authenticate users based on AWS IAM credentials.",
 		CreateContext: CreateResource(
 			ResourceOperationConfig{
 				Name:       "AWSIAMIntegrationCreate",
@@ -132,7 +132,7 @@ func resourceIntegrationAWSIAM() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"id": {
+			IDKey: {
 				Description: "ID of this resource in Cyral environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
