@@ -92,6 +92,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"cyral_datalabel":                        resourceDatalabel(),
+			"cyral_integration_aws_iam":              resourceIntegrationAWSIAM(),
 			"cyral_integration_datadog":              resourceIntegrationDatadog(),
 			"cyral_integration_mfa_duo":              resourceIntegrationMFADuo(),
 			"cyral_integration_elk":                  resourceIntegrationELK(),
