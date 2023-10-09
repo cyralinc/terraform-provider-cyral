@@ -1,3 +1,59 @@
+## 4.7.0 (October 9, 2023)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.10.0`.
+
+Arguments incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_logging.skip_validate`
+
+Resource incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_aws_iam`
+
+Data sources incompatible with control planes previous to `v4.10`:
+
+- `cyral_sidecar_health`
+- `cyral_sidecar_instance_stats`
+- `cyral_system_info`
+
+Arguments incompatible with control planes previous to `v4.8`:
+
+- `cyral_sidecar.activity_log_integration_id`
+- `cyral_sidecar.diagnostic_log_integration_id`
+
+Resource incompatible with control planes previous to `v4.7`:
+
+- `cyral_integration_logging`
+
+Argument incompatible with control planes previous to `v4.2`:
+
+- `cyral_repository.mongodb_settings.srv_record_name`
+
+See the list of incompatible resources with control planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Features:
+
+- ENG-12292: Add: SQL Server settings (version field) ([#438](https://github.com/cyralinc/terraform-provider-cyral/pull/438))
+- Add `skip_validate` option to Fluent Bit logging integration resource ([#445](https://github.com/cyralinc/terraform-provider-cyral/pull/445))
+- ENG-12558: add AuthType to the repo conf auth payload ([#450](https://github.com/cyralinc/terraform-provider-cyral/pull/450))
+- ENG-12557: add CRUD operations for AWS IAM AuthN integration ([#451](https://github.com/cyralinc/terraform-provider-cyral/pull/451))
+- ENG-12192: Add service account resource ([#453](https://github.com/cyralinc/terraform-provider-cyral/pull/453))
+- ENG-12511: Add data source for systemInfo API ([#455](https://github.com/cyralinc/terraform-provider-cyral/pull/455))
+- ENG-12678: Add data source for sidecar health API ([#456](https://github.com/cyralinc/terraform-provider-cyral/pull/456))
+- ENG-12679: Add data source for sidecar instance API ([#457](https://github.com/cyralinc/terraform-provider-cyral/pull/457))
+- ENG-12680: Add data source for sidecar instance stats API ([#459](https://github.com/cyralinc/terraform-provider-cyral/pull/459))
+- ENG-12728: Add template parameters section to the rego_policy_instance docs ([#463](https://github.com/cyralinc/terraform-provider-cyral/pull/463))
+
+### Bug fixes:
+
+- Removing the `helm` and `cloudFormation` sidecar deployment types ([#452](https://github.com/cyralinc/terraform-provider-cyral/pull/452))
+- Fix terraform tests that were failing in the E2E tests report ([#454](https://github.com/cyralinc/terraform-provider-cyral/pull/454))
+
 ## 4.6.0 (August 17, 2023)
 
 It is safe to use this version with all `v4` control planes as long
