@@ -4,7 +4,7 @@ resource "cyral_rego_policy_instance" "policy" {
   category = "SECURITY"
   description = "Some policy description."
   template_id = "rate-limit"
-  parameters = "{\"rateLimit\":7,\"labels\":[\"EMAIL\"],\"alertSeverity\":\"high\",\"block\":false}"
+  parameters = "{\"rateLimit\":7,\"labels\":[\"EMAIL\"],\"alertSeverity\":\"high\",\"block\":false,\"identities\":{\"included\":{\"groups\":[\"analysts\"]}},\"dbAccounts\":{\"included\":[\"admin\"]}}"
   enabled = true
   tags = ["tag1", "tag2"]
 }
