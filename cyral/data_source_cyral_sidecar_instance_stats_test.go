@@ -66,7 +66,7 @@ func accTestStepSidecarInstanceStatsDataSource_NoInstanceFoundForGivenID(dataSou
 	// deployed.
 	config := formatBasicSidecarIntoConfig(
 		basicSidecarResName,
-		accTestName("data-sidecar-instance", "sidecar"),
+		accTestName("data-sidecar-instance-stats", "sidecar"),
 		"cft-ec2",
 		"",
 	)
