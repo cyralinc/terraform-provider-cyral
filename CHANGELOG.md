@@ -1,3 +1,45 @@
+## 4.7.1 (October 11, 2023)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.10.0`.
+
+Arguments incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_logging.skip_validate`
+
+Resource incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_aws_iam`
+
+Data sources incompatible with control planes previous to `v4.10`:
+
+- `cyral_sidecar_health`
+- `cyral_sidecar_instance_stats`
+- `cyral_system_info`
+
+Arguments incompatible with control planes previous to `v4.8`:
+
+- `cyral_sidecar.activity_log_integration_id`
+- `cyral_sidecar.diagnostic_log_integration_id`
+
+Resource incompatible with control planes previous to `v4.7`:
+
+- `cyral_integration_logging`
+
+Argument incompatible with control planes previous to `v4.2`:
+
+- `cyral_repository.mongodb_settings.srv_record_name`
+
+See the list of incompatible resources with control planes `v3.x` and provider `v3.x` in the [`4.0.0`](#400-january-27-2023) release documentation.
+
+### Bug fixes:
+
+- Fix test so that it works running in parallel with other tests ([#466](https://github.com/cyralinc/terraform-provider-cyral/pull/466))
+
 ## 4.7.0 (October 9, 2023)
 
 It is safe to use this version with all `v4` control planes as long
