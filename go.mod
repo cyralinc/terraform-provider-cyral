@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.27.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
-	golang.org/x/oauth2 v0.11.0
+	golang.org/x/oauth2 v0.13.0
 )
 
 require (
