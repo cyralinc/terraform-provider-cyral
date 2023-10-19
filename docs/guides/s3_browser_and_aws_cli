@@ -1,3 +1,23 @@
+---
+page_title: "S3 File Browser and AWS CLI"
+---
+
+Use this guide to create the minimum required configuration in both Cyral
+Control Plane and your AWS account to deploy a Cyral Sidecar to AWS EC2
+to protect your S3 bucket and allow connections from [AWS CLI](https://cyral.com/docs/connect/s3-connect/cli)
+and [Cyral S3 File Browser](https://cyral.com/docs/connect/s3-connect/s3-browser).
+
+By running this example you will have a fully functional sidecar on your AWS
+account. Read the comments and update the necessary parameters as instructed.
+
+See also the [Cyral Sidecar module for AWS EC2](https://registry.terraform.io/modules/cyralinc/sidecar-ec2/aws/latest)
+for more details on how the sidecar is deployed to AWS and more advanced configurations.
+
+See also the [S3 File Browser](https://cyral.com/docs/manage-repositories/s3/s3-sidecar)
+and [SSO for S3](https://cyral.com/docs/manage-repositories/s3/s3-sso) documentation
+for more details about the feature.
+
+```terraform
 terraform {
   required_providers {
     cyral = {
@@ -268,3 +288,4 @@ module "cyral_sidecar" {
 output "sidecar_load_balancer_dns" {
   value = module.cyral_sidecar.sidecar_load_balancer_dns
 }
+```
