@@ -6,6 +6,7 @@ description: |-
   Manages the network access policy of a repository. Network access policies are also known as the Network Shield https://cyral.com/docs/manage-repositories/network-shield/. This feature is supported for the following repository types:
     - sqlserver
     - oracle
+  -> Note If you also use the resource cyral_repository_conf_auth for the same repository, create a depends_on relationship from this resource to the cyral_repository_conf_auth to avoid errors when running terraform destroy.
 ---
 
 # cyral_repository_network_access_policy (Resource)
@@ -15,31 +16,46 @@ Manages the network access policy of a repository. Network access policies are a
 - `sqlserver`
 - `oracle`
 
+-> **Note** If you also use the resource `cyral_repository_conf_auth` for the same repository, create a `depends_on` relationship from this resource to the `cyral_repository_conf_auth` to avoid errors when running `terraform destroy`.
+
 ## Example Usage
 
 ```terraform
 # Repository the policy refers to
 resource "cyral_repository" "my_sqlserver_repo" {
-    name = "my-sqlserver-repo"
-    type = "sqlserver"
-    host = "sqlserver.cyral.com"
+  name = "sqlserver-repo"
+  type = "sqlserver"
+
+  repo_node {
+    host = "sqlserver.mycompany.com"
     port = 1433
+  }
+}
+
+resource "cyral_repository_conf_auth" "conf_auth" {
+  repository_id     = cyral_repository.my_sqlserver_repo.id
+  allow_native_auth = true
+  client_tls = "enable"
+  repo_tls = "enable"
 }
 
 # Allow access from IPs 1.2.3.4 and 4.3.2.1 for Admin database
 # account, and from any IP address for accounts Engineer and
 # Analyst.
-resource "cyral_repository_network_access_policy" "my_sqlserver_repo_policy" {
-    repository_id = cyral_repository.my_sqlserver_repo.id
-    network_access_rule {
-        name = "rule1"
-        db_accounts = ["Admin"]
-        source_ips = ["1.2.3.4", "4.3.2.1"]
-    }
-    network_access_rule {
-        name = "rule2"
-        db_accounts = ["Engineer", "Analyst"]
-    }
+resource "cyral_repository_network_access_policy" "access_policy" {
+  depends_on = [cyral_repository_conf_auth.conf_auth]
+  repository_id = cyral_repository.my_sqlserver_repo.id
+
+  network_access_rule {
+    name = "rule1"
+    db_accounts = ["Admin"]
+    source_ips = ["1.2.3.4", "4.3.2.1"]
+  }
+
+  network_access_rule {
+    name = "rule2"
+    db_accounts = ["Engineer", "Analyst"]
+  }
 }
 ```
 
