@@ -71,9 +71,16 @@ func TestAccDatalabelResource(t *testing.T) {
 }
 
 func setupDatalabelTest(t *testing.T, resName string, dataLabel *datalabel.DataLabel) (string, resource.TestCheckFunc) {
-	configuration := datalabel.FormatDataLabelIntoConfig(resName, dataLabel)
+	ruleType, ruleCode, ruleStatus := "", "", ""
+	if dataLabel.ClassificationRule != nil {
+		ruleType = dataLabel.ClassificationRule.RuleType
+		ruleCode = dataLabel.ClassificationRule.RuleCode
+		ruleStatus = dataLabel.ClassificationRule.RuleStatus
+	}
+	config := utils.FormatDataLabelIntoConfig(resName, dataLabel.Name, dataLabel.Description,
+		ruleType, ruleCode, ruleStatus, dataLabel.Tags)
 
-	resourceFullName := datalabel.DatalabelConfigResourceFullName(resName)
+	resourceFullName := utils.DatalabelConfigResourceFullName(resName)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName, "name", dataLabel.Name),
@@ -96,5 +103,5 @@ func setupDatalabelTest(t *testing.T, resName string, dataLabel *datalabel.DataL
 		),
 	)
 
-	return configuration, testFunction
+	return config, testFunction
 }

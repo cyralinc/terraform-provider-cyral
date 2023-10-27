@@ -207,3 +207,37 @@ func DSourceCheckTypeFilter(
 		return nil
 	}
 }
+
+func DatalabelConfigResourceFullName(resName string) string {
+	return fmt.Sprintf("cyral_datalabel.%s", resName)
+}
+
+func FormatDataLabelIntoConfig(resName, dataLabelName, dataLabelDescription,
+	ruleType, ruleCode, ruleStatus string, dataLabelTags []string) string {
+	var classificationRuleConfig string
+	if ruleType != "" {
+		classificationRuleConfig = fmt.Sprintf(`
+ 		classification_rule {
+ 			rule_type = "%s"
+ 			rule_code = "%s"
+ 			rule_status = "%s"
+ 		}`,
+			ruleType,
+			ruleCode,
+			ruleStatus,
+		)
+	}
+	return fmt.Sprintf(`
+	resource "cyral_datalabel" "%s" {
+		name  = "%s"
+		description = "%s"
+		tags = %s
+		%s
+	}`,
+		resName,
+		dataLabelName,
+		dataLabelDescription,
+		ListToStr(dataLabelTags),
+		classificationRuleConfig,
+	)
+}

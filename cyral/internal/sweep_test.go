@@ -94,25 +94,25 @@ func sweepRepository(_ string) error {
 }
 
 func sweepSidecar(_ string) error {
-	// c, err := client.FromEnv()
-	// if err != nil {
-	// 	return err
-	// }
-	// sidecars, err := listSidecars(c)
-	// if err != nil {
-	// 	return err
-	// }
-	// for _, sidecar := range sidecars {
-	// 	if !utils.HasAccTestPrefix(sidecar.Sidecar.Name) {
-	// 		continue
-	// 	}
-	// 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane,
-	// 		sidecar.ID)
-	// 	_, err := c.DoRequest(url, http.MethodDelete, nil)
-	// 	if err != nil {
-	// 		return fmt.Errorf("delete request returned error: %w", err)
-	// 	}
-	// }
+	c, err := client.FromEnv()
+	if err != nil {
+		return err
+	}
+	sidecars, err := listSidecars(c)
+	if err != nil {
+		return err
+	}
+	for _, sidecar := range sidecars {
+		if !utils.HasAccTestPrefix(sidecar.Sidecar.Name) {
+			continue
+		}
+		url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane,
+			sidecar.ID)
+		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		if err != nil {
+			return fmt.Errorf("delete request returned error: %w", err)
+		}
+	}
 	return nil
 }
 
@@ -141,50 +141,50 @@ func sweepRole(_ string) error {
 }
 
 func sweepPolicy(_ string) error {
-	// c, err := client.FromEnv()
-	// if err != nil {
-	// 	return err
-	// }
-	// policies, err := listPolicies(c)
-	// if err != nil {
-	// 	return err
-	// }
-	// for _, policy := range policies {
-	// 	if !utils.HasAccTestPrefix(policy.Meta.Name) {
-	// 		continue
-	// 	}
-	// 	url := fmt.Sprintf("https://%s/v1/policies/%s",
-	// 		c.ControlPlane, policy.Meta.ID)
-	// 	_, err := c.DoRequest(url, http.MethodDelete, nil)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	c, err := client.FromEnv()
+	if err != nil {
+		return err
+	}
+	policies, err := listPolicies(c)
+	if err != nil {
+		return err
+	}
+	for _, policy := range policies {
+		if !utils.HasAccTestPrefix(policy.Meta.Name) {
+			continue
+		}
+		url := fmt.Sprintf("https://%s/v1/policies/%s",
+			c.ControlPlane, policy.Meta.ID)
+		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 func sweepIntegrationIdP(_ string) error {
-	// c, err := client.FromEnv()
-	// if err != nil {
-	// 	return err
-	// }
-	// resp, err := listIdPIntegrations(c)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to get IdP integrations: %w", err)
-	// }
-	//
-	// integrations := resp.Connections.Connections
-	// for _, integration := range integrations {
-	// 	if !utils.HasAccTestPrefix(integration.DisplayName) {
-	// 		continue
-	// 	}
-	// 	url := fmt.Sprintf("https://%s/v1/integrations/saml/%s",
-	// 		c.ControlPlane, integration.Alias)
-	// 	_, err := c.DoRequest(url, http.MethodDelete, nil)
-	// 	if err != nil {
-	// 		return fmt.Errorf("delete request returned error: %w", err)
-	// 	}
-	// }
+	c, err := client.FromEnv()
+	if err != nil {
+		return err
+	}
+	resp, err := listIdPIntegrations(c)
+	if err != nil {
+		return fmt.Errorf("failed to get IdP integrations: %w", err)
+	}
+
+	integrations := resp.Connections.Connections
+	for _, integration := range integrations {
+		if !utils.HasAccTestPrefix(integration.DisplayName) {
+			continue
+		}
+		url := fmt.Sprintf("https://%s/v1/integrations/saml/%s",
+			c.ControlPlane, integration.Alias)
+		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		if err != nil {
+			return fmt.Errorf("delete request returned error: %w", err)
+		}
+	}
 
 	return nil
 }

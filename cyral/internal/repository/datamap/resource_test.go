@@ -38,12 +38,12 @@ func testRepositoryDatamapCustomLabel() string {
 func initialDataMapConfigRemoveMapping() *datamap.DataMap {
 	return &datamap.DataMap{
 		Labels: map[string]*datamap.DataMapMapping{
-			predefinedLabelCCN: &datamap.DataMapMapping{
+			predefinedLabelCCN: {
 				Attributes: []string{
 					"schema1.table1.col1",
 				},
 			},
-			predefinedLabelSSN: &datamap.DataMapMapping{
+			predefinedLabelSSN: {
 				Attributes: []string{
 					"schema1.table1.col2",
 				},
@@ -67,7 +67,7 @@ func updatedDataMapConfigRemoveMapping() *datamap.DataMap {
 func initialDataMapConfigRemoveAttribute() *datamap.DataMap {
 	return &datamap.DataMap{
 		Labels: map[string]*datamap.DataMapMapping{
-			predefinedLabelSSN: &datamap.DataMapMapping{
+			predefinedLabelSSN: {
 				Attributes: []string{
 					"a.b.c",
 					"b.c.d",
@@ -80,7 +80,7 @@ func initialDataMapConfigRemoveAttribute() *datamap.DataMap {
 func updatedDataMapConfigRemoveAttribute() *datamap.DataMap {
 	return &datamap.DataMap{
 		Labels: map[string]*datamap.DataMapMapping{
-			predefinedLabelSSN: &datamap.DataMapMapping{
+			predefinedLabelSSN: {
 				Attributes: []string{
 					"a.b.c",
 				},
@@ -92,7 +92,7 @@ func updatedDataMapConfigRemoveAttribute() *datamap.DataMap {
 func dataMapConfigWithDataLabel() (*datamap.DataMap, *datalabel.DataLabel) {
 	return &datamap.DataMap{
 			Labels: map[string]*datamap.DataMapMapping{
-				testRepositoryDatamapCustomLabel(): &datamap.DataMapMapping{
+				testRepositoryDatamapCustomLabel(): {
 					Attributes: []string{
 						"schema1.table1.col1",
 					},
@@ -167,13 +167,20 @@ func testRepositoryDatamapUpdatedConfigRemoveAttribute(t *testing.T) resource.Te
 
 func testRepositoryDatamapWithDataLabel(t *testing.T) resource.TestStep {
 	resName := "test_with_datalabel"
-	configDM, configDL := dataMapConfigWithDataLabel()
-	var tfConfig string
-	tfConfig += repositoryDatamapSampleRepositoryConfig(resName)
-	tfConfig += (formatDataMapIntoConfig(resName, utils.BasicRepositoryID, configDM) +
-		datalabel.FormatDataLabelIntoConfig(configDL.Name, configDL))
-	check := setupRepositoryDatamapTestFunc(t, resName, configDM)
-	return resource.TestStep{Config: tfConfig, Check: check}
+	dataMap, dataLabel := dataMapConfigWithDataLabel()
+	ruleType, ruleCode, ruleStatus := "", "", ""
+	if dataLabel.ClassificationRule != nil {
+		ruleType = dataLabel.ClassificationRule.RuleType
+		ruleCode = dataLabel.ClassificationRule.RuleCode
+		ruleStatus = dataLabel.ClassificationRule.RuleStatus
+	}
+	var config string
+	config += repositoryDatamapSampleRepositoryConfig(resName)
+	config += (formatDataMapIntoConfig(resName, utils.BasicRepositoryID, dataMap) +
+		utils.FormatDataLabelIntoConfig(dataLabel.Name, dataLabel.Name, dataLabel.Description,
+			ruleType, ruleCode, ruleStatus, dataLabel.Tags))
+	check := setupRepositoryDatamapTestFunc(t, resName, dataMap)
+	return resource.TestStep{Config: config, Check: check}
 }
 
 func testRepositoryDatamapImport(importStateResName string) resource.TestStep {
@@ -244,7 +251,7 @@ func formatDataMapIntoConfig(
 			// label cannot be deleted. The depends_on Terraform
 			// meta-argument forces the right deletion order.
 			dependsOnStr = fmt.Sprintf("depends_on = [%s]",
-				datalabel.DatalabelConfigResourceFullName(label))
+				utils.DatalabelConfigResourceFullName(label))
 		}
 	}
 

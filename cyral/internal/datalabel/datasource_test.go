@@ -91,9 +91,16 @@ func testDatalabelDataSourceConfig(
 	var config string
 	var dependsOn []string
 	for i, dataLabel := range dataLabels {
+		ruleType, ruleCode, ruleStatus := "", "", ""
+		if dataLabel.ClassificationRule != nil {
+			ruleType = dataLabel.ClassificationRule.RuleType
+			ruleCode = dataLabel.ClassificationRule.RuleCode
+			ruleStatus = dataLabel.ClassificationRule.RuleStatus
+		}
 		resName := fmt.Sprintf("test_datalabel_%d", i)
-		config += datalabel.FormatDataLabelIntoConfig(resName, dataLabel)
-		dependsOn = append(dependsOn, datalabel.DatalabelConfigResourceFullName(resName))
+		config += utils.FormatDataLabelIntoConfig(resName, dataLabel.Name, dataLabel.Description,
+			ruleType, ruleCode, ruleStatus, dataLabel.Tags)
+		dependsOn = append(dependsOn, utils.DatalabelConfigResourceFullName(resName))
 	}
 	config += datalabelDataSourceConfig(dsourceName, nameFilter, typeFilter, dependsOn)
 
