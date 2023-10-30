@@ -81,18 +81,24 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 			}
 		}
 	}
+
 	schemaMap["cyral_integration_idp"] = internal.DataSourceIntegrationIdP()
 	schemaMap["cyral_integration_idp_saml"] = internal.DataSourceIntegrationIdPSAML()
 	schemaMap["cyral_integration_logging"] = internal.DataSourceIntegrationLogging()
+	schemaMap["cyral_permission"] = internal.DataSourcePermission()
 	schemaMap["cyral_repository"] = internal.DataSourceRepository()
 	schemaMap["cyral_role"] = internal.DataSourceRole()
 	schemaMap["cyral_saml_certificate"] = internal.DataSourceSAMLCertificate()
 	schemaMap["cyral_saml_configuration"] = internal.DataSourceSAMLConfiguration()
 	schemaMap["cyral_sidecar_bound_ports"] = internal.DataSourceSidecarBoundPorts()
 	schemaMap["cyral_sidecar_cft_template"] = internal.DataSourceSidecarCftTemplate()
+	schemaMap["cyral_sidecar_health"] = internal.DataSourceSidecarHealth()
 	schemaMap["cyral_sidecar_id"] = internal.DataSourceSidecarID()
 	schemaMap["cyral_sidecar_instance_ids"] = internal.DataSourceSidecarInstanceIDs()
+	schemaMap["cyral_sidecar_instance_stats"] = internal.DataSourceSidecarInstanceStats()
+	schemaMap["cyral_sidecar_instance"] = internal.DataSourceSidecarInstance()
 	schemaMap["cyral_sidecar_listener"] = internal.DataSourceSidecarListener()
+	schemaMap["cyral_system_info"] = internal.DataSourceSystemInfo()
 
 	log.Printf("[DEBUG] end getDataSourceMap")
 
@@ -115,6 +121,7 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 
 	// // TODO Once the resources are migrated to the new SchemaRegister
 	// // abstraction, these calls from provider to resource will be removed.
+	schemaMap["cyral_integration_aws_iam"] = internal.ResourceIntegrationAWSIAM()
 	schemaMap["cyral_integration_datadog"] = internal.ResourceIntegrationDatadog()
 	schemaMap["cyral_integration_mfa_duo"] = internal.ResourceIntegrationMFADuo()
 	schemaMap["cyral_integration_elk"] = internal.ResourceIntegrationELK()
@@ -148,6 +155,7 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_repository_user_account"] = internal.ResourceRepositoryUserAccount()
 	schemaMap["cyral_role"] = internal.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = internal.ResourceRoleSSOGroups()
+	schemaMap["cyral_service_account"] = internal.ResourceServiceAccount()
 	schemaMap["cyral_sidecar"] = internal.ResourceSidecar()
 	schemaMap["cyral_sidecar_credentials"] = internal.ResourceSidecarCredentials()
 	schemaMap["cyral_sidecar_listener"] = internal.ResourceSidecarListener()

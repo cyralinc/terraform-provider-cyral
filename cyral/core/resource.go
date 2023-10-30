@@ -71,12 +71,12 @@ type ResourceOperationConfig struct {
 	NewResponseData func(d *schema.ResourceData) ResponseData
 }
 
-func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
-	return handleRequests(resourceOperations)
+func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
+	return HandleRequests(resourceOperations)
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
-	return handleRequests(
+	return HandleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeCreate,
@@ -91,7 +91,7 @@ func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.Cre
 }
 
 func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
-	return handleRequests(
+	return HandleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeRead,
@@ -102,7 +102,7 @@ func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
 }
 
 func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.UpdateContextFunc {
-	return handleRequests(
+	return HandleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeUpdate,
@@ -117,7 +117,7 @@ func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.Upd
 }
 
 func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFunc {
-	return handleRequests(
+	return HandleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeDelete,
@@ -127,10 +127,10 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 	)
 }
 
-func handleRequests(
+func HandleRequests(
 	resourceOperations []ResourceOperation,
-) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
-	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		for _, operation := range resourceOperations {
 			log.Printf("[DEBUG] Init %s", operation.Config.Name)
 			c := m.(*client.Client)

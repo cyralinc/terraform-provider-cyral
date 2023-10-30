@@ -411,17 +411,28 @@ func setupLogsTest(integrationData internal.LoggingIntegration) (string, resourc
 		}...)
 
 	case integrationData.FluentBit != nil:
-		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
-			resource.TestCheckResourceAttrWith(integrationLogsFullTerraformResourceName, "fluent_bit.0.config", func(value string) error {
-
-				// string must contain the config.
-				// We don't check exact value as it may contain trailing characters
-				if strings.Contains(value, integrationData.FluentBit.Config) {
-					return nil
-				}
-				return fmt.Errorf("expected %v, got %v", integrationData.FluentBit.Config, value)
-			}),
-		}...)
+		checkFuncs = append(
+			checkFuncs,
+			[]resource.TestCheckFunc{
+				resource.TestCheckResourceAttrWith(
+					integrationLogsFullTerraformResourceName,
+					"fluent_bit.0.config",
+					func(value string) error {
+						// string must contain the config.
+						// We don't check exact value as it may contain trailing characters
+						if strings.Contains(value, integrationData.FluentBit.Config) {
+							return nil
+						}
+						return fmt.Errorf("expected %v, got %v", integrationData.FluentBit.Config, value)
+					},
+				),
+				resource.TestCheckResourceAttr(
+					integrationLogsFullTerraformResourceName,
+					"fluent_bit.0.skip_validate",
+					fmt.Sprint(integrationData.FluentBit.SkipValidate),
+				),
+			}...,
+		)
 	}
 
 	testFunction := resource.ComposeTestCheckFunc(checkFuncs...)
@@ -482,10 +493,12 @@ func formatLogsIntegrationDataIntoConfig(data internal.LoggingIntegration, resNa
 		// fluentbit use INI format, so we need a proper way to handle this
 		config = fmt.Sprintf(`
 		fluent_bit {
+			skip_validate = %t
 			config = <<-EOF
 %s
 			EOF
-		}`, data.FluentBit.Config)
+		}`, data.FluentBit.SkipValidate, data.FluentBit.Config,
+		)
 	default:
 		return "", fmt.Errorf("Error in parsing config in test, %v", data)
 	}

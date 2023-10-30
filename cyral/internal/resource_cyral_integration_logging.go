@@ -70,7 +70,8 @@ func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, erro
 		configType = FluentbitKey
 		configScheme = []interface{}{
 			map[string]interface{}{
-				"config": resource.FluentBit.Config,
+				"config":        resource.FluentBit.Config,
+				"skip_validate": resource.FluentBit.SkipValidate,
 			},
 		}
 	default:
@@ -161,7 +162,8 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 		}
 	case FluentbitKey:
 		integrationLogConfig.FluentBit = &FluentBitConfig{
-			Config: m["config"].(string),
+			Config:       m["config"].(string),
+			SkipValidate: m["skip_validate"].(bool),
 		}
 	default:
 		return fmt.Errorf("unexpected config type [%s]", configType)

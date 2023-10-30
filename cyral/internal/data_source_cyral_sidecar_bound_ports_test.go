@@ -19,7 +19,7 @@ func dsourceSidecarBoundPortsSampleSidecarConfig() string {
 	return utils.FormatBasicSidecarIntoConfig(
 		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarBoundPortsDataSourceName, "sidecar"),
-		"cloudFormation", "",
+		"cft-ec2", "",
 	)
 }
 

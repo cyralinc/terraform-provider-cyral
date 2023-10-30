@@ -7,11 +7,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"golang.org/x/exp/slices"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
-	"golang.org/x/exp/slices"
 )
 
 const (
@@ -35,13 +35,14 @@ func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.Res
 		if (repoTypeFilter == "" || slices.Contains(listenerConfig.RepoTypes, repoTypeFilter)) &&
 			(portFilter == 0 || listenerConfig.NetworkAddress.Port == portFilter) {
 			listener := map[string]any{
-				ListenerIDKey:       listenerConfig.ListenerId,
-				SidecarIDKey:        d.Get(SidecarIDKey).(string),
-				RepoTypesKey:        listenerConfig.RepoTypes,
-				NetworkAddressKey:   listenerConfig.NetworkAddressAsInterface(),
-				MySQLSettingsKey:    listenerConfig.MySQLSettingsAsInterface(),
-				S3SettingsKey:       listenerConfig.S3SettingsAsInterface(),
-				DynamoDbSettingsKey: listenerConfig.DynamoDbSettingsAsInterface(),
+				ListenerIDKey:        listenerConfig.ListenerId,
+				SidecarIDKey:         d.Get(SidecarIDKey).(string),
+				RepoTypesKey:         listenerConfig.RepoTypes,
+				NetworkAddressKey:    listenerConfig.NetworkAddressAsInterface(),
+				MySQLSettingsKey:     listenerConfig.MySQLSettingsAsInterface(),
+				S3SettingsKey:        listenerConfig.S3SettingsAsInterface(),
+				DynamoDbSettingsKey:  listenerConfig.DynamoDbSettingsAsInterface(),
+				SQLServerSettingsKey: listenerConfig.SQLServerSettingsAsInterface(),
 			}
 			log.Printf("[DEBUG] listener: %q", listener)
 			listenersList = append(listenersList, listener)

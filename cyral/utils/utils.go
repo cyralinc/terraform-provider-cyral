@@ -12,6 +12,42 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+// Common keys.
+const (
+	IDKey           = "id"
+	NameKey         = "name"
+	DescriptionKey  = "description"
+	HostKey         = "host"
+	PortKey         = "port"
+	TypeKey         = "type"
+	RepositoryIDKey = "repository_id"
+	BindingIDKey    = "binding_id"
+	SidecarIDKey    = "sidecar_id"
+	ListenerIDKey   = "listener_id"
+)
+
+func ConvertToInterfaceList[T any](list []T) []any {
+	if list == nil {
+		return nil
+	}
+	interfaceList := make([]any, len(list))
+	for index, item := range list {
+		interfaceList[index] = item
+	}
+	return interfaceList
+}
+
+func ConvertFromInterfaceList[T any](interfaceList []any) []T {
+	if interfaceList == nil {
+		return nil
+	}
+	list := make([]T, len(interfaceList))
+	for index, item := range interfaceList {
+		list[index] = item.(T)
+	}
+	return list
+}
+
 func UrlQuery(kv map[string]string) string {
 	queryStr := "?"
 	for k, v := range kv {

@@ -13,14 +13,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const CloudFormationDeploymentMethod = "cloudFormation"
+const CloudFormationDeploymentMethod = "cft-ec2"
 
 func DataSourceSidecarCftTemplate() *schema.Resource {
 	return &schema.Resource{
 		DeprecationMessage: "This data source was deprecated. It will be removed in the next major version of " +
 			"the provider.",
 		Description: "Retrieves the CloudFormation deployment template for a given sidecar. This data source only " +
-			"supports sidecars with `cloudFormation` deployment method. For Terraform template, use our " +
+			"supports sidecars with `cft-ec2` deployment method. For Terraform template, use our " +
 			"`terraform-cyral-sidecar-aws` module.",
 		Read: getSidecarCftTemplate,
 		Schema: map[string]*schema.Schema{
@@ -64,7 +64,7 @@ func DataSourceSidecarCftTemplate() *schema.Resource {
 						},
 					},
 				},
-				Description: "AWS parameters for `cloudFormation` deployment method.",
+				Description: "AWS parameters for `cft-ec2` deployment method.",
 			},
 			"template": {
 				Type:        schema.TypeString,

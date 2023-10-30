@@ -18,7 +18,7 @@ import (
 type RoleDataRequest struct {
 	Name string `json:"name,omitempty"`
 	// Permissions correspond to Roles in API.
-	Permissions []string `json:"roles,omitempty"`
+	PermissionIDs []string `json:"roles,omitempty"`
 }
 
 // Roles correspond to Groups in API.
@@ -26,13 +26,7 @@ type RoleDataResponse struct {
 	Id   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	// Permissions correspond to Roles in API.
-	Permissions []*PermissionInfo `json:"roles,omitempty"`
-}
-
-type PermissionInfo struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Permissions []*Permission `json:"roles,omitempty"`
 }
 
 func ResourceRole() *schema.Resource {
@@ -60,62 +54,7 @@ func ResourceRole() *schema.Resource {
 				Optional:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"modify_sidecars_and_repositories": {
-							Description: "Allows modifying sidecars and repositories for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_users": {
-							Description: "Allows modifying users for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_policies": {
-							Description: "Allows modifying policies for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"view_audit_logs": {
-							Description: "Allows viewing audit logs for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_integrations": {
-							Description: "Allows modifying integrations for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"modify_roles": {
-							Description: "Allows modifying roles for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"view_datamaps": {
-							Description: "Allows viewing datamaps for this role. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"approval_management": {
-							Description: "Allows approving or denying approval requests. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-						"repo_crawler": {
-							Description: "Allows reporting of cyral_repository_user_accounts. Defaults to `false`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-					},
+					Schema: permissionsSchema,
 				},
 			},
 		},
@@ -248,12 +187,12 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 	}
 
 	return RoleDataRequest{
-		Name:        d.Get("name").(string),
-		Permissions: resourcePermissionsIds,
+		Name:          d.Get("name").(string),
+		PermissionIDs: resourcePermissionsIds,
 	}, nil
 }
 
-func flattenPermissions(permissions []*PermissionInfo) []interface{} {
+func flattenPermissions(permissions []*Permission) []interface{} {
 	flatPermissions := make([]interface{}, 1)
 
 	permissionsMap := make(map[string]interface{})
@@ -272,17 +211,17 @@ func formatPermissionName(permissionName string) string {
 	return permissionName
 }
 
-func getPermissionsFromAPI(c *client.Client) ([]*PermissionInfo, error) {
+func getPermissionsFromAPI(c *client.Client) ([]*Permission, error) {
 	url := fmt.Sprintf("https://%s/v1/users/roles", c.ControlPlane)
 
 	body, err := c.DoRequest(url, http.MethodGet, nil)
 	if err != nil {
-		return []*PermissionInfo{}, err
+		return []*Permission{}, err
 	}
 
 	response := RoleDataResponse{}
 	if err := json.Unmarshal(body, &response); err != nil {
-		return []*PermissionInfo{}, err
+		return []*Permission{}, err
 	}
 
 	return response.Permissions, nil

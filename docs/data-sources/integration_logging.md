@@ -89,6 +89,7 @@ Read-Only:
 Read-Only:
 
 - `config` (String)
+- `skip_validate` (Boolean)
 
 <a id="nestedobjatt--integrations--splunk"></a>
 

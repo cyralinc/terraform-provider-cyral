@@ -87,3 +87,8 @@ docker-compose/docs:
 sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only for development control planes."
 	go test $(SWEEPDIR) -v -sweep=dummy-region $(SWEEPARGS) -timeout 15m
+
+# update module and test dependencies to latest minor and patch level
+up-deps:
+	$(GOGET) -u ./...
+	$(GOGET) -t ./...

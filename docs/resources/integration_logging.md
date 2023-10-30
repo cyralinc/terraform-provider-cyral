@@ -44,7 +44,7 @@ module "cyral_sidecar" {
   client_id     = cyral_sidecar_credentials.creds.client_id
   client_secret = cyral_sidecar_credentials.creds.client_secret
 
-  ...
+  # ...
 }
 ```
 
@@ -167,6 +167,10 @@ Required:
 Required:
 
 - `config` (String) Fluent Bit configuration, in 'classic mode' INI format. For more details, see: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
+
+Optional:
+
+- `skip_validate` (Boolean) Whether to validate the Fluent Bit config.
 
 <a id="nestedblock--splunk"></a>
 

@@ -1,7 +1,7 @@
 # cyral_sidecar_listener (Resource)
 
 Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
-~> **Warning** Multiple listeners can be associated to a single sidecar as long as `host` and `port` are unique. If `host` is ommitted, then `port` must be unique.
+~> **Warning** Multiple listeners can be associated to a single sidecar as long as `host` and `port` are unique. If `host` is omitted, then `port` must be unique.
 
 -> Import ID syntax is `{sidecar_id}/{listener_id}`.
 
@@ -106,6 +106,7 @@ resource "cyral_sidecar_listener" "listener_dynamodb" {
 - `dynamodb_settings` (Block Set, Max: 1) DynamoDB settings. (see [below for nested schema](#nestedblock--dynamodb_settings))
 - `mysql_settings` (Block Set, Max: 1) MySQL settings represents the listener settings for a [`mysql`, `galera`, `mariadb`] data repository. (see [below for nested schema](#nestedblock--mysql_settings))
 - `s3_settings` (Block Set, Max: 1) S3 settings. (see [below for nested schema](#nestedblock--s3_settings))
+- `sqlserver_settings` (Block Set, Max: 1) SQL Server settings. (see [below for nested schema](#nestedblock--sqlserver_settings))
 
 ### Read-Only
 
@@ -148,3 +149,11 @@ Optional:
 Optional:
 
 - `proxy_mode` (Boolean) S3 proxy mode. Only relevant for S3 listeners. Allowed values: [true, false]. Defaults to `false`. When `true`, instructs the sidecar to operate as an HTTP Proxy server. Client applications need to be explicitly configured to send the traffic through an HTTP proxy server, represented by the Cyral sidecar endpoint + the S3 listening port. It is indicated when connecting from CLI applications, such as `aws cli`, or through the AWS SDK. This listener mode is functional for client applications using either AWS native credentials, e.g. Access Key ID/Secret Access Key, or Cyral-Provided access tokens (Single Sign-On connections). When `false`, instructs the sidecar to mimic the actual behavior of AWS S3, meaning client applications will not be aware of a middleware HTTP proxy in the path to S3. This listener mode is only compatible with applications using Cyral-Provided access tokens and is must used when configuring the Cyral S3 Browser. This mode is currently not recommended for any other use besides the Cyral S3 Browser.
+
+<a id="nestedblock--sqlserver_settings"></a>
+
+### Nested Schema for `sqlserver_settings`
+
+Required:
+
+- `version` (String) Advertised SQL Server version. Required (and only relevant) for Listeners of type 'sqlserver' The format of the version should be <major>.<minor>.<build_number> API will validate that the version is a valid version number. Major version is an integer in range 0-255. Minor version is an integer in range 0-255. Build number is an integer in range 0-65535. Example: 16.0.1000 To get the version of the SQL Server runtime, run the following query: SELECT SERVERPROPERTY('productversion') Note: If the query returns a four part version number, only the first three parts should be used. Example: 16.0.1000.6 -> 16.0.1000

@@ -70,7 +70,7 @@ func testAccSidecarIDConfig_ExistentSidecar() string {
 	config += utils.FormatBasicSidecarIntoConfig(
 		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarIDDataSourceName, "sidecar"),
-		"cloudFormation", "",
+		"cft-ec2", "",
 	)
 	config += fmt.Sprintf(
 		`

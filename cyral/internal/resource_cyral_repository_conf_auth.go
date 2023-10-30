@@ -9,16 +9,26 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
 	repositoryConfAuthURLFormat = "https://%s/v1/repos/%s/conf/auth"
 
-	DefaultClientTLS = "disable"
-	DefaultRepoTLS   = "disable"
+	DefaultClientTLS    = "disable"
+	DefaultRepoTLS      = "disable"
+	AccessTokenAuthType = "ACCESS_TOKEN"
+	AwsIAMAuthType      = "AWS_IAM"
+	DefaultAuthType     = AccessTokenAuthType
 )
+
+var authTypes = []string{
+	AccessTokenAuthType,
+	AwsIAMAuthType,
+}
 
 type RepositoryConfAuthData struct {
 	RepoID           *string `json:"-"`
@@ -26,6 +36,7 @@ type RepositoryConfAuthData struct {
 	ClientTLS        string  `json:"clientTLS"`
 	IdentityProvider string  `json:"identityProvider"`
 	RepoTLS          string  `json:"repoTLS"`
+	AuthType         string  `json:"authType"`
 }
 
 func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
@@ -49,6 +60,8 @@ func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
 
 	d.Set("repo_tls", data.RepoTLS)
 
+	d.Set("auth_type", data.AuthType)
+
 	return nil
 }
 
@@ -59,6 +72,7 @@ func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) error
 	}
 
 	data.AllowNativeAuth = d.Get("allow_native_auth").(bool)
+	data.AuthType = d.Get("auth_type").(string)
 	data.ClientTLS = d.Get("client_tls").(string)
 	data.IdentityProvider = d.Get("identity_provider").(string)
 	data.RepoTLS = d.Get("repo_tls").(string)
@@ -204,6 +218,15 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     DefaultRepoTLS,
+			},
+			"auth_type": {
+				Description: fmt.Sprintf("Authentication type for this repository. **Note**: `%s` is currently "+
+					"only supported by `%s` repo type. List of supported values: %s",
+					AwsIAMAuthType, MongoDB, utils.SupportedValuesAsMarkdown(authTypes)),
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      DefaultAuthType,
+				ValidateFunc: validation.StringInSlice(authTypes, false),
 			},
 		},
 	}

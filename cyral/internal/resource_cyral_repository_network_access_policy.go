@@ -151,7 +151,13 @@ func deleteRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 
 func ResourceRepositoryNetworkAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages the network access policy of a repository. Network access policies are also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/). This feature is supported for the following repository types:" + utils.SupportedValuesAsMarkdown(repositoryTypesNetworkShield()),
+		Description: "Manages the network access policy of a repository. Network access policies are" +
+			" also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/)." +
+			" This feature is supported for the following repository types:" +
+			utils.SupportedValuesAsMarkdown(repositoryTypesNetworkShield()) +
+			"\n\n-> **Note** If you also use the resource `cyral_repository_conf_auth` for the same repository," +
+			" create a `depends_on` relationship from this resource to the `cyral_repository_conf_auth` to" +
+			" avoid errors when running `terraform destroy`.",
 		CreateContext: core.CreateResource(createRepositoryNetworkAccessPolicy(), readRepositoryNetworkAccessPolicy()),
 		ReadContext:   core.ReadResource(readRepositoryNetworkAccessPolicy()),
 		UpdateContext: core.UpdateResource(updateRepositoryNetworkAccessPolicy(), readRepositoryNetworkAccessPolicy()),

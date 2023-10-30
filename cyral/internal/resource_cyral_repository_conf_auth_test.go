@@ -19,9 +19,9 @@ func repositoryConfAuthDependencyConfig() string {
 	return utils.FormatBasicRepositoryIntoConfig(
 		utils.BasicRepositoryResName,
 		utils.AccTestName(repositoryConfAuthResourceName, "repository"),
-		"mysql",
-		"http://mysql.local/",
-		3306,
+		"mongodb",
+		"http://mongodb.local/",
+		27017,
 	)
 }
 
@@ -30,6 +30,7 @@ func initialRepositoryConfAuthConfig() internal.RepositoryConfAuthData {
 		AllowNativeAuth: false,
 		ClientTLS:       "disable",
 		RepoTLS:         "enable",
+		AuthType:        "ACCESS_TOKEN",
 	}
 }
 
@@ -38,6 +39,7 @@ func update1RepositoryConfAuthConfig() internal.RepositoryConfAuthData {
 		AllowNativeAuth: true,
 		ClientTLS:       "enable",
 		RepoTLS:         "disable",
+		AuthType:        "AWS_IAM",
 	}
 }
 
@@ -46,6 +48,7 @@ func update2RepositoryConfAuthConfig() internal.RepositoryConfAuthData {
 		AllowNativeAuth: false,
 		ClientTLS:       "enable",
 		RepoTLS:         "disable",
+		AuthType:        "ACCESS_TOKEN",
 	}
 }
 
@@ -67,6 +70,7 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 			internal.RepositoryConfAuthData{
 				ClientTLS: internal.DefaultClientTLS,
 				RepoTLS:   internal.DefaultRepoTLS,
+				AuthType:  internal.DefaultAuthType,
 			},
 		),
 	}
@@ -74,7 +78,6 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 
 func TestAccRepositoryConfAuthResource(t *testing.T) {
 	testMinimal := repositoryConfAuthMinimalConfigTest("main_test")
-
 	mainTest := setupRepositoryConfAuthTest("main_test", initialRepositoryConfAuthConfig())
 	mainTestUpdate1 := setupRepositoryConfAuthTest("main_test", update1RepositoryConfAuthConfig())
 	mainTestUpdate2 := setupRepositoryConfAuthTest("main_test", update2RepositoryConfAuthConfig())
@@ -83,11 +86,9 @@ func TestAccRepositoryConfAuthResource(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			testMinimal,
-
 			mainTest,
 			mainTestUpdate1,
 			mainTestUpdate2,
-
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -132,11 +133,15 @@ func setupRepositoryConfAuthCheck(resName string, repositoryConf internal.Reposi
 	resourceFullName := fmt.Sprintf("cyral_repository_conf_auth.%s", resName)
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName,
-			"allow_native_auth", fmt.Sprintf("%t", repositoryConf.AllowNativeAuth)),
+			"allow_native_auth", fmt.Sprintf("%t", repositoryConf.AllowNativeAuth),
+		),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"client_tls", repositoryConf.ClientTLS),
 		resource.TestCheckResourceAttr(resourceFullName,
 			"repo_tls", repositoryConf.RepoTLS),
+		resource.TestCheckResourceAttr(resourceFullName,
+			"auth_type", repositoryConf.AuthType,
+		),
 	)
 }
 
@@ -152,6 +157,7 @@ func formatRepositoryConfAuthDataIntoConfig(
 		client_tls = "%s"
 		identity_provider = "tf_test_conf_auth_okta"
 		repo_tls = "%s"
+		auth_type = "%s"
 	}`, resName, repositoryID, data.AllowNativeAuth, data.ClientTLS,
-		data.RepoTLS)
+		data.RepoTLS, data.AuthType)
 }

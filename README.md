@@ -54,12 +54,16 @@ make docker-compose/docs
 pre-commit run --show-diff-on-failure --color=always --all-files
 ```
 
+> **_Note_** that due to a [limitation of the tfplugindocs tool](https://github.com/hashicorp/terraform-plugin-docs/issues/28), some descriptions might not be automatically generated for nested fields. In this case, its necessary to generate the documentation manually by editing the template file - in the `templates` folder - corresponding to the resource/data-source.
+
 > `pre-commit` can sometimes fail because your user is not the owner of the files in the `/docs` directory.
 > To solve this problem, run the following command and re-run the `pre-commit run...` tried in the previous step:
 
 ```bash
 find docs -exec sudo chown <your_username> {} \;
 ```
+
+> The `make docker-compose/docs` command can sometimes fail. If this is your case, you can use the `tfplugindocs generate` command, which will do the same as `make docker-compose/docs`. You can get the binary from [this link](https://github.com/hashicorp/terraform-plugin-docs)
 
 ### Test Instructions
 

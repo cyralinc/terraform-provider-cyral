@@ -76,7 +76,7 @@ func testAccSidecarInstanceIDsConfig_NoSidecarInstances() string {
 	config += utils.FormatBasicSidecarIntoConfig(
 		utils.BasicSidecarResName,
 		utils.AccTestName(sidecarInstanceIDsDataSourceName, "sidecar"),
-		"cloudFormation", "",
+		"cft-ec2", "",
 	)
 
 	config += fmt.Sprintf(
