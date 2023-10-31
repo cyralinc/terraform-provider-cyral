@@ -249,3 +249,20 @@ func FormatDataLabelIntoConfig(resName, dataLabelName, dataLabelDescription,
 		classificationRuleConfig,
 	)
 }
+
+func FormatELKIntegrationDataIntoConfig(name, kibanaURL, esURL string) string {
+	return fmt.Sprintf(`
+	resource "cyral_integration_elk" "elk_integration" {
+		name = "%s"
+		kibana_url = "%s"
+		es_url = "%s"
+	}`, name, kibanaURL, esURL)
+}
+
+func FormatDatadogIntegrationDataIntoConfig(name, apiKey string) string {
+	return fmt.Sprintf(`
+	resource "cyral_integration_datadog" "datadog_integration" {
+		name = "%s"
+		api_key = "%s"
+	}`, name, apiKey)
+}

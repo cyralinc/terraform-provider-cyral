@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -108,7 +109,7 @@ func ResourceServiceAccount() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			IDKey: {
+			utils.IDKey: {
 				Description: fmt.Sprintf(
 					"The resource identifier. It's equal to `%s`.",
 					ServiceAccountResourceClientIDKey,

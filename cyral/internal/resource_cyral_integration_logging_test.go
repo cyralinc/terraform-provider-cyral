@@ -18,7 +18,7 @@ const (
 	integrationLogsFullTerraformResourceName = "cyral_integration_logging.logs_integration_test"
 )
 
-var providerFactories = map[string]func() (*schema.Provider, error){
+var ProviderFactories = map[string]func() (*schema.Provider, error){
 	"cyral": func() (*schema.Provider, error) {
 		return provider.Provider(), nil
 	},
@@ -194,7 +194,7 @@ func TestAccLogsIntegrationResourceCloudWatch(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigCloudWatch)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
@@ -218,7 +218,7 @@ func TestAccLogsIntegrationResourceDataDog(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigDataDog)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
@@ -242,7 +242,7 @@ func TestAccLogsIntegrationResourceElk(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigElk)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
@@ -266,7 +266,7 @@ func TestAccLogsIntegrationResourceElkEmptyEsCredentials(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigElkEmptyEsCredentials)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
@@ -290,7 +290,7 @@ func TestAccLogsIntegrationResourceSplunk(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigSplunk)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
@@ -314,7 +314,7 @@ func TestAccLogsIntegrationResourceSumologic(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigSumologic)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,
@@ -338,7 +338,7 @@ func TestAccLogsIntegrationResourceFluentbit(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupLogsTest(updatedLogsConfigFluentbit)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,

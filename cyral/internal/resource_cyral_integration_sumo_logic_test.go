@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -28,7 +29,7 @@ func TestAccSumoLogicIntegrationResource(t *testing.T) {
 	testUpdateConfig, testUpdateFunc := setupSumoLogicTest(updatedSumoLogicConfig)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig,

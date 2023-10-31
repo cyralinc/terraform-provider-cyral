@@ -2,26 +2,56 @@ package datamap
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 )
 
-// TODO Migrate *Context functions to `core.ResourceOperationConfig`.
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [Data Map](https://cyral.com/docs/policy/datamap).",
-		CreateContext: resourceRepositoryDatamapCreate,
-		ReadContext:   resourceRepositoryDatamapRead,
-		UpdateContext: resourceRepositoryDatamapUpdate,
-		DeleteContext: resourceRepositoryDatamapDelete,
+		Description: "Manages [Data Map](https://cyral.com/docs/policy/datamap).",
+		CreateContext: core.CreateResource(
+			core.ResourceOperationConfig{
+				Name:       "DataMapResourceCreate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
+						c.ControlPlane,
+						d.Get("repository_id").(string))
+				},
+				NewResourceData: func() core.ResourceData { return &DataMap{} },
+				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &DataMap{} },
+			}, readDataMapConfig,
+		),
+
+		ReadContext: core.ReadResource(readDataMapConfig),
+		UpdateContext: core.UpdateResource(
+			core.ResourceOperationConfig{
+				Name:       "DataMapResourceUpdate",
+				HttpMethod: http.MethodPut,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
+						c.ControlPlane,
+						d.Get("repository_id").(string))
+				},
+				NewResourceData: func() core.ResourceData { return &DataMap{} },
+			}, readDataMapConfig,
+		),
+		DeleteContext: core.DeleteResource(
+			core.ResourceOperationConfig{
+				Name:       "DataMapResourceDelete",
+				HttpMethod: http.MethodDelete,
+				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
+						c.ControlPlane,
+						d.Get("repository_id").(string))
+				},
+			},
+		),
 		Schema: map[string]*schema.Schema{
 			"repository_id": {
 				Description: "ID of the repository for which to configure a data map.",
@@ -78,124 +108,14 @@ func resourceSchema() *schema.Resource {
 	}
 }
 
-func resourceRepositoryDatamapCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryDatamapCreate")
-	c := m.(*client.Client)
-
-	repoID := d.Get("repository_id").(string)
-	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
-
-	dataMap := getDatamapFromResource(d)
-	dataMapRequest := DataMapRequest{DataMap: dataMap}
-
-	_, err := c.DoRequest(url, http.MethodPut, dataMapRequest)
-	if err != nil {
-		return utils.CreateError("Unable to create repository datamap", err.Error())
-	}
-
-	d.SetId(repoID)
-	// Write data map here to avoid issues with the order of the attributes.
-	//
-	// TODO: If in the future the order of the list of attributes the API
-	// returns becomes deterministic, this can be removed. -aholmquist 2022-08-04
-	if err := dataMap.WriteToSchema(d); err != nil {
-		return utils.CreateError("Unable to create repository datamap", err.Error())
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryDatamapCreate")
-
-	return resourceRepositoryDatamapRead(ctx, d, m)
-}
-
-func resourceRepositoryDatamapRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryDatamapRead")
-	c := m.(*client.Client)
-
-	repoID := d.Id()
-	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
-
-	body, err := c.DoRequest(url, http.MethodGet, nil)
-	if err != nil {
-		return utils.CreateError("Unable to create repository datamap", err.Error())
-	}
-
-	dataMap := DataMap{}
-	if err := json.Unmarshal(body, &dataMap); err != nil {
-		return utils.CreateError("Unable to unmarshall JSON", err.Error())
-	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", dataMap)
-
-	// TODO: If in the future the order of the list of attributes the API
-	// returns becomes deterministic, this check can be removed. -aholmquist 2022-08-04
-	currentDataMap := getDatamapFromResource(d)
-	if !currentDataMap.equal(dataMap) {
-		if err := dataMap.WriteToSchema(d); err != nil {
-			return utils.CreateError("Unable to read repository datamap", err.Error())
-		}
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryDatamapRead")
-
-	return diag.Diagnostics{}
-}
-
-func resourceRepositoryDatamapUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryDatamapUpdate")
-	c := m.(*client.Client)
-
-	repoID := d.Id()
-	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
-
-	dataMap := getDatamapFromResource(d)
-	dataMapRequest := DataMapRequest{DataMap: dataMap}
-
-	_, err := c.DoRequest(url, http.MethodPut, dataMapRequest)
-	if err != nil {
-		return utils.CreateError("Unable to create repository datamap", err.Error())
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryDatamapUpdate")
-
-	return resourceRepositoryDatamapRead(ctx, d, m)
-}
-
-func resourceRepositoryDatamapDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryDatamapDelete")
-	c := m.(*client.Client)
-
-	repoID := d.Id()
-	url := fmt.Sprintf("https://%s/v1/repos/%s/datamap", c.ControlPlane, repoID)
-
-	_, err := c.DoRequest(url, http.MethodDelete, nil)
-	if err != nil {
-		return utils.CreateError("Unable to delete repository datamap", err.Error())
-	}
-
-	log.Printf("[DEBUG] End resourceRepositoryDatamapDelete")
-
-	return diag.Diagnostics{}
-}
-
-func getDatamapFromResource(d *schema.ResourceData) DataMap {
-	mappings := d.Get("mapping").(*schema.Set).List()
-
-	dataMap := DataMap{
-		Labels: make(map[string]*DataMapMapping),
-	}
-	for _, mappingIface := range mappings {
-		mapping := mappingIface.(map[string]interface{})
-
-		label := mapping["label"].(string)
-		var attributes []string
-		if mappingAtts, ok := mapping["attributes"]; ok {
-			for _, attributeIface := range mappingAtts.([]interface{}) {
-				attributes = append(attributes, attributeIface.(string))
-			}
-		}
-		dataMap.Labels[label] = &DataMapMapping{
-			Attributes: attributes,
-		}
-	}
-
-	return dataMap
+var readDataMapConfig = core.ResourceOperationConfig{
+	Name:       "DataMapResourceRead",
+	HttpMethod: http.MethodGet,
+	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
+			c.ControlPlane,
+			d.Get("repository_id").(string))
+	},
+	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &DataMap{} },
+	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Map"},
 }

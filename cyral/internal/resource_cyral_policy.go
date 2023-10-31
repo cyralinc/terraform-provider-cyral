@@ -264,3 +264,40 @@ func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 
 	return policy
 }
+
+func ListPolicies(c *client.Client) ([]Policy, error) {
+	log.Printf("[DEBUG] Init ListPolicies")
+
+	url := fmt.Sprintf("https://%s/v1/policies", c.ControlPlane)
+	resp, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var listResp PolicyListResponse
+	if err := json.Unmarshal(resp, &listResp); err != nil {
+		return nil, err
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", listResp)
+
+	var policies []Policy
+	for _, policyID := range listResp.Policies {
+		url := fmt.Sprintf("https://%s/v1/policies/%s",
+			c.ControlPlane, policyID)
+		resp, err := c.DoRequest(url, http.MethodGet, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		var policy Policy
+		if err := json.Unmarshal(resp, &policy); err != nil {
+			return nil, err
+		}
+		log.Printf("[DEBUG] Response body (unmarshalled): %#v", policy)
+
+		policies = append(policies, policy)
+	}
+
+	log.Printf("[DEBUG] End ListPolicies")
+	return policies, nil
+}

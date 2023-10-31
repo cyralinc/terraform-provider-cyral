@@ -135,3 +135,21 @@ func dataSourceIntegrationIdPRead(
 
 	return nil
 }
+
+func ListIdPIntegrations(c *client.Client) (*IdPIntegrations, error) {
+	log.Printf("[DEBUG] Init ListIdPIntegrations")
+
+	url := fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp := &IdPIntegrations{}
+	if err := json.Unmarshal(body, resp); err != nil {
+		return nil, err
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", resp)
+	log.Printf("[DEBUG] End ListIdPIntegrations")
+
+	return resp, nil
+}

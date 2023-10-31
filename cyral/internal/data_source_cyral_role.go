@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 
@@ -169,4 +171,22 @@ func DataSourceRole() *schema.Resource {
 			},
 		},
 	}
+}
+
+func ListRoles(c *client.Client) (*GetUserGroupsResponse, error) {
+	log.Printf("[DEBUG] Init listRoles")
+
+	url := fmt.Sprintf("https://%s/v1/users/groups", c.ControlPlane)
+	body, err := c.DoRequest(url, http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp := &GetUserGroupsResponse{}
+	if err := json.Unmarshal(body, resp); err != nil {
+		return nil, err
+	}
+	log.Printf("[DEBUG] Response body (unmarshalled): %#v", resp)
+	log.Printf("[DEBUG] End listRoles")
+
+	return resp, nil
 }

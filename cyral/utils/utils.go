@@ -24,6 +24,7 @@ const (
 	BindingIDKey    = "binding_id"
 	SidecarIDKey    = "sidecar_id"
 	ListenerIDKey   = "listener_id"
+	StatusKey       = "status"
 )
 
 func ConvertToInterfaceList[T any](list []T) []any {

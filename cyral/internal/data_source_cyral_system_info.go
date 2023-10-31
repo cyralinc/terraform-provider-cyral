@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -43,7 +44,7 @@ func DataSourceSystemInfo() *schema.Resource {
 			},
 		}),
 		Schema: map[string]*schema.Schema{
-			IDKey: {
+			utils.IDKey: {
 				Description: "Data source identifier.",
 				Type:        schema.TypeString,
 				Computed:    true,

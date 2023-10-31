@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -27,7 +28,7 @@ func TestAccServiceAccountResource(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: providerFactories,
+		ProviderFactories: provider.ProviderFactories,
 		Steps:             testSteps,
 	})
 }

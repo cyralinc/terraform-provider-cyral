@@ -1,7 +1,6 @@
 package internal_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal"
@@ -53,22 +52,14 @@ func TestAccDatadogIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupDatadogTest(integrationData internal.DatadogIntegration) (string, resource.TestCheckFunc) {
-	configuration := formatDatadogIntegrationDataIntoConfig(integrationData)
+func setupDatadogTest(d internal.DatadogIntegration) (string, resource.TestCheckFunc) {
+	configuration := utils.FormatDatadogIntegrationDataIntoConfig(d.Name, d.APIKey)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr("cyral_integration_datadog.datadog_integration",
-			"name", integrationData.Name),
+			"name", d.Name),
 		resource.TestCheckResourceAttr("cyral_integration_datadog.datadog_integration",
-			"api_key", integrationData.APIKey))
+			"api_key", d.APIKey))
 
 	return configuration, testFunction
-}
-
-func formatDatadogIntegrationDataIntoConfig(data internal.DatadogIntegration) string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_datadog" "datadog_integration" {
-		name = "%s"
-		api_key = "%s"
-	}`, data.Name, data.APIKey)
 }

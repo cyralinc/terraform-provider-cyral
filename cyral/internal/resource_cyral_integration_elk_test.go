@@ -1,7 +1,6 @@
 package internal_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal"
@@ -55,23 +54,14 @@ func TestAccELKIntegrationResource(t *testing.T) {
 	})
 }
 
-func setupELKTest(integrationData internal.ELKIntegration) (string, resource.TestCheckFunc) {
-	configuration := formatELKIntegrationDataIntoConfig(integrationData)
+func setupELKTest(d internal.ELKIntegration) (string, resource.TestCheckFunc) {
+	configuration := utils.FormatELKIntegrationDataIntoConfig(d.Name, d.KibanaURL, d.ESURL)
 
 	testFunction := resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "name", integrationData.Name),
-		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "kibana_url", integrationData.KibanaURL),
-		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "es_url", integrationData.ESURL),
+		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "name", d.Name),
+		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "kibana_url", d.KibanaURL),
+		resource.TestCheckResourceAttr("cyral_integration_elk.elk_integration", "es_url", d.ESURL),
 	)
 
 	return configuration, testFunction
-}
-
-func formatELKIntegrationDataIntoConfig(data internal.ELKIntegration) string {
-	return fmt.Sprintf(`
-	resource "cyral_integration_elk" "elk_integration" {
-		name = "%s"
-		kibana_url = "%s"
-		es_url = "%s"
-	}`, data.Name, data.KibanaURL, data.ESURL)
 }
