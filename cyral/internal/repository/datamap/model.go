@@ -35,6 +35,7 @@ func (dm *DataMap) WriteToSchema(d *schema.ResourceData) error {
 
 		mappings = append(mappings, mappingContents)
 	}
+	d.SetId(d.Get("repository_id").(string))
 
 	return d.Set("mapping", mappings)
 }

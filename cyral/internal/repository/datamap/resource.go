@@ -23,7 +23,7 @@ func resourceSchema() *schema.Resource {
 						c.ControlPlane,
 						d.Get("repository_id").(string))
 				},
-				NewResourceData: func() core.ResourceData { return &DataMap{} },
+				NewResourceData: func() core.ResourceData { return &DataMapRequest{} },
 				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &DataMap{} },
 			}, readDataMapConfig,
 		),
@@ -38,7 +38,7 @@ func resourceSchema() *schema.Resource {
 						c.ControlPlane,
 						d.Get("repository_id").(string))
 				},
-				NewResourceData: func() core.ResourceData { return &DataMap{} },
+				NewResourceData: func() core.ResourceData { return &DataMapRequest{} },
 			}, readDataMapConfig,
 		),
 		DeleteContext: core.DeleteResource(

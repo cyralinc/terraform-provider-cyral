@@ -7,8 +7,10 @@ import (
 	"testing"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -124,7 +126,7 @@ func sweepRole(_ string) error {
 	if err != nil {
 		return err
 	}
-	resp, err := internal.ListRoles(c)
+	resp, err := role.ListRoles(c)
 	if err != nil {
 		return err
 	}
@@ -148,7 +150,7 @@ func sweepPolicy(_ string) error {
 	if err != nil {
 		return err
 	}
-	policies, err := internal.ListPolicies(c)
+	policies, err := policy.ListPolicies(c)
 	if err != nil {
 		return err
 	}
@@ -171,7 +173,7 @@ func sweepIntegrationIdP(_ string) error {
 	if err != nil {
 		return err
 	}
-	resp, err := internal.ListIdPIntegrations(c)
+	resp, err := deprecated.ListIdPIntegrations(c)
 	if err != nil {
 		return fmt.Errorf("failed to get IdP integrations: %w", err)
 	}

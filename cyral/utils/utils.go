@@ -210,3 +210,13 @@ func SetKeysAsNewComputedIfPlanHasChanges(resourceDiff *schema.ResourceDiff, key
 		}
 	}
 }
+
+func GetStrListFromSchemaField(d *schema.ResourceData, field string) []string {
+	strList := []string{}
+
+	for _, v := range d.Get(field).([]interface{}) {
+		strList = append(strList, v.(string))
+	}
+
+	return strList
+}

@@ -11,20 +11,37 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/awsiam"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/mfaduo"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/hcvault"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/bind"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/conf/analysis"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/conf/auth"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/binding"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/credentials"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/systeminfo"
 )
 
 func init() {
@@ -95,23 +112,23 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 		}
 	}
 
-	schemaMap["cyral_integration_idp"] = internal.DataSourceIntegrationIdP()
-	schemaMap["cyral_integration_idp_saml"] = internal.DataSourceIntegrationIdPSAML()
-	schemaMap["cyral_integration_logging"] = internal.DataSourceIntegrationLogging()
-	schemaMap["cyral_permission"] = internal.DataSourcePermission()
+	schemaMap["cyral_integration_idp"] = deprecated.DataSourceIntegrationIdP()
+	schemaMap["cyral_integration_idp_saml"] = idpsaml.DataSourceIntegrationIdPSAML()
+	schemaMap["cyral_integration_logging"] = logging.DataSourceIntegrationLogging()
+	schemaMap["cyral_permission"] = permission.DataSourcePermission()
 	schemaMap["cyral_repository"] = repository.DataSourceRepository()
-	schemaMap["cyral_role"] = internal.DataSourceRole()
-	schemaMap["cyral_saml_certificate"] = internal.DataSourceSAMLCertificate()
-	schemaMap["cyral_saml_configuration"] = internal.DataSourceSAMLConfiguration()
+	schemaMap["cyral_role"] = role.DataSourceRole()
+	schemaMap["cyral_saml_certificate"] = samlcertificate.DataSourceSAMLCertificate()
+	schemaMap["cyral_saml_configuration"] = samlconfiguration.DataSourceSAMLConfiguration()
 	schemaMap["cyral_sidecar_bound_ports"] = sidecar.DataSourceSidecarBoundPorts()
-	schemaMap["cyral_sidecar_cft_template"] = sidecar.DataSourceSidecarCftTemplate()
+	schemaMap["cyral_sidecar_cft_template"] = deprecated.DataSourceSidecarCftTemplate()
 	schemaMap["cyral_sidecar_health"] = health.DataSourceSidecarHealth()
 	schemaMap["cyral_sidecar_id"] = sidecar.DataSourceSidecarID()
-	schemaMap["cyral_sidecar_instance_ids"] = instance.DataSourceSidecarInstanceIDs()
+	schemaMap["cyral_sidecar_instance_ids"] = deprecated.DataSourceSidecarInstanceIDs()
 	schemaMap["cyral_sidecar_instance_stats"] = instance.DataSourceSidecarInstanceStats()
 	schemaMap["cyral_sidecar_instance"] = instance.DataSourceSidecarInstance()
 	schemaMap["cyral_sidecar_listener"] = listener.DataSourceSidecarListener()
-	schemaMap["cyral_system_info"] = internal.DataSourceSystemInfo()
+	schemaMap["cyral_system_info"] = systeminfo.DataSourceSystemInfo()
 
 	log.Printf("[DEBUG] end getDataSourceMap")
 
@@ -134,41 +151,41 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 
 	// // TODO Once the resources are migrated to the new SchemaRegister
 	// // abstraction, these calls from provider to resource will be removed.
-	schemaMap["cyral_integration_aws_iam"] = internal.ResourceIntegrationAWSIAM()
-	schemaMap["cyral_integration_datadog"] = internal.ResourceIntegrationDatadog()
-	schemaMap["cyral_integration_mfa_duo"] = internal.ResourceIntegrationMFADuo()
-	schemaMap["cyral_integration_elk"] = internal.ResourceIntegrationELK()
-	schemaMap["cyral_integration_hc_vault"] = internal.ResourceIntegrationHCVault()
-	schemaMap["cyral_integration_logstash"] = internal.ResourceIntegrationLogstash()
-	schemaMap["cyral_integration_looker"] = internal.ResourceIntegrationLooker()
-	schemaMap["cyral_integration_microsoft_teams"] = internal.ResourceIntegrationMsTeams()
-	schemaMap["cyral_integration_pager_duty"] = internal.ResourceIntegrationPagerDuty()
-	schemaMap["cyral_integration_slack_alerts"] = internal.ResourceIntegrationSlackAlerts()
-	schemaMap["cyral_integration_splunk"] = internal.ResourceIntegrationSplunk()
-	schemaMap["cyral_integration_idp_aad"] = internal.ResourceIntegrationIdP("aad", idpDeprecationMessage)
-	schemaMap["cyral_integration_idp_adfs"] = internal.ResourceIntegrationIdP("adfs-2016", idpDeprecationMessage)
-	schemaMap["cyral_integration_idp_forgerock"] = internal.ResourceIntegrationIdP("forgerock", "")
-	schemaMap["cyral_integration_idp_gsuite"] = internal.ResourceIntegrationIdP("gsuite", idpDeprecationMessage)
-	schemaMap["cyral_integration_idp_okta"] = internal.ResourceIntegrationIdP("okta", idpDeprecationMessage)
-	schemaMap["cyral_integration_idp_ping_one"] = internal.ResourceIntegrationIdP("pingone", idpDeprecationMessage)
-	schemaMap["cyral_integration_idp_saml"] = internal.ResourceIntegrationIdPSAML()
-	schemaMap["cyral_integration_idp_saml_draft"] = internal.ResourceIntegrationIdPSAMLDraft()
-	schemaMap["cyral_integration_sumo_logic"] = internal.ResourceIntegrationSumoLogic()
-	schemaMap["cyral_integration_logging"] = internal.ResourceIntegrationLogging()
-	schemaMap["cyral_policy"] = internal.ResourcePolicy()
-	schemaMap["cyral_policy_rule"] = internal.ResourcePolicyRule()
-	schemaMap["cyral_rego_policy_instance"] = internal.ResourceRegoPolicyInstance()
+	schemaMap["cyral_integration_aws_iam"] = awsiam.ResourceIntegrationAWSIAM()
+	schemaMap["cyral_integration_datadog"] = deprecated.ResourceIntegrationDatadog()
+	schemaMap["cyral_integration_mfa_duo"] = mfaduo.ResourceIntegrationMFADuo()
+	schemaMap["cyral_integration_elk"] = deprecated.ResourceIntegrationELK()
+	schemaMap["cyral_integration_hc_vault"] = hcvault.ResourceIntegrationHCVault()
+	schemaMap["cyral_integration_logstash"] = deprecated.ResourceIntegrationLogstash()
+	schemaMap["cyral_integration_looker"] = deprecated.ResourceIntegrationLooker()
+	schemaMap["cyral_integration_microsoft_teams"] = teams.ResourceIntegrationMsTeams()
+	schemaMap["cyral_integration_pager_duty"] = pagerduty.ResourceIntegrationPagerDuty()
+	schemaMap["cyral_integration_slack_alerts"] = slack.ResourceIntegrationSlackAlerts()
+	schemaMap["cyral_integration_splunk"] = deprecated.ResourceIntegrationSplunk()
+	schemaMap["cyral_integration_idp_aad"] = deprecated.ResourceIntegrationIdP("aad", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_adfs"] = deprecated.ResourceIntegrationIdP("adfs-2016", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_forgerock"] = deprecated.ResourceIntegrationIdP("forgerock", "")
+	schemaMap["cyral_integration_idp_gsuite"] = deprecated.ResourceIntegrationIdP("gsuite", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_okta"] = deprecated.ResourceIntegrationIdP("okta", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_ping_one"] = deprecated.ResourceIntegrationIdP("pingone", idpDeprecationMessage)
+	schemaMap["cyral_integration_idp_saml"] = idpsaml.ResourceIntegrationIdPSAML()
+	schemaMap["cyral_integration_idp_saml_draft"] = idpsaml.ResourceIntegrationIdPSAMLDraft()
+	schemaMap["cyral_integration_sumo_logic"] = deprecated.ResourceIntegrationSumoLogic()
+	schemaMap["cyral_integration_logging"] = logging.ResourceIntegrationLogging()
+	schemaMap["cyral_policy"] = policy.ResourcePolicy()
+	schemaMap["cyral_policy_rule"] = rule.ResourcePolicyRule()
+	schemaMap["cyral_rego_policy_instance"] = regopolicy.ResourceRegoPolicyInstance()
 	schemaMap["cyral_repository"] = repository.ResourceRepository()
 	schemaMap["cyral_repository_access_rules"] = accessrules.ResourceRepositoryAccessRules()
 	schemaMap["cyral_repository_access_gateway"] = accessgateway.ResourceRepositoryAccessGateway()
-	schemaMap["cyral_repository_binding"] = bind.ResourceRepositoryBinding()
-	schemaMap["cyral_repository_conf_auth"] = auth.ResourceRepositoryConfAuth()
-	schemaMap["cyral_repository_conf_analysis"] = analysis.ResourceRepositoryConfAnalysis()
+	schemaMap["cyral_repository_binding"] = binding.ResourceRepositoryBinding()
+	schemaMap["cyral_repository_conf_auth"] = confauth.ResourceRepositoryConfAuth()
+	schemaMap["cyral_repository_conf_analysis"] = confanalysis.ResourceRepositoryConfAnalysis()
 	schemaMap["cyral_repository_network_access_policy"] = network.ResourceRepositoryNetworkAccessPolicy()
 	schemaMap["cyral_repository_user_account"] = useraccount.ResourceRepositoryUserAccount()
-	schemaMap["cyral_role"] = internal.ResourceRole()
-	schemaMap["cyral_role_sso_groups"] = internal.ResourceRoleSSOGroups()
-	schemaMap["cyral_service_account"] = internal.ResourceServiceAccount()
+	schemaMap["cyral_role"] = role.ResourceRole()
+	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
+	schemaMap["cyral_service_account"] = serviceaccount.ResourceServiceAccount()
 	schemaMap["cyral_sidecar"] = sidecar.ResourceSidecar()
 	schemaMap["cyral_sidecar_credentials"] = credentials.ResourceSidecarCredentials()
 	schemaMap["cyral_sidecar_listener"] = listener.ResourceSidecarListener()
