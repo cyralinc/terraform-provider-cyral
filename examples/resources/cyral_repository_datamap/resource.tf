@@ -2,8 +2,11 @@
 resource "cyral_repository" "example-pg" {
   name = "example-pg"
   type = "postgresql"
-  host = "pg.example.com"
-  port = 5432
+
+  repo_node {
+    host = "pg.example.com"
+    port = 5432
+  }
 }
 
 # Create custom labels
