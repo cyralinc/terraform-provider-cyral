@@ -21,6 +21,13 @@ type DataMapMapping struct {
 }
 
 func (dm *DataMap) WriteToSchema(d *schema.ResourceData) error {
+	// TODO: If in the future the order of the list of attributes the API
+	// returns becomes deterministic, this check can be removed. -aholmquist 2022-08-04
+	currentDataMap := getDatamapFromResource(d)
+	if currentDataMap.equal(dm) {
+		return nil
+	}
+
 	var mappings []interface{}
 	for label, mapping := range dm.Labels {
 		mappingContents := make(map[string]interface{})
@@ -61,7 +68,7 @@ func (dm *DataMap) ReadFromSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-func (dm *DataMap) equal(other DataMap) bool {
+func (dm *DataMap) equal(other *DataMap) bool {
 	for label, thisMapping := range dm.Labels {
 		if otherMapping, ok := other.Labels[label]; ok {
 			if !utils.ElementsMatch(thisMapping.Attributes, otherMapping.Attributes) {
@@ -72,4 +79,28 @@ func (dm *DataMap) equal(other DataMap) bool {
 		}
 	}
 	return true
+}
+
+func getDatamapFromResource(d *schema.ResourceData) DataMap {
+	mappings := d.Get("mapping").(*schema.Set).List()
+
+	dataMap := DataMap{
+		Labels: make(map[string]*DataMapMapping),
+	}
+	for _, mappingIface := range mappings {
+		mapping := mappingIface.(map[string]interface{})
+
+		label := mapping["label"].(string)
+		var attributes []string
+		if mappingAtts, ok := mapping["attributes"]; ok {
+			for _, attributeIface := range mappingAtts.([]interface{}) {
+				attributes = append(attributes, attributeIface.(string))
+			}
+		}
+		dataMap.Labels[label] = &DataMapMapping{
+			Attributes: attributes,
+		}
+	}
+
+	return dataMap
 }
