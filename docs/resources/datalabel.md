@@ -50,5 +50,9 @@ resource "cyral_datalabel" "NAME" {
 Optional:
 
 - `rule_code` (String) Actual code of the classification rule. For example, this attribute may contain REGO code for `REGO`-type classification rules.
-- `rule_status` (String) Status of the classification rule. Valid values are: `ENABLED` and `DISABLED`. Defaults to `ENABLED`.
-- `rule_type` (String) Type of the classification rule. Valid values are: `UNKNOWN` and `REGO`. Defaults to `UNKNOWN`.
+- `rule_status` (String) Status of the classification rule. List of supported values:
+  - `ENABLED`
+  - `DISABLED`
+- `rule_type` (String) Type of the classification rule. List of supported values:
+  - `UNKNOWN`
+  - `REGO`
