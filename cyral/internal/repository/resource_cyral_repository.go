@@ -280,7 +280,7 @@ var ReadRepositoryConfig = core.ResourceOperationConfig{
 			d.Id(),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &GetRepoByIDResponse{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository"},
@@ -301,10 +301,10 @@ func ResourceRepository() *schema.Resource {
 						c.ControlPlane,
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &RepoInfo{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &core.IDBasedResponse{}
 				},
 			},
@@ -322,7 +322,7 @@ func ResourceRepository() *schema.Resource {
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &RepoInfo{}
 				},
 			},

@@ -72,7 +72,7 @@ var ReadAWSIAMIntegration = core.ResourceOperationConfig{
 			d.Id(),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &AWSIAMIntegrationWrapper{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "AWS IAM Integration"},
@@ -88,10 +88,10 @@ func ResourceIntegrationAWSIAM() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/aws/iam", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &AWSIAMIntegrationWrapper{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &core.IDBasedResponse{}
 				},
 			},
@@ -109,7 +109,7 @@ func ResourceIntegrationAWSIAM() *schema.Resource {
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &AWSIAMIntegrationWrapper{}
 				},
 			},

@@ -45,7 +45,7 @@ var ReadRepositoryAccessGatewayConfig = core.ResourceOperationConfig{
 			d.Get(utils.RepositoryIDKey).(string),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &AccessGateway{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository access gateway"},
@@ -65,7 +65,7 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 						d.Get(utils.RepositoryIDKey).(string),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &AccessGateway{}
 				},
 			},
@@ -83,7 +83,7 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 						d.Get(utils.RepositoryIDKey).(string),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &AccessGateway{}
 				},
 			},

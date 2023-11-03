@@ -116,7 +116,7 @@ var ReadRepositoryBindingConfig = core.ResourceOperationConfig{
 			d.Get(utils.BindingIDKey).(string),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &GetBindingResponse{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository binding"},
@@ -135,10 +135,10 @@ func ResourceRepositoryBinding() *schema.Resource {
 						d.Get(utils.SidecarIDKey).(string))
 
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &CreateBindingRequest{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &CreateBindingResponse{}
 				},
 			}, ReadRepositoryBindingConfig,
@@ -156,7 +156,7 @@ func ResourceRepositoryBinding() *schema.Resource {
 					)
 
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &CreateBindingRequest{}
 				},
 			}, ReadRepositoryBindingConfig,

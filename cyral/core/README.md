@@ -7,7 +7,7 @@ for resources and data sources.
 ## How to use to create new resources and data sources
 
 There are some main types that must be used to create a new resources and data sources:
-`SchemaDescriptor`, `PackageSchema`, `ResourceData`, `ResponseData` and
+`SchemaDescriptor`, `PackageSchema`, `ResourceData`, `SchemaWriter` and
 `ResourceOperationConfig`. In a nutshell, these abstractions provide the means to
 teach the provider how to interact with the API, how to describe the feature as a
 Terraform resource/data source and finally teach the provider how to perform the
@@ -60,7 +60,7 @@ func dataSourceSchema() *schema.Resource {
             CreateURL: func(d *schema.ResourceData, c *client.Client) string {
                 return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Get("name").(string))
             },
-            NewResponseData: func(d *schema.ResourceData) core.ResponseData {
+            NewResponseData: func(d *schema.ResourceData) core.SchemaWriter {
                 return &NewFeature{}
             },
         }),
@@ -96,7 +96,7 @@ func resourceSchema() *schema.Resource {
                 CreateURL: func(d *schema.ResourceData, c *client.Client) string {
                     return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
                 },
-                NewResponseData: func(d *schema.ResourceData) core.ResponseData {
+                NewResponseData: func(d *schema.ResourceData) core.SchemaWriter {
                     return &NewFeature{}
                 },
             }, ReadNewFeatureConfig,
@@ -109,7 +109,7 @@ func resourceSchema() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &NewFeature{} },
+				NewResourceData: func() core.SchemaReader { return &NewFeature{} },
 			}, ReadNewFeatureConfig,
 		),
 		DeleteContext: core.DeleteResource(
@@ -142,7 +142,7 @@ var ReadNewFeatureConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &NewFeature{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "NewFeature"},
 }
 ```

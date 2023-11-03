@@ -45,7 +45,7 @@ func DataSourceSidecarInstanceStats() *schema.Resource {
 					d.Get(InstanceIDKey),
 				)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SidecarInstanceStats{}
 			},
 		}),

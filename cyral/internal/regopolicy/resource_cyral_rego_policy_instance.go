@@ -45,7 +45,7 @@ var (
 				d.Get(RegoPolicyInstancePolicyIDKey),
 			)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 			return &RegoPolicyInstance{}
 		},
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Rego policy instance"},
@@ -88,10 +88,10 @@ func ResourceRegoPolicyInstance() *schema.Resource {
 						d.Get(RegoPolicyInstanceCategoryKey),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &RegoPolicyInstancePayload{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &RegoPolicyInstanceKey{}
 				},
 			},
@@ -110,7 +110,7 @@ func ResourceRegoPolicyInstance() *schema.Resource {
 						d.Get(RegoPolicyInstancePolicyIDKey),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &RegoPolicyInstancePayload{}
 				},
 			},

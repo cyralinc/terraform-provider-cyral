@@ -40,7 +40,7 @@ func DataSourceSidecarInstance() *schema.Resource {
 					c.ControlPlane, d.Get(utils.SidecarIDKey),
 				)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SidecarInstances{}
 			},
 		}),

@@ -25,8 +25,8 @@ func resourceSchema() *schema.Resource {
 						c.ControlPlane,
 						d.Get("name").(string))
 				},
-				NewResourceData: func() core.ResourceData { return &DataLabel{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &DataLabel{} },
+				NewResourceData: func() core.SchemaReader { return &DataLabel{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 			}, readDataLabelConfig,
 		),
 		ReadContext: core.ReadResource(readDataLabelConfig),
@@ -39,7 +39,7 @@ func resourceSchema() *schema.Resource {
 						c.ControlPlane,
 						d.Get("name").(string))
 				},
-				NewResourceData: func() core.ResourceData { return &DataLabel{} },
+				NewResourceData: func() core.SchemaReader { return &DataLabel{} },
 			}, readDataLabelConfig,
 		),
 		DeleteContext: core.DeleteResource(
@@ -129,6 +129,6 @@ var readDataLabelConfig = core.ResourceOperationConfig{
 			c.ControlPlane,
 			d.Get("name").(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &DataLabel{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Label"},
 }

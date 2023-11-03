@@ -76,7 +76,7 @@ func dataSourceIntegrationIdPSAMLReadConfig() core.ResourceOperationConfig {
 			})
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso%s", c.ControlPlane, query)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &ListGenericSAMLIdpsResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &ListGenericSAMLIdpsResponse{} },
 	}
 }
 

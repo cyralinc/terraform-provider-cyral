@@ -37,7 +37,7 @@ var ReadELKConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &ELKIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &ELKIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration elk"},
 }
 
@@ -52,8 +52,8 @@ func ResourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData { return &ELKIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+				NewResourceData: func() core.SchemaReader { return &ELKIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadELKConfig,
 		),
 		ReadContext: core.ReadResource(ReadELKConfig),
@@ -64,7 +64,7 @@ func ResourceIntegrationELK() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/elk/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &ELKIntegration{} },
+				NewResourceData: func() core.SchemaReader { return &ELKIntegration{} },
 			}, ReadELKConfig,
 		),
 		DeleteContext: core.DeleteResource(

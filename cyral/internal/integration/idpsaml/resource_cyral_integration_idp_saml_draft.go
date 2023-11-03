@@ -93,8 +93,8 @@ func CreateGenericSAMLDraftConfig() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts", c.ControlPlane)
 		},
-		NewResourceData: func() core.ResourceData { return &CreateGenericSAMLDraftRequest{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &GenericSAMLDraftResponse{} },
+		NewResourceData: func() core.SchemaReader { return &CreateGenericSAMLDraftRequest{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
 	}
 }
 
@@ -106,7 +106,7 @@ func ReadGenericSAMLDraftConfig() core.ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
 		RequestErrorHandler: &readGenericSAMLDraftErrorHandler{},
-		NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &GenericSAMLDraftResponse{} },
+		NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
 	}
 }
 

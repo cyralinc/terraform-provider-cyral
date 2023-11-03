@@ -128,8 +128,8 @@ var createRoleSSOGroupsConfig = core.ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResourceData: func() core.ResourceData { return &RoleSSOGroupsCreateRequest{} },
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &RoleSSOGroupsCreateRequest{} },
+	NewResourceData: func() core.SchemaReader { return &RoleSSOGroupsCreateRequest{} },
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &RoleSSOGroupsCreateRequest{} },
 }
 
 var readRoleSSOGroupsConfig = core.ResourceOperationConfig{
@@ -139,7 +139,7 @@ var readRoleSSOGroupsConfig = core.ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &RoleSSOGroupsReadResponse{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &RoleSSOGroupsReadResponse{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Role SSO groups"},
 }
 
@@ -150,7 +150,7 @@ var deleteRoleSSOGroupsConfig = core.ResourceOperationConfig{
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResourceData: func() core.ResourceData { return &RoleSSOGroupsDeleteRequest{} },
+	NewResourceData: func() core.SchemaReader { return &RoleSSOGroupsDeleteRequest{} },
 }
 
 func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) error {

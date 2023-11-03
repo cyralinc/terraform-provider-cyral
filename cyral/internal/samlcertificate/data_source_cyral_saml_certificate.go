@@ -20,7 +20,7 @@ func DataSourceSAMLCertificate() *schema.Resource {
 			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/integrations/saml/rsa/cert", c.ControlPlane)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &SAMLCertificateData{} },
+			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &SAMLCertificateData{} },
 		}),
 		Schema: map[string]*schema.Schema{
 			"id": {

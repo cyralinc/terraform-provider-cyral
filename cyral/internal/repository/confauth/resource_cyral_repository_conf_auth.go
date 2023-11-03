@@ -147,8 +147,8 @@ func CreateConfAuthConfig(httpMethod string) core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.ResourceData { return &RepositoryConfAuthData{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &CreateRepositoryConfAuthResponse{} },
+		NewResourceData: func() core.SchemaReader { return &RepositoryConfAuthData{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateRepositoryConfAuthResponse{} },
 	}
 }
 
@@ -159,7 +159,7 @@ func ReadConfAuthConfig() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &ReadRepositoryConfAuthResponse{} },
+		NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository conf auth"},
 	}
 }
@@ -171,7 +171,7 @@ func UpdateConfAuthConfig() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.ResourceData { return &RepositoryConfAuthData{} },
+		NewResourceData: func() core.SchemaReader { return &RepositoryConfAuthData{} },
 	}
 }
 

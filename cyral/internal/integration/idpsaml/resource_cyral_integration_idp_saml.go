@@ -64,8 +64,8 @@ func CreateGenericSAMLConfig() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso", c.ControlPlane)
 		},
-		NewResourceData: func() core.ResourceData { return &CreateGenericSAMLRequest{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &CreateGenericSAMLResponse{} },
+		NewResourceData: func() core.SchemaReader { return &CreateGenericSAMLRequest{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateGenericSAMLResponse{} },
 	}
 }
 
@@ -76,8 +76,8 @@ func CreateIdPConfig() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 		},
-		NewResourceData: func() core.ResourceData { return &IdentityProviderData{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &IdentityProviderData{} },
+		NewResourceData: func() core.SchemaReader { return &IdentityProviderData{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &IdentityProviderData{} },
 	}
 }
 
@@ -88,7 +88,7 @@ func ReadGenericSAMLConfig() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
 		},
-		NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &ReadGenericSAMLResponse{} },
+		NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &ReadGenericSAMLResponse{} },
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Generic SAML"},
 	}
 }

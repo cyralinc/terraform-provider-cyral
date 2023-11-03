@@ -68,7 +68,7 @@ var ReadSidecarListenersConfig = core.ResourceOperationConfig{
 			d.Get(utils.SidecarIDKey).(string),
 			d.Get(utils.ListenerIDKey).(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &ReadSidecarListenerAPIResponse{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &ReadSidecarListenerAPIResponse{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Sidecar listener"},
 }
 
@@ -245,8 +245,8 @@ func ResourceSidecarListener() *schema.Resource {
 						d.Get(utils.SidecarIDKey).(string))
 
 				},
-				NewResourceData: func() core.ResourceData { return &SidecarListenerResource{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &CreateListenerAPIResponse{} },
+				NewResourceData: func() core.SchemaReader { return &SidecarListenerResource{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateListenerAPIResponse{} },
 			}, ReadSidecarListenersConfig,
 		),
 		ReadContext: core.ReadResource(ReadSidecarListenersConfig),
@@ -261,7 +261,7 @@ func ResourceSidecarListener() *schema.Resource {
 						d.Get(utils.ListenerIDKey).(string))
 
 				},
-				NewResourceData: func() core.ResourceData { return &SidecarListenerResource{} },
+				NewResourceData: func() core.SchemaReader { return &SidecarListenerResource{} },
 			}, ReadSidecarListenersConfig,
 		),
 		DeleteContext: core.DeleteResource(

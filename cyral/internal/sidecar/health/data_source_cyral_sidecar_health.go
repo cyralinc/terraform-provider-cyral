@@ -35,7 +35,7 @@ func DataSourceSidecarHealth() *schema.Resource {
 					"https://%s/v2/sidecars/%s/health", c.ControlPlane, d.Get(utils.SidecarIDKey),
 				)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SidecarHealth{}
 			},
 		}),

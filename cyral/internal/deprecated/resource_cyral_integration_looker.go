@@ -35,7 +35,7 @@ var ReadLookerConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &LookerIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &LookerIntegration{} },
 }
 
 func ResourceIntegrationLooker() *schema.Resource {
@@ -49,8 +49,8 @@ func ResourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData { return &LookerIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+				NewResourceData: func() core.SchemaReader { return &LookerIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadLookerConfig,
 		),
 		ReadContext: core.ReadResource(ReadLookerConfig),
@@ -61,7 +61,7 @@ func ResourceIntegrationLooker() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/looker/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &LookerIntegration{} },
+				NewResourceData: func() core.SchemaReader { return &LookerIntegration{} },
 			}, ReadLookerConfig,
 		),
 		DeleteContext: core.DeleteResource(

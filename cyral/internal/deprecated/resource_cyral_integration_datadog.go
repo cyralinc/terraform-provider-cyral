@@ -34,7 +34,7 @@ var ReadDatadogConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &DatadogIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &DatadogIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration datadog"},
 }
 
@@ -50,8 +50,8 @@ func ResourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData { return &DatadogIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+				NewResourceData: func() core.SchemaReader { return &DatadogIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadDatadogConfig,
 		),
 		ReadContext: core.ReadResource(ReadDatadogConfig),
@@ -62,7 +62,7 @@ func ResourceIntegrationDatadog() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &DatadogIntegration{} },
+				NewResourceData: func() core.SchemaReader { return &DatadogIntegration{} },
 			}, ReadDatadogConfig,
 		),
 		DeleteContext: core.DeleteResource(

@@ -39,7 +39,7 @@ func DataSourceSystemInfo() *schema.Resource {
 			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/systemInfo", c.ControlPlane)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SystemInfo{}
 			},
 		}),

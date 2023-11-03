@@ -67,7 +67,7 @@ func dataSourceRepositoryReadConfig() core.ResourceOperationConfig {
 
 			return fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &GetReposResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
 	}
 }
 

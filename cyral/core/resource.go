@@ -23,17 +23,15 @@ type RequestErrorHandler interface {
 	HandleError(d *schema.ResourceData, c *client.Client, err error) error
 }
 
-// TODO Rename as `SchemaReader` and document properly.
 // Teaches a resource or data source how to read from the Terraform schema and
 // store in the data structure defined for it.
-type ResourceData interface {
+type SchemaReader interface {
 	ReadFromSchema(d *schema.ResourceData) error
 }
 
-// TODO Rename as `SchemaWriter` and document properly.
 // Teaches a resource or data source how to write to the Terraform schema from
 // the data stored in the data structure defined for it.
-type ResponseData interface {
+type SchemaWriter interface {
 	WriteToSchema(d *schema.ResourceData) error
 }
 
@@ -65,18 +63,18 @@ type ResourceOperationConfig struct {
 	HttpMethod string
 	CreateURL  URLCreatorFunc
 	RequestErrorHandler
-	NewResourceData func() ResourceData
+	NewResourceData func() SchemaReader
 	// TODO provide a default implementation returning the IDBasedResponse:
-	// func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} }
-	NewResponseData func(d *schema.ResourceData) ResponseData
+	// func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} }
+	NewResponseData func(d *schema.ResourceData) SchemaWriter
 }
 
 func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
-	return HandleRequests(resourceOperations)
+	return handleRequests(resourceOperations)
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeCreate,
@@ -91,7 +89,7 @@ func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.Cre
 }
 
 func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeRead,
@@ -102,7 +100,7 @@ func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
 }
 
 func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.UpdateContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeUpdate,
@@ -117,7 +115,7 @@ func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.Upd
 }
 
 func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFunc {
-	return HandleRequests(
+	return handleRequests(
 		[]ResourceOperation{
 			{
 				Type:   OperationTypeDelete,
@@ -127,7 +125,7 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 	)
 }
 
-func HandleRequests(
+func handleRequests(
 	resourceOperations []ResourceOperation,
 ) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
@@ -135,7 +133,7 @@ func HandleRequests(
 			log.Printf("[DEBUG] Init %s", operation.Config.Name)
 			c := m.(*client.Client)
 
-			var resourceData ResourceData
+			var resourceData SchemaReader
 			if operation.Config.NewResourceData != nil {
 				if resourceData = operation.Config.NewResourceData(); resourceData != nil {
 					log.Printf("[DEBUG] Calling ReadFromSchema. Schema: %#v", d)

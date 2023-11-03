@@ -317,7 +317,7 @@ var ReadRepositoryUserAccountConfig = core.ResourceOperationConfig{
 			userAccountID,
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &UserAccountResource{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "User account"},
@@ -341,10 +341,10 @@ func ResourceRepositoryUserAccount() *schema.Resource {
 						d.Get("repository_id").(string),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &UserAccountResource{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &CreateUserAccountResponse{}
 				},
 			},
@@ -369,7 +369,7 @@ func ResourceRepositoryUserAccount() *schema.Resource {
 						userAccountID,
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &UserAccountResource{}
 				},
 			},

@@ -41,7 +41,7 @@ var ReadLogstashConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &LogstashIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &LogstashIntegration{} },
 }
 
 func ResourceIntegrationLogstash() *schema.Resource {
@@ -55,8 +55,8 @@ func ResourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData { return &LogstashIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+				NewResourceData: func() core.SchemaReader { return &LogstashIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadLogstashConfig,
 		),
 		ReadContext: core.ReadResource(ReadLogstashConfig),
@@ -67,7 +67,7 @@ func ResourceIntegrationLogstash() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &LogstashIntegration{} },
+				NewResourceData: func() core.SchemaReader { return &LogstashIntegration{} },
 			}, ReadLogstashConfig,
 		),
 		DeleteContext: core.DeleteResource(

@@ -178,8 +178,8 @@ func CreateLoggingIntegration() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/logging", c.ControlPlane)
 		},
-		NewResourceData: func() core.ResourceData { return &LoggingIntegration{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+		NewResourceData: func() core.SchemaReader { return &LoggingIntegration{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 	}
 }
 
@@ -189,7 +189,7 @@ var ReadLoggingIntegration = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &LoggingIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &LoggingIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration logging"},
 }
 
@@ -200,7 +200,7 @@ func UpdateLoggingIntegration() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 		},
-		NewResourceData: func() core.ResourceData { return &LoggingIntegration{} },
+		NewResourceData: func() core.SchemaReader { return &LoggingIntegration{} },
 	}
 }
 

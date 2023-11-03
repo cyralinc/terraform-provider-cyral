@@ -86,7 +86,7 @@ func dataSourceRoleReadConfig() core.ResourceOperationConfig {
 		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/users/groups", c.ControlPlane)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &GetUserGroupsResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &GetUserGroupsResponse{} },
 	}
 }
 

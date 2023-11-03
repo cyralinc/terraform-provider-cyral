@@ -107,8 +107,8 @@ func createRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.ResourceData { return &NetworkAccessPolicy{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &NetworkAccessPolicyUpsertResp{} },
+		NewResourceData: func() core.SchemaReader { return &NetworkAccessPolicy{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicyUpsertResp{} },
 	}
 }
 
@@ -120,7 +120,7 @@ func readRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &NetworkAccessPolicy{} },
+		NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicy{} },
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository network access policy"},
 	}
 }
@@ -133,8 +133,8 @@ func updateRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.ResourceData { return &NetworkAccessPolicy{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &NetworkAccessPolicyUpsertResp{} },
+		NewResourceData: func() core.SchemaReader { return &NetworkAccessPolicy{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicyUpsertResp{} },
 	}
 }
 

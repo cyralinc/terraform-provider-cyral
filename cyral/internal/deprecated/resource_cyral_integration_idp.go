@@ -270,14 +270,14 @@ func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextF
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &SAMLIntegrationData{
 						SAMLSetting: &SAMLSetting{
 							IdentityProvider: identityProvider,
 						},
 					}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &AliasBasedResponse{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &AliasBasedResponse{} },
 			}, readIntegrationIdPConfig,
 		)(ctx, d, m)
 
@@ -289,8 +289,8 @@ func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextF
 					CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 						return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 					},
-					NewResourceData: func() core.ResourceData { return &idpsaml.IdentityProviderData{} },
-					NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &idpsaml.IdentityProviderData{} },
+					NewResourceData: func() core.SchemaReader { return &idpsaml.IdentityProviderData{} },
+					NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &idpsaml.IdentityProviderData{} },
 				}, readIdentityProviderConfig,
 			)(ctx, d, m)
 
@@ -323,7 +323,7 @@ func resourceIntegrationIdPUpdate(identityProvider string) schema.UpdateContextF
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &SAMLIntegrationData{
 						SAMLSetting: &SAMLSetting{
 							IdentityProvider: identityProvider,
@@ -361,7 +361,7 @@ var readIntegrationIdPConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &SAMLIntegrationData{} },
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &SAMLIntegrationData{} },
 }
 
 var readIdentityProviderConfig = core.ResourceOperationConfig{
@@ -370,7 +370,7 @@ var readIdentityProviderConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &idpsaml.IdentityProviderData{} },
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &idpsaml.IdentityProviderData{} },
 }
 
 var deleteIntegrationIdPConfig = core.ResourceOperationConfig{

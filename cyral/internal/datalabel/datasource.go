@@ -112,7 +112,7 @@ func readConfig() core.ResourceOperationConfig {
 
 			return fmt.Sprintf("https://%s/v1/datalabels%s%s", c.ControlPlane, pathParams, queryParams)
 		},
-		NewResponseData: func(d *schema.ResourceData) core.ResponseData {
+		NewResponseData: func(d *schema.ResourceData) core.SchemaWriter {
 			nameFilter := d.Get("name").(string)
 			if nameFilter == "" {
 				return &GetDataLabelsResponse{}

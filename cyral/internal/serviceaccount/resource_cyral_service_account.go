@@ -29,7 +29,7 @@ var (
 				d.Id(),
 			)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 			return &ServiceAccount{}
 		},
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Service account"},
@@ -53,10 +53,10 @@ func ResourceServiceAccount() *schema.Resource {
 						c.ControlPlane,
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &ServiceAccount{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &ServiceAccount{}
 				},
 			},
@@ -74,7 +74,7 @@ func ResourceServiceAccount() *schema.Resource {
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &ServiceAccount{}
 				},
 			},

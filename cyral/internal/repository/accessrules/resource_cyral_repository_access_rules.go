@@ -138,7 +138,7 @@ var ReadRepositoryAccessRulesConfig = core.ResourceOperationConfig{
 			d.Get("user_account_id").(string),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &AccessRulesResponse{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository access rule"},
@@ -160,10 +160,10 @@ func ResourceRepositoryAccessRules() *schema.Resource {
 						userAccountID,
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &AccessRulesResource{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &AccessRulesResponse{}
 				},
 			},
@@ -181,10 +181,10 @@ func ResourceRepositoryAccessRules() *schema.Resource {
 						d.Get("user_account_id").(string),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
+				NewResourceData: func() core.SchemaReader {
 					return &AccessRulesResource{}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 					return &AccessRulesResponse{}
 				},
 			},

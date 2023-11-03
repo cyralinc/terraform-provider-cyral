@@ -32,7 +32,7 @@ var ReadMsTeamsConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &MsTeamsIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &MsTeamsIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration Teams"},
 }
 
@@ -46,8 +46,8 @@ func ResourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData { return &MsTeamsIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+				NewResourceData: func() core.SchemaReader { return &MsTeamsIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadMsTeamsConfig,
 		),
 		ReadContext: core.ReadResource(ReadMsTeamsConfig),
@@ -58,7 +58,7 @@ func ResourceIntegrationMsTeams() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &MsTeamsIntegration{} },
+				NewResourceData: func() core.SchemaReader { return &MsTeamsIntegration{} },
 			}, ReadMsTeamsConfig,
 		),
 		DeleteContext: core.DeleteResource(

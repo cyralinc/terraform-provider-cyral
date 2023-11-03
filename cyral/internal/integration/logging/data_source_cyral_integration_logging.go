@@ -50,7 +50,7 @@ func dataSourceIntegrationLogsRead() core.ResourceOperationConfig {
 			})
 			return fmt.Sprintf("https://%s/v1/integrations/logging%s", c.ControlPlane, query)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &ListIntegrationLogsResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &ListIntegrationLogsResponse{} },
 	}
 }
 

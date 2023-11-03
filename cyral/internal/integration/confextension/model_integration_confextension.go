@@ -97,10 +97,10 @@ func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationC
 				"https://%s/v1/integrations/confExtensions/instances", c.ControlPlane,
 			)
 		},
-		NewResourceData: func() core.ResourceData {
+		NewResourceData: func() core.SchemaReader {
 			return NewIntegrationConfExtension(templateType)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 	}
 }
 
@@ -114,7 +114,7 @@ func ConfExtensionIntegrationRead(templateType string) core.ResourceOperationCon
 				c.ControlPlane, d.Id(),
 			)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
 			return NewIntegrationConfExtension(templateType)
 		},
 	}
@@ -129,7 +129,7 @@ func ConfExtensionIntegrationUpdate(templateType string) core.ResourceOperationC
 				"https://%s/v1/integrations/confExtensions/instances/%s", c.ControlPlane, d.Id(),
 			)
 		},
-		NewResourceData: func() core.ResourceData {
+		NewResourceData: func() core.SchemaReader {
 			return NewIntegrationConfExtension(templateType)
 		},
 	}

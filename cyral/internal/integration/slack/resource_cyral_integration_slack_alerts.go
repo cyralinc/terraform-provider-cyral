@@ -32,7 +32,7 @@ var ReadSlackAlertsConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &SlackAlertsIntegration{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &SlackAlertsIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration Slack"},
 }
 
@@ -46,8 +46,8 @@ func ResourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData { return &SlackAlertsIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+				NewResourceData: func() core.SchemaReader { return &SlackAlertsIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadSlackAlertsConfig,
 		),
 		ReadContext: core.ReadResource(ReadSlackAlertsConfig),
@@ -58,7 +58,7 @@ func ResourceIntegrationSlackAlerts() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &SlackAlertsIntegration{} },
+				NewResourceData: func() core.SchemaReader { return &SlackAlertsIntegration{} },
 			}, ReadSlackAlertsConfig,
 		),
 		DeleteContext: core.DeleteResource(

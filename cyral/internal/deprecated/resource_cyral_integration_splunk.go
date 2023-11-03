@@ -45,7 +45,7 @@ var ReadSplunkConfig = core.ResourceOperationConfig{
 	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &SplunkIntegration{} },
+	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &SplunkIntegration{} },
 }
 
 func ResourceIntegrationSplunk() *schema.Resource {
@@ -59,8 +59,8 @@ func ResourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
 				},
-				NewResourceData: func() core.ResourceData { return &SplunkIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
+				NewResourceData: func() core.SchemaReader { return &SplunkIntegration{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadSplunkConfig,
 		),
 		ReadContext: core.ReadResource(ReadSplunkConfig),
@@ -71,7 +71,7 @@ func ResourceIntegrationSplunk() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.ResourceData { return &SplunkIntegration{} },
+				NewResourceData: func() core.SchemaReader { return &SplunkIntegration{} },
 			}, ReadSplunkConfig,
 		),
 		DeleteContext: core.DeleteResource(

@@ -23,8 +23,8 @@ func resourceSchema() *schema.Resource {
 						c.ControlPlane,
 						d.Get("repository_id").(string))
 				},
-				NewResourceData: func() core.ResourceData { return &DataMapRequest{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &DataMap{} },
+				NewResourceData: func() core.SchemaReader { return &DataMapRequest{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
 			}, readDataMapConfig,
 		),
 
@@ -38,7 +38,7 @@ func resourceSchema() *schema.Resource {
 						c.ControlPlane,
 						d.Get("repository_id").(string))
 				},
-				NewResourceData: func() core.ResourceData { return &DataMapRequest{} },
+				NewResourceData: func() core.SchemaReader { return &DataMapRequest{} },
 			}, readDataMapConfig,
 		),
 		DeleteContext: core.DeleteResource(
@@ -116,6 +116,6 @@ var readDataMapConfig = core.ResourceOperationConfig{
 			c.ControlPlane,
 			d.Get("repository_id").(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &DataMap{} },
+	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Map"},
 }

@@ -39,7 +39,7 @@ func DataSourcePermission() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/users/roles", c.ControlPlane)
 				},
-				NewResponseData: func(d *schema.ResourceData) core.ResponseData {
+				NewResponseData: func(d *schema.ResourceData) core.SchemaWriter {
 					return &PermissionDataSourceResponse{}
 				},
 			},

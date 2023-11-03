@@ -73,7 +73,7 @@ func dataSourceSidecarListenerReadConfig() core.ResourceOperationConfig {
 
 			return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners", c.ControlPlane, sidecarID)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &ReadDataSourceSidecarListenerAPIResponse{} },
+		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadDataSourceSidecarListenerAPIResponse{} },
 	}
 }
 
