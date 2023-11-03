@@ -8,18 +8,23 @@ for resources and data sources.
 
 There are some main types that must be used to create a new resources and data sources:
 `SchemaDescriptor`, `PackageSchema`, `ResourceData`, `ResponseData` and
-`ResourceOperationConfig`. See the examples below how to create your own implementation.
-See the source code for a more in-depth documentation.
+`ResourceOperationConfig`. In a nutshell, these abstractions provide the means to
+teach the provider how to interact with the API, how to describe the feature as a
+Terraform resource/data source and finally teach the provider how to perform the
+translation from API to Terraform schema and vice-versa.
+
+Use the files below as examples to create your own implementation. It is advised that
+you follow the same naming convention for all the files to simplify future code changes.
 
 ### model.go
 
-```
+```go
 // model.go
-package new_feature
+package newfeature
 
 type NewFeature struct {
-	Name               string                 `json:"name,omitempty"`
-	Description        string                 `json:"description,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 func (r *NewFeature) WriteToSchema(d *schema.ResourceData) error {
@@ -39,9 +44,9 @@ func (r *NewFeature) ReadFromSchema(d *schema.ResourceData) error {
 
 ### datasource.go
 
-```
+```go
 // datasource.go
-package new_feature
+package newfeature
 
 func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
@@ -74,9 +79,9 @@ func dataSourceSchema() *schema.Resource {
 
 ### resource.go
 
-```
+```go
 // resource.go
-package new_feature
+package newfeature
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
@@ -101,7 +106,7 @@ func resourceSchema() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
 				},
-				NewFeatureData: func() core.ResourceData { return &NewFeature{} },
+				NewResourceData: func() core.ResourceData { return &NewFeature{} },
 			}, ReadNewFeatureConfig,
 		),
 		DeleteContext: core.DeleteResource(
@@ -141,15 +146,15 @@ var ReadNewFeatureConfig = core.ResourceOperationConfig{
 
 ### schema_loader.go
 
-```
+```go
 // schema_loader.go
-package new_feature
+package newfeature
 
 type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "new_feature"
+	return "newfeature"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
@@ -169,5 +174,28 @@ func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 
 func PackageSchema() core.PackageSchema {
 	return &packageSchema{}
+}
+```
+
+### provider/schema_loader.go
+
+Edit the existing `cyral/provider/schema_loader.go` file and add your new package schema
+to function `packagesSchemas` as follows:
+
+```go
+package provider
+
+import (
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	...
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/newfeature"
+)
+
+func packagesSchemas() []core.PackageSchema {
+	v := []core.PackageSchema{
+		...,
+		newfeature.PackageSchema(),
+	}
+	return v
 }
 ```
