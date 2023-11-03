@@ -12,7 +12,7 @@ Full and comprehensive documentation for this provider with detailed description
 
 Please refer to our [Change Log](CHANGELOG.md) to learn about our version history, its features, bug fixes and Control Plane compatibility.
 
-## Building, Documenting and Testing this Project
+## Building, Maintaining, Documenting and Testing this Project
 
 ### Build Instructions
 
@@ -20,7 +20,7 @@ In order to build this repository, follow the steps below:
 
 1.  Clone [terraform-provider-cyral](https://github.com/cyralinc/terraform-provider-cyral) repo from GitHub;
 
-2.  Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 13 and later.
+2.  Go to the root directory of the cloned repo using Linux shell and execute `make`. The build process will create binaries in directory `out` for both `darwin` and `linux` 64 bits. These binaries will be copied automatically to the local Terraform registry to be used by Terraform 0.13 and later.
 
 Alternatively, you can use the dockerfile to build the image using `make docker-compose/build`
 
@@ -35,6 +35,11 @@ terraform {
   }
 }
 ```
+
+### Adding new resources or data sources
+
+Use the abstractions provided in the package `core` to add new resources or data sources.
+Read the documentation in [`cyral.core`](./cyral/core/README.md) for more information.
 
 ### Updating the Documentation
 
@@ -103,13 +108,5 @@ pre-commit install
 ```
 
 ### Running Project Built Locally
-
-#### Terraform 0.12
-
-Copy the desired binary file created in directory `out` (see [Build Instructions](#build-instructions)) to the root folder containing those `.tf` files that will be used to handle Cyral Terraform provider resources.
-
-Run `terraform init` and proceed with `terraform apply` normally to execute your Terraform scripts.
-
-#### Terraform 0.13+
 
 Build the project using steps in [Build Instructions](#build-instructions), then proceed normally with `terraform init` and `terraform apply` commands.
