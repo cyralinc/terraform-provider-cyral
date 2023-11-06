@@ -31,6 +31,9 @@ func (r *NewFeature) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("description", r.Description); err != nil {
 		return fmt.Errorf("error setting 'description' field: %w", err)
 	}
+	if err := d.Set("name", r.Name); err != nil {
+		return fmt.Errorf("error setting 'name' field: %w", err)
+	}
 	d.SetId(r.Name)
 	return nil
 }
