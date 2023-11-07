@@ -88,12 +88,7 @@ func ResourceIntegrationAWSIAM() *schema.Resource {
 				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/aws/iam", c.ControlPlane)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &AWSIAMIntegrationWrapper{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &core.IDBasedResponse{}
-				},
+				NewResourceData: func() core.SchemaReader { return &AWSIAMIntegrationWrapper{} },
 			},
 			ReadAWSIAMIntegration,
 		),
@@ -109,9 +104,7 @@ func ResourceIntegrationAWSIAM() *schema.Resource {
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &AWSIAMIntegrationWrapper{}
-				},
+				NewResourceData: func() core.SchemaReader { return &AWSIAMIntegrationWrapper{} },
 			},
 			ReadAWSIAMIntegration,
 		),

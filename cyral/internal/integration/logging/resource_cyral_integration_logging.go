@@ -179,7 +179,6 @@ func CreateLoggingIntegration() core.ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/logging", c.ControlPlane)
 		},
 		NewResourceData: func() core.SchemaReader { return &LoggingIntegration{} },
-		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 	}
 }
 

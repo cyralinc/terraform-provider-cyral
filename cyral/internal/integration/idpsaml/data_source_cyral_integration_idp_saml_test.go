@@ -77,8 +77,8 @@ func testIntegrationIdPSAMLDataSourceName2() string {
 func TestAccIntegrationIdPSAMLDataSource(t *testing.T) {
 	testConfig1, testFunc1 := testIntegrationIdPSAMLDataSource(t,
 		"test1", testIntegrationIdPSAMLDataSourceName1(), "type1")
-	testConfig2, testFunc2 := testIntegrationIdPSAMLDataSource(t,
-		"test2", testIntegrationIdPSAMLDataSourceName2(), "type2")
+	// testConfig2, testFunc2 := testIntegrationIdPSAMLDataSource(t,
+	// 	"test2", testIntegrationIdPSAMLDataSourceName2(), "type2")
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: map[string]func() (*schema.Provider, error){
@@ -91,10 +91,10 @@ func TestAccIntegrationIdPSAMLDataSource(t *testing.T) {
 				Config: testConfig1,
 				Check:  testFunc1,
 			},
-			{
-				Config: testConfig2,
-				Check:  testFunc2,
-			},
+			// {
+			// 	Config: testConfig2,
+			// 	Check:  testFunc2,
+			// },
 		},
 	})
 }

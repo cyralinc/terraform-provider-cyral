@@ -160,12 +160,8 @@ func ResourceRepositoryAccessRules() *schema.Resource {
 						userAccountID,
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &AccessRulesResource{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &AccessRulesResponse{}
-				},
+				NewResourceData: func() core.SchemaReader { return &AccessRulesResource{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &AccessRulesResponse{} },
 			},
 			ReadRepositoryAccessRulesConfig,
 		),
@@ -181,12 +177,8 @@ func ResourceRepositoryAccessRules() *schema.Resource {
 						d.Get("user_account_id").(string),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &AccessRulesResource{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &AccessRulesResponse{}
-				},
+				NewResourceData: func() core.SchemaReader { return &AccessRulesResource{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &AccessRulesResponse{} },
 			},
 			ReadRepositoryAccessRulesConfig,
 		),

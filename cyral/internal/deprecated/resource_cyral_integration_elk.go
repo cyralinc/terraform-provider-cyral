@@ -53,7 +53,6 @@ func ResourceIntegrationELK() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &ELKIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadELKConfig,
 		),
 		ReadContext: core.ReadResource(ReadELKConfig),

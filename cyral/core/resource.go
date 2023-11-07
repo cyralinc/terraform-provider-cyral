@@ -64,9 +64,11 @@ type ResourceOperationConfig struct {
 	CreateURL  URLCreatorFunc
 	RequestErrorHandler
 	NewResourceData func() SchemaReader
-	// TODO provide a default implementation returning the IDBasedResponse:
-	// func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} }
 	NewResponseData func(d *schema.ResourceData) SchemaWriter
+}
+
+func (r *ResourceOperationConfig) DefaultResponseData(d *schema.ResourceData) SchemaWriter {
+	return &IDBasedResponse{}
 }
 
 func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
@@ -160,8 +162,17 @@ func handleRequests(
 				)
 			}
 
-			if body != nil && operation.Config.NewResponseData != nil {
-				if responseData := operation.Config.NewResponseData(d); responseData != nil {
+			var responseDataFunc func(d *schema.ResourceData) SchemaWriter
+			if body != nil {
+				if operation.Config.NewResponseData == nil && operation.Type == OperationTypeCreate {
+					responseDataFunc = operation.Config.DefaultResponseData
+					log.Printf("[DEBUG] NewResponseData function set to DefaultResponseData.")
+				} else {
+					responseDataFunc = operation.Config.NewResponseData
+				}
+			}
+			if responseDataFunc != nil {
+				if responseData := responseDataFunc(d); responseData != nil {
 					log.Printf("[DEBUG] NewResponseData function call performed. d: %#v", d)
 					if err := json.Unmarshal(body, responseData); err != nil {
 						return utils.CreateError("Unable to unmarshall JSON", err.Error())

@@ -60,7 +60,6 @@ func ResourceIntegrationSplunk() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &SplunkIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadSplunkConfig,
 		),
 		ReadContext: core.ReadResource(ReadSplunkConfig),

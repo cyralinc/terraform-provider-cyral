@@ -100,7 +100,6 @@ func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationC
 		NewResourceData: func() core.SchemaReader {
 			return NewIntegrationConfExtension(templateType)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 	}
 }
 

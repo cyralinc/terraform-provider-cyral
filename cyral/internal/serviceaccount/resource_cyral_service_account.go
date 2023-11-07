@@ -53,12 +53,8 @@ func ResourceServiceAccount() *schema.Resource {
 						c.ControlPlane,
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &ServiceAccount{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &ServiceAccount{}
-				},
+				NewResourceData: func() core.SchemaReader { return &ServiceAccount{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &ServiceAccount{} },
 			},
 			ReadServiceAccountConfig,
 		),
@@ -74,9 +70,7 @@ func ResourceServiceAccount() *schema.Resource {
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &ServiceAccount{}
-				},
+				NewResourceData: func() core.SchemaReader { return &ServiceAccount{} },
 			},
 			ReadServiceAccountConfig,
 		),

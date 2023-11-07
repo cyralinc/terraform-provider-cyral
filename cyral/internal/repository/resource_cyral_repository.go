@@ -301,12 +301,7 @@ func ResourceRepository() *schema.Resource {
 						c.ControlPlane,
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &RepoInfo{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &core.IDBasedResponse{}
-				},
+				NewResourceData: func() core.SchemaReader { return &RepoInfo{} },
 			},
 			ReadRepositoryConfig,
 		),
@@ -322,9 +317,7 @@ func ResourceRepository() *schema.Resource {
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &RepoInfo{}
-				},
+				NewResourceData: func() core.SchemaReader { return &RepoInfo{} },
 			},
 			ReadRepositoryConfig,
 		),

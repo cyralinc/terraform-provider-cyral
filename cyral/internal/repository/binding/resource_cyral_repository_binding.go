@@ -135,12 +135,8 @@ func ResourceRepositoryBinding() *schema.Resource {
 						d.Get(utils.SidecarIDKey).(string))
 
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &CreateBindingRequest{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &CreateBindingResponse{}
-				},
+				NewResourceData: func() core.SchemaReader { return &CreateBindingRequest{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateBindingResponse{} },
 			}, ReadRepositoryBindingConfig,
 		),
 		ReadContext: core.ReadResource(ReadRepositoryBindingConfig),
@@ -156,9 +152,7 @@ func ResourceRepositoryBinding() *schema.Resource {
 					)
 
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &CreateBindingRequest{}
-				},
+				NewResourceData: func() core.SchemaReader { return &CreateBindingRequest{} },
 			}, ReadRepositoryBindingConfig,
 		),
 		DeleteContext: core.DeleteResource(

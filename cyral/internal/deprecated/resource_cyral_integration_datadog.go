@@ -51,7 +51,6 @@ func ResourceIntegrationDatadog() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &DatadogIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadDatadogConfig,
 		),
 		ReadContext: core.ReadResource(ReadDatadogConfig),

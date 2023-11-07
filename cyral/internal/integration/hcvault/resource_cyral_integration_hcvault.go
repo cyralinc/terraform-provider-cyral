@@ -48,7 +48,6 @@ func ResourceIntegrationHCVault() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &HCVaultIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadHCVaultIntegrationConfig,
 		),
 		ReadContext: core.ReadResource(ReadHCVaultIntegrationConfig),

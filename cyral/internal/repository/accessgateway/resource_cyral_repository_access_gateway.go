@@ -65,9 +65,7 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 						d.Get(utils.RepositoryIDKey).(string),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &AccessGateway{}
-				},
+				NewResourceData: func() core.SchemaReader { return &AccessGateway{} },
 			},
 			ReadRepositoryAccessGatewayConfig,
 		),
@@ -83,9 +81,7 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 						d.Get(utils.RepositoryIDKey).(string),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &AccessGateway{}
-				},
+				NewResourceData: func() core.SchemaReader { return &AccessGateway{} },
 			},
 			ReadRepositoryAccessGatewayConfig,
 		),

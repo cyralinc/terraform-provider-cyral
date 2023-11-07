@@ -341,12 +341,8 @@ func ResourceRepositoryUserAccount() *schema.Resource {
 						d.Get("repository_id").(string),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &UserAccountResource{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &CreateUserAccountResponse{}
-				},
+				NewResourceData: func() core.SchemaReader { return &UserAccountResource{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateUserAccountResponse{} },
 			},
 			ReadRepositoryUserAccountConfig,
 		),
@@ -369,9 +365,7 @@ func ResourceRepositoryUserAccount() *schema.Resource {
 						userAccountID,
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &UserAccountResource{}
-				},
+				NewResourceData: func() core.SchemaReader { return &UserAccountResource{} },
 			},
 			ReadRepositoryUserAccountConfig,
 		),

@@ -56,7 +56,6 @@ func ResourceIntegrationLogstash() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &LogstashIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadLogstashConfig,
 		),
 		ReadContext: core.ReadResource(ReadLogstashConfig),

@@ -50,7 +50,6 @@ func ResourceIntegrationLooker() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &LookerIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadLookerConfig,
 		),
 		ReadContext: core.ReadResource(ReadLookerConfig),

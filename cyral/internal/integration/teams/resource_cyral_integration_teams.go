@@ -47,7 +47,6 @@ func ResourceIntegrationMsTeams() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &MsTeamsIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadMsTeamsConfig,
 		),
 		ReadContext: core.ReadResource(ReadMsTeamsConfig),

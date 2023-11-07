@@ -47,7 +47,6 @@ func ResourceIntegrationSlackAlerts() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &SlackAlertsIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadSlackAlertsConfig,
 		),
 		ReadContext: core.ReadResource(ReadSlackAlertsConfig),

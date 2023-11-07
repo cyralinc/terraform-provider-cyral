@@ -47,7 +47,6 @@ func ResourceIntegrationSumoLogic() *schema.Resource {
 					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 				},
 				NewResourceData: func() core.SchemaReader { return &SumoLogicIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &core.IDBasedResponse{} },
 			}, ReadSumoLogicConfig,
 		),
 		ReadContext: core.ReadResource(ReadSumoLogicConfig),

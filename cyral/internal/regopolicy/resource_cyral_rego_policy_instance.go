@@ -88,12 +88,8 @@ func ResourceRegoPolicyInstance() *schema.Resource {
 						d.Get(RegoPolicyInstanceCategoryKey),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &RegoPolicyInstancePayload{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-					return &RegoPolicyInstanceKey{}
-				},
+				NewResourceData: func() core.SchemaReader { return &RegoPolicyInstancePayload{} },
+				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &RegoPolicyInstanceKey{} },
 			},
 			ReadRegoPolicyInstanceConfig,
 		),
@@ -110,9 +106,7 @@ func ResourceRegoPolicyInstance() *schema.Resource {
 						d.Get(RegoPolicyInstancePolicyIDKey),
 					)
 				},
-				NewResourceData: func() core.SchemaReader {
-					return &RegoPolicyInstancePayload{}
-				},
+				NewResourceData: func() core.SchemaReader { return &RegoPolicyInstancePayload{} },
 			},
 			ReadRegoPolicyInstanceConfig,
 		),
