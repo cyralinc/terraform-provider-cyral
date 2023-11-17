@@ -12,8 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-// Common keys.
 const (
+	// Common keys.
 	IDKey           = "id"
 	NameKey         = "name"
 	DescriptionKey  = "description"
@@ -25,6 +25,8 @@ const (
 	SidecarIDKey    = "sidecar_id"
 	ListenerIDKey   = "listener_id"
 	StatusKey       = "status"
+	// Common string formatters
+	ErrSettingFieldFmt = "error setting '%s' field: %w"
 )
 
 func ConvertToInterfaceList[T any](list []T) []any {
