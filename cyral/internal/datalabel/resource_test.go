@@ -43,8 +43,8 @@ func updatedDataLabelConfig() *datalabel.DataLabel {
 func TestAccDatalabelResource(t *testing.T) {
 	testInitialConfig, testInitialFunc := setupDatalabelTest(t,
 		"main_test", initialDataLabelConfig())
-	// testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
-	// 	"main_test", updatedDataLabelConfig())
+	testUpdatedConfig, testUpdatedFunc := setupDatalabelTest(t,
+		"main_test", updatedDataLabelConfig())
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
@@ -52,15 +52,15 @@ func TestAccDatalabelResource(t *testing.T) {
 				Config: testInitialConfig,
 				Check:  testInitialFunc,
 			},
-			// {
-			// 	Config: testUpdatedConfig,
-			// 	Check:  testUpdatedFunc,
-			// },
-			// {
-			// 	ImportState:       true,
-			// 	ImportStateVerify: true,
-			// 	ResourceName:      "cyral_datalabel.main_test",
-			// },
+			{
+				Config: testUpdatedConfig,
+				Check:  testUpdatedFunc,
+			},
+			{
+				ImportState:       true,
+				ImportStateVerify: true,
+				ResourceName:      "cyral_datalabel.main_test",
+			},
 		},
 	})
 }
