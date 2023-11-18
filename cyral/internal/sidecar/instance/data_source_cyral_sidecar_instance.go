@@ -32,15 +32,15 @@ func DataSourceSidecarInstance() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve sidecar instances.",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-			Name:       "SidecarInstanceDataSourceRead",
-			HttpMethod: http.MethodGet,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			ResourceName: "SidecarInstanceDataSourceRead",
+			HttpMethod:   http.MethodGet,
+			URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf(
 					"https://%s/v2/sidecars/%s/instances",
 					c.ControlPlane, d.Get(utils.SidecarIDKey),
 				)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SidecarInstances{}
 			},
 		}),

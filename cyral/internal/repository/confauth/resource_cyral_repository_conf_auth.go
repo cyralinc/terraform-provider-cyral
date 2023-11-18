@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -116,17 +116,17 @@ func resourceRepositoryConfAuthCreate(
 	d *schema.ResourceData,
 	m interface{},
 ) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryConfAuthCreate")
+	tflog.Debug(ctx, "Init resourceRepositoryConfAuthCreate")
 	c := m.(*client.Client)
 	httpMethod := http.MethodPost
-	if confAuthAlreadyExists(c, d.Get("repository_id").(string)) {
+	if confAuthAlreadyExists(ctx, c, d.Get("repository_id").(string)) {
 		httpMethod = http.MethodPut
 	}
-	defer log.Printf("[DEBUG] End resourceRepositoryConfAuthCreate")
+	tflog.Debug(ctx, "End resourceRepositoryConfAuthCreate")
 	return core.CreateResource(CreateConfAuthConfig(httpMethod), ReadConfAuthConfig())(ctx, d, m)
 }
 
-func confAuthAlreadyExists(c *client.Client, repositoryID string) bool {
+func confAuthAlreadyExists(ctx context.Context, c *client.Client, repositoryID string) bool {
 	url := fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, repositoryID)
 	_, err := c.DoRequest(url, http.MethodGet, nil)
 	// The GET /v1/repos/{repoID}/conf/auth API currently returns 500 status code for every type
@@ -134,7 +134,7 @@ func confAuthAlreadyExists(c *client.Client, repositoryID string) bool {
 	// Once the status code returned by this API is fixed we should return false only if it returns
 	// a 404 Not Found, otherwise, if a different error occurs, this function should return an error.
 	if err != nil {
-		log.Printf("[DEBUG] Unable to read Conf Auth resource for repository %s: %v", repositoryID, err)
+		tflog.Debug(ctx, fmt.Sprintf("Unable to read Conf Auth resource for repository %s: %v", repositoryID, err))
 		return false
 	}
 	return true
@@ -142,44 +142,44 @@ func confAuthAlreadyExists(c *client.Client, repositoryID string) bool {
 
 func CreateConfAuthConfig(httpMethod string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "ConfAuthResourceCreate",
-		HttpMethod: httpMethod,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "ConfAuthResourceCreate",
+		HttpMethod:   httpMethod,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.SchemaReader { return &RepositoryConfAuthData{} },
-		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateRepositoryConfAuthResponse{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &RepositoryConfAuthData{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateRepositoryConfAuthResponse{} },
 	}
 }
 
 func ReadConfAuthConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "ConfAuthResourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "ConfAuthResourceRead",
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository conf auth"},
 	}
 }
 
 func UpdateConfAuthConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "ConfAuthResourceUpdate",
-		HttpMethod: http.MethodPut,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "ConfAuthResourceUpdate",
+		HttpMethod:   http.MethodPut,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.SchemaReader { return &RepositoryConfAuthData{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &RepositoryConfAuthData{} },
 	}
 }
 
 func DeleteConfAuthConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "ConfAuthResourceDelete",
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "ConfAuthResourceDelete",
+		HttpMethod:   http.MethodDelete,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
 	}

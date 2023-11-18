@@ -2,10 +2,10 @@ package deprecated
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -28,51 +28,24 @@ func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-var ReadDatadogConfig = core.ResourceOperationConfig{
-	Name:       "DatadogResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
-	},
-	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &DatadogIntegration{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration datadog"},
-}
-
 func ResourceIntegrationDatadog() *schema.Resource {
+	contextHandler := core.DefaultContextHandler{
+		ResourceName:        "Datadog Integration",
+		ResourceType:        resourcetype.Resource,
+		SchemaReaderFactory: func() core.SchemaReader { return &DatadogIntegration{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DatadogIntegration{} },
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
+		},
+	}
 	return &schema.Resource{
 		DeprecationMessage: "If configuring Datadog for logging purposes, use resource `cyral_integration_logging` instead.",
 		Description: "Manages [integration with DataDog](https://cyral.com/docs/integrations/apm/datadog/) " +
 			"to push sidecar logs and/or metrics.",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-				Name:       "DatadogResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
-				},
-				NewResourceData: func() core.SchemaReader { return &DatadogIntegration{} },
-			}, ReadDatadogConfig,
-		),
-		ReadContext: core.ReadResource(ReadDatadogConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "DatadogResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
-				},
-				NewResourceData: func() core.SchemaReader { return &DatadogIntegration{} },
-			}, ReadDatadogConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "DatadogResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/datadog/%s", c.ControlPlane, d.Id())
-				},
-			},
-		),
+		CreateContext: contextHandler.CreateContext(),
+		ReadContext:   contextHandler.ReadContext(),
+		UpdateContext: contextHandler.UpdateContext(),
+		DeleteContext: contextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "ID of this resource in Cyral environment",

@@ -265,32 +265,32 @@ func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextF
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		diag := core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "resourceIntegrationIdPCreate - Integration",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "resourceIntegrationIdPCreate - Integration",
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
 				},
-				NewResourceData: func() core.SchemaReader {
+				SchemaReaderFactory: func() core.SchemaReader {
 					return &SAMLIntegrationData{
 						SAMLSetting: &SAMLSetting{
 							IdentityProvider: identityProvider,
 						},
 					}
 				},
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &AliasBasedResponse{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &AliasBasedResponse{} },
 			}, readIntegrationIdPConfig,
 		)(ctx, d, m)
 
 		if !diag.HasError() {
 			diag = core.CreateResource(
 				core.ResourceOperationConfig{
-					Name:       "resourceIntegrationIdPCreate - IdentityProvider",
-					HttpMethod: http.MethodPost,
-					CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+					ResourceName: "resourceIntegrationIdPCreate - IdentityProvider",
+					HttpMethod:   http.MethodPost,
+					URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 						return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 					},
-					NewResourceData: func() core.SchemaReader { return &idpsaml.IdentityProviderData{} },
-					NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &idpsaml.IdentityProviderData{} },
+					SchemaReaderFactory: func() core.SchemaReader { return &idpsaml.IdentityProviderData{} },
+					SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &idpsaml.IdentityProviderData{} },
 				}, readIdentityProviderConfig,
 			)(ctx, d, m)
 
@@ -318,12 +318,12 @@ func resourceIntegrationIdPUpdate(identityProvider string) schema.UpdateContextF
 	return func(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 		diag := core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "resourceIntegrationIdPUpdate - Integration",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "resourceIntegrationIdPUpdate - Integration",
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.SchemaReader {
+				SchemaReaderFactory: func() core.SchemaReader {
 					return &SAMLIntegrationData{
 						SAMLSetting: &SAMLSetting{
 							IdentityProvider: identityProvider,
@@ -343,9 +343,9 @@ func resourceIntegrationIdPDelete(ctx context.Context, d *schema.ResourceData, m
 	if !diag.HasError() {
 		diag = core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "resourceIntegrationIdPDelete - IdentityProvider",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "resourceIntegrationIdPDelete - IdentityProvider",
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 				},
 			},
@@ -356,27 +356,27 @@ func resourceIntegrationIdPDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 var readIntegrationIdPConfig = core.ResourceOperationConfig{
-	Name:       "resourceIntegrationIdPRead - Integration",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "resourceIntegrationIdPRead - Integration",
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &SAMLIntegrationData{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SAMLIntegrationData{} },
 }
 
 var readIdentityProviderConfig = core.ResourceOperationConfig{
-	Name:       "resourceIntegrationIdPRead - IdentityProvider",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "resourceIntegrationIdPRead - IdentityProvider",
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &idpsaml.IdentityProviderData{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &idpsaml.IdentityProviderData{} },
 }
 
 var deleteIntegrationIdPConfig = core.ResourceOperationConfig{
-	Name:       "resourceIntegrationIdPDelete - Integration",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "resourceIntegrationIdPDelete - Integration",
+	HttpMethod:   http.MethodDelete,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
 	},
 }

@@ -301,9 +301,9 @@ func (userAccount *UserAccountResource) ReadFromSchema(d *schema.ResourceData) e
 }
 
 var ReadRepositoryUserAccountConfig = core.ResourceOperationConfig{
-	Name:       "RepositoryUserAccountRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "RepositoryUserAccountRead",
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		ids, err := utils.UnMarshalComposedID(d.Id(), "/", 2)
 		if err != nil {
 			panic(fmt.Errorf("Unable to unmarshal composed id: %w", err))
@@ -317,7 +317,7 @@ var ReadRepositoryUserAccountConfig = core.ResourceOperationConfig{
 			userAccountID,
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &UserAccountResource{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "User account"},
@@ -332,26 +332,26 @@ func ResourceRepositoryUserAccount() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryUserAccountCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryUserAccountCreate",
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/repos/%s/userAccounts",
 						c.ControlPlane,
 						d.Get("repository_id").(string),
 					)
 				},
-				NewResourceData: func() core.SchemaReader { return &UserAccountResource{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateUserAccountResponse{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &UserAccountResource{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateUserAccountResponse{} },
 			},
 			ReadRepositoryUserAccountConfig,
 		),
 		ReadContext: core.ReadResource(ReadRepositoryUserAccountConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryUserAccountUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryUserAccountUpdate",
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					ids, err := utils.UnMarshalComposedID(d.Id(), "/", 2)
 					if err != nil {
 						panic(fmt.Errorf("Unable to unmarshal composed id: %w", err))
@@ -365,15 +365,15 @@ func ResourceRepositoryUserAccount() *schema.Resource {
 						userAccountID,
 					)
 				},
-				NewResourceData: func() core.SchemaReader { return &UserAccountResource{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &UserAccountResource{} },
 			},
 			ReadRepositoryUserAccountConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryUserAccountDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryUserAccountDelete",
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					ids, err := utils.UnMarshalComposedID(d.Id(), "/", 2)
 					if err != nil {
 						panic(fmt.Errorf("Unable to unmarshal composed id: %w", err))

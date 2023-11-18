@@ -28,12 +28,12 @@ func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 var ReadHCVaultIntegrationConfig = core.ResourceOperationConfig{
-	Name:       "HCVaultIntegrationResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "HCVaultIntegrationResourceRead",
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &HCVaultIntegration{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &HCVaultIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration hcvault"},
 }
 
@@ -42,30 +42,30 @@ func ResourceIntegrationHCVault() *schema.Resource {
 		Description: "Manages integration with Hashicorp Vault to store secrets.",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "HCVaultIntegrationResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "HCVaultIntegrationResourceCreate",
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault", c.ControlPlane)
 				},
-				NewResourceData: func() core.SchemaReader { return &HCVaultIntegration{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &HCVaultIntegration{} },
 			}, ReadHCVaultIntegrationConfig,
 		),
 		ReadContext: core.ReadResource(ReadHCVaultIntegrationConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "HCVaultIntegrationResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "HCVaultIntegrationResourceUpdate",
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.SchemaReader { return &HCVaultIntegration{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &HCVaultIntegration{} },
 			}, ReadHCVaultIntegrationConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "HCVaultIntegrationResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "HCVaultIntegrationResourceDelete",
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault/%s", c.ControlPlane, d.Id())
 				},
 			},

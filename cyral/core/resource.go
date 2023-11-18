@@ -4,20 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type ResourceOperation struct {
-	Type   OperationType
+	Type   operationtype.OperationType
 	Config ResourceOperationConfig
 }
 
-type URLCreatorFunc = func(d *schema.ResourceData, c *client.Client) string
+type URLFactoryFunc = func(d *schema.ResourceData, c *client.Client) string
+type SchemaReaderFactoryFunc = func() SchemaReader
+type SchemaWriterFactoryFunc = func(d *schema.ResourceData) SchemaWriter
 
 type RequestErrorHandler interface {
 	HandleError(d *schema.ResourceData, c *client.Client, err error) error
@@ -53,22 +57,21 @@ type SchemaDescriptor struct {
 // The `PackageSchema` is used to centralize the description of the existing
 // schemas in a given package. It should be implemented in the `schema.go`
 // file of a given package.
-type PackageSchema interface {
+type PackageSchema[T any] interface {
 	Name() string
 	Schemas() []*SchemaDescriptor
 }
 
 type ResourceOperationConfig struct {
-	Name       string
-	HttpMethod string
-	CreateURL  URLCreatorFunc
-	RequestErrorHandler
-	NewResourceData func() SchemaReader
-	NewResponseData func(d *schema.ResourceData) SchemaWriter
-}
-
-func (r *ResourceOperationConfig) DefaultResponseData(d *schema.ResourceData) SchemaWriter {
-	return &IDBasedResponse{}
+	// Human-readable resource name that will be used in log messages
+	ResourceName string
+	// Resource type
+	ResourceType        resourcetype.ResourceType
+	HttpMethod          string
+	URLFactory          URLFactoryFunc
+	RequestErrorHandler RequestErrorHandler
+	SchemaReaderFactory SchemaReaderFactoryFunc
+	SchemaWriterFactory SchemaWriterFactoryFunc
 }
 
 func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
@@ -79,11 +82,11 @@ func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.Cre
 	return handleRequests(
 		[]ResourceOperation{
 			{
-				Type:   OperationTypeCreate,
+				Type:   operationtype.Create,
 				Config: createConfig,
 			},
 			{
-				Type:   OperationTypeRead,
+				Type:   operationtype.Read,
 				Config: readConfig,
 			},
 		},
@@ -94,7 +97,7 @@ func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
 	return handleRequests(
 		[]ResourceOperation{
 			{
-				Type:   OperationTypeRead,
+				Type:   operationtype.Read,
 				Config: readConfig,
 			},
 		},
@@ -105,11 +108,11 @@ func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.Upd
 	return handleRequests(
 		[]ResourceOperation{
 			{
-				Type:   OperationTypeUpdate,
+				Type:   operationtype.Update,
 				Config: updateConfig,
 			},
 			{
-				Type:   OperationTypeRead,
+				Type:   operationtype.Read,
 				Config: readConfig,
 			},
 		},
@@ -120,36 +123,34 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 	return handleRequests(
 		[]ResourceOperation{
 			{
-				Type:   OperationTypeDelete,
+				Type:   operationtype.Delete,
 				Config: deleteConfig,
 			},
 		},
 	)
 }
 
-func handleRequests(
-	resourceOperations []ResourceOperation,
-) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
+func handleRequests(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		for _, operation := range resourceOperations {
-			log.Printf("[DEBUG] Init %s", operation.Config.Name)
+			tflog.Debug(ctx, fmt.Sprintf("Init %s %s", operation.Config.ResourceName, operation.Type))
 			c := m.(*client.Client)
 
 			var resourceData SchemaReader
-			if operation.Config.NewResourceData != nil {
-				if resourceData = operation.Config.NewResourceData(); resourceData != nil {
-					log.Printf("[DEBUG] Calling ReadFromSchema. Schema: %#v", d)
+			if operation.Config.SchemaReaderFactory != nil {
+				if resourceData = operation.Config.SchemaReaderFactory(); resourceData != nil {
+					tflog.Debug(ctx, fmt.Sprintf("Calling ReadFromSchema. Schema: %#v", d))
 					if err := resourceData.ReadFromSchema(d); err != nil {
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
+							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.ResourceName),
 							err.Error(),
 						)
 					}
-					log.Printf("[DEBUG] Succesful call to ReadFromSchema. resourceData: %#v", resourceData)
+					tflog.Debug(ctx, fmt.Sprintf("Succesful call to ReadFromSchema. resourceData: %#v", resourceData))
 				}
 			}
 
-			url := operation.Config.CreateURL(d, c)
+			url := operation.Config.URLFactory(d, c)
 
 			body, err := c.DoRequest(url, operation.Config.HttpMethod, resourceData)
 			if operation.Config.RequestErrorHandler != nil {
@@ -157,39 +158,42 @@ func handleRequests(
 			}
 			if err != nil {
 				return utils.CreateError(
-					fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
+					fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.ResourceName),
 					err.Error(),
 				)
 			}
 
-			var responseDataFunc func(d *schema.ResourceData) SchemaWriter
+			// If a `SchemaWriterFactory` implementation is NOT provided and this is a creation operation,
+			// use the `defaultSchemaWriterFactory`, assuming the response is a JSON with an `id` field.
+			/// TODO: Remove this feature after refactoring all resources to use the `DefaultContext`.
+			var responseDataFunc SchemaWriterFactoryFunc
 			if body != nil {
-				if operation.Config.NewResponseData == nil && operation.Type == OperationTypeCreate {
-					responseDataFunc = operation.Config.DefaultResponseData
-					log.Printf("[DEBUG] NewResponseData function set to DefaultResponseData.")
+				if operation.Config.SchemaWriterFactory == nil && operation.Type == operationtype.Create {
+					responseDataFunc = defaultSchemaWriterFactory
+					tflog.Debug(ctx, "NewResponseData function set to defaultSchemaWriterFactory.")
 				} else {
-					responseDataFunc = operation.Config.NewResponseData
+					responseDataFunc = operation.Config.SchemaWriterFactory
 				}
 			}
 			if responseDataFunc != nil {
 				if responseData := responseDataFunc(d); responseData != nil {
-					log.Printf("[DEBUG] NewResponseData function call performed. d: %#v", d)
+					tflog.Debug(ctx, fmt.Sprintf("NewResponseData function call performed. d: %#v", d))
 					if err := json.Unmarshal(body, responseData); err != nil {
 						return utils.CreateError("Unable to unmarshall JSON", err.Error())
 					}
-					log.Printf("[DEBUG] Response body (unmarshalled): %#v", responseData)
-					log.Printf("[DEBUG] Calling WriteToSchema: responseData: %#v", responseData)
+					tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", responseData))
+					tflog.Debug(ctx, fmt.Sprintf("Calling WriteToSchema: responseData: %#v", responseData))
 					if err := responseData.WriteToSchema(d); err != nil {
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.Name),
+							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.ResourceName),
 							err.Error(),
 						)
 					}
-					log.Printf("[DEBUG] Succesful call to WriteToSchema. d: %#v", d)
+					tflog.Debug(ctx, fmt.Sprintf("Succesful call to WriteToSchema. d: %#v", d))
 				}
 			}
 
-			log.Printf("[DEBUG] End %s", operation.Config.Name)
+			tflog.Debug(ctx, fmt.Sprintf("End %s", operation.Config.ResourceName))
 		}
 		return diag.Diagnostics{}
 	}

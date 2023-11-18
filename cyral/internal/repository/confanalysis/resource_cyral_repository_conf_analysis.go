@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -177,7 +177,7 @@ func ResourceRepositoryConfAnalysis() *schema.Resource {
 }
 
 func resourceRepositoryConfAnalysisCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryConfAnalysisCreate")
+	tflog.Debug(ctx, "Init resourceRepositoryConfAnalysisCreate")
 	c := m.(*client.Client)
 
 	resourceData, err := getConfAnalysisDataFromResource(d)
@@ -197,17 +197,17 @@ func resourceRepositoryConfAnalysisCreate(ctx context.Context, d *schema.Resourc
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.SetId(d.Get("repository_id").(string))
 
-	log.Printf("[DEBUG] End resourceRepositoryConfAnalysisCreate")
+	tflog.Debug(ctx, "End resourceRepositoryConfAnalysisCreate")
 
 	return resourceRepositoryConfAnalysisRead(ctx, d, m)
 }
 
 func resourceRepositoryConfAnalysisRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryConfAnalysisRead")
+	tflog.Debug(ctx, "Init resourceRepositoryConfAnalysisRead")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s/conf/analysis", c.ControlPlane, d.Get("repository_id"))
@@ -223,17 +223,17 @@ func resourceRepositoryConfAnalysisRead(ctx context.Context, d *schema.ResourceD
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	setConfAnalysisDataToResource(d, response)
 
-	log.Printf("[DEBUG] End resourceRepositoryConfAnalysisRead")
+	tflog.Debug(ctx, "End resourceRepositoryConfAnalysisRead")
 
 	return diag.Diagnostics{}
 }
 
 func resourceRepositoryConfAnalysisUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryConfAnalysisUpdate")
+	tflog.Debug(ctx, "Init resourceRepositoryConfAnalysisUpdate")
 	c := m.(*client.Client)
 
 	resourceData, err := getConfAnalysisDataFromResource(d)
@@ -247,13 +247,13 @@ func resourceRepositoryConfAnalysisUpdate(ctx context.Context, d *schema.Resourc
 		return utils.CreateError("Unable to update conf analysis", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourceRepositoryConfAnalysisUpdate")
+	tflog.Debug(ctx, "End resourceRepositoryConfAnalysisUpdate")
 
 	return resourceRepositoryConfAnalysisRead(ctx, d, m)
 }
 
 func resourceRepositoryConfAnalysisDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRepositoryConfAnalysisDelete")
+	tflog.Debug(ctx, "Init resourceRepositoryConfAnalysisDelete")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s/conf/analysis", c.ControlPlane, d.Get("repository_id"))
@@ -262,7 +262,7 @@ func resourceRepositoryConfAnalysisDelete(ctx context.Context, d *schema.Resourc
 		return utils.CreateError("Unable to delete conf analysis", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourceRepositoryConfAnalysisDelete")
+	tflog.Debug(ctx, "End resourceRepositoryConfAnalysisDelete")
 
 	return diag.Diagnostics{}
 }

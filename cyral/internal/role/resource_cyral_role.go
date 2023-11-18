@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -66,7 +66,7 @@ func ResourceRole() *schema.Resource {
 }
 
 func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRoleCreate")
+	tflog.Debug(ctx, "Init resourceRoleCreate")
 	c := m.(*client.Client)
 
 	resourceData, err := getRoleDataFromResource(c, d)
@@ -86,17 +86,17 @@ func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.SetId(response.Id)
 
-	log.Printf("[DEBUG] End resourceRoleCreate")
+	tflog.Debug(ctx, "End resourceRoleCreate")
 
 	return resourceRoleRead(ctx, d, m)
 }
 
 func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRoleRead")
+	tflog.Debug(ctx, "Init resourceRoleRead")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane, d.Id())
@@ -112,13 +112,13 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.Set("name", response.Name)
 
 	if len(response.Permissions) > 0 {
 		flatPermissions := flattenPermissions(response.Permissions)
-		log.Printf("[DEBUG] resourceRoleRead - flatPermissions: %s", flatPermissions)
+		tflog.Debug(ctx, fmt.Sprintf("resourceRoleRead - flatPermissions: %s", flatPermissions))
 
 		if err := d.Set("permissions", flatPermissions); err != nil {
 			return utils.CreateError(fmt.Sprintf("Unable to read role. Role Id: %s",
@@ -126,13 +126,13 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 		}
 	}
 
-	log.Printf("[DEBUG] End resourceRoleRead")
+	tflog.Debug(ctx, "End resourceRoleRead")
 
 	return diag.Diagnostics{}
 }
 
 func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRoleUpdate")
+	tflog.Debug(ctx, "Init resourceRoleUpdate")
 	c := m.(*client.Client)
 
 	resourceData, err := getRoleDataFromResource(c, d)
@@ -146,13 +146,13 @@ func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface
 		return utils.CreateError("Unable to update role", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourceRoleUpdate")
+	tflog.Debug(ctx, "End resourceRoleUpdate")
 
 	return resourceRoleRead(ctx, d, m)
 }
 
 func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceRoleDelete")
+	tflog.Debug(ctx, "Init resourceRoleDelete")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane, d.Id())
@@ -161,7 +161,7 @@ func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface
 		return utils.CreateError("Unable to delete role", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourceRoleDelete")
+	tflog.Debug(ctx, "End resourceRoleDelete")
 
 	return diag.Diagnostics{}
 }

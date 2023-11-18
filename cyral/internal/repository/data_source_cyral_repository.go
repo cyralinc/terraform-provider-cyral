@@ -55,9 +55,9 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 
 func dataSourceRepositoryReadConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "RepositoryDataSourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "RepositoryDataSourceRead",
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			nameFilter := d.Get("name").(string)
 			typeFilter := d.Get("type").(string)
 			urlParams := utils.UrlQuery(map[string]string{
@@ -67,7 +67,7 @@ func dataSourceRepositoryReadConfig() core.ResourceOperationConfig {
 
 			return fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
 	}
 }
 

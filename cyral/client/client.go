@@ -6,12 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"golang.org/x/oauth2"
 	cc "golang.org/x/oauth2/clientcredentials"
 )
@@ -35,7 +35,8 @@ type Client struct {
 
 // New configures and returns a fully initialized Client.
 func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Client, error) {
-	log.Printf("[DEBUG] Init client.New")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init client.New")
 
 	if clientID == "" || clientSecret == "" || controlPlane == "" {
 		return nil, fmt.Errorf("clientID, clientSecret and controlPlane must have non-empty values")
@@ -55,10 +56,10 @@ func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Clie
 		TokenURL:     fmt.Sprintf("https://%s/v1/users/oidc/token", controlPlane),
 		AuthStyle:    oauth2.AuthStyleInParams,
 	}
-	tokenSource := tokenConfig.TokenSource(context.Background())
+	tokenSource := tokenConfig.TokenSource(ctx)
 
-	log.Printf("[DEBUG] TokenSource: %v", tokenSource)
-	log.Printf("[DEBUG] End client.New")
+	tflog.Debug(ctx, fmt.Sprintf("TokenSource: %v", tokenSource))
+	tflog.Debug(ctx, "End client.New")
 
 	return &Client{
 		ControlPlane: controlPlane,
@@ -70,9 +71,10 @@ func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Clie
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
 // filling the response parameter (if not nil) with the response body.
 func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, error) {
-	log.Printf("[DEBUG] Init DoRequest")
-	log.Printf("[DEBUG] Resource info: %#v", resourceData)
-	log.Printf("[DEBUG] %s URL: %s", httpMethod, url)
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init DoRequest")
+	tflog.Debug(ctx, fmt.Sprintf("Resource info: %#v", resourceData))
+	tflog.Debug(ctx, fmt.Sprintf("%s URL: %s", httpMethod, url))
 	var req *http.Request
 	var err error
 	if resourceData != nil {
@@ -81,7 +83,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 			return nil, fmt.Errorf("failed to encode payload: %v", err)
 		}
 		payload := string(payloadBytes)
-		log.Printf("[DEBUG] %s payload: %s", httpMethod, payload)
+		tflog.Debug(ctx, fmt.Sprintf("%s payload: %s", httpMethod, payload))
 		if req, err = http.NewRequest(httpMethod, url, strings.NewReader(payload)); err != nil {
 			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
@@ -97,14 +99,14 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 		if token, err = c.TokenSource.Token(); err != nil {
 			return nil, fmt.Errorf("unable to retrieve authorization token. error: %v", err)
 		} else {
-			log.Printf("[DEBUG] Token Type: %s", token.Type())
-			log.Printf("[DEBUG] Access Token: %s", redactContent(token.AccessToken))
-			log.Printf("[DEBUG] Token Expiry: %s", token.Expiry)
+			tflog.Debug(ctx, fmt.Sprintf("Token Type: %s", token.Type()))
+			tflog.Debug(ctx, fmt.Sprintf("Access Token: %s", redactContent(token.AccessToken)))
+			tflog.Debug(ctx, fmt.Sprintf("Token Expiry: %s", token.Expiry))
 			req.Header.Add("Authorization", fmt.Sprintf("%s %s", token.Type(), token.AccessToken))
 		}
 	}
 
-	log.Printf("[DEBUG] Executing %s", httpMethod)
+	tflog.Debug(ctx, fmt.Sprintf("Executing %s", httpMethod))
 	res, err := c.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
@@ -128,9 +130,9 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 	// Redact token before logging the request
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.Type(), redactContent(token.AccessToken)))
 
-	log.Printf("[DEBUG] Request: %#v", req)
-	log.Printf("[DEBUG] Response status code: %d", res.StatusCode)
-	log.Printf("[DEBUG] Response body: %s", string(body))
+	tflog.Debug(ctx, fmt.Sprintf("Request: %#v", req))
+	tflog.Debug(ctx, fmt.Sprintf("Response status code: %d", res.StatusCode))
+	tflog.Debug(ctx, fmt.Sprintf("Response body: %s", string(body)))
 
 	if !(res.StatusCode >= 200 && res.StatusCode < 300) {
 		return nil, NewHttpError(
@@ -139,7 +141,7 @@ func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]
 			res.StatusCode)
 	}
 
-	log.Printf("[DEBUG] End DoRequest")
+	tflog.Debug(ctx, "End DoRequest")
 
 	return body, nil
 }

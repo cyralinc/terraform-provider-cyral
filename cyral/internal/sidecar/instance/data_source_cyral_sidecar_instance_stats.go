@@ -35,9 +35,9 @@ func DataSourceSidecarInstanceStats() *schema.Resource {
 		Description: "Retrieve sidecar instance statistics. See also data source " +
 			"[`cyral_sidecar_instance`](../data-sources/sidecar_instance.md).",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-			Name:       "SidecarInstanceStatsDataSourceRead",
-			HttpMethod: http.MethodGet,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			ResourceName: "SidecarInstanceStatsDataSourceRead",
+			HttpMethod:   http.MethodGet,
+			URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf(
 					"https://%s/v2/sidecars/%s/instances/%s/stats",
 					c.ControlPlane,
@@ -45,7 +45,7 @@ func DataSourceSidecarInstanceStats() *schema.Resource {
 					d.Get(InstanceIDKey),
 				)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SidecarInstanceStats{}
 			},
 		}),

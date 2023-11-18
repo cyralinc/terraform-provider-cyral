@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -117,7 +117,7 @@ func ResourcePolicy() *schema.Resource {
 }
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyCreate")
+	tflog.Debug(ctx, "Init resourcePolicyCreate")
 	c := m.(*client.Client)
 
 	d.Set("type", "terraform")
@@ -134,17 +134,17 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.SetId(response.ID)
 
-	log.Printf("[DEBUG] End resourcePolicyCreate")
+	tflog.Debug(ctx, "End resourcePolicyCreate")
 
 	return resourcePolicyRead(ctx, d, m)
 }
 
 func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyRead")
+	tflog.Debug(ctx, "Init resourcePolicyRead")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
@@ -158,7 +158,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.Set("created", response.Meta.Created.String())
 	d.Set("data", response.Data)
@@ -178,12 +178,12 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 		d.Set("metadata_tags", response.Meta.Tags)
 	}
 
-	log.Printf("[DEBUG] End resourcePolicyRead")
+	tflog.Debug(ctx, "End resourcePolicyRead")
 	return diag.Diagnostics{}
 }
 
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyUpdate")
+	tflog.Debug(ctx, "Init resourcePolicyUpdate")
 	c := m.(*client.Client)
 
 	d.Set("type", "terraform")
@@ -196,13 +196,13 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 		return utils.CreateError("Unable to update policy", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourcePolicyUpdate")
+	tflog.Debug(ctx, "End resourcePolicyUpdate")
 
 	return resourcePolicyRead(ctx, d, m)
 }
 
 func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyDelete")
+	tflog.Debug(ctx, "Init resourcePolicyDelete")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
@@ -211,7 +211,7 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 		return utils.CreateError("Unable to delete policy", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourcePolicyDelete")
+	tflog.Debug(ctx, "End resourcePolicyDelete")
 
 	return diag.Diagnostics{}
 }
@@ -256,7 +256,8 @@ func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
 }
 
 func ListPolicies(c *client.Client) ([]Policy, error) {
-	log.Printf("[DEBUG] Init ListPolicies")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init ListPolicies")
 
 	url := fmt.Sprintf("https://%s/v1/policies", c.ControlPlane)
 	resp, err := c.DoRequest(url, http.MethodGet, nil)
@@ -268,7 +269,7 @@ func ListPolicies(c *client.Client) ([]Policy, error) {
 	if err := json.Unmarshal(resp, &listResp); err != nil {
 		return nil, err
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", listResp)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", listResp))
 
 	var policies []Policy
 	for _, policyID := range listResp.Policies {
@@ -283,11 +284,11 @@ func ListPolicies(c *client.Client) ([]Policy, error) {
 		if err := json.Unmarshal(resp, &policy); err != nil {
 			return nil, err
 		}
-		log.Printf("[DEBUG] Response body (unmarshalled): %#v", policy)
+		tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", policy))
 
 		policies = append(policies, policy)
 	}
 
-	log.Printf("[DEBUG] End ListPolicies")
+	tflog.Debug(ctx, "End ListPolicies")
 	return policies, nil
 }

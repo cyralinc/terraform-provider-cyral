@@ -6,8 +6,8 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
 )
 
-func packagesSchemas() []core.PackageSchema {
-	v := []core.PackageSchema{
+func packagesSchemas() []core.PackageSchema[any] {
+	v := []core.PackageSchema[any]{
 		datalabel.PackageSchema(),
 		datamap.PackageSchema(),
 	}

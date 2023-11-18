@@ -27,12 +27,12 @@ func (data *SlackAlertsIntegration) ReadFromSchema(d *schema.ResourceData) error
 }
 
 var ReadSlackAlertsConfig = core.ResourceOperationConfig{
-	Name:       "SlackAlertsResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "SlackAlertsResourceRead",
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &SlackAlertsIntegration{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SlackAlertsIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration Slack"},
 }
 
@@ -41,30 +41,30 @@ func ResourceIntegrationSlackAlerts() *schema.Resource {
 		Description: "Manages [integration with Slack to push alerts](https://cyral.com/docs/integrations/messaging/slack).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "SlackAlertsResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "SlackAlertsResourceCreate",
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 				},
-				NewResourceData: func() core.SchemaReader { return &SlackAlertsIntegration{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &SlackAlertsIntegration{} },
 			}, ReadSlackAlertsConfig,
 		),
 		ReadContext: core.ReadResource(ReadSlackAlertsConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "SlackAlertsResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "SlackAlertsResourceUpdate",
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.SchemaReader { return &SlackAlertsIntegration{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &SlackAlertsIntegration{} },
 			}, ReadSlackAlertsConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "SlackAlertsResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "SlackAlertsResourceDelete",
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
 				},
 			},

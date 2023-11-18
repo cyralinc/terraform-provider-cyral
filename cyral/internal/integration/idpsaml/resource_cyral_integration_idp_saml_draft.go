@@ -1,11 +1,12 @@
 package idpsaml
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -88,33 +89,33 @@ type ListGenericSAMLDraftsResponse struct {
 
 func CreateGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLDraftResourceCreate",
-		HttpMethod: http.MethodPost,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLDraftResourceCreate",
+		HttpMethod:   http.MethodPost,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts", c.ControlPlane)
 		},
-		NewResourceData: func() core.SchemaReader { return &CreateGenericSAMLDraftRequest{} },
-		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &CreateGenericSAMLDraftRequest{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
 	}
 }
 
 func ReadGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLDraftResourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLDraftResourceRead",
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
 		RequestErrorHandler: &readGenericSAMLDraftErrorHandler{},
-		NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
 	}
 }
 
 func DeleteGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLDraftResourceDelete",
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLDraftResourceDelete",
+		HttpMethod:   http.MethodDelete,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
 		RequestErrorHandler: &core.DeleteIgnoreHttpNotFound{ResName: "SAML draft"},
@@ -280,7 +281,8 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 	if !ok || httpError.StatusCode != http.StatusNotFound {
 		return err
 	}
-	log.Printf("[DEBUG] SAML draft not found. Checking if completed draft exists.")
+	ctx := context.Background()
+	tflog.Debug(ctx, "SAML draft not found. Checking if completed draft exists.")
 
 	query := utils.UrlQuery(map[string]string{
 		"includeCompletedDrafts": "true",
@@ -309,11 +311,11 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 		}
 	}
 	if !found {
-		log.Printf("[DEBUG] Completed draft with ID %q "+
-			"not found. Triggering recreation.", myID)
+		tflog.Debug(ctx, fmt.Sprintf("Completed draft with ID %q "+
+			"not found. Triggering recreation.", myID))
 		d.SetId("")
 	} else {
-		log.Printf("[DEBUG] Found completed draft with ID %q.", myID)
+		tflog.Debug(ctx, fmt.Sprintf("Found completed draft with ID %q.", myID))
 	}
 	return nil
 }

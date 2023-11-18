@@ -34,12 +34,12 @@ func DataSourceSystemInfo() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve information from Cyral system.",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-			Name:       "SystemInfoDataSourceRead",
-			HttpMethod: http.MethodGet,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			ResourceName: "SystemInfoDataSourceRead",
+			HttpMethod:   http.MethodGet,
+			URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/systemInfo", c.ControlPlane)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SystemInfo{}
 			},
 		}),

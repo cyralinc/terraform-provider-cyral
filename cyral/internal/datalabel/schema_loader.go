@@ -4,14 +4,14 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 )
 
-type packageSchema struct {
+type packageSchema[T any] struct {
 }
 
-func (p *packageSchema) Name() string {
+func (p *packageSchema[T]) Name() string {
 	return "datalabel"
 }
 
-func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
+func (p *packageSchema[T]) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
 			Name:   "cyral_datalabel",
@@ -26,6 +26,6 @@ func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	}
 }
 
-func PackageSchema() core.PackageSchema {
-	return &packageSchema{}
+func PackageSchema() core.PackageSchema[DataLabel] {
+	return &packageSchema[DataLabel]{}
 }

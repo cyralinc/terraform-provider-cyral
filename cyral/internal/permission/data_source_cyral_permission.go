@@ -34,12 +34,12 @@ func DataSourcePermission() *schema.Resource {
 			"[`cyral_service_account`](../resources/service_account.md).",
 		ReadContext: core.ReadResource(
 			core.ResourceOperationConfig{
-				Name:       "PermissionDataSourceRead",
-				HttpMethod: http.MethodGet,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "PermissionDataSourceRead",
+				HttpMethod:   http.MethodGet,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/users/roles", c.ControlPlane)
 				},
-				NewResponseData: func(d *schema.ResourceData) core.SchemaWriter {
+				SchemaWriterFactory: func(d *schema.ResourceData) core.SchemaWriter {
 					return &PermissionDataSourceResponse{}
 				},
 			},

@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -61,7 +61,7 @@ func ResourceSidecarCredentials() *schema.Resource {
 }
 
 func resourceSidecarCredentialsCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceSidecarCredentialsCreate")
+	tflog.Debug(ctx, "Init resourceSidecarCredentialsCreate")
 	c := m.(*client.Client)
 
 	payload := CreateSidecarCredentialsRequest{d.Get("sidecar_id").(string)}
@@ -77,7 +77,7 @@ func resourceSidecarCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.SetId(response.ClientID)
 	d.Set("client_id", response.ClientID)
@@ -87,7 +87,7 @@ func resourceSidecarCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceSidecarCredentialsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceSidecarCredentialsRead")
+	tflog.Debug(ctx, "Init resourceSidecarCredentialsRead")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts/%s", c.ControlPlane, d.Id())
@@ -102,18 +102,18 @@ func resourceSidecarCredentialsRead(ctx context.Context, d *schema.ResourceData,
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.Set("sidecar_id", response.SidecarID)
 	d.Set("client_id", response.ClientID)
 
-	log.Printf("[DEBUG] End resourceSidecarCredentialsRead")
+	tflog.Debug(ctx, "End resourceSidecarCredentialsRead")
 
 	return diag.Diagnostics{}
 }
 
 func resourceSidecarCredentialsDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceSidecarCredentialsDelete")
+	tflog.Debug(ctx, "Init resourceSidecarCredentialsDelete")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts/%s", c.ControlPlane, d.Id())
@@ -122,7 +122,7 @@ func resourceSidecarCredentialsDelete(ctx context.Context, d *schema.ResourceDat
 		return utils.CreateError("Unable to delete sidecar credentials", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourceSidecarCredentialsDelete")
+	tflog.Debug(ctx, "End resourceSidecarCredentialsDelete")
 
 	return diag.Diagnostics{}
 }

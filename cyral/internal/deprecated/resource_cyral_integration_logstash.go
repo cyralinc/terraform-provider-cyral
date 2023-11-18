@@ -2,10 +2,10 @@ package deprecated
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -35,50 +35,23 @@ func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-var ReadLogstashConfig = core.ResourceOperationConfig{
-	Name:       "LogstashResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
-	},
-	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &LogstashIntegration{} },
-}
-
 func ResourceIntegrationLogstash() *schema.Resource {
+	contextHandler := core.DefaultContextHandler{
+		ResourceName:        "Logstash Integration",
+		ResourceType:        resourcetype.Resource,
+		SchemaReaderFactory: func() core.SchemaReader { return &LogstashIntegration{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &LogstashIntegration{} },
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
+		},
+	}
 	return &schema.Resource{
 		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
 		Description:        "Manages integration with Logstash.",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-				Name:       "LogstashResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
-				},
-				NewResourceData: func() core.SchemaReader { return &LogstashIntegration{} },
-			}, ReadLogstashConfig,
-		),
-		ReadContext: core.ReadResource(ReadLogstashConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "LogstashResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
-				},
-				NewResourceData: func() core.SchemaReader { return &LogstashIntegration{} },
-			}, ReadLogstashConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "LogstashResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/logstash/%s", c.ControlPlane, d.Id())
-				},
-			},
-		),
-
+		CreateContext:      contextHandler.CreateContext(),
+		ReadContext:        contextHandler.ReadContext(),
+		UpdateContext:      contextHandler.UpdateContext(),
+		DeleteContext:      contextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "ID of this resource in Cyral environment",

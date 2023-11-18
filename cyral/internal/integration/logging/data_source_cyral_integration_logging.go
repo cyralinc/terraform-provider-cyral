@@ -42,15 +42,15 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 
 func dataSourceIntegrationLogsRead() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "IntegrationLogsDataSourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "IntegrationLogsDataSourceRead",
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			query := utils.UrlQuery(map[string]string{
 				"type": d.Get("type").(string),
 			})
 			return fmt.Sprintf("https://%s/v1/integrations/logging%s", c.ControlPlane, query)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &ListIntegrationLogsResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ListIntegrationLogsResponse{} },
 	}
 }
 

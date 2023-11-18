@@ -16,36 +16,36 @@ func resourceSchema() *schema.Resource {
 		Description: "Manages [Data Map](https://cyral.com/docs/policy/datamap).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "DataMapResourceCreate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "DataMapResourceCreate",
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
 						c.ControlPlane,
 						d.Get("repository_id").(string))
 				},
-				NewResourceData: func() core.SchemaReader { return &DataMapRequest{} },
-				NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &DataMapRequest{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
 			}, readDataMapConfig,
 		),
 
 		ReadContext: core.ReadResource(readDataMapConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "DataMapResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "DataMapResourceUpdate",
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
 						c.ControlPlane,
 						d.Get("repository_id").(string))
 				},
-				NewResourceData: func() core.SchemaReader { return &DataMapRequest{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &DataMapRequest{} },
 			}, readDataMapConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "DataMapResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "DataMapResourceDelete",
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
 						c.ControlPlane,
 						d.Get("repository_id").(string))
@@ -109,13 +109,13 @@ func resourceSchema() *schema.Resource {
 }
 
 var readDataMapConfig = core.ResourceOperationConfig{
-	Name:       "DataMapResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "DataMapResourceRead",
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
 			c.ControlPlane,
 			d.Get("repository_id").(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Map"},
 }

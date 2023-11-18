@@ -1,9 +1,11 @@
 package core
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
@@ -22,7 +24,7 @@ func (h *DeleteIgnoreHttpNotFound) HandleError(
 	if !ok || httpError.StatusCode != http.StatusNotFound {
 		return err
 	}
-	log.Printf("[DEBUG] %s not found. Skipping deletion.", h.ResName)
+	tflog.Debug(context.Background(), fmt.Sprintf("%s not found. Skipping deletion.", h.ResName))
 	return nil
 }
 
@@ -40,6 +42,6 @@ func (h *ReadIgnoreHttpNotFound) HandleError(
 		return err
 	}
 	r.SetId("")
-	log.Printf("[DEBUG] %s not found. Marking resource for recreation.", h.ResName)
+	tflog.Debug(context.Background(), fmt.Sprintf("%s not found. Marking resource for recreation.", h.ResName))
 	return nil
 }

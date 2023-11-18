@@ -2,10 +2,10 @@ package deprecated
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -26,50 +26,23 @@ func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-var ReadSumoLogicConfig = core.ResourceOperationConfig{
-	Name:       "SumoLogicResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
-	},
-	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &SumoLogicIntegration{} },
-}
-
 func ResourceIntegrationSumoLogic() *schema.Resource {
+	contextHandler := core.DefaultContextHandler{
+		ResourceName:        "SumoLogic Integration",
+		ResourceType:        resourcetype.Resource,
+		SchemaReaderFactory: func() core.SchemaReader { return &SumoLogicIntegration{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SumoLogicIntegration{} },
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
+		},
+	}
 	return &schema.Resource{
 		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
 		Description:        "Manages integration with [Sumo Logic to push sidecar logs](https://cyral.com/docs/integrations/siem/sumo-logic/).",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-				Name:       "SumoLogicResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
-				},
-				NewResourceData: func() core.SchemaReader { return &SumoLogicIntegration{} },
-			}, ReadSumoLogicConfig,
-		),
-		ReadContext: core.ReadResource(ReadSumoLogicConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "SumoLogicResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
-				},
-				NewResourceData: func() core.SchemaReader { return &SumoLogicIntegration{} },
-			}, ReadSumoLogicConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "SumoLogicResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/sumologic/%s", c.ControlPlane, d.Id())
-				},
-			},
-		),
-
+		CreateContext:      contextHandler.CreateContext(),
+		ReadContext:        contextHandler.ReadContext(),
+		UpdateContext:      contextHandler.UpdateContext(),
+		DeleteContext:      contextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "ID of this resource in Cyral environment",

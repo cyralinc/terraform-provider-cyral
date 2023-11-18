@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"sort"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -66,13 +66,13 @@ func dataSourceSidecarBoundPortsRead(
 	d *schema.ResourceData,
 	m interface{},
 ) diag.Diagnostics {
-	log.Printf("[DEBUG] Init dataSourceSidecarBoundPortsRead")
+	tflog.Debug(ctx, "Init dataSourceSidecarBoundPortsRead")
 	c := m.(*client.Client)
 
 	var boundPorts []uint32
 
 	sidecarID := d.Get("sidecar_id").(string)
-	composedBindings, err := getComposedBindings(c, sidecarID)
+	composedBindings, err := getComposedBindings(ctx, c, sidecarID)
 	if err != nil {
 		return utils.CreateError(fmt.Sprintf("Unable to retrieve repo IDs bound to sidecar. SidecarID: %s",
 			sidecarID), err.Error())
@@ -89,14 +89,14 @@ func dataSourceSidecarBoundPortsRead(
 	d.SetId(uuid.New().String())
 	d.Set("bound_ports", boundPorts)
 
-	log.Printf("[DEBUG] Sidecar bound ports: %v", boundPorts)
-	log.Printf("[DEBUG] End dataSourceSidecarBoundPortsRead")
+	tflog.Debug(ctx, fmt.Sprintf("Sidecar bound ports: %v", boundPorts))
+	tflog.Debug(ctx, "End dataSourceSidecarBoundPortsRead")
 
 	return diag.Diagnostics{}
 }
 
-func getComposedBindings(c *client.Client, sidecarID string) ([]*ComposedBinding, error) {
-	log.Printf("[DEBUG] Init getComposedBindings")
+func getComposedBindings(ctx context.Context, c *client.Client, sidecarID string) ([]*ComposedBinding, error) {
+	tflog.Debug(ctx, "Init getComposedBindings")
 
 	var composedBindings []*ComposedBinding
 	pageSize := 100
@@ -124,8 +124,8 @@ func getComposedBindings(c *client.Client, sidecarID string) ([]*ComposedBinding
 			break
 		}
 	}
-	log.Printf("[DEBUG] Response body (unmarshaled): %#v", composedBindings)
-	log.Printf("[DEBUG] End getComposedBindings")
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshaled): %#v", composedBindings))
+	tflog.Debug(ctx, "End getComposedBindings")
 
 	return composedBindings, nil
 }

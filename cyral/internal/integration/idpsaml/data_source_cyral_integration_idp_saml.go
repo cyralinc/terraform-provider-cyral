@@ -67,16 +67,16 @@ func (resp *ListGenericSAMLIdpsResponse) WriteToSchema(d *schema.ResourceData) e
 
 func dataSourceIntegrationIdPSAMLReadConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "IntegrationIdPSAMLDataSourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "IntegrationIdPSAMLDataSourceRead",
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			query := utils.UrlQuery(map[string]string{
 				"displayName": d.Get("display_name").(string),
 				"idpType":     d.Get("idp_type").(string),
 			})
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso%s", c.ControlPlane, query)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter { return &ListGenericSAMLIdpsResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ListGenericSAMLIdpsResponse{} },
 	}
 }
 

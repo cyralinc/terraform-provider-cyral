@@ -2,10 +2,10 @@ package awsiam
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -62,70 +62,25 @@ func (wrapper *AWSIAMIntegrationWrapper) ReadFromSchema(d *schema.ResourceData) 
 	return nil
 }
 
-var ReadAWSIAMIntegration = core.ResourceOperationConfig{
-	Name:       "AWSIAMIntegrationRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf(
-			"https://%s/v1/integrations/aws/iam/%s",
-			c.ControlPlane,
-			d.Id(),
-		)
-	},
-	NewResponseData: func(_ *schema.ResourceData) core.SchemaWriter {
-		return &AWSIAMIntegrationWrapper{}
-	},
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "AWS IAM Integration"},
-}
-
 func ResourceIntegrationAWSIAM() *schema.Resource {
+	contextHandler := core.DefaultContextHandler{
+		ResourceName:        "AWS IAM Integration",
+		ResourceType:        resourcetype.Resource,
+		SchemaReaderFactory: func() core.SchemaReader { return &AWSIAMIntegrationWrapper{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &AWSIAMIntegrationWrapper{} },
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/integrations/aws/iam", c.ControlPlane)
+		},
+	}
 	return &schema.Resource{
-		Description: "Authenticate users based on AWS IAM credentials.",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-				Name:       "AWSIAMIntegrationCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/aws/iam", c.ControlPlane)
-				},
-				NewResourceData: func() core.SchemaReader { return &AWSIAMIntegrationWrapper{} },
-			},
-			ReadAWSIAMIntegration,
-		),
-		ReadContext: core.ReadResource(ReadAWSIAMIntegration),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "AWSIAMIntegrationUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf(
-						"https://%s/v1/integrations/aws/iam/%s",
-						c.ControlPlane,
-						d.Id(),
-					)
-				},
-				NewResourceData: func() core.SchemaReader { return &AWSIAMIntegrationWrapper{} },
-			},
-			ReadAWSIAMIntegration,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "AWSIAMIntegrationDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf(
-						"https://%s/v1/integrations/aws/iam/%s",
-						c.ControlPlane,
-						d.Id(),
-					)
-				},
-			},
-		),
-
+		Description:   "Authenticate users based on AWS IAM credentials.",
+		CreateContext: contextHandler.CreateContext(),
+		ReadContext:   contextHandler.ReadContext(),
+		UpdateContext: contextHandler.UpdateContext(),
+		DeleteContext: contextHandler.DeleteContext(),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-
 		Schema: map[string]*schema.Schema{
 			utils.IDKey: {
 				Description: "ID of this resource in Cyral environment.",

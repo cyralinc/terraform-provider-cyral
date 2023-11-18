@@ -8,7 +8,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
@@ -45,11 +44,7 @@ func TestAccDatalabelDataSource(t *testing.T) {
 		"type_filter_custom", dataLabels, "", string(datalabel.Custom))
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: map[string]func() (*schema.Provider, error){
-			"cyral": func() (*schema.Provider, error) {
-				return provider.Provider(), nil
-			},
-		},
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfigNameFilter1,

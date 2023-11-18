@@ -27,12 +27,12 @@ func (data *MsTeamsIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 var ReadMsTeamsConfig = core.ResourceOperationConfig{
-	Name:       "MsTeamsResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "MsTeamsResourceRead",
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.SchemaWriter { return &MsTeamsIntegration{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &MsTeamsIntegration{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration Teams"},
 }
 
@@ -41,30 +41,30 @@ func ResourceIntegrationMsTeams() *schema.Resource {
 		Description: "Manages [integration with Microsoft Teams](https://cyral.com/docs/integrations/messaging/microsoft-teams/).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "MsTeamsResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "MsTeamsResourceCreate",
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 				},
-				NewResourceData: func() core.SchemaReader { return &MsTeamsIntegration{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &MsTeamsIntegration{} },
 			}, ReadMsTeamsConfig,
 		),
 		ReadContext: core.ReadResource(ReadMsTeamsConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "MsTeamsResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "MsTeamsResourceUpdate",
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 				},
-				NewResourceData: func() core.SchemaReader { return &MsTeamsIntegration{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &MsTeamsIntegration{} },
 			}, ReadMsTeamsConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "MsTeamsResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "MsTeamsResourceDelete",
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/teams/%s", c.ControlPlane, d.Id())
 				},
 			},

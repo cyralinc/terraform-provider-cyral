@@ -1,12 +1,13 @@
 package utils
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"math"
 	"sort"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -200,10 +201,11 @@ func ToSliceOfString[T any](s []T, f func(T) string) []string {
 // For reference:
 // - https://github.com/hashicorp/terraform/issues/15857
 func SetKeysAsNewComputedIfPlanHasChanges(resourceDiff *schema.ResourceDiff, keys []string) {
+	ctx := context.Background()
 	changedKeys := resourceDiff.GetChangedKeysPrefix("")
-	log.Printf("[DEBUG] changedKeys: %+v", changedKeys)
+	tflog.Debug(ctx, fmt.Sprintf("changedKeys: %+v", changedKeys))
 	hasChanges := len(changedKeys) > 0
-	log.Printf("[DEBUG] hasChanges: %t", hasChanges)
+	tflog.Debug(ctx, fmt.Sprintf("hasChanges: %t", hasChanges))
 	if hasChanges {
 		for _, key := range keys {
 			resourceDiff.SetNewComputed(key)

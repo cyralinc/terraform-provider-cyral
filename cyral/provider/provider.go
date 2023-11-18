@@ -3,9 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -99,14 +99,15 @@ func Provider() *schema.Provider {
 	}
 }
 
-func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
-	log.Printf("[DEBUG] Init getDataSourceMap")
+func getDataSourceMap(ps []core.PackageSchema[any]) map[string]*schema.Resource {
+	ctx := context.Background()
+	tflog.Debug(ctx, fmt.Sprintf("Init getDataSourceMap"))
 	schemaMap := map[string]*schema.Resource{}
 	for _, p := range ps {
-		log.Printf("[DEBUG] Looking for datasources in package `%s`", p.Name())
+		tflog.Debug(ctx, fmt.Sprintf("Looking for datasources in package `%s`", p.Name()))
 		for _, v := range p.Schemas() {
 			if v.Type == core.DataSourceSchemaType {
-				log.Printf("[DEBUG] Registering datasources `%s`", v.Name)
+				tflog.Debug(ctx, fmt.Sprintf("Registering datasources `%s`", v.Name))
 				schemaMap[v.Name] = v.Schema()
 			}
 		}
@@ -130,20 +131,21 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_sidecar_listener"] = listener.DataSourceSidecarListener()
 	schemaMap["cyral_system_info"] = systeminfo.DataSourceSystemInfo()
 
-	log.Printf("[DEBUG] end getDataSourceMap")
+	tflog.Debug(ctx, "End getDataSourceMap")
 
 	return schemaMap
 }
 
-func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
-	log.Printf("[DEBUG] Init getResourceMap")
+func getResourceMap(ps []core.PackageSchema[any]) map[string]*schema.Resource {
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init getResourceMap")
 	var idpDeprecationMessage = "Use resource and data source `cyral_integration_idp_saml` instead."
 	schemaMap := map[string]*schema.Resource{}
 	for _, p := range ps {
-		log.Printf("[DEBUG] Looking for resources in package `%s`", p.Name())
+		tflog.Debug(ctx, fmt.Sprintf("Looking for resources in package `%s`", p.Name()))
 		for _, v := range p.Schemas() {
 			if v.Type == core.ResourceSchemaType {
-				log.Printf("[DEBUG] Registering resources `%s`", v.Name)
+				tflog.Debug(ctx, fmt.Sprintf("Registering resources `%s`", v.Name))
 				schemaMap[v.Name] = v.Schema()
 			}
 		}
@@ -190,13 +192,13 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_sidecar_credentials"] = credentials.ResourceSidecarCredentials()
 	schemaMap["cyral_sidecar_listener"] = listener.ResourceSidecarListener()
 
-	log.Printf("[DEBUG] End getResourceMap")
+	tflog.Debug(ctx, "End getResourceMap")
 
 	return schemaMap
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	log.Printf("[DEBUG] Init providerConfigure")
+	tflog.Debug(ctx, "Init providerConfigure")
 
 	clientID, clientSecret, diags := getCredentials(d)
 	if diags.HasError() {
@@ -205,7 +207,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 	controlPlane := d.Get("control_plane").(string)
 	tlsSkipVerify := d.Get("tls_skip_verify").(bool)
-	log.Printf("[DEBUG] controlPlane: %s ; tlsSkipVerify: %t", controlPlane, tlsSkipVerify)
+	tflog.Debug(ctx, fmt.Sprintf("controlPlane: %s ; tlsSkipVerify: %t", controlPlane, tlsSkipVerify))
 
 	c, err := client.New(clientID, clientSecret, controlPlane, tlsSkipVerify)
 	if err != nil {
@@ -217,7 +219,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 		return nil, diags
 	}
-	log.Printf("[DEBUG] End providerConfigure")
+	tflog.Debug(ctx, "End providerConfigure")
 
 	return c, diags
 }
@@ -243,6 +245,8 @@ func getCredentials(d *schema.ResourceData) (string, string, diag.Diagnostics) {
 
 	return clientID, clientSecret, diags
 }
+
+var provider = Provider()
 
 var ProviderFactories = map[string]func() (*schema.Provider, error){
 	"cyral": func() (*schema.Provider, error) {
