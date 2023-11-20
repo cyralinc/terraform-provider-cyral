@@ -14,12 +14,13 @@ import (
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "",
+		Description: "Manages the access token settings. See also the data source " +
+			"[`cyral_access_token_settings`](../data-source/access_token_settings.md).",
 		CreateContext: core.CreateResource(updateConfig(), readConfig()),
 		ReadContext:   core.ReadResource(readConfig()),
 		UpdateContext: core.UpdateResource(updateConfig(), readConfig()),
 		DeleteContext: resourceAccessTokenSettingsDelete,
-		Schema:        getAccessTokenSettingsSchema(),
+		Schema:        getAccessTokenSettingsSchema(false),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},

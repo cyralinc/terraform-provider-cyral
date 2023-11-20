@@ -17,18 +17,18 @@ type AccessTokenSettings struct {
 
 func (settings *AccessTokenSettings) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set(MaxValidityKey, settings.MaxValidity); err != nil {
-		return fmt.Errorf(utils.ErrSettingFieldFmt, MaxValidityKey, err)
+		return fmt.Errorf(utils.ErrorSettingFieldFmt, MaxValidityKey, err)
 	}
 	if err := d.Set(DefaultValidityKey, settings.DefaultValidity); err != nil {
-		return fmt.Errorf(utils.ErrSettingFieldFmt, DefaultValidityKey, err)
+		return fmt.Errorf(utils.ErrorSettingFieldFmt, DefaultValidityKey, err)
 	}
 	if err := d.Set(MaxNumberOfTokensPerUserKey, settings.MaxNumberOfTokensPerUser); err != nil {
-		return fmt.Errorf(utils.ErrSettingFieldFmt, MaxNumberOfTokensPerUserKey, err)
+		return fmt.Errorf(utils.ErrorSettingFieldFmt, MaxNumberOfTokensPerUserKey, err)
 	}
 	if err := d.Set(OfflineTokenValidationKey, settings.OfflineTokenValidation); err != nil {
-		return fmt.Errorf(utils.ErrSettingFieldFmt, OfflineTokenValidationKey, err)
+		return fmt.Errorf(utils.ErrorSettingFieldFmt, OfflineTokenValidationKey, err)
 	}
-	d.SetId("settings/access_token")
+	d.SetId(accessTokenSettingsID)
 	return nil
 }
 
