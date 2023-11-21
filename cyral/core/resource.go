@@ -57,7 +57,7 @@ type SchemaDescriptor struct {
 // The `PackageSchema` is used to centralize the description of the existing
 // schemas in a given package. It should be implemented in the `schema.go`
 // file of a given package.
-type PackageSchema[T any] interface {
+type PackageSchema interface {
 	Name() string
 	Schemas() []*SchemaDescriptor
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/awsiam"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/mfaduo"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/hcvault"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
@@ -99,7 +98,7 @@ func Provider() *schema.Provider {
 	}
 }
 
-func getDataSourceMap(ps []core.PackageSchema[any]) map[string]*schema.Resource {
+func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	ctx := context.Background()
 	tflog.Debug(ctx, fmt.Sprintf("Init getDataSourceMap"))
 	schemaMap := map[string]*schema.Resource{}
@@ -136,7 +135,7 @@ func getDataSourceMap(ps []core.PackageSchema[any]) map[string]*schema.Resource 
 	return schemaMap
 }
 
-func getResourceMap(ps []core.PackageSchema[any]) map[string]*schema.Resource {
+func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	ctx := context.Background()
 	tflog.Debug(ctx, "Init getResourceMap")
 	var idpDeprecationMessage = "Use resource and data source `cyral_integration_idp_saml` instead."
@@ -157,7 +156,6 @@ func getResourceMap(ps []core.PackageSchema[any]) map[string]*schema.Resource {
 	schemaMap["cyral_integration_datadog"] = deprecated.ResourceIntegrationDatadog()
 	schemaMap["cyral_integration_mfa_duo"] = mfaduo.ResourceIntegrationMFADuo()
 	schemaMap["cyral_integration_elk"] = deprecated.ResourceIntegrationELK()
-	schemaMap["cyral_integration_hc_vault"] = hcvault.ResourceIntegrationHCVault()
 	schemaMap["cyral_integration_logstash"] = deprecated.ResourceIntegrationLogstash()
 	schemaMap["cyral_integration_looker"] = deprecated.ResourceIntegrationLooker()
 	schemaMap["cyral_integration_microsoft_teams"] = teams.ResourceIntegrationMsTeams()
