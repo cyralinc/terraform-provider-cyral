@@ -17,8 +17,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
@@ -31,7 +29,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
@@ -117,7 +114,6 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_permission"] = permission.DataSourcePermission()
 	schemaMap["cyral_repository"] = repository.DataSourceRepository()
 	schemaMap["cyral_role"] = role.DataSourceRole()
-	schemaMap["cyral_saml_certificate"] = samlcertificate.DataSourceSAMLCertificate()
 	schemaMap["cyral_saml_configuration"] = samlconfiguration.DataSourceSAMLConfiguration()
 	schemaMap["cyral_sidecar_bound_ports"] = sidecar.DataSourceSidecarBoundPorts()
 	schemaMap["cyral_sidecar_cft_template"] = deprecated.DataSourceSidecarCftTemplate()
@@ -157,9 +153,7 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_integration_elk"] = deprecated.ResourceIntegrationELK()
 	schemaMap["cyral_integration_logstash"] = deprecated.ResourceIntegrationLogstash()
 	schemaMap["cyral_integration_looker"] = deprecated.ResourceIntegrationLooker()
-	schemaMap["cyral_integration_microsoft_teams"] = teams.ResourceIntegrationMsTeams()
 	schemaMap["cyral_integration_pager_duty"] = pagerduty.ResourceIntegrationPagerDuty()
-	schemaMap["cyral_integration_slack_alerts"] = slack.ResourceIntegrationSlackAlerts()
 	schemaMap["cyral_integration_splunk"] = deprecated.ResourceIntegrationSplunk()
 	schemaMap["cyral_integration_idp_aad"] = deprecated.ResourceIntegrationIdP("aad", idpDeprecationMessage)
 	schemaMap["cyral_integration_idp_adfs"] = deprecated.ResourceIntegrationIdP("adfs-2016", idpDeprecationMessage)
