@@ -14,7 +14,8 @@ Terraform resource/data source and finally teach the provider how to perform the
 translation from API to Terraform schema and vice-versa.
 
 Use the files below as examples to create your own implementation. It is advised that
-you follow the same naming convention for all the files to simplify future code changes.
+you create a sing
+follow the same naming convention for all the files to simplify future code changes.
 
 ### model.go
 
@@ -43,9 +44,23 @@ func (r *NewFeature) ReadFromSchema(d *schema.ResourceData) error {
 	r.Description = d.Get("description").(string)
 	return nil
 }
+
+var contextHandler = core.DefaultContextHandler{
+	ResourceName:        "New Feature",
+	ResourceType:        resourcetype.DataSource,
+	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
+	},
+}
 ```
 
 ### datasource.go
+
+Even though the `GET` url for this new feature is `https://<CP>/v1/NewFeature/<ID>`,
+the `BaseURLFactory` provided does not provide the `ID` as it will be automatically
+added by the default read handler returned in `contextHandler.ReadContext()`.
 
 ```go
 // datasource.go
@@ -54,16 +69,7 @@ package newfeature
 func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Some description.",
-		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-            Name:       "NewFeatureRead",
-            HttpMethod: http.MethodGet,
-            URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-                return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Get("name").(string))
-            },
-            SchemaWriterFactory: func(d *schema.ResourceData) core.SchemaWriter {
-                return &NewFeature{}
-            },
-        }),
+		ReadContext: contextHandler.ReadContext(),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Description: "Retrieve the unique label with this name, if it exists.",
@@ -89,38 +95,10 @@ package newfeature
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Some description.",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-                Name:       "NewFeatureResourceRead",
-                HttpMethod: http.MethodPost,
-                URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-                    return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
-                },
-                SchemaWriterFactory: func(d *schema.ResourceData) core.SchemaWriter {
-                    return &NewFeature{}
-                },
-            }, ReadNewFeatureConfig,
-		),
-		ReadContext: core.ReadResource(ReadNewFeatureConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "NewFeatureUpdate",
-				HttpMethod: http.MethodPut,
-				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
-				},
-				SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
-			}, ReadNewFeatureConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "NewFeatureDelete",
-				HttpMethod: http.MethodDelete,
-				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
-				},
-			},
-		),
+		CreateContext: contextHandler.CreateContext(),
+		ReadContext: contextHandler.ReadContext(),
+		UpdateContext: contextHandler.UpdateContext(),
+		DeleteContext: contextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Description: "...",
@@ -134,16 +112,6 @@ func resourceSchema() *schema.Resource {
 			},
 		},
 	}
-}
-
-var ReadNewFeatureConfig = core.ResourceOperationConfig{
-	Name:       "NewFeatureRead",
-	HttpMethod: http.MethodGet,
-	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
-	},
-	SchemarReaderFactory:     func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "NewFeature"},
 }
 ```
 
