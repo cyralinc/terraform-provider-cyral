@@ -8,6 +8,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -266,6 +267,7 @@ func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextF
 		diag := core.CreateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "resourceIntegrationIdPCreate - Integration",
+				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPost,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
@@ -285,6 +287,7 @@ func resourceIntegrationIdPCreate(identityProvider string) schema.CreateContextF
 			diag = core.CreateResource(
 				core.ResourceOperationConfig{
 					ResourceName: "resourceIntegrationIdPCreate - IdentityProvider",
+					Type:         operationtype.Create,
 					HttpMethod:   http.MethodPost,
 					URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 						return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
@@ -319,6 +322,7 @@ func resourceIntegrationIdPUpdate(identityProvider string) schema.UpdateContextF
 		diag := core.UpdateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "resourceIntegrationIdPUpdate - Integration",
+				Type:         operationtype.Update,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
@@ -344,6 +348,7 @@ func resourceIntegrationIdPDelete(ctx context.Context, d *schema.ResourceData, m
 		diag = core.DeleteResource(
 			core.ResourceOperationConfig{
 				ResourceName: "resourceIntegrationIdPDelete - IdentityProvider",
+				Type:         operationtype.Delete,
 				HttpMethod:   http.MethodDelete,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
@@ -357,6 +362,7 @@ func resourceIntegrationIdPDelete(ctx context.Context, d *schema.ResourceData, m
 
 var readIntegrationIdPConfig = core.ResourceOperationConfig{
 	ResourceName: "resourceIntegrationIdPRead - Integration",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())
@@ -366,6 +372,7 @@ var readIntegrationIdPConfig = core.ResourceOperationConfig{
 
 var readIdentityProviderConfig = core.ResourceOperationConfig{
 	ResourceName: "resourceIntegrationIdPRead - IdentityProvider",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
@@ -375,6 +382,7 @@ var readIdentityProviderConfig = core.ResourceOperationConfig{
 
 var deleteIntegrationIdPConfig = core.ResourceOperationConfig{
 	ResourceName: "resourceIntegrationIdPDelete - Integration",
+	Type:         operationtype.Delete,
 	HttpMethod:   http.MethodDelete,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/saml/%s", c.ControlPlane, d.Id())

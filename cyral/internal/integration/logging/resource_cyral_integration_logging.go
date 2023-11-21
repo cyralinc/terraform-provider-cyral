@@ -8,6 +8,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 )
 
 const loggingApiUrl = "https://%s/v1/integrations/logging/%s"
@@ -174,6 +175,7 @@ func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.Resourc
 func CreateLoggingIntegration() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "LoggingIntegrationCreate",
+		Type:         operationtype.Create,
 		HttpMethod:   http.MethodPost,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/logging", c.ControlPlane)
@@ -184,6 +186,7 @@ func CreateLoggingIntegration() core.ResourceOperationConfig {
 
 var ReadLoggingIntegration = core.ResourceOperationConfig{
 	ResourceName: "LoggingIntegrationRead",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
@@ -195,6 +198,7 @@ var ReadLoggingIntegration = core.ResourceOperationConfig{
 func UpdateLoggingIntegration() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "LoggingIntegrationUpdate",
+		Type:         operationtype.Update,
 		HttpMethod:   http.MethodPut,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
@@ -206,6 +210,7 @@ func UpdateLoggingIntegration() core.ResourceOperationConfig {
 func DeleteLoggingIntegration() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "LoggingIntegrationDelete",
+		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
@@ -214,7 +219,6 @@ func DeleteLoggingIntegration() core.ResourceOperationConfig {
 }
 
 func ResourceIntegrationLogging() *schema.Resource {
-
 	return &schema.Resource{
 		Description: "Manages a logging integration that can be used to push logs from Cyral to the corresponding logging system (E.g.: AWS CloudWatch, Splunk, SumoLogic, etc).",
 		CreateContext: core.CreateResource(

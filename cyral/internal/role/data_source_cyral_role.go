@@ -13,6 +13,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 )
 
 type GetUserGroupsResponse struct {
@@ -83,6 +84,7 @@ type UserGroup struct {
 func dataSourceRoleReadConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "RoleDataSourceRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/users/groups", c.ControlPlane)

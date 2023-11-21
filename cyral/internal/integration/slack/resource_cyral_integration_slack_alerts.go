@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -28,6 +29,7 @@ func (data *SlackAlertsIntegration) ReadFromSchema(d *schema.ResourceData) error
 
 var ReadSlackAlertsConfig = core.ResourceOperationConfig{
 	ResourceName: "SlackAlertsResourceRead",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
@@ -42,6 +44,7 @@ func ResourceIntegrationSlackAlerts() *schema.Resource {
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "SlackAlertsResourceCreate",
+				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPost,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
@@ -53,6 +56,7 @@ func ResourceIntegrationSlackAlerts() *schema.Resource {
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "SlackAlertsResourceUpdate",
+				Type:         operationtype.Update,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())
@@ -63,6 +67,7 @@ func ResourceIntegrationSlackAlerts() *schema.Resource {
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
 				ResourceName: "SlackAlertsResourceDelete",
+				Type:         operationtype.Delete,
 				HttpMethod:   http.MethodDelete,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/integrations/notifications/slack/%s", c.ControlPlane, d.Id())

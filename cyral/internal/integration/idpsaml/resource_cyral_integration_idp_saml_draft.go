@@ -12,6 +12,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -90,6 +91,7 @@ type ListGenericSAMLDraftsResponse struct {
 func CreateGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "GenericSAMLDraftResourceCreate",
+		Type:         operationtype.Create,
 		HttpMethod:   http.MethodPost,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts", c.ControlPlane)
@@ -102,6 +104,7 @@ func CreateGenericSAMLDraftConfig() core.ResourceOperationConfig {
 func ReadGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "GenericSAMLDraftResourceRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
@@ -114,6 +117,7 @@ func ReadGenericSAMLDraftConfig() core.ResourceOperationConfig {
 func DeleteGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "GenericSAMLDraftResourceDelete",
+		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())

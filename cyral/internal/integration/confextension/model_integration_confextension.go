@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -91,6 +92,7 @@ func (data *IntegrationConfExtension) ReadFromSchema(d *schema.ResourceData) err
 func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: fmt.Sprintf("%s_IntegrationResourceCreate", templateType),
+		Type:         operationtype.Create,
 		HttpMethod:   http.MethodPost,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
@@ -106,6 +108,7 @@ func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationC
 func ConfExtensionIntegrationRead(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: fmt.Sprintf("%s_IntegrationResourceRead", templateType),
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
@@ -122,6 +125,7 @@ func ConfExtensionIntegrationRead(templateType string) core.ResourceOperationCon
 func ConfExtensionIntegrationUpdate(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: fmt.Sprintf("%s_IntegrationResourceUpdate", templateType),
+		Type:         operationtype.Update,
 		HttpMethod:   http.MethodPut,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
@@ -137,6 +141,7 @@ func ConfExtensionIntegrationUpdate(templateType string) core.ResourceOperationC
 func ConfExtensionIntegrationDelete(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: fmt.Sprintf("%s_IntegrationResourceDelete", templateType),
+		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(

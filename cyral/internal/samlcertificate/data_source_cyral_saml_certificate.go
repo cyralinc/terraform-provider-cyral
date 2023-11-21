@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -16,6 +17,7 @@ func DataSourceSAMLCertificate() *schema.Resource {
 			"\n\nSee also the remaining SAML-related resources and data sources.",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
 			ResourceName: "dataSourceSAMLCertificateRead",
+			Type:         operationtype.Read,
 			HttpMethod:   http.MethodGet,
 			URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf("https://%s/v1/integrations/saml/rsa/cert", c.ControlPlane)

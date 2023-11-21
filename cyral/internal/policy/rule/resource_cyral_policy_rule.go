@@ -9,6 +9,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -412,6 +413,7 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 func policyRuleDeleteConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "PolicyRuleDelete",
+		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			policyID, policyRuleID := unmarshalPolicyRuleID(d)

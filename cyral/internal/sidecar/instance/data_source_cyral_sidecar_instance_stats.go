@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -36,6 +37,7 @@ func DataSourceSidecarInstanceStats() *schema.Resource {
 			"[`cyral_sidecar_instance`](../data-sources/sidecar_instance.md).",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
 			ResourceName: "SidecarInstanceStatsDataSourceRead",
+			Type:         operationtype.Read,
 			HttpMethod:   http.MethodGet,
 			URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf(

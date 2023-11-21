@@ -38,7 +38,7 @@ func defaultSchemaWriterFactory(d *schema.ResourceData) SchemaWriter {
 func defaultOperationHandler(
 	resourceName string,
 	resourceType rt.ResourceType,
-	operationtype ot.OperationType,
+	operationType ot.OperationType,
 	baseURLFactory URLFactoryFunc,
 	httpMethod string,
 	schemaReaderFactory SchemaReaderFactoryFunc,
@@ -53,7 +53,7 @@ func defaultOperationHandler(
 			url = fmt.Sprintf("%s/%s", baseURLFactory(d, c), d.Id())
 		}
 		tflog.Debug(context.Background(), fmt.Sprintf("Returning base URL for %s '%s' operation '%s' and httpMethod %s: %s",
-			resourceType, resourceName, operationtype, httpMethod, url))
+			resourceType, resourceName, operationType, httpMethod, url))
 		return url
 	}
 
@@ -65,6 +65,7 @@ func defaultOperationHandler(
 	}
 	result := ResourceOperationConfig{
 		ResourceName:        resourceName,
+		Type:                operationType,
 		ResourceType:        resourceType,
 		HttpMethod:          httpMethod,
 		URLFactory:          endpoint,

@@ -44,16 +44,6 @@ func (r *NewFeature) ReadFromSchema(d *schema.ResourceData) error {
 	r.Description = d.Get("description").(string)
 	return nil
 }
-
-var contextHandler = core.DefaultContextHandler{
-	ResourceName:        "New Feature",
-	ResourceType:        resourcetype.DataSource,
-	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
-	},
-}
 ```
 
 ### datasource.go
@@ -66,10 +56,20 @@ added by the default read handler returned in `contextHandler.ReadContext()`.
 // datasource.go
 package newfeature
 
+var dsContextHandler = core.DefaultContextHandler{
+	ResourceName:        "New Feature",
+	ResourceType:        resourcetype.DataSource,
+	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
+	},
+}
+
 func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Some description.",
-		ReadContext: contextHandler.ReadContext(),
+		ReadContext: dsContextHandler.ReadContext(),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Description: "Retrieve the unique label with this name, if it exists.",
@@ -92,13 +92,23 @@ func dataSourceSchema() *schema.Resource {
 // resource.go
 package newfeature
 
+var resourceContextHandler = core.DefaultContextHandler{
+	ResourceName:        "New Feature",
+	ResourceType:        resourcetype.Resource,
+	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
+	},
+}
+
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Some description.",
-		CreateContext: contextHandler.CreateContext(),
-		ReadContext: contextHandler.ReadContext(),
-		UpdateContext: contextHandler.UpdateContext(),
-		DeleteContext: contextHandler.DeleteContext(),
+		CreateContext: resourceContextHandler.CreateContext(),
+		ReadContext:   resourceContextHandler.ReadContext(),
+		UpdateContext: resourceContextHandler.UpdateContext(),
+		DeleteContext: resourceContextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Description: "...",

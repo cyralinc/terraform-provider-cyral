@@ -9,6 +9,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 )
 
 func resourceSchema() *schema.Resource {
@@ -17,6 +18,7 @@ func resourceSchema() *schema.Resource {
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "DataMapResourceCreate",
+				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
@@ -32,6 +34,7 @@ func resourceSchema() *schema.Resource {
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "DataMapResourceUpdate",
+				Type:         operationtype.Update,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
@@ -44,6 +47,7 @@ func resourceSchema() *schema.Resource {
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
 				ResourceName: "DataMapResourceDelete",
+				Type:         operationtype.Delete,
 				HttpMethod:   http.MethodDelete,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/datamap",
@@ -110,6 +114,7 @@ func resourceSchema() *schema.Resource {
 
 var readDataMapConfig = core.ResourceOperationConfig{
 	ResourceName: "DataMapResourceRead",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/repos/%s/datamap",

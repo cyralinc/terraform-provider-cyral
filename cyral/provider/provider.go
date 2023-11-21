@@ -30,7 +30,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
@@ -182,7 +181,6 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_repository_conf_auth"] = confauth.ResourceRepositoryConfAuth()
 	schemaMap["cyral_repository_conf_analysis"] = confanalysis.ResourceRepositoryConfAnalysis()
 	schemaMap["cyral_repository_network_access_policy"] = network.ResourceRepositoryNetworkAccessPolicy()
-	schemaMap["cyral_repository_user_account"] = useraccount.ResourceRepositoryUserAccount()
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
 	schemaMap["cyral_service_account"] = serviceaccount.ResourceServiceAccount()

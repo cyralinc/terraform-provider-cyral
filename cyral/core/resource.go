@@ -14,11 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type ResourceOperation struct {
-	Type   operationtype.OperationType
-	Config ResourceOperationConfig
-}
-
 type URLFactoryFunc = func(d *schema.ResourceData, c *client.Client) string
 type SchemaReaderFactoryFunc = func() SchemaReader
 type SchemaWriterFactoryFunc = func(d *schema.ResourceData) SchemaWriter
@@ -65,6 +60,7 @@ type PackageSchema interface {
 type ResourceOperationConfig struct {
 	// Human-readable resource name that will be used in log messages
 	ResourceName string
+	Type         operationtype.OperationType
 	// Resource type
 	ResourceType        resourcetype.ResourceType
 	HttpMethod          string
@@ -74,75 +70,55 @@ type ResourceOperationConfig struct {
 	SchemaWriterFactory SchemaWriterFactoryFunc
 }
 
-func CRUDResources(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
-	return handleRequests(resourceOperations)
+func CRUDResources(operations []ResourceOperationConfig) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
+	return handleRequests(operations)
 }
 
 func CreateResource(createConfig, readConfig ResourceOperationConfig) schema.CreateContextFunc {
 	return handleRequests(
-		[]ResourceOperation{
-			{
-				Type:   operationtype.Create,
-				Config: createConfig,
-			},
-			{
-				Type:   operationtype.Read,
-				Config: readConfig,
-			},
+		[]ResourceOperationConfig{
+			createConfig, readConfig,
 		},
 	)
 }
 
 func ReadResource(readConfig ResourceOperationConfig) schema.ReadContextFunc {
 	return handleRequests(
-		[]ResourceOperation{
-			{
-				Type:   operationtype.Read,
-				Config: readConfig,
-			},
+		[]ResourceOperationConfig{
+			readConfig,
 		},
 	)
 }
 
 func UpdateResource(updateConfig, readConfig ResourceOperationConfig) schema.UpdateContextFunc {
 	return handleRequests(
-		[]ResourceOperation{
-			{
-				Type:   operationtype.Update,
-				Config: updateConfig,
-			},
-			{
-				Type:   operationtype.Read,
-				Config: readConfig,
-			},
+		[]ResourceOperationConfig{
+			updateConfig, readConfig,
 		},
 	)
 }
 
 func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFunc {
 	return handleRequests(
-		[]ResourceOperation{
-			{
-				Type:   operationtype.Delete,
-				Config: deleteConfig,
-			},
+		[]ResourceOperationConfig{
+			deleteConfig,
 		},
 	)
 }
 
-func handleRequests(resourceOperations []ResourceOperation) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
+func handleRequests(operations []ResourceOperationConfig) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		for _, operation := range resourceOperations {
-			tflog.Debug(ctx, fmt.Sprintf("Init %s %s", operation.Config.ResourceName, operation.Type))
+		for _, operation := range operations {
+			tflog.Debug(ctx, fmt.Sprintf("Init %s - %s", operation.ResourceName, operation.Type))
 			c := m.(*client.Client)
 
 			var resourceData SchemaReader
-			if operation.Config.SchemaReaderFactory != nil {
-				if resourceData = operation.Config.SchemaReaderFactory(); resourceData != nil {
+			if operation.SchemaReaderFactory != nil {
+				if resourceData = operation.SchemaReaderFactory(); resourceData != nil {
 					tflog.Debug(ctx, fmt.Sprintf("Calling ReadFromSchema. Schema: %#v", d))
 					if err := resourceData.ReadFromSchema(d); err != nil {
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.ResourceName),
+							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.ResourceName),
 							err.Error(),
 						)
 					}
@@ -150,15 +126,15 @@ func handleRequests(resourceOperations []ResourceOperation) func(context.Context
 				}
 			}
 
-			url := operation.Config.URLFactory(d, c)
+			url := operation.URLFactory(d, c)
 
-			body, err := c.DoRequest(url, operation.Config.HttpMethod, resourceData)
-			if operation.Config.RequestErrorHandler != nil {
-				err = operation.Config.RequestErrorHandler.HandleError(d, c, err)
+			body, err := c.DoRequest(url, operation.HttpMethod, resourceData)
+			if operation.RequestErrorHandler != nil {
+				err = operation.RequestErrorHandler.HandleError(d, c, err)
 			}
 			if err != nil {
 				return utils.CreateError(
-					fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.ResourceName),
+					fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.ResourceName),
 					err.Error(),
 				)
 			}
@@ -168,11 +144,11 @@ func handleRequests(resourceOperations []ResourceOperation) func(context.Context
 			/// TODO: Remove this feature after refactoring all resources to use the `DefaultContext`.
 			var responseDataFunc SchemaWriterFactoryFunc
 			if body != nil {
-				if operation.Config.SchemaWriterFactory == nil && operation.Type == operationtype.Create {
+				if operation.SchemaWriterFactory == nil && operation.Type == operationtype.Create {
 					responseDataFunc = defaultSchemaWriterFactory
 					tflog.Debug(ctx, "NewResponseData function set to defaultSchemaWriterFactory.")
 				} else {
-					responseDataFunc = operation.Config.SchemaWriterFactory
+					responseDataFunc = operation.SchemaWriterFactory
 				}
 			}
 			if responseDataFunc != nil {
@@ -185,7 +161,7 @@ func handleRequests(resourceOperations []ResourceOperation) func(context.Context
 					tflog.Debug(ctx, fmt.Sprintf("Calling WriteToSchema: responseData: %#v", responseData))
 					if err := responseData.WriteToSchema(d); err != nil {
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.Config.ResourceName),
+							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.ResourceName),
 							err.Error(),
 						)
 					}
@@ -193,7 +169,7 @@ func handleRequests(resourceOperations []ResourceOperation) func(context.Context
 				}
 			}
 
-			tflog.Debug(ctx, fmt.Sprintf("End %s", operation.Config.ResourceName))
+			tflog.Debug(ctx, fmt.Sprintf("End %s - %s", operation.ResourceName, operation.Type))
 		}
 		return diag.Diagnostics{}
 	}

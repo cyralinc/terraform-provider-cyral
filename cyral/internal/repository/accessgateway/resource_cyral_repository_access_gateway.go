@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -37,6 +38,7 @@ func (r *AccessGateway) ReadFromSchema(d *schema.ResourceData) error {
 
 var ReadRepositoryAccessGatewayConfig = core.ResourceOperationConfig{
 	ResourceName: "RepositoryAccessGatewayRead",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf(
@@ -57,6 +59,7 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "RepositoryAccessGatewayCreate",
+				Type:         operationtype.Update,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
@@ -73,6 +76,7 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "RepositoryAccessGatewayUpdate",
+				Type:         operationtype.Update,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
@@ -88,6 +92,7 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
 				ResourceName: "RepositoryAccessGatewayDelete",
+				Type:         operationtype.Delete,
 				HttpMethod:   http.MethodDelete,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(

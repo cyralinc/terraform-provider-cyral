@@ -61,6 +61,7 @@ func (resp *ReadGenericSAMLResponse) WriteToSchema(d *schema.ResourceData) error
 func CreateGenericSAMLConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "GenericSAMLResourceCreate",
+		Type:         operationtype.Create,
 		HttpMethod:   http.MethodPost,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso", c.ControlPlane)
@@ -73,6 +74,7 @@ func CreateGenericSAMLConfig() core.ResourceOperationConfig {
 func CreateIdPConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "GenericSAMLResourceValidation",
+		Type:         operationtype.Create,
 		HttpMethod:   http.MethodPost,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
@@ -85,6 +87,7 @@ func CreateIdPConfig() core.ResourceOperationConfig {
 func ReadGenericSAMLConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "GenericSAMLResourceRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
@@ -97,6 +100,7 @@ func ReadGenericSAMLConfig() core.ResourceOperationConfig {
 func DeleteGenericSAMLConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "GenericSAMLResourceDelete",
+		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
@@ -110,19 +114,10 @@ func ResourceIntegrationIdPSAML() *schema.Resource {
 			"[Single Sing-On](https://cyral.com/docs/sso/overview) to Cyral.\n\nSee also " +
 			"the remaining SAML-related resources and data sources.",
 		CreateContext: core.CRUDResources(
-			[]core.ResourceOperation{
-				{
-					Type:   operationtype.Create,
-					Config: CreateGenericSAMLConfig(),
-				},
-				{
-					Type:   operationtype.Read,
-					Config: ReadGenericSAMLConfig(),
-				},
-				{
-					Type:   operationtype.Create,
-					Config: CreateIdPConfig(),
-				},
+			[]core.ResourceOperationConfig{
+				CreateGenericSAMLConfig(),
+				ReadGenericSAMLConfig(),
+				CreateIdPConfig(),
 			},
 		),
 		ReadContext:   core.ReadResource(ReadGenericSAMLConfig()),

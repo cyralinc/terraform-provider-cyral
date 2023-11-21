@@ -1,11 +1,6 @@
 package hcvault
 
 import (
-	"fmt"
-
-	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -34,14 +29,4 @@ func (data *HCVaultIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	data.Name = d.Get("name").(string)
 	data.Server = d.Get("server").(string)
 	return nil
-}
-
-var contextHandler = core.DefaultContextHandler{
-	ResourceName:        "HC Vault Integration",
-	ResourceType:        resourcetype.Resource,
-	SchemaReaderFactory: func() core.SchemaReader { return &HCVaultIntegration{} },
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &HCVaultIntegration{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault", c.ControlPlane)
-	},
 }

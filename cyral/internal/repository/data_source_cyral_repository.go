@@ -10,6 +10,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -56,6 +57,7 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 func dataSourceRepositoryReadConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "RepositoryDataSourceRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			nameFilter := d.Get("name").(string)

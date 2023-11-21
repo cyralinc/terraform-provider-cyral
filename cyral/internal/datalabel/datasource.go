@@ -10,6 +10,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
@@ -99,6 +100,7 @@ func dataSourceSchema() *schema.Resource {
 func readConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "Data Label",
+		Type:         operationtype.Read,
 		ResourceType: resourcetype.DataSource,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {

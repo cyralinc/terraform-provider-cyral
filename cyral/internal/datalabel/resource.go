@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/datalabel/classificationrule"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
@@ -30,6 +31,7 @@ func resourceSchema() *schema.Resource {
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "DataLabelResourceCreate",
+				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/datalabels/%s",

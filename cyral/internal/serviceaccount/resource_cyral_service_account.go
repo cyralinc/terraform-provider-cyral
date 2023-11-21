@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -46,6 +47,7 @@ func ResourceServiceAccount() *schema.Resource {
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "ServiceAccountCreate",
+				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPost,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
@@ -62,6 +64,7 @@ func ResourceServiceAccount() *schema.Resource {
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
 				ResourceName: "ServiceAccountUpdate",
+				Type:         operationtype.Update,
 				HttpMethod:   http.MethodPatch,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
@@ -77,6 +80,7 @@ func ResourceServiceAccount() *schema.Resource {
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
 				ResourceName: "ServiceAccountDelete",
+				Type:         operationtype.Delete,
 				HttpMethod:   http.MethodDelete,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(

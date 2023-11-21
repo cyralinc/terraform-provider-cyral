@@ -8,6 +8,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -123,6 +124,7 @@ func ResourceRoleSSOGroups() *schema.Resource {
 
 var createRoleSSOGroupsConfig = core.ResourceOperationConfig{
 	ResourceName: "resourceRoleSSOGroupsCreate",
+	Type:         operationtype.Create,
 	HttpMethod:   http.MethodPatch,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
@@ -134,6 +136,7 @@ var createRoleSSOGroupsConfig = core.ResourceOperationConfig{
 
 var readRoleSSOGroupsConfig = core.ResourceOperationConfig{
 	ResourceName: "resourceRoleSSOGroupsRead",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
@@ -145,6 +148,7 @@ var readRoleSSOGroupsConfig = core.ResourceOperationConfig{
 
 var deleteRoleSSOGroupsConfig = core.ResourceOperationConfig{
 	ResourceName: "resourceRoleSSOGroupsDelete",
+	Type:         operationtype.Delete,
 	HttpMethod:   http.MethodDelete,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,

@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -43,6 +44,7 @@ func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) e
 func dataSourceIntegrationLogsRead() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "IntegrationLogsDataSourceRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			query := utils.UrlQuery(map[string]string{

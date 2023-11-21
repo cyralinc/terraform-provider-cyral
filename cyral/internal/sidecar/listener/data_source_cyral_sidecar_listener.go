@@ -12,6 +12,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
@@ -69,6 +70,7 @@ func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.Res
 func dataSourceSidecarListenerReadConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "SidecarListenerDataSourceRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			sidecarID := d.Get(utils.SidecarIDKey).(string)

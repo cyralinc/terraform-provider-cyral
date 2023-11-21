@@ -9,6 +9,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -35,6 +36,7 @@ func DataSourcePermission() *schema.Resource {
 		ReadContext: core.ReadResource(
 			core.ResourceOperationConfig{
 				ResourceName: "PermissionDataSourceRead",
+				Type:         operationtype.Read,
 				HttpMethod:   http.MethodGet,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/users/roles", c.ControlPlane)

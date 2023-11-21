@@ -8,6 +8,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -143,6 +144,7 @@ func confAuthAlreadyExists(ctx context.Context, c *client.Client, repositoryID s
 func CreateConfAuthConfig(httpMethod string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "ConfAuthResourceCreate",
+		Type:         operationtype.Create,
 		HttpMethod:   httpMethod,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
@@ -155,6 +157,7 @@ func CreateConfAuthConfig(httpMethod string) core.ResourceOperationConfig {
 func ReadConfAuthConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "ConfAuthResourceRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
@@ -167,6 +170,7 @@ func ReadConfAuthConfig() core.ResourceOperationConfig {
 func UpdateConfAuthConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "ConfAuthResourceUpdate",
+		Type:         operationtype.Update,
 		HttpMethod:   http.MethodPut,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
@@ -178,6 +182,7 @@ func UpdateConfAuthConfig() core.ResourceOperationConfig {
 func DeleteConfAuthConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "ConfAuthResourceDelete",
+		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))

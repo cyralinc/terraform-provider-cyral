@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -102,6 +103,7 @@ func (nap *NetworkAccessPolicy) WriteToSchema(d *schema.ResourceData) error {
 func createRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "RepositoryNetworkAccessPolicyCreate",
+		Type:         operationtype.Create,
 		HttpMethod:   http.MethodPost,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
@@ -115,6 +117,7 @@ func createRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 func readRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "RepositoryNetworkAccessPolicyRead",
+		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
@@ -128,6 +131,7 @@ func readRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 func updateRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "RepositoryNetworkAccessPolicyUpdate",
+		Type:         operationtype.Update,
 		HttpMethod:   http.MethodPut,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
@@ -141,6 +145,7 @@ func updateRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 func deleteRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: "RepositoryNetworkAccessPolicyDelete",
+		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
