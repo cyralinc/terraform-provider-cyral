@@ -30,8 +30,8 @@ output "offline_token_validation" {
 
 ### Read-Only
 
-- `default_validity` (String) The default duration used for access token validity. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s` etc
+- `default_validity` (String) The default duration used for access token validity. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s`, etc.
 - `id` (String) The data source identifier. It's set as `settings/access_token`.
 - `max_number_of_tokens_per_user` (Number) The maximum number of access tokens that a user can have at the same time.
-- `max_validity` (String) The maximum duration that a user can request for access token validity. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s` etc
+- `max_validity` (String) The maximum duration that a user can request for access token validity. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s`, etc.
 - `offline_token_validation` (Boolean) The configuration that determines if the sidecar should perform access token validation independently using cached token values. If this is true, the sidecar will be able to validate and authenticate database access even when it cannot reach the Control Plane.

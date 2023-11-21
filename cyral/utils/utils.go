@@ -29,7 +29,7 @@ const (
 	ErrorSettingFieldFmt        = "error setting '%s' field: %w"
 	DurationFieldDescriptionFmt = "%s. Should follow the protobuf duration string format, which corresponds " +
 		"to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For " +
-		"example: `300s`, `60s`, `10.50s` etc"
+		"example: `300s`, `60s`, `10.50s`, etc."
 )
 
 func ConvertToInterfaceList[T any](list []T) []any {
