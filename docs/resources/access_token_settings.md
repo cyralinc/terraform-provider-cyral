@@ -7,7 +7,7 @@ Manages the access token settings. See also the data source [`cyral_access_token
 ## Example Usage
 
 ```terraform
-resource "cyral_access_token_settings" "name" {
+resource "cyral_access_token_settings" "current" {
   max_validity = "72000s"
   default_validity = "36000s"
   max_number_of_tokens_per_user = 3
