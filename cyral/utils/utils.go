@@ -162,7 +162,7 @@ func GetStrList(m map[string]interface{}, attName string) []string {
 }
 
 func ConvertSchemaFieldsToComputed(s map[string]*schema.Schema) map[string]*schema.Schema {
-	for k, _ := range s {
+	for k := range s {
 		s[k] = &schema.Schema{
 			Description: s[k].Description,
 			Type:        s[k].Type,

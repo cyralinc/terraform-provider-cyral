@@ -1,11 +1,9 @@
 package tokensettings
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
@@ -15,11 +13,13 @@ import (
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages the access token settings. See also the data source " +
-			"[`cyral_access_token_settings`](../data-source/access_token_settings.md).",
+			"[`cyral_access_token_settings`](../data-source/access_token_settings.md)." +
+			"\n\n-> **Note** The deletion of this terraform resource will reset the access " +
+			"token settings to their corresponding default values.",
 		CreateContext: core.CreateResource(updateConfig(), readConfig()),
 		ReadContext:   core.ReadResource(readConfig()),
 		UpdateContext: core.UpdateResource(updateConfig(), readConfig()),
-		DeleteContext: resourceAccessTokenSettingsDelete,
+		DeleteContext: core.DeleteResource(deleteConfig()),
 		Schema:        getAccessTokenSettingsSchema(false),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -53,13 +53,15 @@ func updateConfig() core.ResourceOperationConfig {
 	}
 }
 
-func resourceAccessTokenSettingsDelete(
-	ctx context.Context,
-	d *schema.ResourceData,
-	m interface{},
-) diag.Diagnostics {
-	// Since access token settings cannot be deleted, we just set the ID to
-	// empty so that the resource can be removed from the terraform state.
-	d.SetId("")
-	return diag.Diagnostics{}
+// Since the access token settings resource is a global setting that is never deleted,
+// the UpdateAccessTokenSettings API will be called here, with an empty body, so that
+// the access token settings are reseted to their corresponding default values.
+func deleteConfig() core.ResourceOperationConfig {
+	return core.ResourceOperationConfig{
+		Name:       "AccessTokenSettingsDelete",
+		HttpMethod: http.MethodPut,
+		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/accessTokens/settings", c.ControlPlane)
+		},
+	}
 }
