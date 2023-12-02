@@ -13,8 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-// Common keys.
 const (
+	// Common keys.
 	IDKey           = "id"
 	NameKey         = "name"
 	DescriptionKey  = "description"
@@ -26,6 +26,11 @@ const (
 	SidecarIDKey    = "sidecar_id"
 	ListenerIDKey   = "listener_id"
 	StatusKey       = "status"
+	// Common string formatters
+	ErrorSettingFieldFmt        = "error setting '%s' field: %w"
+	DurationFieldDescriptionFmt = "%s. Should follow the protobuf duration string format, which corresponds " +
+		"to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For " +
+		"example: `300s`, `60s`, `10.50s`, etc."
 )
 
 func ConvertToInterfaceList[T any](list []T) []any {
@@ -158,7 +163,7 @@ func GetStrList(m map[string]interface{}, attName string) []string {
 }
 
 func ConvertSchemaFieldsToComputed(s map[string]*schema.Schema) map[string]*schema.Schema {
-	for k, _ := range s {
+	for k := range s {
 		s[k] = &schema.Schema{
 			Description: s[k].Description,
 			Type:        s[k].Type,

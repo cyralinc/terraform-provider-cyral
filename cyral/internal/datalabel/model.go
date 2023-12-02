@@ -3,8 +3,10 @@ package datalabel
 import (
 	"fmt"
 
-	cs "github.com/cyralinc/terraform-provider-cyral/cyral/internal/datalabel/classificationrule"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	cs "github.com/cyralinc/terraform-provider-cyral/cyral/internal/datalabel/classificationrule"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
 type Tags []string
@@ -32,15 +34,15 @@ func (dl DataLabel) WriteToSchema(d *schema.ResourceData) error {
 	// }
 
 	if err := d.Set("description", dl.Description); err != nil {
-		return fmt.Errorf("error setting 'description' field: %w", err)
+		return fmt.Errorf(utils.ErrorSettingFieldFmt, "description", err)
 	}
 
 	if err := d.Set("tags", dl.Tags.AsInterface()); err != nil {
-		return fmt.Errorf("error setting 'tags' field: %w", err)
+		return fmt.Errorf(utils.ErrorSettingFieldFmt, "tags", err)
 	}
 
 	if err := d.Set("classification_rule", dl.ClassificationRule.AsInterface()); err != nil {
-		return fmt.Errorf("error setting 'classification_rule' field: %w", err)
+		return fmt.Errorf(utils.ErrorSettingFieldFmt, "classification_rule", err)
 	}
 
 	d.SetId(dl.Name)

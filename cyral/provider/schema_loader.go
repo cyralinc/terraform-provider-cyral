@@ -9,6 +9,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/tokensettings"
 )
 
 func packagesSchemas() []core.PackageSchema {
@@ -19,6 +20,7 @@ func packagesSchemas() []core.PackageSchema {
 		samlcertificate.PackageSchema(),
 		slack.PackageSchema(),
 		teams.PackageSchema(),
+		tokensettings.PackageSchema(),
 		useraccount.PackageSchema(),
 	}
 	return v

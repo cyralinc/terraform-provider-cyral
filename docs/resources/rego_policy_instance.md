@@ -195,7 +195,7 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 ### Optional
 
 - `description` (String) Policy description.
-- `duration` (String) Policy duration. The policy expires after the duration specified. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s` etc
+- `duration` (String) Policy duration. The policy expires after the duration specified. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s`, etc.
 - `enabled` (Boolean) Enable/disable the policy. Defaults to `false` (Disabled).
 - `parameters` (String) Policy parameters. The parameters vary based on the policy template schema.
 - `scope` (Block Set, Max: 1) Determines the scope that the policy applies to. It can be used to create a repo-level policy by specifying the corresponding `repo_ids` that this policy should be applied. (see [below for nested schema](#nestedblock--scope))
