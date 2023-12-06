@@ -177,7 +177,7 @@ func dataSourceSAMLConfigurationRead(ctx context.Context, d *schema.ResourceData
 
 	url := fmt.Sprintf("https://%v/v1/integrations/saml/parse", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodPost, metadataRequest)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, metadataRequest)
 	if err != nil {
 		return utils.CreateError("Unable to retrieve saml configuration", fmt.Sprintf("%v", err))
 	}

@@ -6,13 +6,13 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "HC Vault Integration"
+	return "User Account"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
-			Name:   "cyral_repository_user_account",
+			Name:   resourceName,
 			Type:   core.ResourceSchemaType,
 			Schema: resourceSchema,
 		},

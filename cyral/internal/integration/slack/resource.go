@@ -10,7 +10,7 @@ import (
 )
 
 var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:        "Slack Integration",
+	ResourceName:        resourceName,
 	ResourceType:        resourcetype.Resource,
 	SchemaReaderFactory: func() core.SchemaReader { return &SlackAlertsIntegration{} },
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SlackAlertsIntegration{} },

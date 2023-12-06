@@ -204,7 +204,7 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	url := fmt.Sprintf("https://%s/v1/sidecars", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodPost, resourceData)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, resourceData)
 	if err != nil {
 		return utils.CreateError("Unable to create sidecar", fmt.Sprintf("%v", err))
 	}
@@ -226,7 +226,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		// Currently, the sidecar API always returns a status code of 500 for every error,
 		// so its not possible to distinguish if the error returned is related to
@@ -290,7 +290,7 @@ func resourceSidecarUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
-	if _, err = c.DoRequest(url, http.MethodPut, resourceData); err != nil {
+	if _, err = c.DoRequest(ctx, url, http.MethodPut, resourceData); err != nil {
 		return utils.CreateError("Unable to update sidecar", fmt.Sprintf("%v", err))
 	}
 
@@ -305,7 +305,7 @@ func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interf
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodDelete, nil); err != nil {
 		return utils.CreateError("Unable to delete sidecar", fmt.Sprintf("%v", err))
 	}
 

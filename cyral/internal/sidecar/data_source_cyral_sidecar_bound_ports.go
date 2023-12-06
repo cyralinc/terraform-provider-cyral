@@ -108,7 +108,7 @@ func getComposedBindings(ctx context.Context, c *client.Client, sidecarID string
 		if pageAfter != "" {
 			url = url + fmt.Sprintf("&pageAfter=%s", pageAfter)
 		}
-		body, err := c.DoRequest(url, http.MethodPost, nil)
+		body, err := c.DoRequest(ctx, url, http.MethodPost, nil)
 		if err != nil {
 			return nil, err
 		}

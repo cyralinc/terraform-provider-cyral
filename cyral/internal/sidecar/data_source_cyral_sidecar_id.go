@@ -74,7 +74,7 @@ func ListSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
 	ctx := context.Background()
 	tflog.Debug(ctx, "Init listSidecars")
 	url := fmt.Sprintf("https://%s/v1/sidecars", c.ControlPlane)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}

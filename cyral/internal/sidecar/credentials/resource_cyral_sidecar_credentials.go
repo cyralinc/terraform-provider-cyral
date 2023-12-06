@@ -68,7 +68,7 @@ func resourceSidecarCredentialsCreate(ctx context.Context, d *schema.ResourceDat
 
 	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodPost, payload)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, payload)
 	if err != nil {
 		return utils.CreateError("Unable to create sidecar credentials", fmt.Sprintf("%v", err))
 	}
@@ -92,7 +92,7 @@ func resourceSidecarCredentialsRead(ctx context.Context, d *schema.ResourceData,
 
 	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts/%s", c.ControlPlane, d.Id())
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return utils.CreateError(fmt.Sprintf("Unable to read sidecar credentials. ClientID: %s",
 			d.Id()), fmt.Sprintf("%v", err))
@@ -118,7 +118,7 @@ func resourceSidecarCredentialsDelete(ctx context.Context, d *schema.ResourceDat
 
 	url := fmt.Sprintf("https://%s/v1/users/sidecarAccounts/%s", c.ControlPlane, d.Id())
 
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodDelete, nil); err != nil {
 		return utils.CreateError("Unable to delete sidecar credentials", fmt.Sprintf("%v", err))
 	}
 

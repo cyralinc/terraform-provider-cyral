@@ -39,7 +39,7 @@ var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
 }
 
 var readRepositoryUserAccountConfig = core.ResourceOperationConfig{
-	ResourceName: "Repository User Account",
+	ResourceName: resourceName,
 	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory:   urlFactory,
@@ -58,7 +58,7 @@ func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				ResourceName: "Repository User Account",
+				ResourceName: resourceName,
 				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPost,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -76,7 +76,7 @@ func resourceSchema() *schema.Resource {
 		ReadContext: core.ReadResource(readRepositoryUserAccountConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				ResourceName:        "RepositoryUserAccountUpdate",
+				ResourceName:        resourceName,
 				Type:                operationtype.Update,
 				HttpMethod:          http.MethodPut,
 				URLFactory:          urlFactory,
@@ -86,7 +86,7 @@ func resourceSchema() *schema.Resource {
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				ResourceName: "RepositoryUserAccountDelete",
+				ResourceName: resourceName,
 				HttpMethod:   http.MethodDelete,
 				URLFactory:   urlFactory,
 			},

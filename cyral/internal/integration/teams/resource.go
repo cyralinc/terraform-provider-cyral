@@ -12,7 +12,7 @@ import (
 )
 
 var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:        "Microsoft Teams Integration",
+	ResourceName:        resourceName,
 	ResourceType:        resourcetype.Resource,
 	SchemaReaderFactory: func() core.SchemaReader { return &MsTeamsIntegration{} },
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &MsTeamsIntegration{} },
@@ -22,7 +22,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 }
 
 var ReadMsTeamsConfig = core.ResourceOperationConfig{
-	ResourceName: "MsTeamsResourceRead",
+	ResourceName: resourceName,
 	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {

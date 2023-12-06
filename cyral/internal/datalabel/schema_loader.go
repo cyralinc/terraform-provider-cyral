@@ -14,12 +14,12 @@ func (p *packageSchema) Name() string {
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
-			Name:   "cyral_datalabel",
+			Name:   dataSourceName,
 			Type:   core.DataSourceSchemaType,
 			Schema: dataSourceSchema,
 		},
 		{
-			Name:   "cyral_datalabel",
+			Name:   resourceName,
 			Type:   core.ResourceSchemaType,
 			Schema: resourceSchema,
 		},

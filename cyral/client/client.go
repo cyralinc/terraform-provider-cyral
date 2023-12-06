@@ -70,8 +70,7 @@ func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Clie
 
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
 // filling the response parameter (if not nil) with the response body.
-func (c *Client) DoRequest(url, httpMethod string, resourceData interface{}) ([]byte, error) {
-	ctx := context.Background()
+func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resourceData interface{}) ([]byte, error) {
 	tflog.Debug(ctx, "Init DoRequest")
 	tflog.Debug(ctx, fmt.Sprintf("Resource info: %#v", resourceData))
 	tflog.Debug(ctx, fmt.Sprintf("%s URL: %s", httpMethod, url))

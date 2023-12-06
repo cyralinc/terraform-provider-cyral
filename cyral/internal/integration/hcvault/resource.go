@@ -10,7 +10,7 @@ import (
 )
 
 var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:        "HC Vault Integration",
+	ResourceName:        resourceName,
 	ResourceType:        resourcetype.Resource,
 	SchemaReaderFactory: func() core.SchemaReader { return &HCVaultIntegration{} },
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &HCVaultIntegration{} },

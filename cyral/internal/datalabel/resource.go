@@ -17,7 +17,7 @@ import (
 
 func resourceSchema() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        "Data Label",
+		ResourceName:        resourceName,
 		ResourceType:        resourcetype.Resource,
 		SchemaReaderFactory: func() core.SchemaReader { return &DataLabel{} },
 		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
@@ -30,7 +30,7 @@ func resourceSchema() *schema.Resource {
 		Description: "Manages data labels. Data labels are part of the Cyral [Data Map](https://cyral.com/docs/policy/datamap).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				ResourceName: "DataLabelResourceCreate",
+				ResourceName: resourceName,
 				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -42,7 +42,7 @@ func resourceSchema() *schema.Resource {
 				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 			}, readDataLabelConfig,
 		),
-		ReadContext:   contextHandler.ReadContext(),
+		ReadContext:   core.ReadResource(readDataLabelConfig),
 		UpdateContext: contextHandler.UpdateContext(),
 		DeleteContext: contextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
@@ -115,6 +115,7 @@ func resourceSchema() *schema.Resource {
 
 var readDataLabelConfig = core.ResourceOperationConfig{
 	ResourceName: "DataLabelResourceRead",
+	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/datalabels/%s",

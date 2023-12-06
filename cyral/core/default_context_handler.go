@@ -18,7 +18,7 @@ import (
 //  2. The creation is a POST that returns a JSON with an `id` field, meaning
 //     it can be used with the `IDBasedResponse` struct.
 //  3. The endpoint to perform GET, PUT and DELETE calls are composed by the
-//     PUT endpoint plus the ID specification like the following:
+//     POST endpoint plus the ID specification like the following:
 //     - POST:    https://<CP>/<apiVersion>/<featureName>
 //     - GET:     https://<CP>/<apiVersion>/<featureName>/<id>
 //     - PUT:     https://<CP>/<apiVersion>/<featureName>/<id>
@@ -42,14 +42,13 @@ func defaultOperationHandler(
 	baseURLFactory URLFactoryFunc,
 	httpMethod string,
 	schemaReaderFactory SchemaReaderFactoryFunc,
-	schemaWriterFactory SchemaWriterFactoryFunc) ResourceOperationConfig {
-	// GET = https://<CP>/<apiVersion>/<feature>
-	// POST, PUT and DELETE = https://<CP>/<apiVersion>/<feature>/<repoId>
+	schemaWriterFactory SchemaWriterFactoryFunc,
+) ResourceOperationConfig {
+	// POST = https://<CP>/<apiVersion>/<feature>
+	// GET, PUT and DELETE = https://<CP>/<apiVersion>/<feature>/<id>
 	endpoint := func(d *schema.ResourceData, c *client.Client) string {
-		url := ""
-		if d.Id() == "" {
-			url = baseURLFactory(d, c)
-		} else {
+		url := baseURLFactory(d, c)
+		if d.Id() != "" {
 			url = fmt.Sprintf("%s/%s", baseURLFactory(d, c), d.Id())
 		}
 		tflog.Debug(context.Background(), fmt.Sprintf("Returning base URL for %s '%s' operation '%s' and httpMethod %s: %s",

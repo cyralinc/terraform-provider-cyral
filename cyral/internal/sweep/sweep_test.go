@@ -1,6 +1,7 @@
 package sweep
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -80,7 +81,7 @@ func sweepRepository(_ string) error {
 	}
 	url := fmt.Sprintf("https://%s/v1/repos?name=^%s", c.ControlPlane,
 		utils.TFProvACCPrefix)
-	reposBytes, err := c.DoRequest(url, http.MethodGet, nil)
+	reposBytes, err := c.DoRequest(context.Background(), url, http.MethodGet, nil)
 	if err != nil {
 		return fmt.Errorf("get request returned error: %w", err)
 	}
@@ -90,7 +91,7 @@ func sweepRepository(_ string) error {
 	}
 	for _, repo := range repos.Repos {
 		url = fmt.Sprintf("https://%s/v1/repos/%s", c.ControlPlane, repo.ID)
-		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		_, err := c.DoRequest(context.Background(), url, http.MethodDelete, nil)
 		if err != nil {
 			return fmt.Errorf("delete request returned error: %w", err)
 		}
@@ -113,7 +114,7 @@ func sweepSidecar(_ string) error {
 		}
 		url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane,
 			sidecar.ID)
-		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		_, err := c.DoRequest(context.Background(), url, http.MethodDelete, nil)
 		if err != nil {
 			return fmt.Errorf("delete request returned error: %w", err)
 		}
@@ -137,7 +138,7 @@ func sweepRole(_ string) error {
 		}
 		url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane,
 			role.ID)
-		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		_, err := c.DoRequest(context.Background(), url, http.MethodDelete, nil)
 		if err != nil {
 			return fmt.Errorf("delete request returned error: %w", err)
 		}
@@ -160,7 +161,7 @@ func sweepPolicy(_ string) error {
 		}
 		url := fmt.Sprintf("https://%s/v1/policies/%s",
 			c.ControlPlane, policy.Meta.ID)
-		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		_, err := c.DoRequest(context.Background(), url, http.MethodDelete, nil)
 		if err != nil {
 			return err
 		}
@@ -185,7 +186,7 @@ func sweepIntegrationIdP(_ string) error {
 		}
 		url := fmt.Sprintf("https://%s/v1/integrations/saml/%s",
 			c.ControlPlane, integration.Alias)
-		_, err := c.DoRequest(url, http.MethodDelete, nil)
+		_, err := c.DoRequest(context.Background(), url, http.MethodDelete, nil)
 		if err != nil {
 			return fmt.Errorf("delete request returned error: %w", err)
 		}

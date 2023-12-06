@@ -277,6 +277,7 @@ type readGenericSAMLDraftErrorHandler struct {
 }
 
 func (h *readGenericSAMLDraftErrorHandler) HandleError(
+	ctx context.Context,
 	d *schema.ResourceData,
 	c *client.Client,
 	err error,
@@ -285,7 +286,6 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 	if !ok || httpError.StatusCode != http.StatusNotFound {
 		return err
 	}
-	ctx := context.Background()
 	tflog.Debug(ctx, "SAML draft not found. Checking if completed draft exists.")
 
 	query := utils.UrlQuery(map[string]string{
@@ -295,7 +295,7 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 	})
 	url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts%s",
 		c.ControlPlane, query)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return fmt.Errorf("unable to read completed drafts: %w", err)
 	}

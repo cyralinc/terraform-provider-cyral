@@ -129,7 +129,7 @@ func resourceRepositoryConfAuthCreate(
 
 func confAuthAlreadyExists(ctx context.Context, c *client.Client, repositoryID string) bool {
 	url := fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, repositoryID)
-	_, err := c.DoRequest(url, http.MethodGet, nil)
+	_, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	// The GET /v1/repos/{repoID}/conf/auth API currently returns 500 status code for every type
 	// of error, so its not possible to distinguish if the error is due to a 404 Not Found or not.
 	// Once the status code returned by this API is fixed we should return false only if it returns

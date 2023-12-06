@@ -187,7 +187,7 @@ func resourceRepositoryConfAnalysisCreate(ctx context.Context, d *schema.Resourc
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s/conf/analysis", c.ControlPlane, d.Get("repository_id"))
 
-	body, err := c.DoRequest(url, http.MethodPut, resourceData.Config)
+	body, err := c.DoRequest(ctx, url, http.MethodPut, resourceData.Config)
 	if err != nil {
 		return utils.CreateError("Unable to create conf analysis", fmt.Sprintf("%v", err))
 	}
@@ -212,7 +212,7 @@ func resourceRepositoryConfAnalysisRead(ctx context.Context, d *schema.ResourceD
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s/conf/analysis", c.ControlPlane, d.Get("repository_id"))
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return utils.CreateError(fmt.Sprintf("Unable to read conf analysis. Conf Analysis Id: %s",
 			d.Id()), fmt.Sprintf("%v", err))
@@ -243,7 +243,7 @@ func resourceRepositoryConfAnalysisUpdate(ctx context.Context, d *schema.Resourc
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s/conf/analysis", c.ControlPlane, d.Get("repository_id"))
 
-	if _, err := c.DoRequest(url, http.MethodPut, resourceData.Config); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodPut, resourceData.Config); err != nil {
 		return utils.CreateError("Unable to update conf analysis", fmt.Sprintf("%v", err))
 	}
 
@@ -258,7 +258,7 @@ func resourceRepositoryConfAnalysisDelete(ctx context.Context, d *schema.Resourc
 
 	url := fmt.Sprintf("https://%s/v1/repos/%s/conf/analysis", c.ControlPlane, d.Get("repository_id"))
 
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodDelete, nil); err != nil {
 		return utils.CreateError("Unable to delete conf analysis", fmt.Sprintf("%v", err))
 	}
 

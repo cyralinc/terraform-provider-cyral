@@ -15,7 +15,7 @@ func dataSourceSchema() *schema.Resource {
 		Description: "Retrieves a X.509 certificate used for signing SAML requests." +
 			"\n\nSee also the remaining SAML-related resources and data sources.",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-			ResourceName: "dataSourceSAMLCertificateRead",
+			ResourceName: dataSourceName,
 			Type:         operationtype.Read,
 			HttpMethod:   http.MethodGet,
 			URLFactory: func(d *schema.ResourceData, c *client.Client) string {

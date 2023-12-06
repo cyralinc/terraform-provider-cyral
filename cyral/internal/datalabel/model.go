@@ -29,10 +29,6 @@ type DataLabel struct {
 }
 
 func (dl DataLabel) WriteToSchema(d *schema.ResourceData) error {
-	// if err := d.Set("name", dl.Name); err != nil {
-	// 	return fmt.Errorf("error setting 'name' field: %w", err)
-	// }
-
 	if err := d.Set("description", dl.Description); err != nil {
 		return fmt.Errorf(utils.ErrorSettingFieldFmt, "description", err)
 	}

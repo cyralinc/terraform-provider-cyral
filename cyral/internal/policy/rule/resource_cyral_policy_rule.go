@@ -312,7 +312,7 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s/rules", c.ControlPlane, policyID)
 
-	body, err := c.DoRequest(url, http.MethodPost, resourceData)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, resourceData)
 	if err != nil {
 		return utils.CreateError("Unable to create policy rule", fmt.Sprintf("%v", err))
 	}
@@ -341,7 +341,7 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
 		c.ControlPlane, policyID, policyRuleID)
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return utils.CreateError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
@@ -400,7 +400,7 @@ func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m int
 	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane,
 		policyID, policyRuleID)
 
-	_, err := c.DoRequest(url, http.MethodPut, policyRule)
+	_, err := c.DoRequest(ctx, url, http.MethodPut, policyRule)
 	if err != nil {
 		return utils.CreateError("Unable to update policy rule", fmt.Sprintf("%v", err))
 	}

@@ -1,6 +1,7 @@
 package deprecated
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -83,22 +84,24 @@ func getSidecarCftTemplate(d *schema.ResourceData, m interface{}) error {
 
 	sidecarId := d.Get("sidecar_id").(string)
 
-	sidecarData, sidecarTypeErr := getSidecarData(c, d)
+	ctx := context.Background()
+
+	sidecarData, sidecarTypeErr := getSidecarData(ctx, c, d)
 	if sidecarTypeErr != nil {
 		return sidecarTypeErr
 	}
 
-	logging, err := getLogIntegrations(c, d)
+	logging, err := getLogIntegrations(ctx, c, d)
 	if err != nil {
 		return err
 	}
 
-	metrics, err := getMetricsIntegrations(c, d)
+	metrics, err := getMetricsIntegrations(ctx, c, d)
 	if err != nil {
 		return err
 	}
 
-	body, err := getTemplateForSidecarProperties(sidecarData, logging, metrics, c, d)
+	body, err := getTemplateForSidecarProperties(ctx, sidecarData, logging, metrics, c, d)
 	if err != nil {
 		return err
 	}
@@ -115,10 +118,10 @@ func removePortFromURL(url string) string {
 	return strings.Split(url, ":")[0]
 }
 
-func getSidecarData(c *client.Client, d *schema.ResourceData) (sidecar.SidecarData, error) {
+func getSidecarData(ctx context.Context, c *client.Client, d *schema.ResourceData) (sidecar.SidecarData, error) {
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Get("sidecar_id").(string))
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return sidecar.SidecarData{}, err
 	}
@@ -131,10 +134,10 @@ func getSidecarData(c *client.Client, d *schema.ResourceData) (sidecar.SidecarDa
 	return response, nil
 }
 
-func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
+func getLogIntegrations(ctx context.Context, c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
 	url := fmt.Sprintf("https://%s/integrations/logging/", removePortFromURL(c.ControlPlane))
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -147,10 +150,10 @@ func getLogIntegrations(c *client.Client, d *schema.ResourceData) ([]Integration
 	return response, nil
 }
 
-func getMetricsIntegrations(c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
+func getMetricsIntegrations(ctx context.Context, c *client.Client, d *schema.ResourceData) ([]IntegrationsData, error) {
 	url := fmt.Sprintf("https://%s/integrations/metrics", removePortFromURL(c.ControlPlane))
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -173,6 +176,7 @@ func filterIntegrationData(integrations []IntegrationsData, id string) *Integrat
 }
 
 func getTemplateForSidecarProperties(
+	ctx context.Context,
 	sidecarData sidecar.SidecarData,
 	logging []IntegrationsData,
 	metrics []IntegrationsData,
@@ -238,5 +242,5 @@ func getTemplateForSidecarProperties(
 			CloudFormationDeploymentMethod)
 	}
 
-	return c.DoRequest(url, http.MethodGet, nil)
+	return c.DoRequest(ctx, url, http.MethodGet, nil)
 }

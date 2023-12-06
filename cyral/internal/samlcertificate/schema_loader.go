@@ -12,7 +12,7 @@ func (p *packageSchema) Name() string {
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
-			Name:   "cyral_saml_certificate",
+			Name:   dataSourceName,
 			Type:   core.DataSourceSchemaType,
 			Schema: dataSourceSchema,
 		},

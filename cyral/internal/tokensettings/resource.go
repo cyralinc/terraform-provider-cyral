@@ -38,7 +38,7 @@ func readConfig(rt resourcetype.ResourceType) core.ResourceOperationConfig {
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/accessTokens/settings", c.ControlPlane)
 		},
-		SchemaReaderFactory: func() core.SchemaReader {
+		SchemaWriterFactory: func(d *schema.ResourceData) core.SchemaWriter {
 			return &AccessTokenSettings{}
 		},
 	}

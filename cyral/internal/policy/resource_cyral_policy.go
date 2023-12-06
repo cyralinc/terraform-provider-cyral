@@ -125,7 +125,7 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 
 	url := fmt.Sprintf("https://%s/v1/policies", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodPost, policy)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, policy)
 	if err != nil {
 		return utils.CreateError("Unable to create policy", fmt.Sprintf("%v", err))
 	}
@@ -149,7 +149,7 @@ func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return utils.CreateError("Unable to read policy", fmt.Sprintf("%v", err))
 	}
@@ -191,7 +191,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interfa
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
 
-	_, err := c.DoRequest(url, http.MethodPut, policy)
+	_, err := c.DoRequest(ctx, url, http.MethodPut, policy)
 	if err != nil {
 		return utils.CreateError("Unable to update policy", fmt.Sprintf("%v", err))
 	}
@@ -207,7 +207,7 @@ func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interfa
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
 
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodDelete, nil); err != nil {
 		return utils.CreateError("Unable to delete policy", fmt.Sprintf("%v", err))
 	}
 
@@ -260,7 +260,7 @@ func ListPolicies(c *client.Client) ([]Policy, error) {
 	tflog.Debug(ctx, "Init ListPolicies")
 
 	url := fmt.Sprintf("https://%s/v1/policies", c.ControlPlane)
-	resp, err := c.DoRequest(url, http.MethodGet, nil)
+	resp, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +275,7 @@ func ListPolicies(c *client.Client) ([]Policy, error) {
 	for _, policyID := range listResp.Policies {
 		url := fmt.Sprintf("https://%s/v1/policies/%s",
 			c.ControlPlane, policyID)
-		resp, err := c.DoRequest(url, http.MethodGet, nil)
+		resp, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 		if err != nil {
 			return nil, err
 		}

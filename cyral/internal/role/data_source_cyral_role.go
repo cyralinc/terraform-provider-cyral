@@ -181,7 +181,7 @@ func ListRoles(c *client.Client) (*GetUserGroupsResponse, error) {
 	tflog.Debug(ctx, "Init listRoles")
 
 	url := fmt.Sprintf("https://%s/v1/users/groups", c.ControlPlane)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}

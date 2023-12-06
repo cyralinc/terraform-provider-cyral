@@ -19,7 +19,7 @@ type SchemaReaderFactoryFunc = func() SchemaReader
 type SchemaWriterFactoryFunc = func(d *schema.ResourceData) SchemaWriter
 
 type RequestErrorHandler interface {
-	HandleError(d *schema.ResourceData, c *client.Client, err error) error
+	HandleError(ctx context.Context, d *schema.ResourceData, c *client.Client, err error) error
 }
 
 // Teaches a resource or data source how to read from the Terraform schema and
@@ -128,9 +128,9 @@ func handleRequests(operations []ResourceOperationConfig) func(context.Context, 
 
 			url := operation.URLFactory(d, c)
 
-			body, err := c.DoRequest(url, operation.HttpMethod, resourceData)
+			body, err := c.DoRequest(ctx, url, operation.HttpMethod, resourceData)
 			if operation.RequestErrorHandler != nil {
-				err = operation.RequestErrorHandler.HandleError(d, c, err)
+				err = operation.RequestErrorHandler.HandleError(ctx, d, c, err)
 			}
 			if err != nil {
 				return utils.CreateError(

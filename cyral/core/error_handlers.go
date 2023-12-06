@@ -16,6 +16,7 @@ type DeleteIgnoreHttpNotFound struct {
 }
 
 func (h *DeleteIgnoreHttpNotFound) HandleError(
+	ctx context.Context,
 	_ *schema.ResourceData,
 	_ *client.Client,
 	err error,
@@ -24,7 +25,7 @@ func (h *DeleteIgnoreHttpNotFound) HandleError(
 	if !ok || httpError.StatusCode != http.StatusNotFound {
 		return err
 	}
-	tflog.Debug(context.Background(), fmt.Sprintf("%s not found. Skipping deletion.", h.ResName))
+	tflog.Debug(ctx, fmt.Sprintf("%s not found. Skipping deletion.", h.ResName))
 	return nil
 }
 
@@ -33,6 +34,7 @@ type ReadIgnoreHttpNotFound struct {
 }
 
 func (h *ReadIgnoreHttpNotFound) HandleError(
+	ctx context.Context,
 	r *schema.ResourceData,
 	_ *client.Client,
 	err error,
@@ -42,6 +44,6 @@ func (h *ReadIgnoreHttpNotFound) HandleError(
 		return err
 	}
 	r.SetId("")
-	tflog.Debug(context.Background(), fmt.Sprintf("%s not found. Marking resource for recreation.", h.ResName))
+	tflog.Debug(ctx, fmt.Sprintf("%s not found. Marking resource for recreation.", h.ResName))
 	return nil
 }

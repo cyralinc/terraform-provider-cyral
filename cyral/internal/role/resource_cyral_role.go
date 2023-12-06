@@ -69,14 +69,14 @@ func resourceRoleCreate(ctx context.Context, d *schema.ResourceData, m interface
 	tflog.Debug(ctx, "Init resourceRoleCreate")
 	c := m.(*client.Client)
 
-	resourceData, err := getRoleDataFromResource(c, d)
+	resourceData, err := getRoleDataFromResource(ctx, c, d)
 	if err != nil {
 		return utils.CreateError("Unable to create role", fmt.Sprintf("%v", err))
 	}
 
 	url := fmt.Sprintf("https://%s/v1/users/groups", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodPost, resourceData)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, resourceData)
 	if err != nil {
 		return utils.CreateError("Unable to create role", fmt.Sprintf("%v", err))
 	}
@@ -101,7 +101,7 @@ func resourceRoleRead(ctx context.Context, d *schema.ResourceData, m interface{}
 
 	url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane, d.Id())
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return utils.CreateError(fmt.Sprintf("Unable to read role. Role Id: %s",
 			d.Id()), fmt.Sprintf("%v", err))
@@ -135,14 +135,14 @@ func resourceRoleUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	tflog.Debug(ctx, "Init resourceRoleUpdate")
 	c := m.(*client.Client)
 
-	resourceData, err := getRoleDataFromResource(c, d)
+	resourceData, err := getRoleDataFromResource(ctx, c, d)
 	if err != nil {
 		return utils.CreateError("Unable to update role", fmt.Sprintf("%v", err))
 	}
 
 	url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane, d.Id())
 
-	if _, err := c.DoRequest(url, http.MethodPut, resourceData); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodPut, resourceData); err != nil {
 		return utils.CreateError("Unable to update role", fmt.Sprintf("%v", err))
 	}
 
@@ -157,7 +157,7 @@ func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface
 
 	url := fmt.Sprintf("https://%s/v1/users/groups/%s", c.ControlPlane, d.Id())
 
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodDelete, nil); err != nil {
 		return utils.CreateError("Unable to delete role", fmt.Sprintf("%v", err))
 	}
 
@@ -166,7 +166,7 @@ func resourceRoleDelete(ctx context.Context, d *schema.ResourceData, m interface
 	return diag.Diagnostics{}
 }
 
-func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleDataRequest, error) {
+func getRoleDataFromResource(ctx context.Context, c *client.Client, d *schema.ResourceData) (RoleDataRequest, error) {
 	var resourcePermissionsIds []string
 
 	if permissions, ok := d.GetOk("permissions"); ok {
@@ -174,7 +174,7 @@ func getRoleDataFromResource(c *client.Client, d *schema.ResourceData) (RoleData
 
 		resourcePermissions := permissions[0].(map[string]interface{})
 
-		apiPermissions, err := getPermissionsFromAPI(c)
+		apiPermissions, err := getPermissionsFromAPI(ctx, c)
 		if err != nil {
 			return RoleDataRequest{}, err
 		}
@@ -212,10 +212,10 @@ func formatPermissionName(permissionName string) string {
 	return permissionName
 }
 
-func getPermissionsFromAPI(c *client.Client) ([]*permission.Permission, error) {
+func getPermissionsFromAPI(ctx context.Context, c *client.Client) ([]*permission.Permission, error) {
 	url := fmt.Sprintf("https://%s/v1/users/roles", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return []*permission.Permission{}, err
 	}
