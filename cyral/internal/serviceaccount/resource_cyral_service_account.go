@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -20,16 +21,16 @@ const (
 
 var (
 	ReadServiceAccountConfig = core.ResourceOperationConfig{
-		Name:       "ServiceAccountRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "ServiceAccountRead",
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
 				"https://%s/v1/users/serviceAccounts/%s",
 				c.ControlPlane,
 				d.Id(),
 			)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 			return &ServiceAccount{}
 		},
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Service account"},
@@ -45,46 +46,43 @@ func ResourceServiceAccount() *schema.Resource {
 			"be read after the resource creation.",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "ServiceAccountCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "ServiceAccountCreate",
+				Type:         operationtype.Create,
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/users/serviceAccounts",
 						c.ControlPlane,
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &ServiceAccount{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
-					return &ServiceAccount{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &ServiceAccount{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ServiceAccount{} },
 			},
 			ReadServiceAccountConfig,
 		),
 		ReadContext: core.ReadResource(ReadServiceAccountConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "ServiceAccountUpdate",
-				HttpMethod: http.MethodPatch,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "ServiceAccountUpdate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPatch,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/users/serviceAccounts/%s",
 						c.ControlPlane,
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &ServiceAccount{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &ServiceAccount{} },
 			},
 			ReadServiceAccountConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "ServiceAccountDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "ServiceAccountDelete",
+				Type:         operationtype.Delete,
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/users/serviceAccounts/%s",
 						c.ControlPlane,

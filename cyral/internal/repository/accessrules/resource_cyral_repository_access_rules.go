@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -129,16 +130,17 @@ func (arr *AccessRulesResource) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 var ReadRepositoryAccessRulesConfig = core.ResourceOperationConfig{
-	Name:       "RepositoryAccessRulesRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "RepositoryAccessRulesRead",
+	Type:         operationtype.Read,
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/repos/%s/userAccounts/%s/accessRules",
 			c.ControlPlane,
 			d.Get("repository_id").(string),
 			d.Get("user_account_id").(string),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &AccessRulesResponse{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository access rule"},
@@ -149,9 +151,10 @@ func ResourceRepositoryAccessRules() *schema.Resource {
 		Description: "Manage access rules",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryAccessRulesCreate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryAccessRulesCreate",
+				Type:         operationtype.Create,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					repoID := d.Get("repository_id").(string)
 					userAccountID := d.Get("user_account_id").(string)
 					return fmt.Sprintf("https://%s/v1/repos/%s/userAccounts/%s/accessRules",
@@ -160,41 +163,35 @@ func ResourceRepositoryAccessRules() *schema.Resource {
 						userAccountID,
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &AccessRulesResource{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
-					return &AccessRulesResponse{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &AccessRulesResource{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &AccessRulesResponse{} },
 			},
 			ReadRepositoryAccessRulesConfig,
 		),
 		ReadContext: core.ReadResource(ReadRepositoryAccessRulesConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryAccessRulesUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryAccessRulesUpdate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/repos/%s/userAccounts/%s/accessRules",
 						c.ControlPlane,
 						d.Get("repository_id").(string),
 						d.Get("user_account_id").(string),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &AccessRulesResource{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
-					return &AccessRulesResponse{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &AccessRulesResource{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &AccessRulesResponse{} },
 			},
 			ReadRepositoryAccessRulesConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryAccessRulesDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryAccessRulesDelete",
+				Type:         operationtype.Delete,
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 
 					idPieces, err := utils.UnMarshalComposedID(d.Id(), "/", 2)
 					if err != nil {

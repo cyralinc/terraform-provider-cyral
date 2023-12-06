@@ -6,15 +6,34 @@ for resources and data sources.
 
 ## How to use to create new resources and data sources
 
-There are some main types that must be used to create a new resources and data sources:
-`SchemaDescriptor`, `PackageSchema`, `ResourceData`, `ResponseData` and
+There are some main types that must be used to create new resources and data sources:
+`SchemaDescriptor`, `PackageSchema`, `SchemaReader`, `SchemaWriter` and
 `ResourceOperationConfig`. In a nutshell, these abstractions provide the means to
-teach the provider how to interact with the API, how to describe the feature as a
-Terraform resource/data source and finally teach the provider how to perform the
-translation from API to Terraform schema and vice-versa.
+teach the provider how to:
+
+- interact with the API;
+- describe the feature as a Terraform resource/data source;
+- perform the translation from API to Terraform schema and vice-versa.
 
 Use the files below as examples to create your own implementation. It is advised that
-you follow the same naming convention for all the files to simplify future code changes.
+you create a single package to group both the resource and data sources for a given
+feature/category and that you follow the same naming convention for all the files
+to simplify future code changes by adopting a single code convention.
+
+### contants.go
+
+```go
+// contants.go
+package newfeature
+
+const (
+	accessTokenSettingsID = "settings/access_token"
+	// The resource and data source names are identical in this example,
+	// but this may not always hold true
+	resourceName          = "cyral_new_feature"
+	dataSourceName        = "cyral_new_feature"
+)
+```
 
 ### model.go
 
@@ -47,23 +66,28 @@ func (r *NewFeature) ReadFromSchema(d *schema.ResourceData) error {
 
 ### datasource.go
 
+Even though the `GET` url for this new feature is `https://<CP>/v1/NewFeature/<ID>`,
+the `BaseURLFactory` provided does not provide the `ID` as it will be automatically
+added by the default read handler returned in `contextHandler.ReadContext()`.
+
 ```go
 // datasource.go
 package newfeature
 
+var dsContextHandler = core.DefaultContextHandler{
+	ResourceName:        dataSourceName,
+	ResourceType:        resourcetype.DataSource,
+	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
+	},
+}
+
 func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Some description.",
-		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-            Name:       "NewFeatureRead",
-            HttpMethod: http.MethodGet,
-            CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-                return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Get("name").(string))
-            },
-            NewResponseData: func(d *schema.ResourceData) core.ResponseData {
-                return &NewFeature{}
-            },
-        }),
+		ReadContext: dsContextHandler.ReadContext(),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Description: "Retrieve the unique label with this name, if it exists.",
@@ -86,41 +110,23 @@ func dataSourceSchema() *schema.Resource {
 // resource.go
 package newfeature
 
+var resourceContextHandler = core.DefaultContextHandler{
+	ResourceName:        resourceName,
+	ResourceType:        resourcetype.Resource,
+	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
+	},
+}
+
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Some description.",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-                Name:       "NewFeatureResourceRead",
-                HttpMethod: http.MethodPost,
-                CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-                    return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
-                },
-                NewResponseData: func(d *schema.ResourceData) core.ResponseData {
-                    return &NewFeature{}
-                },
-            }, ReadNewFeatureConfig,
-		),
-		ReadContext: core.ReadResource(ReadNewFeatureConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "NewFeatureUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
-				},
-				NewResourceData: func() core.ResourceData { return &NewFeature{} },
-			}, ReadNewFeatureConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "NewFeatureDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
-				},
-			},
-		),
+		CreateContext: resourceContextHandler.CreateContext(),
+		ReadContext:   resourceContextHandler.ReadContext(),
+		UpdateContext: resourceContextHandler.UpdateContext(),
+		DeleteContext: resourceContextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Description: "...",
@@ -134,16 +140,6 @@ func resourceSchema() *schema.Resource {
 			},
 		},
 	}
-}
-
-var ReadNewFeatureConfig = core.ResourceOperationConfig{
-	Name:       "NewFeatureRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Id())
-	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &NewFeature{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "NewFeature"},
 }
 ```
 
@@ -163,12 +159,12 @@ func (p *packageSchema) Name() string {
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
-			Name:   "cyral_newfeature",
+			Name:   dataSourceName,
 			Type:   core.DataSourceSchemaType,
 			Schema: dataSourceSchema,
 		},
 		{
-			Name:   "cyral_newfeature",
+			Name:   resourceName,
 			Type:   core.ResourceSchemaType,
 			Schema: resourceSchema,
 		},

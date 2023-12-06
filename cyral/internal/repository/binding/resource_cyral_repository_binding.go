@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -107,16 +108,17 @@ func (r *Binding) ListenerBindingsFromInterface(i []interface{}) {
 }
 
 var ReadRepositoryBindingConfig = core.ResourceOperationConfig{
-	Name:       "RepositoryBindingResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "RepositoryBindingResourceRead",
+	Type:         operationtype.Read,
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string),
 			d.Get(utils.BindingIDKey).(string),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &GetBindingResponse{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository binding"},
@@ -127,28 +129,26 @@ func ResourceRepositoryBinding() *schema.Resource {
 		Description: "Manages [cyral repository to sidecar bindings](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryBindingResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryBindingResourceCreate",
+				Type:         operationtype.Create,
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings",
 						c.ControlPlane,
 						d.Get(utils.SidecarIDKey).(string))
 
 				},
-				NewResourceData: func() core.ResourceData {
-					return &CreateBindingRequest{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
-					return &CreateBindingResponse{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &CreateBindingRequest{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateBindingResponse{} },
 			}, ReadRepositoryBindingConfig,
 		),
 		ReadContext: core.ReadResource(ReadRepositoryBindingConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryBindingResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryBindingResourceUpdate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
 						c.ControlPlane,
 						d.Get(utils.SidecarIDKey).(string),
@@ -156,16 +156,15 @@ func ResourceRepositoryBinding() *schema.Resource {
 					)
 
 				},
-				NewResourceData: func() core.ResourceData {
-					return &CreateBindingRequest{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &CreateBindingRequest{} },
 			}, ReadRepositoryBindingConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryBindingResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryBindingResourceDelete",
+				Type:         operationtype.Delete,
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
 						c.ControlPlane,
 						d.Get(utils.SidecarIDKey).(string),

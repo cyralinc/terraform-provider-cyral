@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -302,16 +303,16 @@ func ResourcePolicyRule() *schema.Resource {
 }
 
 func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyRuleCreate")
+	tflog.Debug(ctx, "Init resourcePolicyRuleCreate")
 	c := m.(*client.Client)
 
 	policyID := d.Get("policy_id").(string)
-	resourceData := getPolicyRuleInfoFromResource(d)
-	log.Printf("[DEBUG] resourcePolicyRuleCreate - policyRule: %#v", resourceData)
+	resourceData := getPolicyRuleInfoFromResource(ctx, d)
+	tflog.Debug(ctx, fmt.Sprintf("resourcePolicyRuleCreate - policyRule: %#v", resourceData))
 
 	url := fmt.Sprintf("https://%s/v1/policies/%s/rules", c.ControlPlane, policyID)
 
-	body, err := c.DoRequest(url, http.MethodPost, resourceData)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, resourceData)
 	if err != nil {
 		return utils.CreateError("Unable to create policy rule", fmt.Sprintf("%v", err))
 	}
@@ -320,27 +321,27 @@ func resourcePolicyRuleCreate(ctx context.Context, d *schema.ResourceData, m int
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.SetId(utils.MarshalComposedID([]string{
 		policyID,
 		response.ID},
 		"/"))
 
-	log.Printf("[DEBUG] End resourcePolicyRuleCreate")
+	tflog.Debug(ctx, "End resourcePolicyRuleCreate")
 
 	return resourcePolicyRuleRead(ctx, d, m)
 }
 
 func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyRuleRead")
+	tflog.Debug(ctx, "Init resourcePolicyRuleRead")
 	c := m.(*client.Client)
 
 	policyID, policyRuleID := unmarshalPolicyRuleID(d)
 	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
 		c.ControlPlane, policyID, policyRuleID)
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return utils.CreateError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
@@ -349,22 +350,22 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError(fmt.Sprintf("Unable to unmarshall JSON"), fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
-	deletes := flattenRulesList(response.Deletes)
-	log.Printf("[DEBUG] flattened deletes %#v", deletes)
+	deletes := flattenRulesList(ctx, response.Deletes)
+	tflog.Debug(ctx, fmt.Sprintf("flattened deletes %#v", deletes))
 	if err := d.Set("deletes", deletes); err != nil {
 		return utils.CreateError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
-	reads := flattenRulesList(response.Reads)
-	log.Printf("[DEBUG] flattened reads %#v", reads)
+	reads := flattenRulesList(ctx, response.Reads)
+	tflog.Debug(ctx, fmt.Sprintf("flattened reads %#v", reads))
 	if err := d.Set("reads", reads); err != nil {
 		return utils.CreateError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
 
-	updates := flattenRulesList(response.Updates)
-	log.Printf("[DEBUG] flattened updates %#v", updates)
+	updates := flattenRulesList(ctx, response.Updates)
+	tflog.Debug(ctx, fmt.Sprintf("flattened updates %#v", updates))
 	if err := d.Set("updates", updates); err != nil {
 		return utils.CreateError("Unable to read policy rule", fmt.Sprintf("%v", err))
 	}
@@ -372,8 +373,8 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	if response.Identities != nil {
 		if response.Identities.DBRoles != nil || response.Identities.Users != nil ||
 			response.Identities.Groups != nil || response.Identities.Services != nil {
-			identities := flattenIdentities(response.Identities)
-			log.Printf("[DEBUG] flattened identities %#v", identities)
+			identities := flattenIdentities(ctx, response.Identities)
+			tflog.Debug(ctx, fmt.Sprintf("flattened identities %#v", identities))
 			if err := d.Set("identities", identities); err != nil {
 				return utils.CreateError("Unable to read policy rule", fmt.Sprintf("%v", err))
 			}
@@ -385,35 +386,36 @@ func resourcePolicyRuleRead(ctx context.Context, d *schema.ResourceData, m inter
 	// Computed arguments
 	d.Set("policy_rule_id", policyRuleID)
 
-	log.Printf("[DEBUG] End resourcePolicyRuleRead")
+	tflog.Debug(ctx, "resourcePolicyRuleRead")
 	return diag.Diagnostics{}
 }
 
 func resourcePolicyRuleUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourcePolicyRuleUpdate")
+	tflog.Debug(ctx, "resourcePolicyRuleUpdate")
 	c := m.(*client.Client)
 
-	policyRule := getPolicyRuleInfoFromResource(d)
+	policyRule := getPolicyRuleInfoFromResource(ctx, d)
 
 	policyID, policyRuleID := unmarshalPolicyRuleID(d)
 	url := fmt.Sprintf("https://%s/v1/policies/%s/rules/%s", c.ControlPlane,
 		policyID, policyRuleID)
 
-	_, err := c.DoRequest(url, http.MethodPut, policyRule)
+	_, err := c.DoRequest(ctx, url, http.MethodPut, policyRule)
 	if err != nil {
 		return utils.CreateError("Unable to update policy rule", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourcePolicyRuleUpdate")
+	tflog.Debug(ctx, "End resourcePolicyRuleUpdate")
 
 	return resourcePolicyRuleRead(ctx, d, m)
 }
 
 func policyRuleDeleteConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "PolicyRuleDelete",
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "PolicyRuleDelete",
+		Type:         operationtype.Delete,
+		HttpMethod:   http.MethodDelete,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			policyID, policyRuleID := unmarshalPolicyRuleID(d)
 			return fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
 				c.ControlPlane, policyID, policyRuleID)
@@ -422,8 +424,8 @@ func policyRuleDeleteConfig() core.ResourceOperationConfig {
 	}
 }
 
-func getStrListFromInterfaceList(interfaceList []interface{}) []string {
-	log.Printf("[DEBUG] Init getStrListFromInterfaceList")
+func getStrListFromInterfaceList(ctx context.Context, interfaceList []interface{}) []string {
+	tflog.Debug(ctx, "Init getStrListFromInterfaceList")
 
 	strList := []string{}
 
@@ -431,13 +433,13 @@ func getStrListFromInterfaceList(interfaceList []interface{}) []string {
 		strList = append(strList, i.(string))
 	}
 
-	log.Printf("[DEBUG] End getStrListFromInterfaceList")
+	tflog.Debug(ctx, "End getStrListFromInterfaceList")
 
 	return strList
 }
 
-func getDatasetRewrites(datasetList []interface{}) []DatasetRewrite {
-	log.Printf("[DEBUG] Init getDatasetRewrites")
+func getDatasetRewrites(ctx context.Context, datasetList []interface{}) []DatasetRewrite {
+	tflog.Debug(ctx, "Init getDatasetRewrites")
 
 	datasetRewrites := make([]DatasetRewrite, 0, len(datasetList))
 
@@ -448,19 +450,19 @@ func getDatasetRewrites(datasetList []interface{}) []DatasetRewrite {
 			Dataset:      datasetMap["dataset"].(string),
 			Repo:         datasetMap["repo"].(string),
 			Substitution: datasetMap["substitution"].(string),
-			Parameters:   getStrListFromInterfaceList(datasetMap["parameters"].([]interface{})),
+			Parameters:   getStrListFromInterfaceList(ctx, datasetMap["parameters"].([]interface{})),
 		}
 
 		datasetRewrites = append(datasetRewrites, datasetRewrite)
 	}
 
-	log.Printf("[DEBUG] End getDatasetRewrites")
+	tflog.Debug(ctx, "End getDatasetRewrites")
 
 	return datasetRewrites
 }
 
-func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
-	log.Printf("[DEBUG] Init getRuleListFromResource")
+func getRuleListFromResource(ctx context.Context, d *schema.ResourceData, name string) []Rule {
+	tflog.Debug(ctx, "Init getRuleListFromResource")
 	ruleInfoList := d.Get(name).([]interface{})
 	ruleList := make([]Rule, 0, len(ruleInfoList))
 
@@ -469,8 +471,8 @@ func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 
 		rule := Rule{
 			AdditionalChecks: ruleMap["additional_checks"].(string),
-			Data:             getStrListFromInterfaceList(ruleMap["data"].([]interface{})),
-			DatasetRewrites:  getDatasetRewrites(ruleMap["dataset_rewrites"].([]interface{})),
+			Data:             getStrListFromInterfaceList(ctx, ruleMap["data"].([]interface{})),
+			DatasetRewrites:  getDatasetRewrites(ctx, ruleMap["dataset_rewrites"].([]interface{})),
 			Rows:             ruleMap["rows"].(int),
 			Severity:         ruleMap["severity"].(string),
 			RateLimit:        ruleMap["rate_limit"].(int),
@@ -478,13 +480,13 @@ func getRuleListFromResource(d *schema.ResourceData, name string) []Rule {
 
 		ruleList = append(ruleList, rule)
 	}
-	log.Printf("[DEBUG] End getRuleListFromResource")
+	tflog.Debug(ctx, "End getRuleListFromResource")
 
 	return ruleList
 }
 
-func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
-	log.Printf("[DEBUG] Init getPolicyRuleInfoFromResource")
+func getPolicyRuleInfoFromResource(ctx context.Context, d *schema.ResourceData) PolicyRule {
+	tflog.Debug(ctx, "Init getPolicyRuleInfoFromResource")
 	hosts := utils.GetStrListFromSchemaField(d, "hosts")
 
 	identity := d.Get("identities").([]interface{})
@@ -494,29 +496,29 @@ func getPolicyRuleInfoFromResource(d *schema.ResourceData) PolicyRule {
 		idMap := id.(map[string]interface{})
 
 		identities = &Identity{
-			DBRoles:  getStrListFromInterfaceList(idMap["db_roles"].([]interface{})),
-			Groups:   getStrListFromInterfaceList(idMap["groups"].([]interface{})),
-			Services: getStrListFromInterfaceList(idMap["services"].([]interface{})),
-			Users:    getStrListFromInterfaceList(idMap["users"].([]interface{})),
+			DBRoles:  getStrListFromInterfaceList(ctx, idMap["db_roles"].([]interface{})),
+			Groups:   getStrListFromInterfaceList(ctx, idMap["groups"].([]interface{})),
+			Services: getStrListFromInterfaceList(ctx, idMap["services"].([]interface{})),
+			Users:    getStrListFromInterfaceList(ctx, idMap["users"].([]interface{})),
 		}
 	}
 
 	policyRule := PolicyRule{
-		Deletes:    getRuleListFromResource(d, "deletes"),
+		Deletes:    getRuleListFromResource(ctx, d, "deletes"),
 		Hosts:      hosts,
 		Identities: identities,
-		Reads:      getRuleListFromResource(d, "reads"),
-		Updates:    getRuleListFromResource(d, "updates"),
+		Reads:      getRuleListFromResource(ctx, d, "reads"),
+		Updates:    getRuleListFromResource(ctx, d, "updates"),
 	}
 
-	log.Printf("[DEBUG] End getPolicyRuleInfoFromResource")
+	tflog.Debug(ctx, "End getPolicyRuleInfoFromResource")
 
 	return policyRule
 }
 
-func flattenIdentities(identities *Identity) []interface{} {
-	log.Printf("[DEBUG] Init flattenIdentities")
-	log.Printf("[DEBUG] identities %#v", identities)
+func flattenIdentities(ctx context.Context, identities *Identity) []interface{} {
+	tflog.Debug(ctx, "Init flattenIdentities")
+	tflog.Debug(ctx, fmt.Sprintf("identities %#v", identities))
 	identityMap := make(map[string]interface{})
 
 	identityMap["db_roles"] = identities.DBRoles
@@ -524,12 +526,12 @@ func flattenIdentities(identities *Identity) []interface{} {
 	identityMap["services"] = identities.Services
 	identityMap["users"] = identities.Users
 
-	log.Printf("[DEBUG] End flattenIdentities")
+	tflog.Debug(ctx, "End flattenIdentities")
 	return []interface{}{identityMap}
 }
 
-func flattenRulesList(rulesList []Rule) []interface{} {
-	log.Printf("[DEBUG] Init flattenRulesList")
+func flattenRulesList(ctx context.Context, rulesList []Rule) []interface{} {
+	tflog.Debug(ctx, "Init flattenRulesList")
 	if rulesList != nil {
 		rules := make([]interface{}, len(rulesList), len(rulesList))
 
@@ -560,7 +562,7 @@ func flattenRulesList(rulesList []Rule) []interface{} {
 
 		return rules
 	}
-	log.Printf("[DEBUG] End flattenRulesList")
+	tflog.Debug(ctx, "End flattenRulesList")
 
 	return make([]interface{}, 0)
 }

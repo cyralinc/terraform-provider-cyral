@@ -3,13 +3,14 @@ package listener
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
@@ -60,15 +61,16 @@ type SQLServerSettings struct {
 }
 
 var ReadSidecarListenersConfig = core.ResourceOperationConfig{
-	Name:       "SidecarListenersResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "SidecarListenersResourceRead",
+	Type:         operationtype.Read,
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string),
 			d.Get(utils.ListenerIDKey).(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &ReadSidecarListenerAPIResponse{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadSidecarListenerAPIResponse{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Sidecar listener"},
 }
 
@@ -85,7 +87,8 @@ func (c CreateListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
 }
 
 func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	log.Printf("[DEBUG] Init ReadSidecarListenerAPIResponse.WriteToSchema")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init ReadSidecarListenerAPIResponse.WriteToSchema")
 	if data.ListenerConfig != nil {
 		_ = d.Set(utils.ListenerIDKey, data.ListenerConfig.ListenerId)
 		_ = d.Set(RepoTypesKey, data.ListenerConfig.RepoTypesAsInterface())
@@ -95,7 +98,7 @@ func (data ReadSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData)
 		_ = d.Set(DynamoDbSettingsKey, data.ListenerConfig.DynamoDbSettingsAsInterface())
 		_ = d.Set(SQLServerSettingsKey, data.ListenerConfig.SQLServerSettingsAsInterface())
 	}
-	log.Printf("[DEBUG] End ReadSidecarListenerAPIResponse.WriteToSchema")
+	tflog.Debug(ctx, "End ReadSidecarListenerAPIResponse.WriteToSchema")
 	return nil
 }
 
@@ -237,38 +240,41 @@ func ResourceSidecarListener() *schema.Resource {
 			"`host` and `port` are unique. If `host` is omitted, then `port` must be unique.",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "SidecarListenersResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "SidecarListenersResourceCreate",
+				Type:         operationtype.Create,
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners",
 						c.ControlPlane,
 						d.Get(utils.SidecarIDKey).(string))
 
 				},
-				NewResourceData: func() core.ResourceData { return &SidecarListenerResource{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &CreateListenerAPIResponse{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &SidecarListenerResource{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateListenerAPIResponse{} },
 			}, ReadSidecarListenersConfig,
 		),
 		ReadContext: core.ReadResource(ReadSidecarListenersConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "SidecarListenersResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "SidecarListenersResourceUpdate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 						c.ControlPlane,
 						d.Get(utils.SidecarIDKey).(string),
 						d.Get(utils.ListenerIDKey).(string))
 
 				},
-				NewResourceData: func() core.ResourceData { return &SidecarListenerResource{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &SidecarListenerResource{} },
 			}, ReadSidecarListenersConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "SidecarListenersResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "SidecarListenersResourceDelete",
+				Type:         operationtype.Delete,
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 						c.ControlPlane,
 						d.Get(utils.SidecarIDKey).(string),

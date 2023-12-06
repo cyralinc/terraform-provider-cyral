@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -271,16 +272,17 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 }
 
 var ReadRepositoryConfig = core.ResourceOperationConfig{
-	Name:       "RepositoryRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "RepositoryRead",
+	Type:         operationtype.Read,
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf(
 			"https://%s/v1/repos/%s",
 			c.ControlPlane,
 			d.Id(),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &GetRepoByIDResponse{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository"},
@@ -293,46 +295,42 @@ func ResourceRepository() *schema.Resource {
 			"\nThis module provides the repository configuration options as shown in Cyral UI.",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryCreate",
+				Type:         operationtype.Create,
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/repos",
 						c.ControlPlane,
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &RepoInfo{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
-					return &core.IDBasedResponse{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &RepoInfo{} },
 			},
 			ReadRepositoryConfig,
 		),
 		ReadContext: core.ReadResource(ReadRepositoryConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryUpdate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/repos/%s",
 						c.ControlPlane,
 						d.Id(),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &RepoInfo{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &RepoInfo{} },
 			},
 			ReadRepositoryConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryDelete",
+				Type:         operationtype.Delete,
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/repos/%s",
 						c.ControlPlane,

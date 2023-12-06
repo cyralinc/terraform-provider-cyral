@@ -9,6 +9,9 @@ const (
 	Predefined  = Type("PREDEFINED")
 	Custom      = Type("CUSTOM")
 	Default     = TypeUnknown
+
+	resourceName   = "cyral_datalabel"
+	dataSourceName = "cyral_datalabel"
 )
 
 func Types() []Type {

@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -170,14 +170,14 @@ func DataSourceSAMLConfiguration() *schema.Resource {
 }
 
 func dataSourceSAMLConfigurationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init dataSourceSAMLConfigurationRead")
+	tflog.Debug(ctx, "Init dataSourceSAMLConfigurationRead")
 	c := m.(*client.Client)
 
 	metadataRequest := getSAMLMetadataRequestFromSchema(d)
 
 	url := fmt.Sprintf("https://%v/v1/integrations/saml/parse", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodPost, metadataRequest)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, metadataRequest)
 	if err != nil {
 		return utils.CreateError("Unable to retrieve saml configuration", fmt.Sprintf("%v", err))
 	}
@@ -187,12 +187,12 @@ func dataSourceSAMLConfigurationRead(ctx context.Context, d *schema.ResourceData
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.SetId(uuid.New().String())
 	setSAMLConfigurationToSchema(d, response)
 
-	log.Printf("[DEBUG] End dataSourceSAMLConfigurationRead")
+	tflog.Debug(ctx, "End dataSourceSAMLConfigurationRead")
 
 	return diag.Diagnostics{}
 }

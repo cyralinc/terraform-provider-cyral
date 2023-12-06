@@ -8,6 +8,8 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
 func resourceSchema() *schema.Resource {
@@ -16,9 +18,9 @@ func resourceSchema() *schema.Resource {
 			"[`cyral_access_token_settings`](../data-source/access_token_settings.md)." +
 			"\n\n-> **Note** The deletion of this terraform resource will reset the access " +
 			"token settings to their corresponding default values.",
-		CreateContext: core.CreateResource(updateConfig(), readConfig()),
-		ReadContext:   core.ReadResource(readConfig()),
-		UpdateContext: core.UpdateResource(updateConfig(), readConfig()),
+		CreateContext: core.CreateResource(updateConfig(), readConfig(resourcetype.Resource)),
+		ReadContext:   core.ReadResource(readConfig(resourcetype.Resource)),
+		UpdateContext: core.UpdateResource(updateConfig(), readConfig(resourcetype.Resource)),
 		DeleteContext: core.DeleteResource(deleteConfig()),
 		Schema:        getAccessTokenSettingsSchema(false),
 		Importer: &schema.ResourceImporter{
@@ -27,14 +29,16 @@ func resourceSchema() *schema.Resource {
 	}
 }
 
-func readConfig() core.ResourceOperationConfig {
+func readConfig(rt resourcetype.ResourceType) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "AccessTokenSettingsRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: resourceName,
+		Type:         operationtype.Read,
+		ResourceType: rt,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/accessTokens/settings", c.ControlPlane)
 		},
-		NewResponseData: func(d *schema.ResourceData) core.ResponseData {
+		SchemaWriterFactory: func(d *schema.ResourceData) core.SchemaWriter {
 			return &AccessTokenSettings{}
 		},
 	}
@@ -42,12 +46,14 @@ func readConfig() core.ResourceOperationConfig {
 
 func updateConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "AccessTokenSettingsUpdate",
-		HttpMethod: http.MethodPut,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: resourceName,
+		Type:         operationtype.Update,
+		ResourceType: resourcetype.Resource,
+		HttpMethod:   http.MethodPut,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/accessTokens/settings", c.ControlPlane)
 		},
-		NewResourceData: func() core.ResourceData {
+		SchemaReaderFactory: func() core.SchemaReader {
 			return &AccessTokenSettings{}
 		},
 	}
@@ -58,9 +64,11 @@ func updateConfig() core.ResourceOperationConfig {
 // the access token settings are reseted to their corresponding default values.
 func deleteConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "AccessTokenSettingsDelete",
-		HttpMethod: http.MethodPut,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: resourceName,
+		Type:         operationtype.Delete,
+		ResourceType: resourcetype.Resource,
+		HttpMethod:   http.MethodPut,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/accessTokens/settings", c.ControlPlane)
 		},
 	}

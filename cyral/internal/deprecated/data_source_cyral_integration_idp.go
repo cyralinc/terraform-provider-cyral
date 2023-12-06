@@ -89,7 +89,7 @@ func dataSourceIntegrationIdPRead(
 			c.ControlPlane, idpTypeFilter)
 	}
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return utils.CreateError("Unable to execute request to read idp integrations", err.Error())
 	}
@@ -140,7 +140,7 @@ func ListIdPIntegrations(c *client.Client) (*IdPIntegrations, error) {
 	log.Printf("[DEBUG] Init ListIdPIntegrations")
 
 	url := fmt.Sprintf("https://%s/v1/integrations/saml", c.ControlPlane)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(context.Background(), url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}

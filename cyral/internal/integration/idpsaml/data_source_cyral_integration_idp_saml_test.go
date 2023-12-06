@@ -9,7 +9,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/testify/require"
 )
 
@@ -81,11 +80,7 @@ func TestAccIntegrationIdPSAMLDataSource(t *testing.T) {
 		"test2", testIntegrationIdPSAMLDataSourceName2(), "type2")
 
 	resource.ParallelTest(t, resource.TestCase{
-		ProviderFactories: map[string]func() (*schema.Provider, error){
-			"cyral": func() (*schema.Provider, error) {
-				return provider.Provider(), nil
-			},
-		},
+		ProviderFactories: provider.ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testConfig1,

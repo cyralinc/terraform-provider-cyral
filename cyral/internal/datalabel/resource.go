@@ -7,6 +7,8 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/datalabel/classificationrule"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -14,45 +16,35 @@ import (
 )
 
 func resourceSchema() *schema.Resource {
+	contextHandler := core.DefaultContextHandler{
+		ResourceName:        resourceName,
+		ResourceType:        resourcetype.Resource,
+		SchemaReaderFactory: func() core.SchemaReader { return &DataLabel{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/datalabels",
+				c.ControlPlane)
+		},
+	}
 	return &schema.Resource{
 		Description: "Manages data labels. Data labels are part of the Cyral [Data Map](https://cyral.com/docs/policy/datamap).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "DataLabelResourceCreate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: resourceName,
+				Type:         operationtype.Create,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf("https://%s/v1/datalabels/%s",
 						c.ControlPlane,
 						d.Get("name").(string))
 				},
-				NewResourceData: func() core.ResourceData { return &DataLabel{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &DataLabel{} },
+				SchemaReaderFactory: func() core.SchemaReader { return &DataLabel{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 			}, readDataLabelConfig,
 		),
-		ReadContext: core.ReadResource(readDataLabelConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "DataLabelResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/datalabels/%s",
-						c.ControlPlane,
-						d.Get("name").(string))
-				},
-				NewResourceData: func() core.ResourceData { return &DataLabel{} },
-			}, readDataLabelConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "DataLabelResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/datalabels/%s",
-						c.ControlPlane,
-						d.Get("name").(string))
-				},
-			},
-		),
+		ReadContext:   core.ReadResource(readDataLabelConfig),
+		UpdateContext: contextHandler.UpdateContext(),
+		DeleteContext: contextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Description: "Name of the data label.",
@@ -122,13 +114,14 @@ func resourceSchema() *schema.Resource {
 }
 
 var readDataLabelConfig = core.ResourceOperationConfig{
-	Name:       "DataLabelResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "DataLabelResourceRead",
+	Type:         operationtype.Read,
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/datalabels/%s",
 			c.ControlPlane,
 			d.Get("name").(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &DataLabel{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Label"},
 }

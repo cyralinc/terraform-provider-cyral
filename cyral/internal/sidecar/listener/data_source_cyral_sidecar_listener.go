@@ -1,16 +1,18 @@
 package listener
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"golang.org/x/exp/slices"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
@@ -25,10 +27,11 @@ type ReadDataSourceSidecarListenerAPIResponse struct {
 }
 
 func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.ResourceData) error {
-	log.Printf("[DEBUG] Init ReadDataSourceSidecarListenerAPIResponse.WriteToSchema")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init ReadDataSourceSidecarListenerAPIResponse.WriteToSchema")
 	var listenersList []any
-	log.Printf("[DEBUG] data.ListenerConfig: %+v", data.ListenerConfigs)
-	log.Printf("[DEBUG] Init for _, l := range data.ListenerConfig")
+	tflog.Debug(ctx, fmt.Sprintf("data.ListenerConfig: %+v", data.ListenerConfigs))
+	tflog.Debug(ctx, "Init for _, l := range data.ListenerConfig")
 	repoTypeFilter := d.Get(DSRepoTypeKey).(string)
 	portFilter := d.Get(utils.PortKey).(int)
 	for _, listenerConfig := range data.ListenerConfigs {
@@ -45,13 +48,13 @@ func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.Res
 				DynamoDbSettingsKey:  listenerConfig.DynamoDbSettingsAsInterface(),
 				SQLServerSettingsKey: listenerConfig.SQLServerSettingsAsInterface(),
 			}
-			log.Printf("[DEBUG] listener: %q", listener)
+			tflog.Debug(ctx, fmt.Sprintf("listener: %q", listener))
 			listenersList = append(listenersList, listener)
 		}
 	}
 
-	log.Printf("[DEBUG] listenersList: %q", listenersList)
-	log.Printf("[DEBUG] End for _, l := range data.ListenerConfig")
+	tflog.Debug(ctx, fmt.Sprintf("listenersList: %q", listenersList))
+	tflog.Debug(ctx, "End for _, l := range data.ListenerConfig")
 
 	if err := d.Set(SidecarListenerListKey, listenersList); err != nil {
 		return err
@@ -59,29 +62,27 @@ func (data ReadDataSourceSidecarListenerAPIResponse) WriteToSchema(d *schema.Res
 
 	d.SetId(uuid.New().String())
 
-	log.Printf("[DEBUG] End ReadDataSourceSidecarListenerAPIResponse.WriteToSchema")
+	tflog.Debug(ctx, "End ReadDataSourceSidecarListenerAPIResponse.WriteToSchema")
 
 	return nil
 }
 
 func dataSourceSidecarListenerReadConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "SidecarListenerDataSourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "SidecarListenerDataSourceRead",
+		Type:         operationtype.Read,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			sidecarID := d.Get(utils.SidecarIDKey).(string)
 
 			return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners", c.ControlPlane, sidecarID)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &ReadDataSourceSidecarListenerAPIResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadDataSourceSidecarListenerAPIResponse{} },
 	}
 }
 
 func DataSourceSidecarListener() *schema.Resource {
-	log.Printf("[DEBUG] Init dataSourceSidecarListener")
 	listenerSchema := utils.ConvertSchemaFieldsToComputed(getSidecarListenerSchema())
-
-	log.Printf("[DEBUG] End dataSourceSidecarListener")
 	return &schema.Resource{
 		Description: "Retrieve and filter sidecar listeners.",
 		ReadContext: core.ReadResource(dataSourceSidecarListenerReadConfig()),

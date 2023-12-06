@@ -2,10 +2,10 @@ package deprecated
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -39,51 +39,23 @@ func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-var ReadSplunkConfig = core.ResourceOperationConfig{
-	Name:       "SplunkResourceRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
-	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &SplunkIntegration{} },
-}
-
 func ResourceIntegrationSplunk() *schema.Resource {
+	contextHandler := core.DefaultContextHandler{
+		ResourceName:        "Splunk Integration",
+		ResourceType:        resourcetype.Resource,
+		SchemaReaderFactory: func() core.SchemaReader { return &SplunkIntegration{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SplunkIntegration{} },
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+			return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
+		},
+	}
 	return &schema.Resource{
 		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
 		Description:        "Manages [integration with Splunk](https://cyral.com/docs/integrations/siem/splunk/#procedure).",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-				Name:       "SplunkResourceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
-				},
-				NewResourceData: func() core.ResourceData { return &SplunkIntegration{} },
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
-			}, ReadSplunkConfig,
-		),
-		ReadContext: core.ReadResource(ReadSplunkConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				Name:       "SplunkResourceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
-				},
-				NewResourceData: func() core.ResourceData { return &SplunkIntegration{} },
-			}, ReadSplunkConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				Name:       "SplunkResourceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf("https://%s/v1/integrations/splunk/%s", c.ControlPlane, d.Id())
-				},
-			},
-		),
-
+		CreateContext:      contextHandler.CreateContext(),
+		ReadContext:        contextHandler.ReadContext(),
+		UpdateContext:      contextHandler.UpdateContext(),
+		DeleteContext:      contextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "ID of this resource in Cyral environment",

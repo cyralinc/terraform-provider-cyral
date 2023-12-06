@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -36,16 +37,17 @@ func (r *AccessGateway) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 var ReadRepositoryAccessGatewayConfig = core.ResourceOperationConfig{
-	Name:       "RepositoryAccessGatewayRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "RepositoryAccessGatewayRead",
+	Type:         operationtype.Read,
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf(
 			"https://%s/v1/repos/%s/accessGateway",
 			c.ControlPlane,
 			d.Get(utils.RepositoryIDKey).(string),
 		)
 	},
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &AccessGateway{}
 	},
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository access gateway"},
@@ -56,44 +58,43 @@ func ResourceRepositoryAccessGateway() *schema.Resource {
 		Description: "Manages the sidecar and binding set as the access gateway for [cyral_repositories](./repositories.md).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryAccessGatewayCreate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryAccessGatewayCreate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/repos/%s/accessGateway",
 						c.ControlPlane,
 						d.Get(utils.RepositoryIDKey).(string),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &AccessGateway{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &AccessGateway{} },
 			},
 			ReadRepositoryAccessGatewayConfig,
 		),
 		ReadContext: core.ReadResource(ReadRepositoryAccessGatewayConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryAccessGatewayUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryAccessGatewayUpdate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/repos/%s/accessGateway",
 						c.ControlPlane,
 						d.Get(utils.RepositoryIDKey).(string),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &AccessGateway{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &AccessGateway{} },
 			},
 			ReadRepositoryAccessGatewayConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "RepositoryAccessGatewayDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RepositoryAccessGatewayDelete",
+				Type:         operationtype.Delete,
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/repos/%s/accessGateway",
 						c.ControlPlane,

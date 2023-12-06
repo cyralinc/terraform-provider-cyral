@@ -177,6 +177,7 @@ func TestAccRepositoryUserAccountResource(t *testing.T) {
 		userAccount2ResName, userAccount2)
 	multipleAccountsConfig := repositoryUserAccountRepositoryConfig() +
 		account1Config + account2Config
+
 	multipleAccountsCheck1 := setupRepositoryUserAccountCheck(
 		userAccount1ResName, userAccount1)
 	multipleAccountsCheck2 := setupRepositoryUserAccountCheck(

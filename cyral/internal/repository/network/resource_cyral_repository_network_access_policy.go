@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -101,48 +102,52 @@ func (nap *NetworkAccessPolicy) WriteToSchema(d *schema.ResourceData) error {
 
 func createRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "RepositoryNetworkAccessPolicyCreate",
-		HttpMethod: http.MethodPost,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "RepositoryNetworkAccessPolicyCreate",
+		Type:         operationtype.Create,
+		HttpMethod:   http.MethodPost,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.ResourceData { return &NetworkAccessPolicy{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &NetworkAccessPolicyUpsertResp{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &NetworkAccessPolicy{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicyUpsertResp{} },
 	}
 }
 
 func readRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "RepositoryNetworkAccessPolicyRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "RepositoryNetworkAccessPolicyRead",
+		Type:         operationtype.Read,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &NetworkAccessPolicy{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicy{} },
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository network access policy"},
 	}
 }
 
 func updateRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "RepositoryNetworkAccessPolicyUpdate",
-		HttpMethod: http.MethodPut,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "RepositoryNetworkAccessPolicyUpdate",
+		Type:         operationtype.Update,
+		HttpMethod:   http.MethodPut,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		NewResourceData: func() core.ResourceData { return &NetworkAccessPolicy{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &NetworkAccessPolicyUpsertResp{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &NetworkAccessPolicy{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicyUpsertResp{} },
 	}
 }
 
 func deleteRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "RepositoryNetworkAccessPolicyDelete",
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "RepositoryNetworkAccessPolicyDelete",
+		Type:         operationtype.Delete,
+		HttpMethod:   http.MethodDelete,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},

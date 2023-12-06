@@ -8,6 +8,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -122,35 +123,38 @@ func ResourceRoleSSOGroups() *schema.Resource {
 }
 
 var createRoleSSOGroupsConfig = core.ResourceOperationConfig{
-	Name:       "resourceRoleSSOGroupsCreate",
-	HttpMethod: http.MethodPatch,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "resourceRoleSSOGroupsCreate",
+	Type:         operationtype.Create,
+	HttpMethod:   http.MethodPatch,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResourceData: func() core.ResourceData { return &RoleSSOGroupsCreateRequest{} },
-	NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &RoleSSOGroupsCreateRequest{} },
+	SchemaReaderFactory: func() core.SchemaReader { return &RoleSSOGroupsCreateRequest{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RoleSSOGroupsCreateRequest{} },
 }
 
 var readRoleSSOGroupsConfig = core.ResourceOperationConfig{
-	Name:       "resourceRoleSSOGroupsRead",
-	HttpMethod: http.MethodGet,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "resourceRoleSSOGroupsRead",
+	Type:         operationtype.Read,
+	HttpMethod:   http.MethodGet,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &RoleSSOGroupsReadResponse{} },
+	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RoleSSOGroupsReadResponse{} },
 	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Role SSO groups"},
 }
 
 var deleteRoleSSOGroupsConfig = core.ResourceOperationConfig{
-	Name:       "resourceRoleSSOGroupsDelete",
-	HttpMethod: http.MethodDelete,
-	CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName: "resourceRoleSSOGroupsDelete",
+	Type:         operationtype.Delete,
+	HttpMethod:   http.MethodDelete,
+	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/groups/%s/mappings", c.ControlPlane,
 			d.Get("role_id").(string))
 	},
-	NewResourceData: func() core.ResourceData { return &RoleSSOGroupsDeleteRequest{} },
+	SchemaReaderFactory: func() core.SchemaReader { return &RoleSSOGroupsDeleteRequest{} },
 }
 
 func (data RoleSSOGroupsCreateRequest) WriteToSchema(d *schema.ResourceData) error {

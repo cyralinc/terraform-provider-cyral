@@ -1,16 +1,18 @@
 package idpsaml
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -88,33 +90,36 @@ type ListGenericSAMLDraftsResponse struct {
 
 func CreateGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLDraftResourceCreate",
-		HttpMethod: http.MethodPost,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLDraftResourceCreate",
+		Type:         operationtype.Create,
+		HttpMethod:   http.MethodPost,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts", c.ControlPlane)
 		},
-		NewResourceData: func() core.ResourceData { return &CreateGenericSAMLDraftRequest{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &GenericSAMLDraftResponse{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &CreateGenericSAMLDraftRequest{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
 	}
 }
 
 func ReadGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLDraftResourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLDraftResourceRead",
+		Type:         operationtype.Read,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
 		RequestErrorHandler: &readGenericSAMLDraftErrorHandler{},
-		NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &GenericSAMLDraftResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
 	}
 }
 
 func DeleteGenericSAMLDraftConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLDraftResourceDelete",
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLDraftResourceDelete",
+		Type:         operationtype.Delete,
+		HttpMethod:   http.MethodDelete,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
 		RequestErrorHandler: &core.DeleteIgnoreHttpNotFound{ResName: "SAML draft"},
@@ -272,6 +277,7 @@ type readGenericSAMLDraftErrorHandler struct {
 }
 
 func (h *readGenericSAMLDraftErrorHandler) HandleError(
+	ctx context.Context,
 	d *schema.ResourceData,
 	c *client.Client,
 	err error,
@@ -280,7 +286,7 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 	if !ok || httpError.StatusCode != http.StatusNotFound {
 		return err
 	}
-	log.Printf("[DEBUG] SAML draft not found. Checking if completed draft exists.")
+	tflog.Debug(ctx, "SAML draft not found. Checking if completed draft exists.")
 
 	query := utils.UrlQuery(map[string]string{
 		"includeCompletedDrafts": "true",
@@ -289,7 +295,7 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 	})
 	url := fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts%s",
 		c.ControlPlane, query)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return fmt.Errorf("unable to read completed drafts: %w", err)
 	}
@@ -309,11 +315,11 @@ func (h *readGenericSAMLDraftErrorHandler) HandleError(
 		}
 	}
 	if !found {
-		log.Printf("[DEBUG] Completed draft with ID %q "+
-			"not found. Triggering recreation.", myID)
+		tflog.Debug(ctx, fmt.Sprintf("Completed draft with ID %q "+
+			"not found. Triggering recreation.", myID))
 		d.SetId("")
 	} else {
-		log.Printf("[DEBUG] Found completed draft with ID %q.", myID)
+		tflog.Debug(ctx, fmt.Sprintf("Found completed draft with ID %q.", myID))
 	}
 	return nil
 }

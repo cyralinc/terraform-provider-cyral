@@ -1,17 +1,19 @@
 package role
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 )
 
 type GetUserGroupsResponse struct {
@@ -81,12 +83,13 @@ type UserGroup struct {
 
 func dataSourceRoleReadConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "RoleDataSourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "RoleDataSourceRead",
+		Type:         operationtype.Read,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/users/groups", c.ControlPlane)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &GetUserGroupsResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GetUserGroupsResponse{} },
 	}
 }
 
@@ -174,10 +177,11 @@ func DataSourceRole() *schema.Resource {
 }
 
 func ListRoles(c *client.Client) (*GetUserGroupsResponse, error) {
-	log.Printf("[DEBUG] Init listRoles")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init listRoles")
 
 	url := fmt.Sprintf("https://%s/v1/users/groups", c.ControlPlane)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -185,8 +189,8 @@ func ListRoles(c *client.Client) (*GetUserGroupsResponse, error) {
 	if err := json.Unmarshal(body, resp); err != nil {
 		return nil, err
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", resp)
-	log.Printf("[DEBUG] End listRoles")
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", resp))
+	tflog.Debug(ctx, "End listRoles")
 
 	return resp, nil
 }

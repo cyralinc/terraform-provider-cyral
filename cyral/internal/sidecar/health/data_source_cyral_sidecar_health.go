@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -28,14 +29,15 @@ func DataSourceSidecarHealth() *schema.Resource {
 			"[sidecar's health](https://cyral.com/docs/sidecars/sidecar-manage/#check-sidecar-cluster-status), " +
 			"considering all instances of the sidecar.",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-			Name:       "SidecarHealthDataSourceRead",
-			HttpMethod: http.MethodGet,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			ResourceName: "SidecarHealthDataSourceRead",
+			Type:         operationtype.Read,
+			HttpMethod:   http.MethodGet,
+			URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf(
 					"https://%s/v2/sidecars/%s/health", c.ControlPlane, d.Get(utils.SidecarIDKey),
 				)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SidecarHealth{}
 			},
 		}),

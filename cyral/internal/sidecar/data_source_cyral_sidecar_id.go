@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -43,7 +43,7 @@ func dataSourceSidecarIDRead(
 	d *schema.ResourceData,
 	m interface{},
 ) diag.Diagnostics {
-	log.Printf("[DEBUG] Init dataSourceSidecarIDRead")
+	tflog.Debug(ctx, "Init dataSourceSidecarIDRead")
 	c := m.(*client.Client)
 
 	sidecarsInfo, err := ListSidecars(c)
@@ -64,16 +64,17 @@ func dataSourceSidecarIDRead(
 			fmt.Sprintf("No sidecar found for name '%s'.", sidecarName))
 	}
 
-	log.Printf("[DEBUG] Sidecar ID: %s", d.Id())
-	log.Printf("[DEBUG] End dataSourceSidecarIDRead")
+	tflog.Debug(ctx, fmt.Sprintf("Sidecar ID: %s", d.Id()))
+	tflog.Debug(ctx, "End dataSourceSidecarIDRead")
 
 	return diag.Diagnostics{}
 }
 
 func ListSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
-	log.Printf("[DEBUG] Init listSidecars")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init listSidecars")
 	url := fmt.Sprintf("https://%s/v1/sidecars", c.ControlPlane)
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +83,8 @@ func ListSidecars(c *client.Client) ([]IdentifiedSidecarInfo, error) {
 	if err := json.Unmarshal(body, &sidecarsInfo); err != nil {
 		return nil, err
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", sidecarsInfo)
-	log.Printf("[DEBUG] End listSidecars")
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", sidecarsInfo))
+	tflog.Debug(ctx, "End listSidecars")
 
 	return sidecarsInfo, nil
 }

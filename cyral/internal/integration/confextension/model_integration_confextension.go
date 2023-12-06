@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -90,31 +91,32 @@ func (data *IntegrationConfExtension) ReadFromSchema(d *schema.ResourceData) err
 
 func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       fmt.Sprintf("%s_IntegrationResourceCreate", templateType),
-		HttpMethod: http.MethodPost,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: fmt.Sprintf("%s_IntegrationResourceCreate", templateType),
+		Type:         operationtype.Create,
+		HttpMethod:   http.MethodPost,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
 				"https://%s/v1/integrations/confExtensions/instances", c.ControlPlane,
 			)
 		},
-		NewResourceData: func() core.ResourceData {
+		SchemaReaderFactory: func() core.SchemaReader {
 			return NewIntegrationConfExtension(templateType)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &core.IDBasedResponse{} },
 	}
 }
 
 func ConfExtensionIntegrationRead(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       fmt.Sprintf("%s_IntegrationResourceRead", templateType),
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: fmt.Sprintf("%s_IntegrationResourceRead", templateType),
+		Type:         operationtype.Read,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
 				"https://%s/v1/integrations/confExtensions/instances/authorization/%s",
 				c.ControlPlane, d.Id(),
 			)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 			return NewIntegrationConfExtension(templateType)
 		},
 	}
@@ -122,14 +124,15 @@ func ConfExtensionIntegrationRead(templateType string) core.ResourceOperationCon
 
 func ConfExtensionIntegrationUpdate(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       fmt.Sprintf("%s_IntegrationResourceUpdate", templateType),
-		HttpMethod: http.MethodPut,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: fmt.Sprintf("%s_IntegrationResourceUpdate", templateType),
+		Type:         operationtype.Update,
+		HttpMethod:   http.MethodPut,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
 				"https://%s/v1/integrations/confExtensions/instances/%s", c.ControlPlane, d.Id(),
 			)
 		},
-		NewResourceData: func() core.ResourceData {
+		SchemaReaderFactory: func() core.SchemaReader {
 			return NewIntegrationConfExtension(templateType)
 		},
 	}
@@ -137,9 +140,10 @@ func ConfExtensionIntegrationUpdate(templateType string) core.ResourceOperationC
 
 func ConfExtensionIntegrationDelete(templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       fmt.Sprintf("%s_IntegrationResourceDelete", templateType),
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: fmt.Sprintf("%s_IntegrationResourceDelete", templateType),
+		Type:         operationtype.Delete,
+		HttpMethod:   http.MethodDelete,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
 				"https://%s/v1/integrations/confExtensions/instances/authorization/%s",
 				c.ControlPlane, d.Id(),

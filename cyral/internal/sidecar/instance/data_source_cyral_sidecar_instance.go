@@ -6,6 +6,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -32,15 +33,16 @@ func DataSourceSidecarInstance() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve sidecar instances.",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
-			Name:       "SidecarInstanceDataSourceRead",
-			HttpMethod: http.MethodGet,
-			CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+			ResourceName: "SidecarInstanceDataSourceRead",
+			Type:         operationtype.Read,
+			HttpMethod:   http.MethodGet,
+			URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 				return fmt.Sprintf(
 					"https://%s/v2/sidecars/%s/instances",
 					c.ControlPlane, d.Get(utils.SidecarIDKey),
 				)
 			},
-			NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 				return &SidecarInstances{}
 			},
 		}),

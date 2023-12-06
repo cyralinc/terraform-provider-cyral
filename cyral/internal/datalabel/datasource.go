@@ -10,6 +10,8 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -97,9 +99,11 @@ func dataSourceSchema() *schema.Resource {
 
 func readConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "DatalabelDataSourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "Data Label",
+		Type:         operationtype.Read,
+		ResourceType: resourcetype.DataSource,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			nameFilter := d.Get("name").(string)
 			typeFilter := d.Get("type").(string)
 			var pathParams string
@@ -112,7 +116,7 @@ func readConfig() core.ResourceOperationConfig {
 
 			return fmt.Sprintf("https://%s/v1/datalabels%s%s", c.ControlPlane, pathParams, queryParams)
 		},
-		NewResponseData: func(d *schema.ResourceData) core.ResponseData {
+		SchemaWriterFactory: func(d *schema.ResourceData) core.SchemaWriter {
 			nameFilter := d.Get("name").(string)
 			if nameFilter == "" {
 				return &GetDataLabelsResponse{}

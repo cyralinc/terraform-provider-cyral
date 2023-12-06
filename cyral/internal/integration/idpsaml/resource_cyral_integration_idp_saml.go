@@ -9,6 +9,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -59,45 +60,49 @@ func (resp *ReadGenericSAMLResponse) WriteToSchema(d *schema.ResourceData) error
 
 func CreateGenericSAMLConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLResourceCreate",
-		HttpMethod: http.MethodPost,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLResourceCreate",
+		Type:         operationtype.Create,
+		HttpMethod:   http.MethodPost,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso", c.ControlPlane)
 		},
-		NewResourceData: func() core.ResourceData { return &CreateGenericSAMLRequest{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &CreateGenericSAMLResponse{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &CreateGenericSAMLRequest{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateGenericSAMLResponse{} },
 	}
 }
 
 func CreateIdPConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLResourceValidation",
-		HttpMethod: http.MethodPost,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLResourceValidation",
+		Type:         operationtype.Create,
+		HttpMethod:   http.MethodPost,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/conf/identityProviders/%s", c.ControlPlane, d.Id())
 		},
-		NewResourceData: func() core.ResourceData { return &IdentityProviderData{} },
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData { return &IdentityProviderData{} },
+		SchemaReaderFactory: func() core.SchemaReader { return &IdentityProviderData{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &IdentityProviderData{} },
 	}
 }
 
 func ReadGenericSAMLConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLResourceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLResourceRead",
+		Type:         operationtype.Read,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
 		},
-		NewResponseData:     func(_ *schema.ResourceData) core.ResponseData { return &ReadGenericSAMLResponse{} },
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadGenericSAMLResponse{} },
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Generic SAML"},
 	}
 }
 
 func DeleteGenericSAMLConfig() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		Name:       "GenericSAMLResourceDelete",
-		HttpMethod: http.MethodDelete,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "GenericSAMLResourceDelete",
+		Type:         operationtype.Delete,
+		HttpMethod:   http.MethodDelete,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
 		},
 	}
@@ -109,19 +114,10 @@ func ResourceIntegrationIdPSAML() *schema.Resource {
 			"[Single Sing-On](https://cyral.com/docs/sso/overview) to Cyral.\n\nSee also " +
 			"the remaining SAML-related resources and data sources.",
 		CreateContext: core.CRUDResources(
-			[]core.ResourceOperation{
-				{
-					Type:   core.OperationTypeCreate,
-					Config: CreateGenericSAMLConfig(),
-				},
-				{
-					Type:   core.OperationTypeRead,
-					Config: ReadGenericSAMLConfig(),
-				},
-				{
-					Type:   core.OperationTypeCreate,
-					Config: CreateIdPConfig(),
-				},
+			[]core.ResourceOperationConfig{
+				CreateGenericSAMLConfig(),
+				ReadGenericSAMLConfig(),
+				CreateIdPConfig(),
 			},
 		),
 		ReadContext:   core.ReadResource(ReadGenericSAMLConfig()),

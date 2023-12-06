@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -194,7 +194,7 @@ func ResourceSidecar() *schema.Resource {
 }
 
 func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceSidecarCreate")
+	tflog.Debug(ctx, "Init resourceSidecarCreate")
 	c := m.(*client.Client)
 
 	resourceData, err := getSidecarDataFromResource(c, d)
@@ -204,7 +204,7 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	url := fmt.Sprintf("https://%s/v1/sidecars", c.ControlPlane)
 
-	body, err := c.DoRequest(url, http.MethodPost, resourceData)
+	body, err := c.DoRequest(ctx, url, http.MethodPost, resourceData)
 	if err != nil {
 		return utils.CreateError("Unable to create sidecar", fmt.Sprintf("%v", err))
 	}
@@ -213,7 +213,7 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.SetId(response.ID)
 
@@ -221,12 +221,12 @@ func resourceSidecarCreate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceSidecarRead")
+	tflog.Debug(ctx, "Init resourceSidecarRead")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
-	body, err := c.DoRequest(url, http.MethodGet, nil)
+	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
 	if err != nil {
 		// Currently, the sidecar API always returns a status code of 500 for every error,
 		// so its not possible to distinguish if the error returned is related to
@@ -241,10 +241,8 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 			err.Error(),
 		)
 		if regexpError == nil && matched {
-			log.Printf(
-				"[DEBUG] Sidecar not found. SidecarID: %s. "+
-					"Removing it from state. Error: %v", d.Id(), err,
-			)
+			tflog.Debug(ctx, fmt.Sprintf("Sidecar not found. SidecarID: %s. "+
+				"Removing it from state. Error: %v", d.Id(), err))
 			d.SetId("")
 			return nil
 		}
@@ -261,7 +259,7 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
-	log.Printf("[DEBUG] Response body (unmarshalled): %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
 
 	d.Set("name", response.Name)
 	if properties := response.SidecarProperties; properties != nil {
@@ -276,13 +274,13 @@ func resourceSidecarRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 	d.Set("certificate_bundle_secrets", flattenCertificateBundleSecrets(response.CertificateBundleSecrets))
 
-	log.Printf("[DEBUG] End resourceSidecarRead")
+	tflog.Debug(ctx, "End resourceSidecarRead")
 
 	return diag.Diagnostics{}
 }
 
 func resourceSidecarUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceSidecarUpdate")
+	tflog.Debug(ctx, "Init resourceSidecarUpdate")
 	c := m.(*client.Client)
 
 	resourceData, err := getSidecarDataFromResource(c, d)
@@ -292,32 +290,33 @@ func resourceSidecarUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
-	if _, err = c.DoRequest(url, http.MethodPut, resourceData); err != nil {
+	if _, err = c.DoRequest(ctx, url, http.MethodPut, resourceData); err != nil {
 		return utils.CreateError("Unable to update sidecar", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourceSidecarUpdate")
+	tflog.Debug(ctx, "End resourceSidecarUpdate")
 
 	return resourceSidecarRead(ctx, d, m)
 }
 
 func resourceSidecarDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Init resourceSidecarDelete")
+	tflog.Debug(ctx, "Init resourceSidecarDelete")
 	c := m.(*client.Client)
 
 	url := fmt.Sprintf("https://%s/v1/sidecars/%s", c.ControlPlane, d.Id())
 
-	if _, err := c.DoRequest(url, http.MethodDelete, nil); err != nil {
+	if _, err := c.DoRequest(ctx, url, http.MethodDelete, nil); err != nil {
 		return utils.CreateError("Unable to delete sidecar", fmt.Sprintf("%v", err))
 	}
 
-	log.Printf("[DEBUG] End resourceSidecarDelete")
+	tflog.Debug(ctx, "End resourceSidecarDelete")
 
 	return diag.Diagnostics{}
 }
 
 func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*SidecarData, error) {
-	log.Printf("[DEBUG] Init getSidecarDataFromResource")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init getSidecarDataFromResource")
 
 	deploymentMethod := d.Get("deployment_method").(string)
 
@@ -345,7 +344,7 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 
 	cbs := getCertificateBundleSecret(d)
 
-	log.Printf("[DEBUG] end getSidecarDataFromResource")
+	tflog.Debug(ctx, "end getSidecarDataFromResource")
 	return &SidecarData{
 		ID:                       d.Id(),
 		Name:                     d.Get("name").(string),
@@ -358,7 +357,8 @@ func getSidecarDataFromResource(c *client.Client, d *schema.ResourceData) (*Side
 }
 
 func flattenCertificateBundleSecrets(cbs CertificateBundleSecrets) []interface{} {
-	log.Printf("[DEBUG] Init flattenCertificateBundleSecrets")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init flattenCertificateBundleSecrets")
 	var flatCBS []interface{}
 	if cbs != nil {
 		cb := make(map[string]interface{})
@@ -368,8 +368,8 @@ func flattenCertificateBundleSecrets(cbs CertificateBundleSecrets) []interface{}
 			if key != "sidecar-generated-selfsigned" {
 				contentCB := make([]interface{}, 1)
 
-				log.Printf("[DEBUG] key: %v", key)
-				log.Printf("[DEBUG] val: %v", val)
+				tflog.Debug(ctx, fmt.Sprintf("key: %v", key))
+				tflog.Debug(ctx, fmt.Sprintf("val: %v", val))
 
 				contentCBMap := make(map[string]interface{})
 				contentCBMap["secret_id"] = val.SecretId
@@ -387,12 +387,13 @@ func flattenCertificateBundleSecrets(cbs CertificateBundleSecrets) []interface{}
 		}
 	}
 
-	log.Printf("[DEBUG] end flattenCertificateBundleSecrets %v", flatCBS)
+	tflog.Debug(ctx, fmt.Sprintf("end flattenCertificateBundleSecrets %v", flatCBS))
 	return flatCBS
 }
 
 func getCertificateBundleSecret(d *schema.ResourceData) CertificateBundleSecrets {
-	log.Printf("[DEBUG] Init getCertificateBundleSecret")
+	ctx := context.Background()
+	tflog.Debug(ctx, "Init getCertificateBundleSecret")
 	rdCBS := d.Get("certificate_bundle_secrets").(*schema.Set).List()
 	ret := make(CertificateBundleSecrets)
 
@@ -427,6 +428,6 @@ func getCertificateBundleSecret(d *schema.ResourceData) CertificateBundleSecrets
 		ret["sidecar"] = &CertificateBundleSecret{}
 	}
 
-	log.Printf("[DEBUG] end getCertificateBundleSecret")
+	tflog.Debug(ctx, "end getCertificateBundleSecret")
 	return ret
 }

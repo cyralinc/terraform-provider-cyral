@@ -1,7 +1,9 @@
-package utils
+package utils_test
 
 import (
 	"testing"
+
+	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
 func TestElementsMatch(t *testing.T) {
@@ -37,7 +39,7 @@ func TestElementsMatch(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		match := ElementsMatch(testCase.this, testCase.other)
+		match := utils.ElementsMatch(testCase.this, testCase.other)
 		if match != testCase.expectMatch {
 			t.Errorf("For test %q, expected match=%t got match=%t",
 				testCase.desc, testCase.expectMatch, match)

@@ -28,7 +28,7 @@ type DataLabel struct {
 	Implicit           bool                   `json:"implicit,omitempty"`
 }
 
-func (dl *DataLabel) WriteToSchema(d *schema.ResourceData) error {
+func (dl DataLabel) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("description", dl.Description); err != nil {
 		return fmt.Errorf(utils.ErrorSettingFieldFmt, "description", err)
 	}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -35,9 +36,10 @@ const (
 
 var (
 	ReadRegoPolicyInstanceConfig = core.ResourceOperationConfig{
-		Name:       "RegoPolicyInstanceRead",
-		HttpMethod: http.MethodGet,
-		CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+		ResourceName: "RegoPolicyInstanceRead",
+		Type:         operationtype.Read,
+		HttpMethod:   http.MethodGet,
+		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf(
 				"https://%s/v1/regopolicies/instances/%s/%s",
 				c.ControlPlane,
@@ -45,7 +47,7 @@ var (
 				d.Get(RegoPolicyInstancePolicyIDKey),
 			)
 		},
-		NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
+		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 			return &RegoPolicyInstance{}
 		},
 		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Rego policy instance"},
@@ -79,30 +81,28 @@ func ResourceRegoPolicyInstance() *schema.Resource {
 			"associated to the policy `scope`. For more information, see the [scope](#nestedblock--scope) field.",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				Name:       "RegoPolicyInstanceCreate",
-				HttpMethod: http.MethodPost,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RegoPolicyInstanceCreate",
+				Type:         operationtype.Create,
+				HttpMethod:   http.MethodPost,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/regopolicies/instances/%s",
 						c.ControlPlane,
 						d.Get(RegoPolicyInstanceCategoryKey),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &RegoPolicyInstancePayload{}
-				},
-				NewResponseData: func(_ *schema.ResourceData) core.ResponseData {
-					return &RegoPolicyInstanceKey{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &RegoPolicyInstancePayload{} },
+				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RegoPolicyInstanceKey{} },
 			},
 			ReadRegoPolicyInstanceConfig,
 		),
 		ReadContext: core.ReadResource(ReadRegoPolicyInstanceConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				Name:       "RegoPolicyInstanceUpdate",
-				HttpMethod: http.MethodPut,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RegoPolicyInstanceUpdate",
+				Type:         operationtype.Update,
+				HttpMethod:   http.MethodPut,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/regopolicies/instances/%s/%s",
 						c.ControlPlane,
@@ -110,17 +110,16 @@ func ResourceRegoPolicyInstance() *schema.Resource {
 						d.Get(RegoPolicyInstancePolicyIDKey),
 					)
 				},
-				NewResourceData: func() core.ResourceData {
-					return &RegoPolicyInstancePayload{}
-				},
+				SchemaReaderFactory: func() core.SchemaReader { return &RegoPolicyInstancePayload{} },
 			},
 			ReadRegoPolicyInstanceConfig,
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				Name:       "RegoPolicyInstanceDelete",
-				HttpMethod: http.MethodDelete,
-				CreateURL: func(d *schema.ResourceData, c *client.Client) string {
+				ResourceName: "RegoPolicyInstanceDelete",
+				Type:         operationtype.Delete,
+				HttpMethod:   http.MethodDelete,
+				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 					return fmt.Sprintf(
 						"https://%s/v1/regopolicies/instances/%s/%s",
 						c.ControlPlane,
