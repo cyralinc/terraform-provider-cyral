@@ -27,7 +27,6 @@ to simplify future code changes by adopting a single code convention.
 package newfeature
 
 const (
-	accessTokenSettingsID = "settings/access_token"
 	// The resource and data source names are identical in this example,
 	// but this may not always hold true
 	resourceName          = "cyral_new_feature"
