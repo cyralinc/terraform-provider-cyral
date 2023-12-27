@@ -42,7 +42,7 @@ func accTestStepSidecarInstanceDataSource_EmptySidecarID(dataSourceName string) 
 }
 
 func accTestStepSidecarInstanceDataSource_NoSidecarFoundForGivenID(dataSourceName string) resource.TestStep {
-	nonExistentSidecarID := "some-non-existent-sidecar-id"
+	nonExistentSidecarID := "id"
 	config := fmt.Sprintf(`
 	data "cyral_sidecar_instance" "%s" {
 		sidecar_id = %q
