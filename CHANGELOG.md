@@ -1,3 +1,62 @@
+## 4.8.0 (January 3, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.12.0`.
+
+Resource incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Data source incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Arguments incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_logging.skip_validate`
+
+Resource incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_aws_iam`
+
+Data sources incompatible with control planes previous to `v4.10`:
+
+- `cyral_sidecar_health`
+- `cyral_sidecar_instance_stats`
+- `cyral_system_info`
+
+Arguments incompatible with control planes previous to `v4.8`:
+
+- `cyral_sidecar.activity_log_integration_id`
+- `cyral_sidecar.diagnostic_log_integration_id`
+
+Resource incompatible with control planes previous to `v4.7`:
+
+- `cyral_integration_logging`
+
+Argument incompatible with control planes previous to `v4.2`:
+
+- `cyral_repository.mongodb_settings.srv_record_name`
+
+See the list of incompatible resources with control planes `v3.x` and provider `v3.x` in the [`v4.0.0`](#400-january-27-2023) release documentation.
+
+### Documentation:
+
+- Fix missing reference in cyral.core docs ([#473](https://github.com/cyralinc/terraform-provider-cyral/pull/473))
+
+## Features:
+
+- ENG-12954, ENG-12955: Add datasource and resource fot token settings ([#479](https://github.com/cyralinc/terraform-provider-cyral/pull/479))
+
+### Improvements:
+
+- Create core package and refactor data label + datamap ([#439](https://github.com/cyralinc/terraform-provider-cyral/pull/439))
+- Simplify core package ([#474](https://github.com/cyralinc/terraform-provider-cyral/pull/474))
+
 ## 4.7.2 (October 19, 2023)
 
 It is safe to use this version with all `v4` control planes as long
