@@ -13,44 +13,40 @@ We recommend further reading for more details:
   resource for more details about the [template parameters](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters)
   and how to use the pre-built repo-level policies in Terraform.
 
-## Dataset Protection policy
+## Data Firewall policy
 
--> **Note** The Dataset Protection policy template is only enabled by default in control planes
-`v4.13` and later. If you have a previous version, please reach out to our customer success
-team to enable it.
-
-Add a Dataset Protection policy to restrict access to
-specific tables or schemas in the data repositories:
+Limit which rows users can read from a table:
 
 ```terraform
-# Creates pg data repository
+# Creates MySQL data repository
 resource "cyral_repository" "repo" {
-  type = "postgresql"
-  name = "my_pg"
+  type = "mysql"
+  name = "my_mysql"
 
   repo_node {
-    host = "pg.cyral.com"
-    port = 5432
+    host = "mysql.cyral.com"
+    port = 3306
   }
 }
 
 # create policy instance from template
 resource "cyral_rego_policy_instance" "policy" {
-  name        = "dataset-protection"
+  name        = "data-firewall-policy"
   category    = "SECURITY"
-  description = "Blocks reads and updates over schema 'finance' and dataset 'cyral.customers'."
-  template_id = "dataset-protection"
-  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorReads\": true, \"datasets\": {\"disallowed\": [\"finance.*\", \"cyral.customers\"]}}"
+  description = "Filter 'finance.cards' when someone (except 'Admin' group) reads it"
+  template_id = "data-firewall"
+  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"excludedIdentities\": { \"groups\": [\"Admin\"] } }"
   enabled     = true
   scope {
     repo_ids = [cyral_repository.repo.id]
   }
+  tags = ["tag1", "tag2"]
 }
 ```
 
 ## Data Masking policy
 
-Implement a repo-level policy to mask fields for specific users:
+Mask fields for specific users:
 
 ```terraform
 # Creates MySQL data repository
@@ -81,7 +77,7 @@ resource "cyral_rego_policy_instance" "policy" {
 
 ## Data Protection policy
 
-Add a repo-level policy to guard against unauthorized updates:
+Protect against unauthorized updates:
 
 ```terraform
 # Creates MySQL data repository
@@ -110,71 +106,43 @@ resource "cyral_rego_policy_instance" "policy" {
 }
 ```
 
-## Data Firewall policy
+## Dataset Protection policy
 
-Set up a repo-level policy to limit which rows users can read from a table:
+-> **Note** The Dataset Protection policy template is only enabled by default in control planes
+`v4.13` and later. If you have a previous version, please reach out to our customer success
+team to enable it.
+
+Restrict access to specific tables or schemas in the data repositories:
 
 ```terraform
-# Creates MySQL data repository
+# Creates pg data repository
 resource "cyral_repository" "repo" {
-  type = "mysql"
-  name = "my_mysql"
+  type = "postgresql"
+  name = "my_pg"
 
   repo_node {
-    host = "mysql.cyral.com"
-    port = 3306
+    host = "pg.cyral.com"
+    port = 5432
   }
 }
 
 # create policy instance from template
 resource "cyral_rego_policy_instance" "policy" {
-  name        = "data-firewall-policy"
+  name        = "dataset-protection"
   category    = "SECURITY"
-  description = "Filter 'finance.cards' when someone (except 'Admin' group) reads it"
-  template_id = "data-firewall"
-  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"excludedIdentities\": { \"groups\": [\"Admin\"] } }"
+  description = "Blocks reads and updates over schema 'finance' and dataset 'cyral.customers'."
+  template_id = "dataset-protection"
+  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorReads\": true, \"datasets\": {\"disallowed\": [\"finance.*\", \"cyral.customers\"]}}"
   enabled     = true
   scope {
     repo_ids = [cyral_repository.repo.id]
   }
-  tags = ["tag1", "tag2"]
-}
-```
-
-## User Segmentation policy
-
-Implement a repo-level policy to limit which rows a set of users can read from your database:
-
-```terraform
-# Creates MySQL data repository
-resource "cyral_repository" "repo" {
-  type = "mysql"
-  name = "my_mysql"
-
-  repo_node {
-    host = "mysql.cyral.com"
-    port = 3306
-  }
-}
-
-# create policy instance from template
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "user-segmentation-policy"
-  category    = "SECURITY"
-  description = "Applies a data filter in 'finance.cards' when someone from group 'Marketing' reads data labeled as 'CCN'"
-  template_id = "user-segmentation"
-  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"includedIdentities\": { \"groups\": [\"Marketing\"] } }"
-  enabled     = true
-  scope {
-    repo_ids = [cyral_repository.repo.id]
-  }
-  tags = ["tag1", "tag2"]
 }
 ```
 
 ## Rate Limit policy
 
-Add a repo-level policy to implement a threshold on sensitive data reads over time:
+Set up a threshold on sensitive data reads over time:
 
 ```terraform
 # Creates pg data repository
@@ -205,7 +173,7 @@ resource "cyral_rego_policy_instance" "policy" {
 
 ## Read Limit policy
 
-Implement a repo-level policy to prevent certain records from being read beyond a specified limit:
+Prevent certain records from being read beyond a specified limit:
 
 ```terraform
 # Creates pg data repository
@@ -235,7 +203,7 @@ resource "cyral_rego_policy_instance" "policy" {
 
 ## Repository Protection policy
 
-Set up a repo-level policy to alert when more than a specified number of records are updated or deleted:
+Alert when more than a specified number of records are updated or deleted:
 
 ```terraform
 # Creates MySQL data repository
@@ -265,7 +233,7 @@ resource "cyral_rego_policy_instance" "policy" {
 
 ## Service Account Abuse policy
 
-Implement a repo-level policy to ensure service accounts can only be used by intended applications:
+Ensure service accounts can only be used by intended applications:
 
 ```terraform
 # Creates pg data repository
@@ -290,5 +258,36 @@ resource "cyral_rego_policy_instance" "policy" {
   scope {
     repo_ids = [cyral_repository.repo.id]
   }
+}
+```
+
+## User Segmentation policy
+
+Limit which rows a set of users can read from your database:
+
+```terraform
+# Creates MySQL data repository
+resource "cyral_repository" "repo" {
+  type = "mysql"
+  name = "my_mysql"
+
+  repo_node {
+    host = "mysql.cyral.com"
+    port = 3306
+  }
+}
+
+# create policy instance from template
+resource "cyral_rego_policy_instance" "policy" {
+  name        = "user-segmentation-policy"
+  category    = "SECURITY"
+  description = "Applies a data filter in 'finance.cards' when someone from group 'Marketing' reads data labeled as 'CCN'"
+  template_id = "user-segmentation"
+  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"includedIdentities\": { \"groups\": [\"Marketing\"] } }"
+  enabled     = true
+  scope {
+    repo_ids = [cyral_repository.repo.id]
+  }
+  tags = ["tag1", "tag2"]
 }
 ```
