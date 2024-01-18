@@ -11,11 +11,11 @@ resource "cyral_repository" "repo" {
 
 # create policy instance from template
 resource "cyral_rego_policy_instance" "policy" {
-  name        = "dataset-protection"
+  name        = "service account abuse policy"
   category    = "SECURITY"
-  description = "Blocks reads and updates over schema 'finance' and dataset 'cyral.customers'."
-  template_id = "dataset-protection"
-  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorReads\": true, \"datasets\": {\"disallowed\": [\"finance.*\", \"cyral.customers\"]}}"
+  description = "Always require user attribution for service acount 'john'"
+  template_id = "service-account-abuse"
+  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"serviceAccounts\": [\"john\"]}"
   enabled     = true
   scope {
     repo_ids = [cyral_repository.repo.id]

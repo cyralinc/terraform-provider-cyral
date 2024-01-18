@@ -11,11 +11,11 @@ resource "cyral_repository" "repo" {
 
 # create policy instance from template
 resource "cyral_rego_policy_instance" "policy" {
-  name        = "dataset-protection"
+  name        = "read-limit-policy"
   category    = "SECURITY"
-  description = "Blocks reads and updates over schema 'finance' and dataset 'cyral.customers'."
-  template_id = "dataset-protection"
-  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorReads\": true, \"datasets\": {\"disallowed\": [\"finance.*\", \"cyral.customers\"]}}"
+  description = "Limits to 100 the amount of rows that can be read per query on all repository data for group 'Devs'"
+  template_id = "read-limit"
+  parameters  = "{ \"rowLimit\": 100, \"block\": true, \"alertSeverity\": \"high\", \"appliesToAllData\": true, \"identities\": { \"included\": { \"groups\": [\"Devs\"] } }}"
   enabled     = true
   scope {
     repo_ids = [cyral_repository.repo.id]

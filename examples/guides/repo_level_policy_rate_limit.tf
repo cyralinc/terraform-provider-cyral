@@ -11,13 +11,14 @@ resource "cyral_repository" "repo" {
 
 # create policy instance from template
 resource "cyral_rego_policy_instance" "policy" {
-  name        = "dataset-protection"
+  name        = "rate-limit-policy"
   category    = "SECURITY"
-  description = "Blocks reads and updates over schema 'finance' and dataset 'cyral.customers'."
-  template_id = "dataset-protection"
-  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorReads\": true, \"datasets\": {\"disallowed\": [\"finance.*\", \"cyral.customers\"]}}"
+  description = "Implement a threshold on label CCN for group Marketing of 500 rows per hour"
+  template_id = "rate-limit"
+  parameters  = "{ \"rateLimit\": 500, \"block\": true, \"alertSeverity\": \"high\", \"labels\": [\"CCN\"], \"identities\": { \"included\": { \"groups\": [\"Marketing\"] } }}"
   enabled     = true
   scope {
     repo_ids = [cyral_repository.repo.id]
   }
+  tags = ["tag1", "tag2"]
 }
