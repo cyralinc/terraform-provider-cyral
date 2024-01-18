@@ -174,7 +174,7 @@ resource "cyral_rego_policy_instance" "policy" {
   name        = "user-segmentation-policy"
   category    = "SECURITY"
   description = "Applies a data filter in 'finance.cards' when someone from group 'Marketing' reads data labeled as 'CCN'"
-  template_id = "user-sementation"
+  template_id = "user-segmentation"
   parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"includedIdentities\": { \"groups\": [\"Marketing\"] } }"
   enabled     = true
   scope {
