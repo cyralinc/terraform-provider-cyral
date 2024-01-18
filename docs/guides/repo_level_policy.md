@@ -2,29 +2,25 @@
 page_title: "Setup repo-level policy"
 ---
 
-In this guide, we will attach repo-level data access policies to PostgreSQL and MySQL data
-repositories. After reading this guide, you will understand how to setup repo-level policies
-and use Cyral's built-in policy templates to control data access.
+Cyral offers several pre-built [repo-level policy types](https://cyral.com/docs/policy/repo-level/).
+In this guide, we provide different examples on how to use them.
 
-We recommend that you also read the [Cyral policies](https://cyral.com/docs/policy/overview/)
-documentation for more information.
+We recommend further reading for more details:
 
-## Repo-level policy types
-
-Cyral offers nine pre-built repo-level policy types. Learn more about them [here](https://cyral.com/docs/policy/repo-level/).
-This guide demonstrates creating instances of each type.
-Additionally, review the [cyral_rego_policy_instance](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance) resource for clarity in parameters.
+- Refer to the [Cyral policies](https://cyral.com/docs/policy/overview/) page in our public
+  docs for a complete documentation about the Cyral policy framework.
+- Refer to the [`cyral_rego_policy_instance`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance)
+  resource for more details about the [template parameters](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters)
+  and how to use the pre-built repo-level policies in Terraform.
 
 ## Dataset Protection policy
-
-Add a Dataset Protection policy to restrict access to
-specific tables or schemas in the data repositories:
 
 -> **Note** The Dataset Protection policy template is only enabled by default in control planes
 `v4.13` and later. If you have a previous version, please reach out to our customer success
 team to enable it.
 
-### Example Usage
+Add a Dataset Protection policy to restrict access to
+specific tables or schemas in the data repositories:
 
 ```terraform
 # Creates pg data repository
@@ -55,8 +51,6 @@ resource "cyral_rego_policy_instance" "policy" {
 ## Data Masking policy
 
 Implement a repo-level policy to mask fields for specific users:
-
-### Example Usage
 
 ```terraform
 # Creates MySQL data repository
@@ -89,8 +83,6 @@ resource "cyral_rego_policy_instance" "policy" {
 
 Add a repo-level policy to guard against unauthorized updates:
 
-### Example Usage
-
 ```terraform
 # Creates MySQL data repository
 resource "cyral_repository" "repo" {
@@ -121,8 +113,6 @@ resource "cyral_rego_policy_instance" "policy" {
 ## Data Firewall policy
 
 Set up a repo-level policy to limit which rows users can read from a table:
-
-### Example Usage
 
 ```terraform
 # Creates MySQL data repository
@@ -155,8 +145,6 @@ resource "cyral_rego_policy_instance" "policy" {
 
 Implement a repo-level policy to limit which rows a set of users can read from your database:
 
-### Example Usage
-
 ```terraform
 # Creates MySQL data repository
 resource "cyral_repository" "repo" {
@@ -187,8 +175,6 @@ resource "cyral_rego_policy_instance" "policy" {
 ## Rate Limit policy
 
 Add a repo-level policy to implement a threshold on sensitive data reads over time:
-
-### Example Usage
 
 ```terraform
 # Creates pg data repository
@@ -221,8 +207,6 @@ resource "cyral_rego_policy_instance" "policy" {
 
 Implement a repo-level policy to prevent certain records from being read beyond a specified limit:
 
-### Example Usage
-
 ```terraform
 # Creates pg data repository
 resource "cyral_repository" "repo" {
@@ -252,8 +236,6 @@ resource "cyral_rego_policy_instance" "policy" {
 ## Repository Protection policy
 
 Set up a repo-level policy to alert when more than a specified number of records are updated or deleted:
-
-### Example Usage
 
 ```terraform
 # Creates MySQL data repository
@@ -285,8 +267,6 @@ resource "cyral_rego_policy_instance" "policy" {
 
 Implement a repo-level policy to ensure service accounts can only be used by intended applications:
 
-### Example Usage
-
 ```terraform
 # Creates pg data repository
 resource "cyral_repository" "repo" {
@@ -312,9 +292,3 @@ resource "cyral_rego_policy_instance" "policy" {
   }
 }
 ```
-
-## Next steps
-
-This guide presents a very simple example of Cyral repo-level policy for each one of the pre-built templates.
-Cyral policies have many more capabilities. Check out all parameters that each repo-level policy type supports and use them however you see fit:
-[template_parameters in cyral_rego_policy_instance](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters).
