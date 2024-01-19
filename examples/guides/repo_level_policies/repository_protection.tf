@@ -1,15 +1,17 @@
-# Creates MySQL data repository
-resource "cyral_repository" "repo" {
+# Creates a MySQL data repository named "mysql-1"
+resource "cyral_repository" "mysql1" {
   type = "mysql"
-  name = "my_mysql"
+  name = "mysql-1"
 
   repo_node {
     host = "mysql.cyral.com"
-    port = 5432
+    port = 3306
   }
 }
 
-# create policy instance from template
+# Creates a policy instance from template to limits to 100 the
+# amount of rows that can be updated or deleted per query on
+# all repository data for anyone except group 'Admin'
 resource "cyral_rego_policy_instance" "policy" {
   name        = "repository-protection-policy"
   category    = "SECURITY"
@@ -18,6 +20,6 @@ resource "cyral_rego_policy_instance" "policy" {
   parameters  = "{ \"rowLimit\": 100, \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorDeletes\": true, \"identities\": { \"excluded\": { \"groups\": [\"Admin\"] } }}"
   enabled     = true
   scope {
-    repo_ids = [cyral_repository.repo.id]
+    repo_ids = [cyral_repository.mysql1.id]
   }
 }

@@ -1,7 +1,7 @@
-# Creates MySQL data repository
-resource "cyral_repository" "repo" {
+# Creates a MySQL data repository named "mysql-1"
+resource "cyral_repository" "mysql1" {
   type = "mysql"
-  name = "my_mysql"
+  name = "mysql-1"
 
   repo_node {
     host = "mysql.cyral.com"
@@ -9,16 +9,18 @@ resource "cyral_repository" "repo" {
   }
 }
 
-# create policy instance from template
+# Creates a policy instance from template to filter table
+# 'finance.cards' when users in group 'Marketing' read label
+# CCN, returning only data where finance.cards.country = 'US'
 resource "cyral_rego_policy_instance" "policy" {
   name        = "user-segmentation-policy"
   category    = "SECURITY"
-  description = "Applies a data filter in 'finance.cards' when someone from group 'Marketing' reads data labeled as 'CCN'"
+  description = "Filter table 'finance.cards' when users in group 'Marketing' read label CCN, returning only data where finance.cards.country = 'US'"
   template_id = "user-segmentation"
   parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"includedIdentities\": { \"groups\": [\"Marketing\"] } }"
   enabled     = true
   scope {
-    repo_ids = [cyral_repository.repo.id]
+    repo_ids = [cyral_repository.mysql1.id]
   }
   tags = ["tag1", "tag2"]
 }
