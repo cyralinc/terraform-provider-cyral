@@ -1,0 +1,72 @@
+---
+page_title: "Setup repo-level policy"
+---
+
+Cyral offers several pre-built [repo-level policy types](https://cyral.com/docs/policy/repo-level/).
+In this guide, we provide different examples on how to use them.
+
+Recommended further reading:
+
+* Refer to the [Cyral policies](https://cyral.com/docs/policy/overview/) page in our public
+docs for a complete documentation about the Cyral policy framework.
+* Refer to the [`cyral_rego_policy_instance`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance)
+resource for more details about the [template parameters](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters)
+and how to use the pre-built repo-level policies in Terraform.
+
+## Data Firewall policy
+
+Limit which rows users can read from a table:
+
+{{ tffile "examples/guides/repo_level_policy_data_firewall.tf" }}
+
+## Data Masking policy
+
+Mask fields for specific users:
+
+{{ tffile "examples/guides/repo_level_policy_data_masking.tf" }}
+
+## Data Protection policy
+
+Protect against unauthorized updates:
+
+{{ tffile "examples/guides/repo_level_policy_data_protection.tf" }}
+
+## Dataset Protection policy
+
+-> **Note** The Dataset Protection policy template is only enabled by default in control planes
+`v4.13` and later. If you have a previous version, please reach out to our customer success
+team to enable it.
+
+Restrict access to specific tables or schemas in the data repositories:
+
+{{ tffile "examples/guides/repo_level_policy_dataset_protection.tf" }}
+
+## Rate Limit policy
+
+Set up a threshold on sensitive data reads over time:
+
+{{ tffile "examples/guides/repo_level_policy_rate_limit.tf" }}
+
+## Read Limit policy
+
+Prevent certain records from being read beyond a specified limit:
+
+{{ tffile "examples/guides/repo_level_policy_read_limit.tf" }}
+
+## Repository Protection policy
+
+Alert when more than a specified number of records are updated or deleted:
+
+{{ tffile "examples/guides/repo_level_policy_repository_protection.tf" }}
+
+## Service Account Abuse policy
+
+Ensure service accounts can only be used by intended applications:
+
+{{ tffile "examples/guides/repo_level_policy_service_account_abuse.tf" }}
+
+## User Segmentation policy
+
+Limit which rows a set of users can read from your database:
+
+{{ tffile "examples/guides/repo_level_policy_user_segmentation.tf" }}

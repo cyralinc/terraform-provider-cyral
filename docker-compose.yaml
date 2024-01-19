@@ -2,7 +2,7 @@ version: "3"
 
 services:
   app:
-    image: golang:1.19
+    image: golang:1.21
     container_name: terraform_provider_cyral
     volumes:
       - .:/go/src/terraform-provider-cyral
