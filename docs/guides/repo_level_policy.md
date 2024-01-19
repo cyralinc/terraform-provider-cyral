@@ -5,7 +5,7 @@ page_title: "Setup repo-level policy"
 Cyral offers several pre-built [repo-level policy types](https://cyral.com/docs/policy/repo-level/).
 In this guide, we provide different examples on how to use them.
 
-We recommend further reading for more details:
+Recommended further reading:
 
 - Refer to the [Cyral policies](https://cyral.com/docs/policy/overview/) page in our public
   docs for a complete documentation about the Cyral policy framework.
