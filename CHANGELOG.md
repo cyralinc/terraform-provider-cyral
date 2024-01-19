@@ -1,3 +1,21 @@
+## 4.8.1 (January 18, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.12.0`.
+
+See the list of incompatible attributes, data sources and resources
+with previous `v4` control planes in the [`v4.8.0`](#480-january-3-2024)
+release documentation.
+
+### Documentation:
+
+- Add repo-level policy guide and enhance cyral_rego_policy_instance docs ([#495](https://github.com/cyralinc/terraform-provider-cyral/pull/495))
+- Improve descriptions and file organization for repo-level policy guide ([#496](https://github.com/cyralinc/terraform-provider-cyral/pull/496))
+
 ## 4.8.0 (January 3, 2024)
 
 It is safe to use this version with all `v4` control planes as long
