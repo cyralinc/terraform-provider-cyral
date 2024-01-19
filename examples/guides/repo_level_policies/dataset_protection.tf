@@ -1,7 +1,7 @@
 # Creates pg data repository
-resource "cyral_repository" "repo" {
+resource "cyral_repository" "pg1" {
   type = "postgresql"
-  name = "my_pg"
+  name = "pg-1"
 
   repo_node {
     host = "pg.cyral.com"
@@ -9,15 +9,17 @@ resource "cyral_repository" "repo" {
   }
 }
 
-# create policy instance from template
+# Creates a policy instance from template to raise a 'high' alert
+# and block updates and reads on schema 'finance' and dataset
+# 'cyral.customers'
 resource "cyral_rego_policy_instance" "policy" {
   name        = "dataset-protection"
   category    = "SECURITY"
-  description = "Blocks reads and updates over schema 'finance' and dataset 'cyral.customers'."
+  description = "Raise a 'high' alert and block updates and reads on schema 'finance' and dataset 'cyral.customers'"
   template_id = "dataset-protection"
   parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorReads\": true, \"datasets\": {\"disallowed\": [\"finance.*\", \"cyral.customers\"]}}"
   enabled     = true
   scope {
-    repo_ids = [cyral_repository.repo.id]
+    repo_ids = [cyral_repository.pg1.id]
   }
 }

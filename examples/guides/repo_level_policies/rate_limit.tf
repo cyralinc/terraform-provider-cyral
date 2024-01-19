@@ -1,7 +1,7 @@
 # Creates pg data repository
-resource "cyral_repository" "repo" {
+resource "cyral_repository" "pg1" {
   type = "postgresql"
-  name = "my_pg"
+  name = "pg-1"
 
   repo_node {
     host = "pg.cyral.com"
@@ -9,16 +9,18 @@ resource "cyral_repository" "repo" {
   }
 }
 
-# create policy instance from template
+# Creates a policy instance from template to raise a 'high' alert
+# and set a rate limit of 500 rows per hour for group 'Marketing'
+# and any data labeled as CCN
 resource "cyral_rego_policy_instance" "policy" {
   name        = "rate-limit-policy"
   category    = "SECURITY"
-  description = "Implement a threshold on label CCN for group Marketing of 500 rows per hour"
+  description = "Raise a 'high' alert and set a rate limit of 500 rows per hour for group 'Marketing' and any data labeled as CCN"
   template_id = "rate-limit"
   parameters  = "{ \"rateLimit\": 500, \"block\": true, \"alertSeverity\": \"high\", \"labels\": [\"CCN\"], \"identities\": { \"included\": { \"groups\": [\"Marketing\"] } }}"
   enabled     = true
   scope {
-    repo_ids = [cyral_repository.repo.id]
+    repo_ids = [cyral_repository.pg1.id]
   }
   tags = ["tag1", "tag2"]
 }
