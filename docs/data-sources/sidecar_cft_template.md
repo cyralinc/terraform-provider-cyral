@@ -1,6 +1,6 @@
 # cyral_sidecar_cft_template (Data Source)
 
-~> **DEPRECATED** This data source was deprecated. It will be removed in the next major version of the provider.
+~> **DEPRECATED** This data source was deprecated. It will be removed in the next major version of the provider and no longer works for control planes `v4.13` and later.
 
 ## Example Usage
 
