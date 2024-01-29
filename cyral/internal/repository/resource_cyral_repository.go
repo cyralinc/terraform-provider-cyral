@@ -32,6 +32,7 @@ const (
 	RepoMongoDBReplicaSetNameKey = "replica_set_name"
 	RepoMongoDBServerTypeKey     = "server_type"
 	RepoMongoDBSRVRecordName     = "srv_record_name"
+	RepoMongoDBFlavorKey         = "flavor"
 )
 
 const (
@@ -76,11 +77,25 @@ const (
 	Sharded    = "sharded"
 )
 
+const (
+	MongoDBFlavorMongoDB    = "mongodb"
+	MongoDBFlavorDocumentDB = "documentdb"
+	MongoDBFlavorDefault    = ""
+)
+
 func mongoServerTypes() []string {
 	return []string{
 		ReplicaSet,
 		Standalone,
 		Sharded,
+	}
+}
+
+func mongoFlavors() []string {
+	return []string{
+		MongoDBFlavorMongoDB,
+		MongoDBFlavorDocumentDB,
+		MongoDBFlavorDefault,
 	}
 }
 
@@ -109,6 +124,7 @@ type MongoDBSettings struct {
 	ReplicaSetName string `json:"replicaSetName,omitempty"`
 	ServerType     string `json:"serverType,omitempty"`
 	SRVRecordName  string `json:"srvRecordName,omitempty"`
+	Flavor         string `json:"flavor,omitempty"`
 }
 
 type RepoNode struct {
@@ -466,6 +482,14 @@ func ResourceRepository() *schema.Resource {
 								RepoMongoDBServerTypeKey + "=\"" + ReplicaSet + "\".",
 							Type:     schema.TypeString,
 							Optional: true,
+						},
+						RepoMongoDBFlavorKey: {
+							Description: "The flavor of the MongoDB deployment. Allowed values: " + utils.SupportedValuesAsMarkdown(mongoFlavors()) +
+								"\n\n  The following conditions apply:\n" +
+								"  - The `" + MongoDBFlavorDocumentDB + "` flavor cannot be combined with the MongoDB Server type `" + Sharded + "`.\n",
+							Type:         schema.TypeString,
+							Required:     false,
+							ValidateFunc: validation.StringInSlice(mongoFlavors(), false),
 						},
 					},
 				},
