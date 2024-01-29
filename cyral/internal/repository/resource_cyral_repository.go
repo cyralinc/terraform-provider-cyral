@@ -80,7 +80,6 @@ const (
 const (
 	MongoDBFlavorMongoDB    = "mongodb"
 	MongoDBFlavorDocumentDB = "documentdb"
-	MongoDBFlavorDefault    = ""
 )
 
 func mongoServerTypes() []string {
@@ -95,7 +94,6 @@ func mongoFlavors() []string {
 	return []string{
 		MongoDBFlavorMongoDB,
 		MongoDBFlavorDocumentDB,
-		MongoDBFlavorDefault,
 	}
 }
 
@@ -253,6 +251,7 @@ func (r *RepoInfo) MongoDBSettingsAsInterface() []interface{} {
 		RepoMongoDBReplicaSetNameKey: r.MongoDBSettings.ReplicaSetName,
 		RepoMongoDBServerTypeKey:     r.MongoDBSettings.ServerType,
 		RepoMongoDBSRVRecordName:     r.MongoDBSettings.SRVRecordName,
+		RepoMongoDBFlavorKey:         r.MongoDBSettings.Flavor,
 	}}
 }
 
@@ -263,6 +262,7 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 	var replicaSetName = i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string)
 	var serverType = i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string)
 	var srvRecordName = i[0].(map[string]interface{})[RepoMongoDBSRVRecordName].(string)
+	var mongoFlavor = i[0].(map[string]interface{})[RepoMongoDBFlavorKey].(string)
 	if serverType == ReplicaSet && replicaSetName == "" {
 		return fmt.Errorf("'%s' must be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
 			RepoMongoDBServerTypeKey, ReplicaSet)
@@ -279,10 +279,18 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 			Standalone,
 		)
 	}
+	if serverType == Sharded && mongoFlavor == MongoDBFlavorDocumentDB {
+		return fmt.Errorf(
+			"%q MongoDB flavor cannot be combined with server type: %q. For configuring "+
+				"DocumentDB Elastic clusters, please use the %s server type",
+			MongoDBFlavorDocumentDB, Sharded, Standalone,
+		)
+	}
 	r.MongoDBSettings = &MongoDBSettings{
 		ReplicaSetName: i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string),
 		ServerType:     i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string),
 		SRVRecordName:  i[0].(map[string]interface{})[RepoMongoDBSRVRecordName].(string),
+		Flavor:         i[0].(map[string]interface{})[RepoMongoDBFlavorKey].(string),
 	}
 	return nil
 }
@@ -488,7 +496,7 @@ func ResourceRepository() *schema.Resource {
 								"\n\n  The following conditions apply:\n" +
 								"  - The `" + MongoDBFlavorDocumentDB + "` flavor cannot be combined with the MongoDB Server type `" + Sharded + "`.\n",
 							Type:         schema.TypeString,
-							Required:     false,
+							Optional:     true,
 							ValidateFunc: validation.StringInSlice(mongoFlavors(), false),
 						},
 					},
