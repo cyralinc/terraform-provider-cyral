@@ -262,7 +262,6 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 	var replicaSetName = i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string)
 	var serverType = i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string)
 	var srvRecordName = i[0].(map[string]interface{})[RepoMongoDBSRVRecordName].(string)
-	var mongoFlavor = i[0].(map[string]interface{})[RepoMongoDBFlavorKey].(string)
 	if serverType == ReplicaSet && replicaSetName == "" {
 		return fmt.Errorf("'%s' must be provided when '%s=\"%s\"'", RepoMongoDBReplicaSetNameKey,
 			RepoMongoDBServerTypeKey, ReplicaSet)
@@ -277,13 +276,6 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 			RepoMongoDBSRVRecordName,
 			RepoMongoDBServerTypeKey,
 			Standalone,
-		)
-	}
-	if serverType == Sharded && mongoFlavor == MongoDBFlavorDocumentDB {
-		return fmt.Errorf(
-			"%q MongoDB flavor cannot be combined with server type: %q. For configuring "+
-				"DocumentDB Elastic clusters, please use the %s server type",
-			MongoDBFlavorDocumentDB, Sharded, Standalone,
 		)
 	}
 	r.MongoDBSettings = &MongoDBSettings{
