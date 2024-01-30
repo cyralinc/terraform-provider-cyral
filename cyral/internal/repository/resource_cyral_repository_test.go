@@ -115,6 +115,7 @@ var (
 		MongoDBSettings: &repository.MongoDBSettings{
 			ReplicaSetName: "some-replica-set",
 			ServerType:     repository.ReplicaSet,
+			Flavor:         "mongodb",
 		},
 	}
 
@@ -136,6 +137,7 @@ var (
 			ReplicaSetName: "myReplicaSet",
 			ServerType:     "replicaset",
 			SRVRecordName:  "mySRVRecord",
+			Flavor:         "documentdb",
 		},
 	}
 )
@@ -234,6 +236,13 @@ func repoCheckFuctions(repo repository.RepoInfo, resName string) resource.TestCh
 				resource.TestCheckResourceAttr(resourceFullName,
 					"mongodb_settings.0.replica_set_name",
 					repo.MongoDBSettings.ReplicaSetName),
+			}...)
+		}
+		if repo.MongoDBSettings.Flavor != "" {
+			checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+				resource.TestCheckResourceAttr(resourceFullName,
+					"mongodb_settings.0.flavor",
+					repo.MongoDBSettings.Flavor),
 			}...)
 		}
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
