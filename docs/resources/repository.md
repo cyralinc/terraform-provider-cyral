@@ -164,5 +164,14 @@ Required:
 
 Optional:
 
+- `flavor` (String) The flavor of the MongoDB deployment. Allowed values:
+
+  - `mongodb`
+  - `documentdb`
+
+  The following conditions apply:
+
+  - The `documentdb` flavor cannot be combined with the MongoDB Server type `sharded`.
+
 - `replica_set_name` (String) Name of the replica set, if applicable.
 - `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. If specified, then all `repo_node` blocks must be declared dynamic (see [`dynamic`](#dynamic)). Only supported for `server_type="sharded"` or `server_type="replicaset".

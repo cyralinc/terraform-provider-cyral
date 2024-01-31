@@ -32,6 +32,7 @@ const (
 	RepoMongoDBReplicaSetNameKey = "replica_set_name"
 	RepoMongoDBServerTypeKey     = "server_type"
 	RepoMongoDBSRVRecordName     = "srv_record_name"
+	RepoMongoDBFlavorKey         = "flavor"
 )
 
 const (
@@ -76,11 +77,23 @@ const (
 	Sharded    = "sharded"
 )
 
+const (
+	MongoDBFlavorMongoDB    = "mongodb"
+	MongoDBFlavorDocumentDB = "documentdb"
+)
+
 func mongoServerTypes() []string {
 	return []string{
 		ReplicaSet,
 		Standalone,
 		Sharded,
+	}
+}
+
+func mongoFlavors() []string {
+	return []string{
+		MongoDBFlavorMongoDB,
+		MongoDBFlavorDocumentDB,
 	}
 }
 
@@ -109,6 +122,7 @@ type MongoDBSettings struct {
 	ReplicaSetName string `json:"replicaSetName,omitempty"`
 	ServerType     string `json:"serverType,omitempty"`
 	SRVRecordName  string `json:"srvRecordName,omitempty"`
+	Flavor         string `json:"flavor,omitempty"`
 }
 
 type RepoNode struct {
@@ -237,6 +251,7 @@ func (r *RepoInfo) MongoDBSettingsAsInterface() []interface{} {
 		RepoMongoDBReplicaSetNameKey: r.MongoDBSettings.ReplicaSetName,
 		RepoMongoDBServerTypeKey:     r.MongoDBSettings.ServerType,
 		RepoMongoDBSRVRecordName:     r.MongoDBSettings.SRVRecordName,
+		RepoMongoDBFlavorKey:         r.MongoDBSettings.Flavor,
 	}}
 }
 
@@ -267,6 +282,7 @@ func (r *RepoInfo) MongoDBSettingsFromInterface(i []interface{}) error {
 		ReplicaSetName: i[0].(map[string]interface{})[RepoMongoDBReplicaSetNameKey].(string),
 		ServerType:     i[0].(map[string]interface{})[RepoMongoDBServerTypeKey].(string),
 		SRVRecordName:  i[0].(map[string]interface{})[RepoMongoDBSRVRecordName].(string),
+		Flavor:         i[0].(map[string]interface{})[RepoMongoDBFlavorKey].(string),
 	}
 	return nil
 }
@@ -466,6 +482,14 @@ func ResourceRepository() *schema.Resource {
 								RepoMongoDBServerTypeKey + "=\"" + ReplicaSet + "\".",
 							Type:     schema.TypeString,
 							Optional: true,
+						},
+						RepoMongoDBFlavorKey: {
+							Description: "The flavor of the MongoDB deployment. Allowed values: " + utils.SupportedValuesAsMarkdown(mongoFlavors()) +
+								"\n\n  The following conditions apply:\n" +
+								"  - The `" + MongoDBFlavorDocumentDB + "` flavor cannot be combined with the MongoDB Server type `" + Sharded + "`.\n",
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice(mongoFlavors(), false),
 						},
 					},
 				},

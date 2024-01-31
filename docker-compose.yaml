@@ -4,6 +4,8 @@ services:
   app:
     image: golang:1.21
     container_name: terraform_provider_cyral
+    environment:
+      - GOFLAGS=-buildvcs=false
     volumes:
       - .:/go/src/terraform-provider-cyral
     working_dir: /go/src/terraform-provider-cyral
