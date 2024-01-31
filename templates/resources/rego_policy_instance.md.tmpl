@@ -94,18 +94,6 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 - `includedIdentities` (Object) Identities that cannot see restricted records. See [identityList](#objects--identityList).
 - `includedDbAccounts` (Array) Database accounts cannot see restricted records.
 
-### Dataset Protection (dataset-protection)
-
-- `block` (Boolean) Policy action to enforce.
-- `monitorReads` (Boolean) Monitor read operations.
-- `monitorUpdates` (Boolean) Monitor update operations.
-- `monitorDeletes` (Boolean) Monitor delete operations.
-- `tags` (Array) Tags.
-- `datasets` (Object) Datasets associated to the policy. See [datasets](#objects--datasets).
-- `identities` (Object) Identities associated to the policy. If empty, the policy will be associated to all identities. See [identities](#objects--identities).
-- `dbAccounts` (Object) Database Accounts associated to the policy. If empty, the policy will be associated to any database account. See [dbAccounts](#objects--dbAccounts).
-- `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
-
 <a id="parameter-objects"></a>
 ### Objects
 <a id="objects--identities"></a>
@@ -116,10 +104,6 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 - `dbAccounts` (Object) Database Accounts. See properties below:
   - `included` (Array) Included Database Accounts.
   - `excluded` (Array) Excluded Database Accounts.
-<a id="objects--datasets"></a>
-- `datasets` (Object) Datasets. See properties below:
-  - `allowed` (Array) Datasets allowed by the policy. Accepts wildcards such as `cyral.*`
-  - `disallowed` (Array) Datasets disallowed by the policy. Accepts wildcards such as `cyral.*`
 <a id="objects--identityList"></a>
 - `identityList` (Object) Identity List. See properties below:
   - `userNames` (Array) Identity Emails.

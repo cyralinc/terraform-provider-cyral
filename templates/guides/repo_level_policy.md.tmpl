@@ -31,16 +31,6 @@ Protect against unauthorized updates:
 
 {{ tffile "examples/guides/repo_level_policies/data_protection.tf" }}
 
-## Example: dataset protection
-
--> **Note** The Dataset Protection policy template is only enabled by default in control planes
-`v4.13` and later. If you have a previous version, please reach out to our customer success
-team to enable it.
-
-Restrict access to specific tables or schemas in the data repositories:
-
-{{ tffile "examples/guides/repo_level_policies/dataset_protection.tf" }}
-
 ## Example: rate limit
 
 Set up a threshold on sensitive data reads over time:
