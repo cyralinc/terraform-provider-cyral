@@ -1,3 +1,71 @@
+## 4.9.0 (January 31, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.12`.
+
+Argument incompatible with control planes previous to `v4.12`:
+
+- `cyral_repository.mongodb_settings.flavor`
+
+Resource incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Data source incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Arguments incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_logging.skip_validate`
+
+Resource incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_aws_iam`
+
+Data sources incompatible with control planes previous to `v4.10`:
+
+- `cyral_sidecar_health`
+- `cyral_sidecar_instance_stats`
+- `cyral_system_info`
+
+Arguments incompatible with control planes previous to `v4.8`:
+
+- `cyral_sidecar.activity_log_integration_id`
+- `cyral_sidecar.diagnostic_log_integration_id`
+
+Resource incompatible with control planes previous to `v4.7`:
+
+- `cyral_integration_logging`
+
+Argument incompatible with control planes previous to `v4.2`:
+
+- `cyral_repository.mongodb_settings.srv_record_name`
+
+See the list of incompatible attributes, data sources and resources
+with previous `v4` control planes in the [`v4.8.0`](#480-january-3-2024)
+release documentation.
+
+### Bug fixes:
+
+- Update CFT template data source info and disable tests ([#500](https://github.com/cyralinc/terraform-provider-cyral/pull/500))
+
+### Features:
+
+- ENG-13251: Add optional MongoDBSettings 'flavor' field to repository resource ([#503](https://github.com/cyralinc/terraform-provider-cyral/pull/503))
+
+### Improvements:
+
+- Bump github.com/google/uuid from 1.5.0 to 1.6.0 ([#497](https://github.com/cyralinc/terraform-provider-cyral/pull/497))
+- Bump github.com/hashicorp/terraform-plugin-docs from 0.16.0 to 0.18.0 ([#498](https://github.com/cyralinc/terraform-provider-cyral/pull/498))
+- Bump hashicorp/terraform from 1.3.9 to 1.7.1 ([#499](https://github.com/cyralinc/terraform-provider-cyral/pull/499))
+- Bump alpine from 3.18.5 to 3.19.1 ([#502](https://github.com/cyralinc/terraform-provider-cyral/pull/502))
+- Bump github.com/hashicorp/terraform-plugin-sdk/v2 from 2.31.0 to 2.32.0 ([#504](https://github.com/cyralinc/terraform-provider-cyral/pull/504))
+
 ## 4.8.1 (January 18, 2024)
 
 It is safe to use this version with all `v4` control planes as long
