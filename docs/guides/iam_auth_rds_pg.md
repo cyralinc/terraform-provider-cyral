@@ -1,3 +1,32 @@
+---
+page_title: "Authentication from sidecar to RDS using an AWS IAM role"
+---
+
+-> **Note** This guide assumes you have an RDS PG instance that is
+reachable from the subnets the sidecar will be deployed to. Make
+sure you create the user in the database that corresponds to the role
+created in this example and grant the `rds_iam` permission as shown
+in the following command:
+
+```
+CREATE USER "arn:aws:iam::<YOUR_AWS_ACCOUNT_NUM>:role/my-sidecar_rds_access_role";
+GRANT rds_iam TO "arn:aws:iam::<YOUR_AWS_ACCOUNT_NUM>:role/my-sidecar_rds_access_role";
+```
+
+Use this guide to create the minimum required configuration in both Cyral
+Control Plane and your AWS account to deploy a Cyral Sidecar to AWS EC2
+to protect your RDS instance using an IAM role to allow the sidecar to
+connect to your database.
+
+By running this example you will have a fully functional sidecar on your AWS
+account. Read the comments and update the necessary parameters as instructed.
+
+See the [Cyral Sidecar module for AWS EC2](https://registry.terraform.io/modules/cyralinc/sidecar-ec2/aws/latest)
+for more details on how the sidecar is deployed to AWS and more advanced configurations.
+
+See also the official AWS documentation on [IAM database authentication](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html).
+
+```terraform
 terraform {
   required_providers {
     cyral = {
@@ -11,24 +40,22 @@ locals {
   # Replace [TENANT] by your tenant name. Ex: mycompany.app.cyral.com
   control_plane_host = "[TENANT].app.cyral.com"
 
-  # Use the name of the IdP that will be used to access the S3 Browser
+  # Use the name of the IdP that will be used to access the RDS instance
   idp = {
     name = "<IDP_NAME_AS_SHOWN_IN_THE_UI>"
   }
 
   repos = {
-    s3 = {
-      # These are the ports the sidecar will accept connections
-      # for S3 browser and S3 CLI
-      browser_port = 443
-      cli_port = 453
+    pg = {
+      host = "<RDS_INSTANCE_ADDRESS>"
+      port = 5432
     }
   }
 
   sidecar = {
     # Set to true if you want a sidecar deployed with an
     # internet-facing load balancer (requires a public subnet).
-    public_sidecar = true
+    public_sidecar = false
 
     # Set the AWS region that the sidecar will be deployed to
     region = ""
@@ -48,13 +75,10 @@ locals {
     # sidecar
     monitoring_inbound_cidr = ["0.0.0.0/0"]
 
-    # Set the ARN for the certificate that will be used by the load balancer
-    # for S3 Browser connections
-    load_balancer_certificate_arn = ""
-    # Set the hosted zone ID that will be used to create the DNS name in
-    # parameter `dns_name`
+    # Optionally set the hosted zone ID that will be used to create the
+    # DNS name in parameter `dns_name`
     dns_hosted_zone_id = ""
-    # Set the DNS name that will be used by your sidecar. Ex:
+    # Optionally set the DNS name that will be used by your sidecar. Ex:
     # sidecar.mycompany.com
     dns_name = ""
   }
@@ -96,46 +120,29 @@ resource "cyral_sidecar_credentials" "sidecar_credentials" {
   sidecar_id = cyral_sidecar.sidecar.id
 }
 
-resource "cyral_repository" "s3" {
-  name = "s3repo"
-  type = "s3"
+resource "cyral_repository" "pg" {
+  name = "pgRepo"
+  type = "postgresql"
 
   repo_node {
-    host = "s3.amazonaws.com"
-    port = 443
+    host = local.repos.pg.host
+    port = local.repos.pg.port
   }
 }
 
-resource "cyral_sidecar_listener" "s3_cli" {
+resource "cyral_sidecar_listener" "pg" {
   sidecar_id = cyral_sidecar.sidecar.id
-  repo_types = ["s3"]
+  repo_types = ["postgresql"]
   network_address {
-    port = local.repos.s3.cli_port
-  }
-  s3_settings {
-    proxy_mode = true
+    port = local.repos.pg.port
   }
 }
 
-resource "cyral_sidecar_listener" "s3_browser" {
-  sidecar_id = cyral_sidecar.sidecar.id
-  repo_types = ["s3"]
-  network_address {
-    port = local.repos.s3.browser_port
-  }
-  s3_settings {
-    proxy_mode = false
-  }
-}
-
-resource "cyral_repository_binding" "s3" {
+resource "cyral_repository_binding" "pg" {
   sidecar_id    = cyral_sidecar.sidecar.id
-  repository_id = cyral_repository.s3.id
+  repository_id = cyral_repository.pg.id
   listener_binding {
-    listener_id = cyral_sidecar_listener.s3_cli.listener_id
-  }
-  listener_binding {
-    listener_id = cyral_sidecar_listener.s3_browser.listener_id
+    listener_id = cyral_sidecar_listener.pg.listener_id
   }
 }
 
@@ -145,41 +152,46 @@ data "cyral_integration_idp_saml" "saml" {
 
 # Let users from the provided `identity_provider` use SSO
 # to access the database
-resource "cyral_repository_conf_auth" "s3" {
-  repository_id     = cyral_repository.s3.id
+resource "cyral_repository_conf_auth" "pg" {
+  repository_id = cyral_repository.pg.id
+
+  client_tls = "enable"
+  repo_tls   = "enable"
+
   identity_provider = data.cyral_integration_idp_saml.saml.idp_list[0].id
 }
 
 # Enables the access portal for this repository in the
 # especified sidecar
-resource "cyral_repository_access_gateway" "s3" {
-  repository_id = cyral_repository.s3.id
+resource "cyral_repository_access_gateway" "pg" {
+  repository_id = cyral_repository.pg.id
   sidecar_id    = cyral_sidecar.sidecar.id
-  binding_id    = cyral_repository_binding.s3.binding_id
+  binding_id    = cyral_repository_binding.pg.binding_id
 }
 
 ###########################################################################
 # Creates an IAM policy that the sidecar will assume in order to access
-# your S3 bucket. In this example, the policy attached to the role will
-# let the sidecar access all buckets.
+# the RDS instance. In this example, the policy attached to the role will
+# let the sidecar connect to all databases in all available accounts and
+# regions.
 #
 # This should NOT be used in production. Refer to the AWS documentation
-# for guidance on how to restrict to the buckets you plan to protect.
+# for guidance on how to restrict to the database you plan to protect.
 #
-data "aws_iam_policy_document" "s3_access_policy" {
+data "aws_iam_policy_document" "rds_access_policy" {
   statement {
-    actions   = ["s3:*"]
+    actions   = ["rds-db:connect"]
     resources = [
-      "arn:aws:s3:::*"
+      "*"
     ]
   }
 }
 
-resource "aws_iam_policy" "s3_access_policy" {
-  name        = "sidecar_s3_access_policy"
+resource "aws_iam_policy" "rds_access_policy" {
+  name        = "my-sidecar_access_policy"
   path        = "/"
-  description = "Allow sidecar to access S3"
-  policy      = data.aws_iam_policy_document.s3_access_policy.json
+  description = "Allow sidecar to connect to all RDS instances"
+  policy      = data.aws_iam_policy_document.rds_access_policy.json
 }
 
 data "aws_iam_policy_document" "sidecar_trust_policy" {
@@ -193,33 +205,35 @@ data "aws_iam_policy_document" "sidecar_trust_policy" {
   }
 }
 
-resource "aws_iam_role" "s3_role" {
-  name               = "sidecar_s3_access_role"
+resource "aws_iam_role" "rds_role" {
+  name               = "my-sidecar_rds_access_role"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.sidecar_trust_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "s3_role_policy_attachment" {
-  role       = aws_iam_role.s3_role.name
-  policy_arn = aws_iam_policy.s3_access_policy.arn
+resource "aws_iam_role_policy_attachment" "rds_role_policy_attachment" {
+  role       = aws_iam_role.rds_role.name
+  policy_arn = aws_iam_policy.rds_access_policy.arn
 }
 ###########################################################################
 
-resource "cyral_repository_user_account" "s3_repo_user_account" {
-  name = aws_iam_role.s3_role.arn
-  repository_id = cyral_repository.s3.id
+resource "cyral_repository_user_account" "pg_repo_user_account" {
+  # You may opt for a better name here as this is the name that will
+  # be shown in the UI
+  name = "my-sidecar_rds_access_role"
+  repository_id = cyral_repository.pg.id
   auth_scheme {
     aws_iam {
-      role_arn = aws_iam_role.s3_role.arn
+      role_arn = aws_iam_role.rds_role.arn
     }
   }
 }
 
 # Set the proper identity for the username, email or group that will
-# be allowed to access the S3 browser
+# be allowed to access the PG database using SSO
 resource "cyral_repository_access_rules" "access_rule" {
-  repository_id = cyral_repository.s3.id
-  user_account_id = cyral_repository_user_account.s3_repo_user_account.user_account_id
+  repository_id = cyral_repository.pg.id
+  user_account_id = cyral_repository_user_account.pg_repo_user_account.user_account_id
   rule {
     identity {
       type = "email"
@@ -239,7 +253,7 @@ module "cyral_sidecar" {
   client_id     = cyral_sidecar_credentials.sidecar_credentials.client_id
   client_secret = cyral_sidecar_credentials.sidecar_credentials.client_secret
 
-  sidecar_ports = [local.repos.s3.browser_port, local.repos.s3.cli_port]
+  sidecar_ports = [local.repos.pg.port]
 
   vpc_id  = local.sidecar.vpc_id
   subnets = local.sidecar.subnets
@@ -251,12 +265,6 @@ module "cyral_sidecar" {
   load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
   associate_public_ip_address = local.sidecar.public_sidecar
 
-
-  load_balancer_certificate_arn = local.sidecar.load_balancer_certificate_arn
-  load_balancer_tls_ports       = [
-    local.repos.s3.browser_port
-  ]
-
   sidecar_dns_hosted_zone_id = local.sidecar.dns_hosted_zone_id
   sidecar_dns_name           = local.sidecar.dns_name
 }
@@ -264,3 +272,4 @@ module "cyral_sidecar" {
 output "sidecar_load_balancer_dns" {
   value = module.cyral_sidecar.sidecar_load_balancer_dns
 }
+```

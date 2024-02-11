@@ -50,11 +50,6 @@ locals {
     # internet-facing load balancer (requires a public subnet).
     public_sidecar = true
 
-    # Set the desired sidecar version or leave it empty if
-    # you prefer to control the version from the control plane
-    # (later only possible in CPs >=v4.10).
-    sidecar_version = "v4.10.1"
-
     # Set the AWS region that the sidecar will be deployed to
     region = ""
     # Set the ID of VPC that the sidecar will be deployed to
@@ -165,7 +160,7 @@ resource "cyral_repository_binding" "s3" {
 }
 
 data "cyral_integration_idp_saml" "saml" {
-    display_name = local.idp.name
+  display_name = local.idp.name
 }
 
 # Let users from the provided `identity_provider` use SSO
@@ -187,7 +182,10 @@ resource "cyral_repository_access_gateway" "s3" {
 # Creates an IAM policy that the sidecar will assume in order to access
 # your S3 bucket. In this example, the policy attached to the role will
 # let the sidecar access all buckets.
-
+#
+# This should NOT be used in production. Refer to the AWS documentation
+# for guidance on how to restrict to the buckets you plan to protect.
+#
 data "aws_iam_policy_document" "s3_access_policy" {
   statement {
     actions   = ["s3:*"]
@@ -255,8 +253,6 @@ module "cyral_sidecar" {
 
   # Use the module version that is compatible with your sidecar.
   version = "~> 4.3"
-
-  sidecar_version = local.sidecar.sidecar_version
 
   sidecar_id = cyral_sidecar.sidecar.id
   control_plane = local.control_plane_host

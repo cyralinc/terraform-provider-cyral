@@ -1,0 +1,29 @@
+---
+page_title: "Authentication from sidecar to RDS using an AWS IAM role"
+---
+
+-> **Note** This guide assumes you have an RDS PG instance that is
+reachable from the subnets the sidecar will be deployed to. Make
+sure you create the user in the database that corresponds to the role
+created in this example and grant the `rds_iam` permission as shown
+in the following command:
+
+```
+CREATE USER "arn:aws:iam::<YOUR_AWS_ACCOUNT_NUM>:role/my-sidecar_rds_access_role";
+GRANT rds_iam TO "arn:aws:iam::<YOUR_AWS_ACCOUNT_NUM>:role/my-sidecar_rds_access_role";
+```
+
+Use this guide to create the minimum required configuration in both Cyral
+Control Plane and your AWS account to deploy a Cyral Sidecar to AWS EC2
+to protect your RDS instance using an IAM role to allow the sidecar to
+connect to your database.
+
+By running this example you will have a fully functional sidecar on your AWS
+account. Read the comments and update the necessary parameters as instructed.
+
+See the [Cyral Sidecar module for AWS EC2](https://registry.terraform.io/modules/cyralinc/sidecar-ec2/aws/latest)
+for more details on how the sidecar is deployed to AWS and more advanced configurations.
+
+See also the official AWS documentation on [IAM database authentication](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html).
+
+{{ tffile "examples/guides/iam_auth_rds_pg.tf" }}
