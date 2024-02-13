@@ -9,8 +9,8 @@ created in this example and grant the `rds_iam` permission as shown
 in the following command:
 
 ```
-CREATE USER "arn:aws:iam::<YOUR_AWS_ACCOUNT_NUM>:role/my-sidecar_rds_access_role";
-GRANT rds_iam TO "arn:aws:iam::<YOUR_AWS_ACCOUNT_NUM>:role/my-sidecar_rds_access_role";
+CREATE USER "arn:aws:iam::YOUR_AWS_ACCOUNT_NUM:role/my-sidecar_rds_access_role";
+GRANT rds_iam TO "arn:aws:iam::YOUR_AWS_ACCOUNT_NUM:role/my-sidecar_rds_access_role";
 ```
 
 Use this guide to create the minimum required configuration in both Cyral
