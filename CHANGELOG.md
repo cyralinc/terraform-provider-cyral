@@ -1,3 +1,29 @@
+## 4.9.1 (February 14, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.12.0`.
+
+See the list of incompatible attributes, data sources and resources
+with previous `v4` control planes in the [`v4.9.0`](#490-january-31-2024)
+release documentation.
+
+### Bug fixes:
+
+- Add missing mongodb flavor configuration ([#509](https://github.com/cyralinc/terraform-provider-cyral/pull/509))
+
+### Documentation:
+
+- Rollback operations supported by datasetprotection policy ([#501](https://github.com/cyralinc/terraform-provider-cyral/pull/501))
+- Add AWS RDS IAM auth guide ([#508](https://github.com/cyralinc/terraform-provider-cyral/pull/508))
+
+### Improvements:
+
+- Bump golang.org/x/oauth2 from 0.16.0 to 0.17.0 ([#507](https://github.com/cyralinc/terraform-provider-cyral/pull/507))
+
 ## 4.9.0 (January 31, 2024)
 
 It is safe to use this version with all `v4` control planes as long
