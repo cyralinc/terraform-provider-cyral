@@ -179,12 +179,17 @@ func DataSourceRepository() *schema.Resource {
 										Computed:    true,
 									},
 									RepoMongoDBServerTypeKey: {
-										Description: "Type of the MongoDB server. Allowed values: " + utils.SupportedValuesAsMarkdown(mongoServerTypes()),
+										Description: "Type of the MongoDB server.",
 										Type:        schema.TypeString,
 										Computed:    true,
 									},
 									RepoMongoDBSRVRecordName: {
-										Description: "Name of a DNS SRV record which contains cluster topology details",
+										Description: "Name of a DNS SRV record which contains cluster topology details.",
+										Type:        schema.TypeString,
+										Optional:    true,
+									},
+									RepoMongoDBFlavorKey: {
+										Description: "The flavor of the MongoDB deployment.",
 										Type:        schema.TypeString,
 										Optional:    true,
 									},
