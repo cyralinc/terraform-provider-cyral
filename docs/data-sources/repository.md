@@ -127,6 +127,7 @@ Read-Only:
 
 Read-Only:
 
+- `flavor` (String)
 - `replica_set_name` (String)
 - `server_type` (String)
 - `srv_record_name` (String)

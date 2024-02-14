@@ -280,6 +280,7 @@ func repoAsConfig(repo repository.RepoInfo, resName string) string {
 		replicaSet := "null"
 		serverType := "null"
 		srvRecordName := "null"
+		flavor := "null"
 		if repo.MongoDBSettings.ReplicaSetName != "" {
 			replicaSet = fmt.Sprintf(`"%s"`, repo.MongoDBSettings.ReplicaSetName)
 		}
@@ -289,15 +290,20 @@ func repoAsConfig(repo repository.RepoInfo, resName string) string {
 		if repo.MongoDBSettings.SRVRecordName != "" {
 			srvRecordName = fmt.Sprintf(`"%s"`, repo.MongoDBSettings.SRVRecordName)
 		}
+		if repo.MongoDBSettings.Flavor != "" {
+			flavor = fmt.Sprintf(`"%s"`, repo.MongoDBSettings.Flavor)
+		}
 		config += fmt.Sprintf(`
 		mongodb_settings {
 			replica_set_name = %s
 			server_type = %s
 			srv_record_name = %s
+			flavor = %s
 		}`,
 			replicaSet,
 			serverType,
 			srvRecordName,
+			flavor,
 		)
 	}
 
