@@ -4,13 +4,13 @@ page_title: "Authentication from sidecar to RDS using an AWS IAM role"
 
 -> **Note** This guide assumes you have an RDS PG instance that is
 reachable from the subnets the sidecar will be deployed to. Make
-sure you create the user in the database that corresponds to the role
-created in this example and grant the `rds_iam` permission as shown
-in the following command:
+sure you create the user in the database that corresponds to the name of
+the role created in this example and grant the `rds_iam` permission as
+shown in the following command:
 
 ```
-CREATE USER "arn:aws:iam::YOUR_AWS_ACCOUNT_NUM:role/my-sidecar_rds_access_role";
-GRANT rds_iam TO "arn:aws:iam::YOUR_AWS_ACCOUNT_NUM:role/my-sidecar_rds_access_role";
+CREATE USER "my-sidecar_rds_access_role";
+GRANT rds_iam TO "my-sidecar_rds_access_role";
 ```
 
 Use this guide to create the minimum required configuration in both Cyral
