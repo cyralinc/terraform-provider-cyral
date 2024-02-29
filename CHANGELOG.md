@@ -1,3 +1,20 @@
+## 4.9.2 (February 28, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.12.0`.
+
+See the list of incompatible attributes, data sources and resources
+with previous `v4` control planes in the [`v4.9.0`](#490-january-31-2024)
+release documentation.
+
+### Documentation:
+
+- Fix role name in RDS IAM required permissions ([#513](https://github.com/cyralinc/terraform-provider-cyral/pull/513))
+
 ## 4.9.1 (February 14, 2024)
 
 It is safe to use this version with all `v4` control planes as long
