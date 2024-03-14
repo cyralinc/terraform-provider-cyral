@@ -7,7 +7,7 @@ Manages a logging integration that can be used to push logs from Cyral to the co
 ## Example Usage
 
 See the list of all the supported logging integrations in the resource schema.
-Refer to [public docs](https://cyral.com/docs/integrations/siem/).
+Refer to our [public docs](https://cyral.com/docs/integrations/siem/) for more information.
 
 ```terraform
 # Configures `my-sidecar-cloudwatch` to push logs to CloudWatch to a log
