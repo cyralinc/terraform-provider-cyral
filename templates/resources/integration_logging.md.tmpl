@@ -2,10 +2,12 @@
 
 {{ .Description | trimspace }}
 
+-> Import ID syntax is `{logging_integration_id}`.
+
 ## Example Usage
 
 See the list of all the supported logging integrations in the resource schema.
-More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview).
+Refer to [public docs](https://cyral.com/docs/integrations/siem/).
 
 {{ tffile "examples/resources/cyral_integration_logging/cloudwatch.tf" }}
 

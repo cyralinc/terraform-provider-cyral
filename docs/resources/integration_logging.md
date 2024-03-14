@@ -2,10 +2,12 @@
 
 Manages a logging integration that can be used to push logs from Cyral to the corresponding logging system (E.g.: AWS CloudWatch, Splunk, SumoLogic, etc).
 
+-> Import ID syntax is `{logging_integration_id}`.
+
 ## Example Usage
 
 See the list of all the supported logging integrations in the resource schema.
-More information can be found in our [public docs](https://cyral.com/docs/v4.7/integrations/siem/overview).
+Refer to [public docs](https://cyral.com/docs/integrations/siem/).
 
 ```terraform
 # Configures `my-sidecar-cloudwatch` to push logs to CloudWatch to a log

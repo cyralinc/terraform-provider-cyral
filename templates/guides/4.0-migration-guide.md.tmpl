@@ -23,9 +23,9 @@ Terraform state and configuration files.
 
 ## Resource changes
 
-Cyral Terraform Provider v4 introduces [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar.
+Cyral Terraform Provider v4 introduces [Smart Ports](https://cyral.com/docs/sidecars/manage/bind-repo#smart-ports), which let you configure multiple data repositories behind a single network port in the Cyral sidecar.
 
-With the introduction of [Smart Ports](https://cyral.com/docs/v4.0/sidecars/sidecar-bind-repo/#smart-ports), it is now possible to define multiple listener configurations for a single sidecar. This feature required some breaking changes to the schema of [`cyral_repository`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository) and [`cyral_repository_binding`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding) while also adding new resources. Here is the summary of the changes:
+With the introduction of [Smart Ports](https://cyral.com/docs/sidecars/manage/bind-repo#smart-ports), it is now possible to define multiple listener configurations for a single sidecar. This feature required some breaking changes to the schema of [`cyral_repository`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository) and [`cyral_repository_binding`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_binding) while also adding new resources. Here is the summary of the changes:
 
   * New resources named [`cyral_sidecar_listener`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/sidecar_listener) and [`cyral_repository_access_gateway`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/repository_access_gateway) were introduced.
   * Argument `cyral_repository.host` was moved to `cyral_repository.repo_node.host`.
