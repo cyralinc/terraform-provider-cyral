@@ -4,7 +4,7 @@ page_title: "Using smart ports"
 
 Use this guide to create the minimum required configuration in both Cyral
 Control Plane and your AWS account to deploy a Cyral Sidecar to AWS EC2
-using a single [Smart Port](https://cyral.com/docs/v4.7/sidecars/sidecar-bind-repo/#smart-ports)
+using a single [Smart Port](https://cyral.com/docs/sidecars/manage/bind-repo#smart-ports)
 to bind both databases to the sidecar.
 
 By running this example you will have a fully functional sidecar on your AWS
@@ -13,7 +13,7 @@ account. Read the comments and update the necessary parameters as instructed.
 See also the [Cyral Sidecar module for AWS EC2](https://registry.terraform.io/modules/cyralinc/sidecar-ec2/aws/latest)
 for more details on how the sidecar is deployed to AWS and more advanced configurations.
 
-See also the [Smart Ports](https://cyral.com/docs/v4.7/sidecars/sidecar-bind-repo/#smart-ports)
+See also the [Smart Ports](https://cyral.com/docs/sidecars/manage/bind-repo#smart-ports)
 documentation for more details about the feature and the supported repositories.
 
 The following examples are functionally equivalent. The only difference is that
