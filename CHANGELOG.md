@@ -1,3 +1,28 @@
+## 4.9.3 (March 14, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.12.0`.
+
+See the list of incompatible attributes, data sources and resources
+with previous `v4` control planes in the [`v4.9.0`](#490-january-31-2024)
+release documentation.
+
+### Documentation:
+
+- Fix broken links and improve import documentation ([#519](https://github.com/cyralinc/terraform-provider-cyral/pull/519))
+
+### Improvements:
+
+- Bump github.com/hashicorp/terraform-plugin-sdk/v2 from 2.32.0 to 2.33.0 ([#512](https://github.com/cyralinc/terraform-provider-cyral/pull/512))
+- Bump github.com/stretchr/testify from 1.8.4 to 1.9.0 ([#514](https://github.com/cyralinc/terraform-provider-cyral/pull/514))
+- Bump golang.org/x/oauth2 from 0.17.0 to 0.18.0 ([#515](https://github.com/cyralinc/terraform-provider-cyral/pull/515))
+- Bump google.golang.org/protobuf from 1.32.0 to 1.33.0 ([#517](https://github.com/cyralinc/terraform-provider-cyral/pull/517))
+- Bump hashicorp/terraform from 1.7.3 to 1.7.5 ([#518](https://github.com/cyralinc/terraform-provider-cyral/pull/518))
+
 ## 4.9.2 (February 28, 2024)
 
 It is safe to use this version with all `v4` control planes as long
