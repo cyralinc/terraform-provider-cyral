@@ -1,7 +1,7 @@
 ---
 page_title: "Provider: Cyral"
 description: |-
-  Terraform provider to interact with Cyral API.
+    Terraform provider to interact with Cyral API.
 ---
 
 -> If you are upgrading from versions `v2` or `v3` of this provider, please refer to our
@@ -30,7 +30,7 @@ history with its features, bug fixes and Control Plane compatibility.
 To install this provider, copy and paste this code into your Terraform
 configuration. Then, run `terraform init`.
 
-- Terraform 0.13+
+-   Terraform 0.13+
 
 ```terraform
 terraform {
@@ -82,10 +82,10 @@ the old one.
 
 ### Required
 
-- `control_plane` (String) Control plane host and API port (ex: `tenant.app.cyral.com`)
+-   `control_plane` (String) Control plane host and API port (ex: `tenant.app.cyral.com`)
 
 ### Optional
 
-- `client_id` (String, Sensitive) Client id used to authenticate against the control plane. Can be ommited and declared using the environment variable `CYRAL_TF_CLIENT_ID`.
-- `client_secret` (String, Sensitive) Client secret used to authenticate against the control plane. Can be ommited and declared using the environment variable `CYRAL_TF_CLIENT_SECRET`.
-- `tls_skip_verify` (Boolean) Specifies if the client will verify the TLS server certificate used by the control plane. If set to `true`, the client will not verify the server certificate, hence, it will allow insecure connections to be established. This should be set only for testing and is not recommended to be used in production environments. Can be set through the `CYRAL_TF_TLS_SKIP_VERIFY` environment variable. Defaults to `false`.
+-   `client_id` (String, Sensitive) Client id used to authenticate against the control plane. Can be ommited and declared using the environment variable `CYRAL_TF_CLIENT_ID`.
+-   `client_secret` (String, Sensitive) Client secret used to authenticate against the control plane. Can be ommited and declared using the environment variable `CYRAL_TF_CLIENT_SECRET`.
+-   `tls_skip_verify` (Boolean) Specifies if the client will verify the TLS server certificate used by the control plane. If set to `true`, the client will not verify the server certificate, hence, it will allow insecure connections to be established. This should be set only for testing and is not recommended to be used in production environments. Can be set through the `CYRAL_TF_TLS_SKIP_VERIFY` environment variable. Defaults to `false`.

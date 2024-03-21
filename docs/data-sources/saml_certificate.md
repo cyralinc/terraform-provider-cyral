@@ -3,8 +3,8 @@
 page_title: "cyral_saml_certificate Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieves a X.509 certificate used for signing SAML requests.
-  See also the remaining SAML-related resources and data sources.
+    Retrieves a X.509 certificate used for signing SAML requests.
+    See also the remaining SAML-related resources and data sources.
 ---
 
 # cyral_saml_certificate (Data Source)
@@ -26,5 +26,5 @@ data "cyral_saml_certificate" "some_data_source_name" {
 
 ### Read-Only
 
-- `certificate` (String) The X.509 certificate used for signing SAML requests.
-- `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).
+-   `certificate` (String) The X.509 certificate used for signing SAML requests.
+-   `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).

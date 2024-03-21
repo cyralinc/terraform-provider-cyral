@@ -3,7 +3,7 @@
 page_title: "cyral_integration_hc_vault Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages integration with Hashicorp Vault to store secrets.
+    Manages integration with Hashicorp Vault to store secrets.
 ---
 
 # cyral_integration_hc_vault (Resource)
@@ -27,11 +27,11 @@ resource "cyral_integration_hc_vault" "some_resource_name" {
 
 ### Required
 
-- `auth_method` (String) Authentication method for the integration.
-- `auth_type` (String) Authentication type for the integration.
-- `name` (String) Integration name that will be used internally in the control plane.
-- `server` (String, Sensitive) Server on which the vault service is running.
+-   `auth_method` (String) Authentication method for the integration.
+-   `auth_type` (String) Authentication type for the integration.
+-   `name` (String) Integration name that will be used internally in the control plane.
+-   `server` (String, Sensitive) Server on which the vault service is running.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

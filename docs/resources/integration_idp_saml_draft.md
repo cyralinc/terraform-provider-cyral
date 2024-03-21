@@ -30,19 +30,19 @@ resource "cyral_integration_idp_saml_draft" "example_draft" {
 
 ### Required
 
-- `display_name` (String) Display name used in the Cyral control plane.
+-   `display_name` (String) Display name used in the Cyral control plane.
 
 ### Optional
 
-- `attributes` (Block Set, Max: 1) SAML Attribute names for the identity attributes required by the Cyral SP. Each attribute name MUST be at least 3 characters long. (see [below for nested schema](#nestedblock--attributes))
-- `disable_idp_initiated_login` (Boolean) Whether or not IdP-Initiated login should be disabled for this generic SAML integration draft. Defaults to `false`.
-- `idp_type` (String) Identity provider type. The value provided can be used as a filter when retrieving SAML integrations. See data source `cyral_integration_idp_saml`.
+-   `attributes` (Block Set, Max: 1) SAML Attribute names for the identity attributes required by the Cyral SP. Each attribute name MUST be at least 3 characters long. (see [below for nested schema](#nestedblock--attributes))
+-   `disable_idp_initiated_login` (Boolean) Whether or not IdP-Initiated login should be disabled for this generic SAML integration draft. Defaults to `false`.
+-   `idp_type` (String) Identity provider type. The value provided can be used as a filter when retrieving SAML integrations. See data source `cyral_integration_idp_saml`.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in the Cyral environment.
-- `service_provider_metadata` (Set of Object) The SP Metadata fields describing the Cyral service provider for this integration. (see [below for nested schema](#nestedatt--service_provider_metadata))
-- `sp_metadata` (String, Deprecated) The SP Metadata document describing the Cyral service provider for this integration.
+-   `id` (String) ID of this resource in the Cyral environment.
+-   `service_provider_metadata` (Set of Object) The SP Metadata fields describing the Cyral service provider for this integration. (see [below for nested schema](#nestedatt--service_provider_metadata))
+-   `sp_metadata` (String, Deprecated) The SP Metadata document describing the Cyral service provider for this integration.
 
 <a id="nestedblock--attributes"></a>
 
@@ -50,10 +50,10 @@ resource "cyral_integration_idp_saml_draft" "example_draft" {
 
 Optional:
 
-- `email` (String) The name of the attribute in the incoming SAML assertion containing the users email address. Defaults to `email`.
-- `first_name` (String) The name of the attribute in the incoming SAML assertion containing the users first name (given name). Defaults to `firstName`.
-- `groups` (String) The name of the attribute in the incoming SAML assertion containing the users group membership in the IdP. Defaults to `memberOf`.
-- `last_name` (String) The name of the attribute in the incoming SAML assertion containing the users last name (family name). Defaults to `lastName`.
+-   `email` (String) The name of the attribute in the incoming SAML assertion containing the users email address. Defaults to `email`.
+-   `first_name` (String) The name of the attribute in the incoming SAML assertion containing the users first name (given name). Defaults to `firstName`.
+-   `groups` (String) The name of the attribute in the incoming SAML assertion containing the users group membership in the IdP. Defaults to `memberOf`.
+-   `last_name` (String) The name of the attribute in the incoming SAML assertion containing the users last name (family name). Defaults to `lastName`.
 
 <a id="nestedatt--service_provider_metadata"></a>
 
@@ -61,11 +61,11 @@ Optional:
 
 Read-Only:
 
-- `assertion_consumer_services` (List of Object) (see [below for nested schema](#nestedobjatt--service_provider_metadata--assertion_consumer_services))
-- `entity_id` (String)
-- `single_logout_url` (String)
-- `url` (String)
-- `xml_document` (String)
+-   `assertion_consumer_services` (List of Object) (see [below for nested schema](#nestedobjatt--service_provider_metadata--assertion_consumer_services))
+-   `entity_id` (String)
+-   `single_logout_url` (String)
+-   `url` (String)
+-   `xml_document` (String)
 
 <a id="nestedobjatt--service_provider_metadata--assertion_consumer_services"></a>
 
@@ -73,5 +73,5 @@ Read-Only:
 
 Read-Only:
 
-- `index` (Number)
-- `url` (String)
+-   `index` (Number)
+-   `url` (String)

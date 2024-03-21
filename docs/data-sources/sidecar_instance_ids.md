@@ -3,7 +3,7 @@
 page_title: "cyral_sidecar_instance_ids Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  ~> DEPRECATED This data source was deprecated. It will be removed in the next major version of the provider. Use the data source cyral_sidecar_instance instead
+    ~> DEPRECATED This data source was deprecated. It will be removed in the next major version of the provider. Use the data source cyral_sidecar_instance instead
 ---
 
 # cyral_sidecar_instance_ids (Data Source)
@@ -28,9 +28,9 @@ output "sidecar_instance_ids" {
 
 ### Required
 
-- `sidecar_id` (String) The ID of the sidecar.
+-   `sidecar_id` (String) The ID of the sidecar.
 
 ### Read-Only
 
-- `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).
-- `instance_ids` (List of String) All the current instance IDs of the sidecar.
+-   `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).
+-   `instance_ids` (List of String) All the current instance IDs of the sidecar.

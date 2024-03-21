@@ -3,7 +3,7 @@
 page_title: "cyral_sidecar Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages sidecars https://cyral.com/docs/sidecars/sidecar-manage.
+    Manages sidecars https://cyral.com/docs/sidecars/sidecar-manage.
 ---
 
 # cyral_sidecar (Resource)
@@ -28,22 +28,22 @@ resource "cyral_sidecar" "some_resource_name" {
 
 ### Required
 
-- `deployment_method` (String) Deployment method that will be used by this sidecar (valid values: `docker`, `cft-ec2`, `terraform`, `helm3`, `automated`, `custom`, `terraformGKE`, `linux`, and `singleContainer`).
-- `name` (String) Sidecar name that will be used internally in Control Plane (ex: `your_sidecar_name`).
+-   `deployment_method` (String) Deployment method that will be used by this sidecar (valid values: `docker`, `cft-ec2`, `terraform`, `helm3`, `automated`, `custom`, `terraformGKE`, `linux`, and `singleContainer`).
+-   `name` (String) Sidecar name that will be used internally in Control Plane (ex: `your_sidecar_name`).
 
 ### Optional
 
-- `activity_log_integration_id` (String) ID of the log integration mapped to this sidecar, used for Cyral activity logs.
-- `bypass_mode` (String) This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `always`, `failover` or `never`. Defaults to `failover`. If `always` is specified, the sidecar will run in [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode). If `failover` is specified, the sidecar will run in [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.
-- `certificate_bundle_secrets` (Block Set, Max: 1, Deprecated) Certificate Bundle Secret is a configuration that holds data about the location of a particular TLS certificate bundle in a secrets manager. (see [below for nested schema](#nestedblock--certificate_bundle_secrets))
-- `diagnostic_log_integration_id` (String) ID of the log integration mapped to this sidecar, used for sidecar diagnostic logs.
-- `labels` (List of String) Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.
-- `log_integration_id` (String, Deprecated) ID of the log integration mapped to this sidecar, used for Cyral activity logs.
-- `user_endpoint` (String) User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.
+-   `activity_log_integration_id` (String) ID of the log integration mapped to this sidecar, used for Cyral activity logs.
+-   `bypass_mode` (String) This argument lets you specify how to handle the connection in the event of an error in the sidecar during a user’s session. Valid modes are: `always`, `failover` or `never`. Defaults to `failover`. If `always` is specified, the sidecar will run in [passthrough mode](https://cyral.com/docs/sidecars/sidecar-manage#passthrough-mode). If `failover` is specified, the sidecar will run in [resiliency mode](https://cyral.com/docs/sidecars/sidecar-manage#resilient-mode-of-sidecar-operation). If `never` is specified and there is an error in the sidecar, connections to bound repositories will fail.
+-   `certificate_bundle_secrets` (Block Set, Max: 1, Deprecated) Certificate Bundle Secret is a configuration that holds data about the location of a particular TLS certificate bundle in a secrets manager. (see [below for nested schema](#nestedblock--certificate_bundle_secrets))
+-   `diagnostic_log_integration_id` (String) ID of the log integration mapped to this sidecar, used for sidecar diagnostic logs.
+-   `labels` (List of String) Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.
+-   `log_integration_id` (String, Deprecated) ID of the log integration mapped to this sidecar, used for Cyral activity logs.
+-   `user_endpoint` (String) User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment
 
 <a id="nestedblock--certificate_bundle_secrets"></a>
 
@@ -51,7 +51,7 @@ resource "cyral_sidecar" "some_resource_name" {
 
 Required:
 
-- `sidecar` (Block Set, Min: 1, Max: 1) Certificate Bundle Secret for sidecar. (see [below for nested schema](#nestedblock--certificate_bundle_secrets--sidecar))
+-   `sidecar` (Block Set, Min: 1, Max: 1) Certificate Bundle Secret for sidecar. (see [below for nested schema](#nestedblock--certificate_bundle_secrets--sidecar))
 
 <a id="nestedblock--certificate_bundle_secrets--sidecar"></a>
 
@@ -59,9 +59,9 @@ Required:
 
 Required:
 
-- `secret_id` (String) Secret ID is the identifier or location for the secret that holds the certificate bundle.
-- `type` (String) Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.
+-   `secret_id` (String) Secret ID is the identifier or location for the secret that holds the certificate bundle.
+-   `type` (String) Type identifies the secret manager used to store the secret. Valid values are: `aws` and `k8s`.
 
 Optional:
 
-- `engine` (String) Engine is the name of the engine used with the given secrets manager type, when applicable.
+-   `engine` (String) Engine is the name of the engine used with the given secrets manager type, when applicable.

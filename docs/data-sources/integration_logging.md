@@ -22,12 +22,12 @@ data "cyral_integration_logging" "another_data_source_name" {
 
 ### Optional
 
-- `type` (String) The type of logging integration config to filter by.
+-   `type` (String) The type of logging integration config to filter by.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `integrations` (List of Object) List of existing integration configs for the given filter criteria. (see [below for nested schema](#nestedatt--integrations))
+-   `id` (String) The ID of this resource.
+-   `integrations` (List of Object) List of existing integration configs for the given filter criteria. (see [below for nested schema](#nestedatt--integrations))
 
 <a id="nestedatt--integrations"></a>
 
@@ -35,15 +35,15 @@ data "cyral_integration_logging" "another_data_source_name" {
 
 Read-Only:
 
-- `cloudwatch` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--cloudwatch))
-- `datadog` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--datadog))
-- `elk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk))
-- `fluent_bit` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--fluent_bit))
-- `id` (String)
-- `name` (String)
-- `receive_audit_logs` (Boolean)
-- `splunk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--splunk))
-- `sumo_logic` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--sumo_logic))
+-   `cloudwatch` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--cloudwatch))
+-   `datadog` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--datadog))
+-   `elk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk))
+-   `fluent_bit` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--fluent_bit))
+-   `id` (String)
+-   `name` (String)
+-   `receive_audit_logs` (Boolean)
+-   `splunk` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--splunk))
+-   `sumo_logic` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--sumo_logic))
 
 <a id="nestedobjatt--integrations--cloudwatch"></a>
 
@@ -51,9 +51,9 @@ Read-Only:
 
 Read-Only:
 
-- `group` (String)
-- `region` (String)
-- `stream` (String)
+-   `group` (String)
+-   `region` (String)
+-   `stream` (String)
 
 <a id="nestedobjatt--integrations--datadog"></a>
 
@@ -61,7 +61,7 @@ Read-Only:
 
 Read-Only:
 
-- `api_key` (String)
+-   `api_key` (String)
 
 <a id="nestedobjatt--integrations--elk"></a>
 
@@ -69,9 +69,9 @@ Read-Only:
 
 Read-Only:
 
-- `es_credentials` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk--es_credentials))
-- `es_url` (String)
-- `kibana_url` (String)
+-   `es_credentials` (Set of Object) (see [below for nested schema](#nestedobjatt--integrations--elk--es_credentials))
+-   `es_url` (String)
+-   `kibana_url` (String)
 
 <a id="nestedobjatt--integrations--elk--es_credentials"></a>
 
@@ -79,8 +79,8 @@ Read-Only:
 
 Read-Only:
 
-- `password` (String)
-- `username` (String)
+-   `password` (String)
+-   `username` (String)
 
 <a id="nestedobjatt--integrations--fluent_bit"></a>
 
@@ -88,8 +88,8 @@ Read-Only:
 
 Read-Only:
 
-- `config` (String)
-- `skip_validate` (Boolean)
+-   `config` (String)
+-   `skip_validate` (Boolean)
 
 <a id="nestedobjatt--integrations--splunk"></a>
 
@@ -97,11 +97,11 @@ Read-Only:
 
 Read-Only:
 
-- `access_token` (String)
-- `hec_port` (String)
-- `hostname` (String)
-- `index` (String)
-- `use_tls` (Boolean)
+-   `access_token` (String)
+-   `hec_port` (String)
+-   `hostname` (String)
+-   `index` (String)
+-   `use_tls` (Boolean)
 
 <a id="nestedobjatt--integrations--sumo_logic"></a>
 
@@ -109,4 +109,4 @@ Read-Only:
 
 Read-Only:
 
-- `address` (String)
+-   `address` (String)

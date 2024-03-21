@@ -3,7 +3,7 @@
 page_title: "cyral_integration_slack_alerts Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages integration with Slack to push alerts https://cyral.com/docs/integrations/messaging/slack.
+    Manages integration with Slack to push alerts https://cyral.com/docs/integrations/messaging/slack.
 ---
 
 # cyral_integration_slack_alerts (Resource)
@@ -25,9 +25,9 @@ resource "cyral_integration_slack_alerts" "some_resource_name" {
 
 ### Required
 
-- `name` (String) Integration name that will be used internally in the control plane.
-- `url` (String, Sensitive) Slack Alert Webhook url.
+-   `name` (String) Integration name that will be used internally in the control plane.
+-   `url` (String, Sensitive) Slack Alert Webhook url.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

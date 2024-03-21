@@ -102,26 +102,26 @@ resource "cyral_repository_user_account" "kubernetes" {
 
 ### Required
 
-- `auth_scheme` (Block List, Min: 1, Max: 1) Credential option. List of supported types:
-  - `aws_iam`
-  - `aws_secrets_manager`
-  - `cyral_storage`
-  - `hashicorp_vault`
-  - `environment_variable`
-  - `kubernetes_secret`
-  - `gcp_secrets_manager` (see [below for nested schema](#nestedblock--auth_scheme))
-- `name` (String) The name of the User Account.
-- `repository_id` (String) ID of the repository.
+-   `auth_scheme` (Block List, Min: 1, Max: 1) Credential option. List of supported types:
+    -   `aws_iam`
+    -   `aws_secrets_manager`
+    -   `cyral_storage`
+    -   `hashicorp_vault`
+    -   `environment_variable`
+    -   `kubernetes_secret`
+    -   `gcp_secrets_manager` (see [below for nested schema](#nestedblock--auth_scheme))
+-   `name` (String) The name of the User Account.
+-   `repository_id` (String) ID of the repository.
 
 ### Optional
 
-- `approval_config` (Block Set, Max: 1) Configurations related to Approvals. (see [below for nested schema](#nestedblock--approval_config))
-- `auth_database_name` (String) The database name that this User Account is scoped to, for `cyral_repository` types that support multiple databases.
+-   `approval_config` (Block Set, Max: 1) Configurations related to Approvals. (see [below for nested schema](#nestedblock--approval_config))
+-   `auth_database_name` (String) The database name that this User Account is scoped to, for `cyral_repository` types that support multiple databases.
 
 ### Read-Only
 
-- `id` (String) Terraform ID of this resource. Follows syntax `{repository_id}/{user_account_id}`
-- `user_account_id` (String) ID of the user account.
+-   `id` (String) Terraform ID of this resource. Follows syntax `{repository_id}/{user_account_id}`
+-   `user_account_id` (String) ID of the user account.
 
 <a id="nestedblock--auth_scheme"></a>
 
@@ -129,13 +129,13 @@ resource "cyral_repository_user_account" "kubernetes" {
 
 Optional:
 
-- `aws_iam` (Block Set, Max: 1) Credential option to set the repository user account from AWS IAM. (see [below for nested schema](#nestedblock--auth_scheme--aws_iam))
-- `aws_secrets_manager` (Block Set, Max: 1) Credential option to set the repository user account from AWS Secrets Manager. (see [below for nested schema](#nestedblock--auth_scheme--aws_secrets_manager))
-- `cyral_storage` (Block Set, Max: 1) Credential option to set the repository user account from Cyral Storage. (see [below for nested schema](#nestedblock--auth_scheme--cyral_storage))
-- `environment_variable` (Block Set, Max: 1) Credential option to set the repository user account from Environment Variable. (see [below for nested schema](#nestedblock--auth_scheme--environment_variable))
-- `gcp_secrets_manager` (Block Set, Max: 1) Credential option to set the repository user account from GCP Secrets Manager. (see [below for nested schema](#nestedblock--auth_scheme--gcp_secrets_manager))
-- `hashicorp_vault` (Block Set, Max: 1) Credential option to set the repository user account from Hashicorp Vault. (see [below for nested schema](#nestedblock--auth_scheme--hashicorp_vault))
-- `kubernetes_secret` (Block Set, Max: 1) Credential option to set the repository user account from a Kubernetes secret. (see [below for nested schema](#nestedblock--auth_scheme--kubernetes_secret))
+-   `aws_iam` (Block Set, Max: 1) Credential option to set the repository user account from AWS IAM. (see [below for nested schema](#nestedblock--auth_scheme--aws_iam))
+-   `aws_secrets_manager` (Block Set, Max: 1) Credential option to set the repository user account from AWS Secrets Manager. (see [below for nested schema](#nestedblock--auth_scheme--aws_secrets_manager))
+-   `cyral_storage` (Block Set, Max: 1) Credential option to set the repository user account from Cyral Storage. (see [below for nested schema](#nestedblock--auth_scheme--cyral_storage))
+-   `environment_variable` (Block Set, Max: 1) Credential option to set the repository user account from Environment Variable. (see [below for nested schema](#nestedblock--auth_scheme--environment_variable))
+-   `gcp_secrets_manager` (Block Set, Max: 1) Credential option to set the repository user account from GCP Secrets Manager. (see [below for nested schema](#nestedblock--auth_scheme--gcp_secrets_manager))
+-   `hashicorp_vault` (Block Set, Max: 1) Credential option to set the repository user account from Hashicorp Vault. (see [below for nested schema](#nestedblock--auth_scheme--hashicorp_vault))
+-   `kubernetes_secret` (Block Set, Max: 1) Credential option to set the repository user account from a Kubernetes secret. (see [below for nested schema](#nestedblock--auth_scheme--kubernetes_secret))
 
 <a id="nestedblock--auth_scheme--aws_iam"></a>
 
@@ -143,7 +143,7 @@ Optional:
 
 Required:
 
-- `role_arn` (String) The AWS IAM roleARN to gain access to the database.
+-   `role_arn` (String) The AWS IAM roleARN to gain access to the database.
 
 <a id="nestedblock--auth_scheme--aws_secrets_manager"></a>
 
@@ -151,7 +151,7 @@ Required:
 
 Required:
 
-- `secret_arn` (String) The AWS Secrets Manager secretARN to gain access to the database.
+-   `secret_arn` (String) The AWS Secrets Manager secretARN to gain access to the database.
 
 <a id="nestedblock--auth_scheme--cyral_storage"></a>
 
@@ -159,7 +159,7 @@ Required:
 
 Required:
 
-- `password` (String, Sensitive) The Cyral Storage password to gain access to the database.
+-   `password` (String, Sensitive) The Cyral Storage password to gain access to the database.
 
 <a id="nestedblock--auth_scheme--environment_variable"></a>
 
@@ -167,7 +167,7 @@ Required:
 
 Required:
 
-- `variable_name` (String) Name of the environment variable that will store credentials.
+-   `variable_name` (String) Name of the environment variable that will store credentials.
 
 <a id="nestedblock--auth_scheme--gcp_secrets_manager"></a>
 
@@ -175,7 +175,7 @@ Required:
 
 Required:
 
-- `secret_name` (String) The unique identifier of the secret in GCP Secrets Manager.
+-   `secret_name` (String) The unique identifier of the secret in GCP Secrets Manager.
 
 <a id="nestedblock--auth_scheme--hashicorp_vault"></a>
 
@@ -183,8 +183,8 @@ Required:
 
 Required:
 
-- `is_dynamic_user_account` (Boolean) Some Vault engines allow the dynamic creation of user accounts, meaning the username used to log in to the database may change from time to time.
-- `path` (String) The location in the Vault where the database username and password may be retrieved.
+-   `is_dynamic_user_account` (Boolean) Some Vault engines allow the dynamic creation of user accounts, meaning the username used to log in to the database may change from time to time.
+-   `path` (String) The location in the Vault where the database username and password may be retrieved.
 
 <a id="nestedblock--auth_scheme--kubernetes_secret"></a>
 
@@ -192,8 +192,8 @@ Required:
 
 Required:
 
-- `secret_key` (String) The key of the credentials JSON blob within the secret.
-- `secret_name` (String) The unique identifier of the secret in Kubernetes.
+-   `secret_key` (String) The key of the credentials JSON blob within the secret.
+-   `secret_name` (String) The unique identifier of the secret in Kubernetes.
 
 <a id="nestedblock--approval_config"></a>
 
@@ -201,5 +201,5 @@ Required:
 
 Required:
 
-- `automatic_grant` (Boolean) If `true`, approvals can be automatically granted.
-- `max_auto_grant_duration` (String) The maximum duration in seconds for approvals can be automatically granted. E.g.: `"2000s"`, `"3000.5s"
+-   `automatic_grant` (Boolean) If `true`, approvals can be automatically granted.
+-   `max_auto_grant_duration` (String) The maximum duration in seconds for approvals can be automatically granted. E.g.: `"2000s"`, `"3000.5s"

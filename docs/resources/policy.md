@@ -3,7 +3,7 @@
 page_title: "cyral_policy Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages policies https://cyral.com/docs/reference/policy. See also: Policy Rule ./policy_rule.md. For more information, see the Policy Guide https://cyral.com/docs/policy/overview.
+    Manages policies https://cyral.com/docs/reference/policy. See also: Policy Rule ./policy_rule.md. For more information, see the Policy Guide https://cyral.com/docs/policy/overview.
 ---
 
 # cyral_policy (Resource)
@@ -29,21 +29,21 @@ resource "cyral_policy" "some_resource_name" {
 
 ### Required
 
-- `name` (String) Policy name that will be used internally in Control Plane (ex: `your_policy_name`).
+-   `name` (String) Policy name that will be used internally in Control Plane (ex: `your_policy_name`).
 
 ### Optional
 
-- `data` (List of String) List that specify which data fields a policy manages. Each field is represented by the LABEL you established for it in your data map. The actual location of that data (the names of fields, columns, or databases that hold it) is listed in the data map.
-- `data_label_tags` (List of String) List of tags that represent sets of data labels (established in your data map) that are used to specify the collections of data labels that the policy manages. For more information, see [The tags block of a policy](https://cyral.com/docs/policy/policy-structure#the-tags-block-of-a-policy)
-- `description` (String) String that describes the policy (ex: `your_policy_description`).
-- `enabled` (Boolean) Boolean that causes a policy to be enabled or disabled.
-- `metadata_tags` (List of String) Metadata tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).
-- `tags` (List of String, Deprecated) Metadata tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).
+-   `data` (List of String) List that specify which data fields a policy manages. Each field is represented by the LABEL you established for it in your data map. The actual location of that data (the names of fields, columns, or databases that hold it) is listed in the data map.
+-   `data_label_tags` (List of String) List of tags that represent sets of data labels (established in your data map) that are used to specify the collections of data labels that the policy manages. For more information, see [The tags block of a policy](https://cyral.com/docs/policy/policy-structure#the-tags-block-of-a-policy)
+-   `description` (String) String that describes the policy (ex: `your_policy_description`).
+-   `enabled` (Boolean) Boolean that causes a policy to be enabled or disabled.
+-   `metadata_tags` (List of String) Metadata tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).
+-   `tags` (List of String, Deprecated) Metadata tags that can be used to organize and/or classify your policies (ex: `[your_tag1, your_tag2]`).
 
 ### Read-Only
 
-- `created` (String) Timestamp for the policy creation.
-- `id` (String) The ID of this resource.
-- `last_updated` (String) Timestamp for the last update performed in this policy.
-- `type` (String) Policy type.
-- `version` (String) Incremental counter for every update on the policy.
+-   `created` (String) Timestamp for the policy creation.
+-   `id` (String) The ID of this resource.
+-   `last_updated` (String) Timestamp for the last update performed in this policy.
+-   `type` (String) Policy type.
+-   `version` (String) Incremental counter for every update on the policy.

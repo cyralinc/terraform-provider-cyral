@@ -3,7 +3,7 @@
 page_title: "cyral_integration_sumo_logic Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  ~> DEPRECATED Use resource cyral_integration_logging instead.
+    ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_sumo_logic (Resource)
@@ -25,9 +25,9 @@ resource "cyral_integration_sumo_logic" "some_resource_name" {
 
 ### Required
 
-- `address` (String, Sensitive) Sumo Logic address.
-- `name` (String) Integration name that will be used internally in the control plane.
+-   `address` (String, Sensitive) Sumo Logic address.
+-   `name` (String) Integration name that will be used internally in the control plane.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

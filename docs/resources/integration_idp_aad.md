@@ -74,15 +74,15 @@ resource "cyral_integration_idp_aad" "some_resource_name" {
 
 ### Required
 
-- `samlp` (Block Set, Min: 1, Max: 1) It contains the top-level configuration for an identity provider. (see [below for nested schema](#nestedblock--samlp))
+-   `samlp` (Block Set, Min: 1, Max: 1) It contains the top-level configuration for an identity provider. (see [below for nested schema](#nestedblock--samlp))
 
 ### Optional
 
-- `draft_alias` (String) An `alias` that uniquely identifies a IdP Integration draft. If set, will delete any correspondent draft and create a new IdP Integration with the same `alias`. Defaults to `""`.
+-   `draft_alias` (String) An `alias` that uniquely identifies a IdP Integration draft. If set, will delete any correspondent draft and create a new IdP Integration with the same `alias`. Defaults to `""`.
 
 ### Read-Only
 
-- `id` (String) ID of this resource, which corresponds to the IdP Integration `alias`.
+-   `id` (String) ID of this resource, which corresponds to the IdP Integration `alias`.
 
 <a id="nestedblock--samlp"></a>
 
@@ -90,23 +90,23 @@ resource "cyral_integration_idp_aad" "some_resource_name" {
 
 Required:
 
-- `config` (Block Set, Min: 1, Max: 1) SAML configuration for this IdP Integration. (see [below for nested schema](#nestedblock--samlp--config))
+-   `config` (Block Set, Min: 1, Max: 1) SAML configuration for this IdP Integration. (see [below for nested schema](#nestedblock--samlp--config))
 
 Optional:
 
-- `add_read_token_role_on_create` (Boolean) Adds read token role on creation. Defaults to `false`.
-- `disabled` (Boolean) Disable maps to Keycloak's `enabled` field. Defaults to `false`.
-- `display_name` (String) Name of the IdP Integration displayed in the control plane. Defaults to `Azure Active Directory`
-- `first_broker_login_flow_alias` (String) Alias of authentication flow, which is triggered after `First Login` with this identity provider. Term `First Login` means that no Keycloak account is currently linked to the authenticated identity provider account. Defaults to `SAML_First_Broker`.
-- `link_only` (Boolean) If true, users cannot log in through this identity provider. They can only link to this identity provider. This is useful if you don't want to allow login from the identity provider, but want to integrate with an identity provider. Defaults to `false`.
-- `post_broker_login_flow_alias` (String) Alias of authentication flow, which is triggered after each login with this identity provider. Useful if you want additional verification of each user authenticated with this identity provider (for example OTP). Leave this empty if you need no any additional authenticators to be triggered after login with this identity provider. Defaults to `""`.
-- `provider_id` (String) This is the provider ID of `saml`. Defaults to `saml`.
-- `store_token` (Boolean) Enable if tokens must be stored after authenticating users. Defaults to `false`.
-- `trust_email` (Boolean) If the identity provider supplies an email address this email address will be trusted. If the realm required email validation, users that log in from this identity provider will not have to go through the email verification process. Defaults to `false`.
+-   `add_read_token_role_on_create` (Boolean) Adds read token role on creation. Defaults to `false`.
+-   `disabled` (Boolean) Disable maps to Keycloak's `enabled` field. Defaults to `false`.
+-   `display_name` (String) Name of the IdP Integration displayed in the control plane. Defaults to `Azure Active Directory`
+-   `first_broker_login_flow_alias` (String) Alias of authentication flow, which is triggered after `First Login` with this identity provider. Term `First Login` means that no Keycloak account is currently linked to the authenticated identity provider account. Defaults to `SAML_First_Broker`.
+-   `link_only` (Boolean) If true, users cannot log in through this identity provider. They can only link to this identity provider. This is useful if you don't want to allow login from the identity provider, but want to integrate with an identity provider. Defaults to `false`.
+-   `post_broker_login_flow_alias` (String) Alias of authentication flow, which is triggered after each login with this identity provider. Useful if you want additional verification of each user authenticated with this identity provider (for example OTP). Leave this empty if you need no any additional authenticators to be triggered after login with this identity provider. Defaults to `""`.
+-   `provider_id` (String) This is the provider ID of `saml`. Defaults to `saml`.
+-   `store_token` (Boolean) Enable if tokens must be stored after authenticating users. Defaults to `false`.
+-   `trust_email` (Boolean) If the identity provider supplies an email address this email address will be trusted. If the realm required email validation, users that log in from this identity provider will not have to go through the email verification process. Defaults to `false`.
 
 Read-Only:
 
-- `internal_id` (String) An ID that is auto-generated internally for this IdP Integration.
+-   `internal_id` (String) An ID that is auto-generated internally for this IdP Integration.
 
 <a id="nestedblock--samlp--config"></a>
 
@@ -114,28 +114,28 @@ Read-Only:
 
 Required:
 
-- `single_sign_on_service_url` (String) URL that must be used to send authentication requests (SAML AuthnRequest).
+-   `single_sign_on_service_url` (String) URL that must be used to send authentication requests (SAML AuthnRequest).
 
 Optional:
 
-- `allowed_clock_skew` (Number) Clock skew in seconds that is tolerated when validating identity provider tokens. Defaults to `0`.
-- `back_channel_supported` (Boolean) Defaults to `false` if unset.
-- `base_64_saml_metadata_document` (String) Full SAML metadata document that was used to import the SAML configuration, Base64 encoded. Defaults to `""`.
-- `disable_force_authentication` (Boolean) Indicates whether the identity provider must authenticate the presenter directly rather than rely on a previous security context. Defaults to `false`
-- `disable_post_binding_authn_request` (Boolean) Indicates whether the AuthnRequest must be sent using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
-- `disable_post_binding_logout` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
-- `disable_post_binding_response` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
-- `disable_using_jwks_url` (Boolean) By default, the jwks URL is used for all SAML connections. Defaults to `false`.
-- `gui_order` (String) GUI order. Defaults to `""`.
-- `hide_on_login_page` (Boolean) Defaults to `false` if unset.
-- `ldap_group_attribute` (String) Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
-- `name_id_policy_format` (String) Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.
-- `principal_type` (String) Defaults to `SUBJECT` if unset.
-- `saml_metadata_url` (String) This is the full SAML metadata URL that was used to import the SAML configuration. Defaults to `""`.
-- `saml_xml_key_name_tranformer` (String) Defaults to `KEY_ID` if unset.
-- `signature_type` (String) Defaults to `RSA_SHA256` if unset.
-- `signing_certificate` (String) Signing certificate used to validate signatures. Required if signature validation is enabled. Defaults to `""`.
-- `single_logout_service_url` (String) URL that must be used to send logout requests. Defaults to `""`.
-- `sync_mode` (String) Defaults to `FORCE` if unset.
-- `want_assertions_encrypted` (Boolean) Indicates whether the service provider expects an encrypted Assertion. Defaults to `false`.
-- `xml_sig_key_info_key_name_transformer` (String) Defaults to `KEY_ID` if unset.
+-   `allowed_clock_skew` (Number) Clock skew in seconds that is tolerated when validating identity provider tokens. Defaults to `0`.
+-   `back_channel_supported` (Boolean) Defaults to `false` if unset.
+-   `base_64_saml_metadata_document` (String) Full SAML metadata document that was used to import the SAML configuration, Base64 encoded. Defaults to `""`.
+-   `disable_force_authentication` (Boolean) Indicates whether the identity provider must authenticate the presenter directly rather than rely on a previous security context. Defaults to `false`
+-   `disable_post_binding_authn_request` (Boolean) Indicates whether the AuthnRequest must be sent using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
+-   `disable_post_binding_logout` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
+-   `disable_post_binding_response` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used. Defaults to `false`.
+-   `disable_using_jwks_url` (Boolean) By default, the jwks URL is used for all SAML connections. Defaults to `false`.
+-   `gui_order` (String) GUI order. Defaults to `""`.
+-   `hide_on_login_page` (Boolean) Defaults to `false` if unset.
+-   `ldap_group_attribute` (String) Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
+-   `name_id_policy_format` (String) Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.
+-   `principal_type` (String) Defaults to `SUBJECT` if unset.
+-   `saml_metadata_url` (String) This is the full SAML metadata URL that was used to import the SAML configuration. Defaults to `""`.
+-   `saml_xml_key_name_tranformer` (String) Defaults to `KEY_ID` if unset.
+-   `signature_type` (String) Defaults to `RSA_SHA256` if unset.
+-   `signing_certificate` (String) Signing certificate used to validate signatures. Required if signature validation is enabled. Defaults to `""`.
+-   `single_logout_service_url` (String) URL that must be used to send logout requests. Defaults to `""`.
+-   `sync_mode` (String) Defaults to `FORCE` if unset.
+-   `want_assertions_encrypted` (Boolean) Indicates whether the service provider expects an encrypted Assertion. Defaults to `false`.
+-   `xml_sig_key_info_key_name_transformer` (String) Defaults to `KEY_ID` if unset.

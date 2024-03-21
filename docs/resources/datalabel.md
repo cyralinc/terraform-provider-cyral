@@ -3,7 +3,7 @@
 page_title: "cyral_datalabel Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages data labels. Data labels are part of the Cyral Data Map https://cyral.com/docs/policy/datamap.
+    Manages data labels. Data labels are part of the Cyral Data Map https://cyral.com/docs/policy/datamap.
 ---
 
 # cyral_datalabel (Resource)
@@ -31,17 +31,17 @@ resource "cyral_datalabel" "NAME" {
 
 ### Required
 
-- `name` (String) Name of the data label.
+-   `name` (String) Name of the data label.
 
 ### Optional
 
-- `classification_rule` (Block Set, Max: 1) Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. (see [below for nested schema](#nestedblock--classification_rule))
-- `description` (String) Description of the data label.
-- `tags` (List of String) Tags that can be used to categorize data labels.
+-   `classification_rule` (Block Set, Max: 1) Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. (see [below for nested schema](#nestedblock--classification_rule))
+-   `description` (String) Description of the data label.
+-   `tags` (List of String) Tags that can be used to categorize data labels.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+-   `id` (String) The ID of this resource.
 
 <a id="nestedblock--classification_rule"></a>
 
@@ -49,10 +49,10 @@ resource "cyral_datalabel" "NAME" {
 
 Optional:
 
-- `rule_code` (String) Actual code of the classification rule. For example, this attribute may contain REGO code for `REGO`-type classification rules.
-- `rule_status` (String) Status of the classification rule. List of supported values:
-  - `ENABLED`
-  - `DISABLED`
-- `rule_type` (String) Type of the classification rule. List of supported values:
-  - `UNKNOWN`
-  - `REGO`
+-   `rule_code` (String) Actual code of the classification rule. For example, this attribute may contain REGO code for `REGO`-type classification rules.
+-   `rule_status` (String) Status of the classification rule. List of supported values:
+    -   `ENABLED`
+    -   `DISABLED`
+-   `rule_type` (String) Type of the classification rule. List of supported values:
+    -   `UNKNOWN`
+    -   `REGO`

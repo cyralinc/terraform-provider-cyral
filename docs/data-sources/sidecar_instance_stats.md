@@ -3,7 +3,7 @@
 page_title: "cyral_sidecar_instance_stats Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieve sidecar instance statistics. See also data source cyral_sidecar_instance ../data-sources/sidecar_instance.md.
+    Retrieve sidecar instance statistics. See also data source cyral_sidecar_instance ../data-sources/sidecar_instance.md.
 ---
 
 # cyral_sidecar_instance_stats (Data Source)
@@ -16,11 +16,11 @@ Retrieve sidecar instance statistics. See also data source [`cyral_sidecar_insta
 
 ### Required
 
-- `instance_id` (String) Sidecar instance identifier. See also data source [`cyral_sidecar_instance`](../data-sources/sidecar_instance.md).
-- `sidecar_id` (String) Sidecar identifier.
+-   `instance_id` (String) Sidecar instance identifier. See also data source [`cyral_sidecar_instance`](../data-sources/sidecar_instance.md).
+-   `sidecar_id` (String) Sidecar identifier.
 
 ### Read-Only
 
-- `active_connections` (Number) Number of active connections.
-- `id` (String) Data source identifier. It's equal to `instance_id`.
-- `queries_per_second` (Number) Amount of queries that the sidecar instance receives per second.
+-   `active_connections` (Number) Number of active connections.
+-   `id` (String) Data source identifier. It's equal to `instance_id`.
+-   `queries_per_second` (Number) Amount of queries that the sidecar instance receives per second.

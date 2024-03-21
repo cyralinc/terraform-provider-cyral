@@ -3,7 +3,7 @@
 page_title: "cyral_integration_aws_iam Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Authenticate users based on AWS IAM credentials.
+    Authenticate users based on AWS IAM credentials.
 ---
 
 # cyral_integration_aws_iam (Resource)
@@ -16,13 +16,13 @@ Authenticate users based on AWS IAM credentials.
 
 ### Required
 
-- `name` (String) The name of this AWS IAM Authentication integration.
-- `role_arns` (List of String) List of role ARNs which will be used for authentication.
+-   `name` (String) The name of this AWS IAM Authentication integration.
+-   `role_arns` (List of String) List of role ARNs which will be used for authentication.
 
 ### Optional
 
-- `description` (String) Optional description of this integration.
+-   `description` (String) Optional description of this integration.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment.
+-   `id` (String) ID of this resource in Cyral environment.

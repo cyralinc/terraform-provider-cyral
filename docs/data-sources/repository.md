@@ -76,27 +76,27 @@ output "all_mysql_repo_ids" {
 
 ### Optional
 
-- `name` (String) Filter the results by a regular expression (regex) that matches names of existing repositories.
-- `type` (String) Filter the results by type of repository. List of supported types:
-  - `denodo`
-  - `dremio`
-  - `dynamodb`
-  - `dynamodbstreams`
-  - `galera`
-  - `mariadb`
-  - `mongodb`
-  - `mysql`
-  - `oracle`
-  - `postgresql`
-  - `redshift`
-  - `s3`
-  - `snowflake`
-  - `sqlserver`
+-   `name` (String) Filter the results by a regular expression (regex) that matches names of existing repositories.
+-   `type` (String) Filter the results by type of repository. List of supported types:
+    -   `denodo`
+    -   `dremio`
+    -   `dynamodb`
+    -   `dynamodbstreams`
+    -   `galera`
+    -   `mariadb`
+    -   `mongodb`
+    -   `mysql`
+    -   `oracle`
+    -   `postgresql`
+    -   `redshift`
+    -   `s3`
+    -   `snowflake`
+    -   `sqlserver`
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `repository_list` (List of Object) List of existing repositories satisfying the filter criteria. (see [below for nested schema](#nestedatt--repository_list))
+-   `id` (String) The ID of this resource.
+-   `repository_list` (List of Object) List of existing repositories satisfying the filter criteria. (see [below for nested schema](#nestedatt--repository_list))
 
 <a id="nestedatt--repository_list"></a>
 
@@ -104,13 +104,13 @@ output "all_mysql_repo_ids" {
 
 Read-Only:
 
-- `connection_draining` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--connection_draining))
-- `id` (String)
-- `labels` (List of String)
-- `mongodb_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--mongodb_settings))
-- `name` (String)
-- `repo_node` (List of Object) (see [below for nested schema](#nestedobjatt--repository_list--repo_node))
-- `type` (String)
+-   `connection_draining` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--connection_draining))
+-   `id` (String)
+-   `labels` (List of String)
+-   `mongodb_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--repository_list--mongodb_settings))
+-   `name` (String)
+-   `repo_node` (List of Object) (see [below for nested schema](#nestedobjatt--repository_list--repo_node))
+-   `type` (String)
 
 <a id="nestedobjatt--repository_list--connection_draining"></a>
 
@@ -118,8 +118,8 @@ Read-Only:
 
 Read-Only:
 
-- `auto` (Boolean)
-- `wait_time` (Number)
+-   `auto` (Boolean)
+-   `wait_time` (Number)
 
 <a id="nestedobjatt--repository_list--mongodb_settings"></a>
 
@@ -127,10 +127,10 @@ Read-Only:
 
 Read-Only:
 
-- `flavor` (String)
-- `replica_set_name` (String)
-- `server_type` (String)
-- `srv_record_name` (String)
+-   `flavor` (String)
+-   `replica_set_name` (String)
+-   `server_type` (String)
+-   `srv_record_name` (String)
 
 <a id="nestedobjatt--repository_list--repo_node"></a>
 
@@ -138,7 +138,7 @@ Read-Only:
 
 Read-Only:
 
-- `dynamic` (Boolean)
-- `host` (String)
-- `name` (String)
-- `port` (Number)
+-   `dynamic` (Boolean)
+-   `host` (String)
+-   `name` (String)
+-   `port` (Number)

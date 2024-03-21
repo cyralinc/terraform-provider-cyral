@@ -3,7 +3,7 @@
 page_title: "cyral_integration_microsoft_teams Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages integration with Microsoft Teams https://cyral.com/docs/integrations/messaging/microsoft-teams/.
+    Manages integration with Microsoft Teams https://cyral.com/docs/integrations/messaging/microsoft-teams/.
 ---
 
 # cyral_integration_microsoft_teams (Resource)
@@ -25,9 +25,9 @@ resource "cyral_integration_microsoft_teams" "some_resource_name" {
 
 ### Required
 
-- `name` (String) Integration name that will be used internally in the control plane.
-- `url` (String, Sensitive) Microsoft Teams webhook URL.
+-   `name` (String) Integration name that will be used internally in the control plane.
+-   `url` (String, Sensitive) Microsoft Teams webhook URL.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

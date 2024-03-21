@@ -3,7 +3,7 @@
 page_title: "cyral_integration_looker Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  ~> DEPRECATED Integration no longer supported.
+    ~> DEPRECATED Integration no longer supported.
 ---
 
 # cyral_integration_looker (Resource)
@@ -26,10 +26,10 @@ resource "cyral_integration_looker" "some_resource_name" {
 
 ### Required
 
-- `client_id` (String, Sensitive) Looker client id.
-- `client_secret` (String, Sensitive) Looker client secret.
-- `url` (String) Looker integration url.
+-   `client_id` (String, Sensitive) Looker client id.
+-   `client_secret` (String, Sensitive) Looker client secret.
+-   `url` (String) Looker integration url.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

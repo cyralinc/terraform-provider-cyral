@@ -91,9 +91,9 @@ output "sidecar_bound_ports" {
 
 ### Required
 
-- `sidecar_id` (String) The ID of the sidecar.
+-   `sidecar_id` (String) The ID of the sidecar.
 
 ### Read-Only
 
-- `bound_ports` (List of Number) All the sidecar ports that are currently bound to repositories.
-- `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).
+-   `bound_ports` (List of Number) All the sidecar ports that are currently bound to repositories.
+-   `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).

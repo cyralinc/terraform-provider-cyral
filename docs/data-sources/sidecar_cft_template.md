@@ -24,18 +24,18 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 
 ### Required
 
-- `aws_configuration` (Block Set, Min: 1) AWS parameters for `cft-ec2` deployment method. (see [below for nested schema](#nestedblock--aws_configuration))
-- `sidecar_id` (String) ID of the sidecar which the template will be generated.
+-   `aws_configuration` (Block Set, Min: 1) AWS parameters for `cft-ec2` deployment method. (see [below for nested schema](#nestedblock--aws_configuration))
+-   `sidecar_id` (String) ID of the sidecar which the template will be generated.
 
 ### Optional
 
-- `log_integration_id` (String) ID of the log integration that will be used by this template.
-- `metrics_integration_id` (String) ID of the metrics integration that will be used by this template.
-- `template` (String) Output variable with the template.
+-   `log_integration_id` (String) ID of the log integration that will be used by this template.
+-   `metrics_integration_id` (String) ID of the metrics integration that will be used by this template.
+-   `template` (String) Output variable with the template.
 
 ### Read-Only
 
-- `id` (String) Same as `sidecar_id`.
+-   `id` (String) Same as `sidecar_id`.
 
 <a id="nestedblock--aws_configuration"></a>
 
@@ -43,8 +43,8 @@ data "cyral_sidecar_cft_template" "some_data_source_name" {
 
 Required:
 
-- `publicly_accessible` (Boolean) Defines a public IP and an internet-facing LB if set to `true`.
+-   `publicly_accessible` (Boolean) Defines a public IP and an internet-facing LB if set to `true`.
 
 Optional:
 
-- `key_name` (String) Key-pair name that will be associated to the sidecar EC2 instances.
+-   `key_name` (String) Key-pair name that will be associated to the sidecar EC2 instances.

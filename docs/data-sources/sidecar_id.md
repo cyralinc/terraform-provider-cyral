@@ -3,7 +3,7 @@
 page_title: "cyral_sidecar_id Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Given a sidecar name, retrieves the respective sidecar ID.
+    Given a sidecar name, retrieves the respective sidecar ID.
 ---
 
 # cyral_sidecar_id (Data Source)
@@ -33,8 +33,8 @@ output "sidecar_id" {
 
 ### Required
 
-- `sidecar_name` (String) The name of the sidecar.
+-   `sidecar_name` (String) The name of the sidecar.
 
 ### Read-Only
 
-- `id` (String) The ID of the sidecar.
+-   `id` (String) The ID of the sidecar.

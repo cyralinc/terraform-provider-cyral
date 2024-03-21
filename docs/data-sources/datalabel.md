@@ -3,7 +3,7 @@
 page_title: "cyral_datalabel Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieve and filter data labels. See also resource cyral_datalabel ../resources/datalabel.md.
+    Retrieve and filter data labels. See also resource cyral_datalabel ../resources/datalabel.md.
 ---
 
 # cyral_datalabel (Data Source)
@@ -27,16 +27,16 @@ data "cyral_datalabel" "some_data_source_name" {
 
 ### Optional
 
-- `name` (String) Retrieve the unique label with this name, if it exists.
-- `type` (String) Filter the results by type of data label. Defaults to `UNKNOWN`, which will return all label types. The labels you create will always have type `CUSTOM`. Labels that come pre-configured in the control plane have type `PREDEFINED`. List of supported types:
-  - `UNKNOWN`
-  - `PREDEFINED`
-  - `CUSTOM`
+-   `name` (String) Retrieve the unique label with this name, if it exists.
+-   `type` (String) Filter the results by type of data label. Defaults to `UNKNOWN`, which will return all label types. The labels you create will always have type `CUSTOM`. Labels that come pre-configured in the control plane have type `PREDEFINED`. List of supported types:
+    -   `UNKNOWN`
+    -   `PREDEFINED`
+    -   `CUSTOM`
 
 ### Read-Only
 
-- `datalabel_list` (List of Object) List of existing data labels satisfying the filter criteria. (see [below for nested schema](#nestedatt--datalabel_list))
-- `id` (String) The ID of this resource.
+-   `datalabel_list` (List of Object) List of existing data labels satisfying the filter criteria. (see [below for nested schema](#nestedatt--datalabel_list))
+-   `id` (String) The ID of this resource.
 
 <a id="nestedatt--datalabel_list"></a>
 
@@ -44,12 +44,12 @@ data "cyral_datalabel" "some_data_source_name" {
 
 Read-Only:
 
-- `classification_rule` (Set of Object) (see [below for nested schema](#nestedobjatt--datalabel_list--classification_rule))
-- `description` (String)
-- `implicit` (Boolean)
-- `name` (String)
-- `tags` (List of String)
-- `type` (String)
+-   `classification_rule` (Set of Object) (see [below for nested schema](#nestedobjatt--datalabel_list--classification_rule))
+-   `description` (String)
+-   `implicit` (Boolean)
+-   `name` (String)
+-   `tags` (List of String)
+-   `type` (String)
 
 <a id="nestedobjatt--datalabel_list--classification_rule"></a>
 
@@ -57,6 +57,6 @@ Read-Only:
 
 Read-Only:
 
-- `rule_code` (String)
-- `rule_status` (String)
-- `rule_type` (String)
+-   `rule_code` (String)
+-   `rule_status` (String)
+-   `rule_type` (String)

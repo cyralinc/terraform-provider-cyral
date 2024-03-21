@@ -3,8 +3,8 @@
 page_title: "cyral_saml_configuration Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Parses a SAML metadata URL or a Base64 document into a SAML configuration.
-  See also the remaining SAML-related resources and data sources.
+    Parses a SAML metadata URL or a Base64 document into a SAML configuration.
+    See also the remaining SAML-related resources and data sources.
 ---
 
 # cyral_saml_configuration (Data Source)
@@ -33,32 +33,32 @@ data "cyral_saml_configuration" "some_data_source_name" {
 
 ### Optional
 
-- `base_64_saml_metadata_document` (String) (Required unless using `saml_metadata_url`) This is the full SAML metadata document that should be used to parse a SAML configuration, Base64 encoded.
-- `saml_metadata_url` (String) (Required unless using `base_64_saml_metadata_document`) This is the full SAML metadata URL we should use to parse to a SAML configuration.
+-   `base_64_saml_metadata_document` (String) (Required unless using `saml_metadata_url`) This is the full SAML metadata document that should be used to parse a SAML configuration, Base64 encoded.
+-   `saml_metadata_url` (String) (Required unless using `base_64_saml_metadata_document`) This is the full SAML metadata URL we should use to parse to a SAML configuration.
 
 ### Read-Only
 
-- `allowed_clock_skew` (Number) Clock skew in seconds that is tolerated when validating identity provider tokens. Default value is `0`.
-- `back_channel_supported` (Boolean) Defaults to `false` if unset.
-- `disable_force_authentication` (Boolean) Indicates whether the identity provider must authenticate the presenter directly rather than rely on a previous security context.
-- `disable_post_binding_authn_request` (Boolean) Indicates whether the AuthnRequest must be sent using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used.
-- `disable_post_binding_logout` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used.
-- `disable_post_binding_response` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used.
-- `disable_using_jwks_url` (Boolean) By default, the jwks URL is used for all SAML connections.
-- `disable_validate_signature` (Boolean) Enable/Disable signature validation of SAML responses. Highly recommended for minimum security.
-- `disable_want_assertions_signed` (Boolean) Indicates whether the service provider expects a signed Assertion.
-- `disable_want_authn_requests_signed` (Boolean) Indicates whether the identity provider expects a signed AuthnRequest.
-- `gui_order` (String) GUI order.
-- `hide_on_login_page` (Boolean) Defaults to `false` if unset.
-- `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).
-- `ldap_group_attribute` (String) Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
-- `name_id_policy_format` (String) Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.
-- `principal_type` (String) Defaults to `SUBJECT` if unset.
-- `saml_xml_key_name_tranformer` (String) Defaults to `KEY_ID` if unset.
-- `signature_type` (String) Defaults to `RSA_SHA256` if unset.
-- `signing_certificate` (String) Signing certificate used to validate signatures. Required if signature validation is enabled.
-- `single_logout_service_url` (String) URL that must be used to send logout requests.
-- `single_sign_on_service_url` (String) URL that must be used to send authentication requests (SAML AuthnRequest).
-- `sync_mode` (String) Defaults to `FORCE` if unset.
-- `want_assertions_encrypted` (Boolean) Indicates whether the service provider expects an encrypted Assertion.
-- `xml_sig_key_info_key_name_transformer` (String) Defaults to `KEY_ID` if unset.
+-   `allowed_clock_skew` (Number) Clock skew in seconds that is tolerated when validating identity provider tokens. Default value is `0`.
+-   `back_channel_supported` (Boolean) Defaults to `false` if unset.
+-   `disable_force_authentication` (Boolean) Indicates whether the identity provider must authenticate the presenter directly rather than rely on a previous security context.
+-   `disable_post_binding_authn_request` (Boolean) Indicates whether the AuthnRequest must be sent using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used.
+-   `disable_post_binding_logout` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used.
+-   `disable_post_binding_response` (Boolean) Indicates whether to respond to requests using `HTTP-POST` binding. If `true`, `HTTP-REDIRECT` binding will be used.
+-   `disable_using_jwks_url` (Boolean) By default, the jwks URL is used for all SAML connections.
+-   `disable_validate_signature` (Boolean) Enable/Disable signature validation of SAML responses. Highly recommended for minimum security.
+-   `disable_want_assertions_signed` (Boolean) Indicates whether the service provider expects a signed Assertion.
+-   `disable_want_authn_requests_signed` (Boolean) Indicates whether the identity provider expects a signed AuthnRequest.
+-   `gui_order` (String) GUI order.
+-   `hide_on_login_page` (Boolean) Defaults to `false` if unset.
+-   `id` (String) Computed ID for this data source (locally computed to be used in Terraform state).
+-   `ldap_group_attribute` (String) Type of `LDAP Group RDN` that identifies the name of a group within a DN. For example, if an LDAP DN sent in a SAML assertion is `cn=Everyone`, `ou=groups`, `dc=openam`, `dc=forgerock`, `dc=org` and the `LDAP Group RDN` Type is `cn` Cyral will interpret `Everyone` as the group name.
+-   `name_id_policy_format` (String) Defaults to `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified` if unset.
+-   `principal_type` (String) Defaults to `SUBJECT` if unset.
+-   `saml_xml_key_name_tranformer` (String) Defaults to `KEY_ID` if unset.
+-   `signature_type` (String) Defaults to `RSA_SHA256` if unset.
+-   `signing_certificate` (String) Signing certificate used to validate signatures. Required if signature validation is enabled.
+-   `single_logout_service_url` (String) URL that must be used to send logout requests.
+-   `single_sign_on_service_url` (String) URL that must be used to send authentication requests (SAML AuthnRequest).
+-   `sync_mode` (String) Defaults to `FORCE` if unset.
+-   `want_assertions_encrypted` (Boolean) Indicates whether the service provider expects an encrypted Assertion.
+-   `xml_sig_key_info_key_name_transformer` (String) Defaults to `KEY_ID` if unset.

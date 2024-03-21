@@ -22,18 +22,18 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 
 ### Required
 
-- `repository_id` (String) The ID of the repository to be configured.
+-   `repository_id` (String) The ID of the repository to be configured.
 
 ### Optional
 
-- `allow_native_auth` (Boolean) Should the communication allow native authentication?
-- `auth_type` (String) Authentication type for this repository. **Note**: `AWS_IAM` is currently only supported by `mongodb` repo type. List of supported values:
-  - `ACCESS_TOKEN`
-  - `AWS_IAM`
-- `client_tls` (String) Is the repo Client using TLS? Default is "disable".
-- `identity_provider` (String) The ID (Alias) of the identity provider integration.
-- `repo_tls` (String) Is TLS enabled for the repository? Default is "disable".
+-   `allow_native_auth` (Boolean) Should the communication allow native authentication?
+-   `auth_type` (String) Authentication type for this repository. **Note**: `AWS_IAM` is currently only supported by `mongodb` repo type. List of supported values:
+    -   `ACCESS_TOKEN`
+    -   `AWS_IAM`
+-   `client_tls` (String) Is the repo Client using TLS? Default is "disable".
+-   `identity_provider` (String) The ID (Alias) of the identity provider integration.
+-   `repo_tls` (String) Is TLS enabled for the repository? Default is "disable".
 
 ### Read-Only
 
-- `id` (String) The ID of this resource is set to `repository_id`.
+-   `id` (String) The ID of this resource is set to `repository_id`.

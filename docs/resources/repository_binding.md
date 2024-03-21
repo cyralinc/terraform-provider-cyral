@@ -75,18 +75,18 @@ resource "cyral_repository_binding" "binding_pg" {
 
 ### Required
 
-- `listener_binding` (Block List, Min: 1) The configuration for listeners associated with the binding. At least one `listener_binding` is required. (see [below for nested schema](#nestedblock--listener_binding))
-- `repository_id` (String) ID of the repository that will be bound to the sidecar.
-- `sidecar_id` (String) ID of the sidecar that will be bound to the given repository.
+-   `listener_binding` (Block List, Min: 1) The configuration for listeners associated with the binding. At least one `listener_binding` is required. (see [below for nested schema](#nestedblock--listener_binding))
+-   `repository_id` (String) ID of the repository that will be bound to the sidecar.
+-   `sidecar_id` (String) ID of the sidecar that will be bound to the given repository.
 
 ### Optional
 
-- `enabled` (Boolean) Enable or disable all listener bindings.
+-   `enabled` (Boolean) Enable or disable all listener bindings.
 
 ### Read-Only
 
-- `binding_id` (String) ID of the binding. Computed and assigned to binding at the time of creation.
-- `id` (String) The ID of this resource.
+-   `binding_id` (String) ID of the binding. Computed and assigned to binding at the time of creation.
+-   `id` (String) The ID of this resource.
 
 <a id="nestedblock--listener_binding"></a>
 
@@ -94,8 +94,8 @@ resource "cyral_repository_binding" "binding_pg" {
 
 Required:
 
-- `listener_id` (String) The sidecar listener that this binding is associated with.
+-   `listener_id` (String) The sidecar listener that this binding is associated with.
 
 Optional:
 
-- `node_index` (Number) The index of the repo node that this binding is associated with.
+-   `node_index` (Number) The index of the repo node that this binding is associated with.

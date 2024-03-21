@@ -51,11 +51,11 @@ resource "cyral_service_account" "this" {
 
 ### Required
 
-- `display_name` (String) The service account display name.
-- `permission_ids` (Set of String) A list of permission IDs that will be assigned to this service account. See also data source [`cyral_permission`](../data-sources/permission.md).
+-   `display_name` (String) The service account display name.
+-   `permission_ids` (Set of String) A list of permission IDs that will be assigned to this service account. See also data source [`cyral_permission`](../data-sources/permission.md).
 
 ### Read-Only
 
-- `client_id` (String) The service account client ID.
-- `client_secret` (String, Sensitive) The service account client secret. **Note**: This resource is not able to recognize changes to the client secret after its creation, so keep in mind that if the client secret is rotated, the value present in this attribute will be outdated. If you need to rotate the client secret it's recommended that you recreate this terraform resource.
-- `id` (String) The resource identifier. It's equal to `client_id`.
+-   `client_id` (String) The service account client ID.
+-   `client_secret` (String, Sensitive) The service account client secret. **Note**: This resource is not able to recognize changes to the client secret after its creation, so keep in mind that if the client secret is rotated, the value present in this attribute will be outdated. If you need to rotate the client secret it's recommended that you recreate this terraform resource.
+-   `id` (String) The resource identifier. It's equal to `client_id`.

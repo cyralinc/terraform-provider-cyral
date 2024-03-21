@@ -1,0 +1,7 @@
+overrides:
+  - files:
+      - "docs/**/*.md"
+    options:
+      # This is needed because terraform docs preview has a limitation that only displays nested
+      # list items correctly using tabWidth equals 4.
+      tabWidth: 4

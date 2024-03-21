@@ -3,7 +3,7 @@
 page_title: "cyral_role_sso_groups Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages mapping SSO groups to specific roles https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role on Cyral control plane. See also: Role ./role.md.
+    Manages mapping SSO groups to specific roles https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role on Cyral control plane. See also: Role ./role.md.
 ---
 
 # cyral_role_sso_groups (Resource)
@@ -66,12 +66,12 @@ resource "cyral_role_sso_groups" "some_role_sso_groups" {
 
 ### Required
 
-- `role_id` (String) The ID of the role resource that will be configured.
-- `sso_group` (Block Set, Min: 1) A block responsible for mapping an SSO group to a role. (see [below for nested schema](#nestedblock--sso_group))
+-   `role_id` (String) The ID of the role resource that will be configured.
+-   `sso_group` (Block Set, Min: 1) A block responsible for mapping an SSO group to a role. (see [below for nested schema](#nestedblock--sso_group))
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+-   `id` (String) The ID of this resource.
 
 <a id="nestedblock--sso_group"></a>
 
@@ -79,10 +79,10 @@ resource "cyral_role_sso_groups" "some_role_sso_groups" {
 
 Required:
 
-- `group_name` (String) The name of the SSO group to be mapped.
-- `idp_id` (String) The ID of the identity provider integration to be mapped.
+-   `group_name` (String) The name of the SSO group to be mapped.
+-   `idp_id` (String) The ID of the identity provider integration to be mapped.
 
 Read-Only:
 
-- `id` (String) The ID of an SSO group mapping.
-- `idp_name` (String) The name of the identity provider integration of an SSO group mapping.
+-   `id` (String) The ID of an SSO group mapping.
+-   `idp_name` (String) The name of the identity provider integration of an SSO group mapping.
