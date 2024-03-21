@@ -215,9 +215,21 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 				Default:     DefaultClientTLS,
 			},
 			"identity_provider": {
-				Description: "The ID (Alias) of the identity provider integration.",
-				Type:        schema.TypeString,
-				Optional:    true,
+				Description: fmt.Sprintf(
+					"The semantics of this field changed in control planes `v4.13` and later. See how "+
+						"it should be configured depending on your control plane version:\n"+
+						"\t- `v4.12` and below:\n\t\t- Provide the ID (Alias) of the identity provider "+
+						"integration to allow user authentication using an IdP.\n"+
+						"\t- `v4.13` and later:\n\t\t- If not supplied, then end-user "+
+						"authentication is disabled.\n\t\t- If end-user authentication "+
+						"with Cyral Access Token is desired, then set to `ACCESS_TOKEN` or any "+
+						"other non-empty string.\n\t\t- If end-user authentication with "+
+						"AWS IAM is desired, then this must be the ID of an AWS IAM integration, "+
+						"and the `auth_type` attribute must be set to `%s`.",
+					AwsIAMAuthType,
+				),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"repo_tls": {
 				Description: fmt.Sprintf("Is TLS enabled for the repository? Default is %q.", DefaultRepoTLS),

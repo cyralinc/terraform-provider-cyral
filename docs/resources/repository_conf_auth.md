@@ -31,7 +31,13 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
     -   `ACCESS_TOKEN`
     -   `AWS_IAM`
 -   `client_tls` (String) Is the repo Client using TLS? Default is "disable".
--   `identity_provider` (String) The ID (Alias) of the identity provider integration.
+-   `identity_provider` (String) The semantics of this field changed in control planes `v4.13` and later. See how it should be configured depending on your control plane version:
+    -   `v4.12` and below:
+        -   Provide the ID (Alias) of the identity provider integration to allow user authentication using an IdP.
+    -   `v4.13` and later:
+        -   If not supplied, then end-user authentication is disabled.
+        -   If end-user authentication with Cyral Access Token is desired, then set to `ACCESS_TOKEN` or any other non-empty string.
+        -   If end-user authentication with AWS IAM is desired, then this must be the ID of an AWS IAM integration, and the `auth_type` attribute must be set to `AWS_IAM`.
 -   `repo_tls` (String) Is TLS enabled for the repository? Default is "disable".
 
 ### Read-Only
