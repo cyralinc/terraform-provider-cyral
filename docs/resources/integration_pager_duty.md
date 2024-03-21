@@ -3,7 +3,7 @@
 page_title: "cyral_integration_pager_duty Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages integration with PagerDuty https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral.
+    Manages integration with PagerDuty https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral.
 ---
 
 # cyral_integration_pager_duty (Resource)
@@ -25,9 +25,9 @@ resource "cyral_integration_pager_duty" "some_resource_name" {
 
 ### Required
 
-- `api_token` (String, Sensitive) API token for the PagerDuty integration.
-- `name` (String) Integration display name that will be used in the control plane.
+-   `api_token` (String, Sensitive) API token for the PagerDuty integration.
+-   `name` (String) Integration display name that will be used in the control plane.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

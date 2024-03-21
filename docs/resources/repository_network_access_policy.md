@@ -3,18 +3,18 @@
 page_title: "cyral_repository_network_access_policy Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages the network access policy of a repository. Network access policies are also known as the Network Shield https://cyral.com/docs/manage-repositories/network-shield/. This feature is supported for the following repository types:
-    - sqlserver
-    - oracle
-  -> Note If you also use the resource cyral_repository_conf_auth for the same repository, create a depends_on relationship from this resource to the cyral_repository_conf_auth to avoid errors when running terraform destroy.
+    Manages the network access policy of a repository. Network access policies are also known as the Network Shield https://cyral.com/docs/manage-repositories/network-shield/. This feature is supported for the following repository types:
+      - sqlserver
+      - oracle
+    -> Note If you also use the resource cyral_repository_conf_auth for the same repository, create a depends_on relationship from this resource to the cyral_repository_conf_auth to avoid errors when running terraform destroy.
 ---
 
 # cyral_repository_network_access_policy (Resource)
 
 Manages the network access policy of a repository. Network access policies are also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/). This feature is supported for the following repository types:
 
-- `sqlserver`
-- `oracle`
+-   `sqlserver`
+-   `oracle`
 
 -> **Note** If you also use the resource `cyral_repository_conf_auth` for the same repository, create a `depends_on` relationship from this resource to the `cyral_repository_conf_auth` to avoid errors when running `terraform destroy`.
 
@@ -65,17 +65,17 @@ resource "cyral_repository_network_access_policy" "access_policy" {
 
 ### Required
 
-- `repository_id` (String) ID of the repository for which to configure a network access policy.
+-   `repository_id` (String) ID of the repository for which to configure a network access policy.
 
 ### Optional
 
-- `enabled` (Boolean) Is the network access policy enabled? Default is true.
-- `network_access_rule` (Block Set) Network access policy that decides whether access should be granted based on a set of rules. (see [below for nested schema](#nestedblock--network_access_rule))
-- `network_access_rules_block_access` (Boolean) Determines what happens if an incoming connection matches one of the rules in `network_access_rule`. If set to true, the connection is blocked if it matches some rule (and allowed otherwise). Otherwise set to false, the connection is allowed only if it matches some rule. Default is false.
+-   `enabled` (Boolean) Is the network access policy enabled? Default is true.
+-   `network_access_rule` (Block Set) Network access policy that decides whether access should be granted based on a set of rules. (see [below for nested schema](#nestedblock--network_access_rule))
+-   `network_access_rules_block_access` (Boolean) Determines what happens if an incoming connection matches one of the rules in `network_access_rule`. If set to true, the connection is blocked if it matches some rule (and allowed otherwise). Otherwise set to false, the connection is allowed only if it matches some rule. Default is false.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in the Cyral environment.
+-   `id` (String) ID of this resource in the Cyral environment.
 
 <a id="nestedblock--network_access_rule"></a>
 
@@ -83,10 +83,10 @@ resource "cyral_repository_network_access_policy" "access_policy" {
 
 Required:
 
-- `name` (String) Name of the rule.
+-   `name` (String) Name of the rule.
 
 Optional:
 
-- `db_accounts` (List of String) Specify which accounts this rule applies to. The account name must match an existing account in your database.
-- `description` (String) Description of the network access policy.
-- `source_ips` (List of String) Specify IPs to restrict the range of allowed IP addresses for this rule.
+-   `db_accounts` (List of String) Specify which accounts this rule applies to. The account name must match an existing account in your database.
+-   `description` (String) Description of the network access policy.
+-   `source_ips` (List of String) Specify IPs to restrict the range of allowed IP addresses for this rule.

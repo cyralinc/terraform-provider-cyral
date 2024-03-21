@@ -3,7 +3,7 @@
 page_title: "cyral_sidecar_listener Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieve and filter sidecar listeners.
+    Retrieve and filter sidecar listeners.
 ---
 
 # cyral_sidecar_listener (Data Source)
@@ -16,31 +16,31 @@ Retrieve and filter sidecar listeners.
 
 ### Required
 
-- `sidecar_id` (String) Filter the results by sidecar ID.
+-   `sidecar_id` (String) Filter the results by sidecar ID.
 
 ### Optional
 
-- `port` (Number) Filter the results per port.
-- `repo_type` (String) Filter the results per repository type. Supported repo types:
-  - `denodo`
-  - `dremio`
-  - `dynamodb`
-  - `dynamodbstreams`
-  - `galera`
-  - `mariadb`
-  - `mongodb`
-  - `mysql`
-  - `oracle`
-  - `postgresql`
-  - `redshift`
-  - `s3`
-  - `snowflake`
-  - `sqlserver`
+-   `port` (Number) Filter the results per port.
+-   `repo_type` (String) Filter the results per repository type. Supported repo types:
+    -   `denodo`
+    -   `dremio`
+    -   `dynamodb`
+    -   `dynamodbstreams`
+    -   `galera`
+    -   `mariadb`
+    -   `mongodb`
+    -   `mysql`
+    -   `oracle`
+    -   `postgresql`
+    -   `redshift`
+    -   `s3`
+    -   `snowflake`
+    -   `sqlserver`
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `listener_list` (List of Object) List of existing listeners satisfying the filter criteria. (see [below for nested schema](#nestedatt--listener_list))
+-   `id` (String) The ID of this resource.
+-   `listener_list` (List of Object) List of existing listeners satisfying the filter criteria. (see [below for nested schema](#nestedatt--listener_list))
 
 <a id="nestedatt--listener_list"></a>
 
@@ -48,14 +48,14 @@ Retrieve and filter sidecar listeners.
 
 Read-Only:
 
-- `dynamodb_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--dynamodb_settings))
-- `listener_id` (String)
-- `mysql_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--mysql_settings))
-- `network_address` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--network_address))
-- `repo_types` (List of String)
-- `s3_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--s3_settings))
-- `sidecar_id` (String)
-- `sqlserver_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--sqlserver_settings))
+-   `dynamodb_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--dynamodb_settings))
+-   `listener_id` (String)
+-   `mysql_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--mysql_settings))
+-   `network_address` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--network_address))
+-   `repo_types` (List of String)
+-   `s3_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--s3_settings))
+-   `sidecar_id` (String)
+-   `sqlserver_settings` (Set of Object) (see [below for nested schema](#nestedobjatt--listener_list--sqlserver_settings))
 
 <a id="nestedobjatt--listener_list--dynamodb_settings"></a>
 
@@ -63,7 +63,7 @@ Read-Only:
 
 Read-Only:
 
-- `proxy_mode` (Boolean)
+-   `proxy_mode` (Boolean)
 
 <a id="nestedobjatt--listener_list--mysql_settings"></a>
 
@@ -71,8 +71,8 @@ Read-Only:
 
 Read-Only:
 
-- `character_set` (String)
-- `db_version` (String)
+-   `character_set` (String)
+-   `db_version` (String)
 
 <a id="nestedobjatt--listener_list--network_address"></a>
 
@@ -80,8 +80,8 @@ Read-Only:
 
 Read-Only:
 
-- `host` (String)
-- `port` (Number)
+-   `host` (String)
+-   `port` (Number)
 
 <a id="nestedobjatt--listener_list--s3_settings"></a>
 
@@ -89,7 +89,7 @@ Read-Only:
 
 Read-Only:
 
-- `proxy_mode` (Boolean)
+-   `proxy_mode` (Boolean)
 
 <a id="nestedobjatt--listener_list--sqlserver_settings"></a>
 
@@ -97,4 +97,4 @@ Read-Only:
 
 Read-Only:
 
-- `version` (String)
+-   `version` (String)

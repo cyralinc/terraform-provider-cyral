@@ -44,14 +44,14 @@ resource "cyral_integration_idp_saml" "example_integration" {
 
 ### Required
 
-- `saml_draft_id` (String) A valid id for a SAML Draft. Must be at least 5 character long. See attribute `id` in resource `cyral_integration_idp_saml_draft`.
+-   `saml_draft_id` (String) A valid id for a SAML Draft. Must be at least 5 character long. See attribute `id` in resource `cyral_integration_idp_saml_draft`.
 
 ### Optional
 
-- `idp_metadata_url` (String) The web address of an IdP SAML Metadata XML document. Conflicts with `idp_metadata_xml`.
-- `idp_metadata_xml` (String) Full SAML metadata XML document. Must be base64 encoded. Conflicts with `idp_metadata_url`.
+-   `idp_metadata_url` (String) The web address of an IdP SAML Metadata XML document. Conflicts with `idp_metadata_xml`.
+-   `idp_metadata_xml` (String) Full SAML metadata XML document. Must be base64 encoded. Conflicts with `idp_metadata_url`.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in the Cyral environment.
-- `single_sign_on_service_url` (String) The IdP’s Single Sign-on Service (SSO) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.
+-   `id` (String) ID of this resource in the Cyral environment.
+-   `single_sign_on_service_url` (String) The IdP’s Single Sign-on Service (SSO) URL, where Cyral SP will send SAML AuthnRequests via SAML-POST binding.

@@ -51,13 +51,13 @@ resource "cyral_repository_access_rules" "some_resource_name" {
 
 ### Required
 
-- `repository_id` (String) ID of the repository.
-- `rule` (Block List, Min: 1) An ordered list of access rules. (see [below for nested schema](#nestedblock--rule))
-- `user_account_id` (String) ID of the database account. This should be the attribute `user_account_id` of the resource `cyral_repository_user_account`.
+-   `repository_id` (String) ID of the repository.
+-   `rule` (Block List, Min: 1) An ordered list of access rules. (see [below for nested schema](#nestedblock--rule))
+-   `user_account_id` (String) ID of the database account. This should be the attribute `user_account_id` of the resource `cyral_repository_user_account`.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment.
+-   `id` (String) ID of this resource in Cyral environment.
 
 <a id="nestedblock--rule"></a>
 
@@ -65,13 +65,13 @@ resource "cyral_repository_access_rules" "some_resource_name" {
 
 Required:
 
-- `identity` (Block Set, Min: 1, Max: 1) The identity of the person/group getting access. (see [below for nested schema](#nestedblock--rule--identity))
+-   `identity` (Block Set, Min: 1, Max: 1) The identity of the person/group getting access. (see [below for nested schema](#nestedblock--rule--identity))
 
 Optional:
 
-- `config` (Block Set, Max: 1) Extra (optional) configuration parameters. (see [below for nested schema](#nestedblock--rule--config))
-- `valid_from` (String) The start time for the grant. Format is: `yyyy-mm-ddThh:mm:ssZ`. Eg. `2022-01-24T18:30:00Z`.
-- `valid_until` (String) The end time for the grant. Format is: `yyyy-mm-ddThh:mm:ssZ`. Eg. `2022-01-24T18:30:00Z`.
+-   `config` (Block Set, Max: 1) Extra (optional) configuration parameters. (see [below for nested schema](#nestedblock--rule--config))
+-   `valid_from` (String) The start time for the grant. Format is: `yyyy-mm-ddThh:mm:ssZ`. Eg. `2022-01-24T18:30:00Z`.
+-   `valid_until` (String) The end time for the grant. Format is: `yyyy-mm-ddThh:mm:ssZ`. Eg. `2022-01-24T18:30:00Z`.
 
 <a id="nestedblock--rule--identity"></a>
 
@@ -79,11 +79,11 @@ Optional:
 
 Required:
 
-- `name` (String) The name of the person/group getting access.
-- `type` (String) Identity type. List of supported values:
-  - `username`
-  - `email`
-  - `group`
+-   `name` (String) The name of the person/group getting access.
+-   `type` (String) Identity type. List of supported values:
+    -   `username`
+    -   `email`
+    -   `group`
 
 <a id="nestedblock--rule--config"></a>
 
@@ -91,4 +91,4 @@ Required:
 
 Required:
 
-- `policy_ids` (List of String) Extra authorization policies, such as PagerDuty or DUO. Use the attribute `id` from resources `cyral_integration_pager_duty` and `cyral_integration_mfa_duo`.
+-   `policy_ids` (List of String) Extra authorization policies, such as PagerDuty or DUO. Use the attribute `id` from resources `cyral_integration_pager_duty` and `cyral_integration_mfa_duo`.

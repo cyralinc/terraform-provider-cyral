@@ -3,7 +3,7 @@
 page_title: "cyral_integration_idp_saml Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieve and filter SAML IdP integrations.
+    Retrieve and filter SAML IdP integrations.
 ---
 
 # cyral_integration_idp_saml (Data Source)
@@ -26,13 +26,13 @@ data "cyral_integration_idp_saml" "some_data_source_name" {
 
 ### Optional
 
-- `display_name` (String) Filter results by the display name (as seen in the control plane UI) of existing SAML IdP integrations.
-- `idp_type` (String) Filter results by the SAML IdP integration type.
+-   `display_name` (String) Filter results by the display name (as seen in the control plane UI) of existing SAML IdP integrations.
+-   `idp_type` (String) Filter results by the SAML IdP integration type.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `idp_list` (List of Object) List of existing SAML IdP integrations that match the given filter criteria. (see [below for nested schema](#nestedatt--idp_list))
+-   `id` (String) The ID of this resource.
+-   `idp_list` (List of Object) List of existing SAML IdP integrations that match the given filter criteria. (see [below for nested schema](#nestedatt--idp_list))
 
 <a id="nestedatt--idp_list"></a>
 
@@ -40,13 +40,13 @@ data "cyral_integration_idp_saml" "some_data_source_name" {
 
 Read-Only:
 
-- `attributes` (Set of Object) (see [below for nested schema](#nestedobjatt--idp_list--attributes))
-- `disabled` (Boolean)
-- `display_name` (String)
-- `id` (String)
-- `idp_descriptor` (Set of Object) (see [below for nested schema](#nestedobjatt--idp_list--idp_descriptor))
-- `idp_type` (String)
-- `sp_metadata` (Set of Object) (see [below for nested schema](#nestedobjatt--idp_list--sp_metadata))
+-   `attributes` (Set of Object) (see [below for nested schema](#nestedobjatt--idp_list--attributes))
+-   `disabled` (Boolean)
+-   `display_name` (String)
+-   `id` (String)
+-   `idp_descriptor` (Set of Object) (see [below for nested schema](#nestedobjatt--idp_list--idp_descriptor))
+-   `idp_type` (String)
+-   `sp_metadata` (Set of Object) (see [below for nested schema](#nestedobjatt--idp_list--sp_metadata))
 
 <a id="nestedobjatt--idp_list--attributes"></a>
 
@@ -54,10 +54,10 @@ Read-Only:
 
 Read-Only:
 
-- `email` (String)
-- `first_name` (String)
-- `groups` (String)
-- `last_name` (String)
+-   `email` (String)
+-   `first_name` (String)
+-   `groups` (String)
+-   `last_name` (String)
 
 <a id="nestedobjatt--idp_list--idp_descriptor"></a>
 
@@ -65,10 +65,10 @@ Read-Only:
 
 Read-Only:
 
-- `disable_force_authentication` (Boolean)
-- `signing_certificate` (String)
-- `single_logout_service_url` (String)
-- `single_sign_on_service_url` (String)
+-   `disable_force_authentication` (Boolean)
+-   `signing_certificate` (String)
+-   `single_logout_service_url` (String)
+-   `single_sign_on_service_url` (String)
 
 <a id="nestedobjatt--idp_list--sp_metadata"></a>
 
@@ -76,11 +76,11 @@ Read-Only:
 
 Read-Only:
 
-- `assertion_consumer_services` (List of Object) (see [below for nested schema](#nestedobjatt--idp_list--sp_metadata--assertion_consumer_services))
-- `entity_id` (String)
-- `single_logout_url` (String)
-- `url` (String)
-- `xml_document` (String)
+-   `assertion_consumer_services` (List of Object) (see [below for nested schema](#nestedobjatt--idp_list--sp_metadata--assertion_consumer_services))
+-   `entity_id` (String)
+-   `single_logout_url` (String)
+-   `url` (String)
+-   `xml_document` (String)
 
 <a id="nestedobjatt--idp_list--sp_metadata--assertion_consumer_services"></a>
 
@@ -88,5 +88,5 @@ Read-Only:
 
 Read-Only:
 
-- `index` (Number)
-- `url` (String)
+-   `index` (Number)
+-   `url` (String)

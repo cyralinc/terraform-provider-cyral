@@ -7,11 +7,11 @@ In this guide, we provide different examples on how to use them.
 
 Recommended further reading:
 
-- Refer to the [Cyral policies](https://cyral.com/docs/policy/overview/) page in our public
-  docs for a complete documentation about the Cyral policy framework.
-- Refer to the [`cyral_rego_policy_instance`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance)
-  resource for more details about the [template parameters](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters)
-  and how to use the pre-built repo-level policies in Terraform.
+-   Refer to the [Cyral policies](https://cyral.com/docs/policy/overview/) page in our public
+    docs for a complete documentation about the Cyral policy framework.
+-   Refer to the [`cyral_rego_policy_instance`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance)
+    resource for more details about the [template parameters](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters)
+    and how to use the pre-built repo-level policies in Terraform.
 
 ## Example: data firewall
 

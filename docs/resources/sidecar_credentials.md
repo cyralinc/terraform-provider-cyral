@@ -31,9 +31,9 @@ Where `PATH` is the path to the partial configuration file.
 
 See also:
 
-- [Remote Backends](https://www.terraform.io/docs/language/settings/backends/remote.html)
-- [S3 remote backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
-- [Partial Configuration](https://www.terraform.io/docs/language/settings/backends/configuration.html#partial-configuration)
+-   [Remote Backends](https://www.terraform.io/docs/language/settings/backends/remote.html)
+-   [S3 remote backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
+-   [Partial Configuration](https://www.terraform.io/docs/language/settings/backends/configuration.html#partial-configuration)
 
 ~> **Warning** Importing this resource into the Terraform state is not recommended,
 since the `client_secret` computed attribute will not be set. `client_secret`
@@ -53,10 +53,10 @@ resource "cyral_sidecar_credentials" "some_resource_name" {
 
 ### Required
 
-- `sidecar_id` (String) ID of the sidecar to create new credentials.
+-   `sidecar_id` (String) ID of the sidecar to create new credentials.
 
 ### Read-Only
 
-- `client_id` (String) Sidecar client ID.
-- `client_secret` (String, Sensitive) Sidecar client secret.
-- `id` (String) Same as `client_id`.
+-   `client_id` (String) Sidecar client ID.
+-   `client_secret` (String, Sensitive) Sidecar client secret.
+-   `id` (String) Same as `client_id`.

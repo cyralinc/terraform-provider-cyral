@@ -3,7 +3,7 @@
 page_title: "cyral_integration_logstash Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  ~> DEPRECATED Use resource cyral_integration_logging instead.
+    ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_logstash (Resource)
@@ -28,12 +28,12 @@ resource "cyral_integration_logstash" "some_resource_name" {
 
 ### Required
 
-- `endpoint` (String, Sensitive) The endpoint used to connect to Logstash.
-- `name` (String) Integration name that will be used internally in the control plane.
-- `use_mutual_authentication` (Boolean) Logstash configured to use mutual authentication.
-- `use_private_certificate_chain` (Boolean) Logstash configured to use private certificate chain.
-- `use_tls` (Boolean) Logstash configured to use mutual TLS.
+-   `endpoint` (String, Sensitive) The endpoint used to connect to Logstash.
+-   `name` (String) Integration name that will be used internally in the control plane.
+-   `use_mutual_authentication` (Boolean) Logstash configured to use mutual authentication.
+-   `use_private_certificate_chain` (Boolean) Logstash configured to use private certificate chain.
+-   `use_tls` (Boolean) Logstash configured to use mutual TLS.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

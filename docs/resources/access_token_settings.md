@@ -22,12 +22,12 @@ resource "cyral_access_token_settings" "current" {
 
 ### Optional
 
-- `default_validity` (String) The default duration used for access token validity. Defaults to `36000s`. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s`, etc.
-- `max_number_of_tokens_per_user` (Number) The maximum number of access tokens that a user can have at the same time. Must be between `1` and `5` (inclusive). Defaults to `3`.
-- `max_validity` (String) The maximum duration that a user can request for access token validity. Defaults to `36000s`. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s`, etc.
-- `offline_token_validation` (Boolean) The configuration that determines if the sidecar should perform access token validation independently using cached token values. If this is `true`, the sidecar will be able to validate and authenticate database access even when it cannot reach the Control Plane. Defaults to `true`.
-- `token_length` (Number) The number of characters of the access token plaintext value. Valid values are `8`, `12` and `16`. Defaults to `16`.
+-   `default_validity` (String) The default duration used for access token validity. Defaults to `36000s`. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s`, etc.
+-   `max_number_of_tokens_per_user` (Number) The maximum number of access tokens that a user can have at the same time. Must be between `1` and `5` (inclusive). Defaults to `3`.
+-   `max_validity` (String) The maximum duration that a user can request for access token validity. Defaults to `36000s`. Should follow the protobuf duration string format, which corresponds to a sequence of decimal numbers suffixed by a 's' at the end, representing the duration in seconds. For example: `300s`, `60s`, `10.50s`, etc.
+-   `offline_token_validation` (Boolean) The configuration that determines if the sidecar should perform access token validation independently using cached token values. If this is `true`, the sidecar will be able to validate and authenticate database access even when it cannot reach the Control Plane. Defaults to `true`.
+-   `token_length` (Number) The number of characters of the access token plaintext value. Valid values are `8`, `12` and `16`. Defaults to `16`.
 
 ### Read-Only
 
-- `id` (String) The resource identifier. It's set as `settings/access_token`.
+-   `id` (String) The resource identifier. It's set as `settings/access_token`.

@@ -3,7 +3,7 @@
 page_title: "cyral_integration_splunk Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  ~> DEPRECATED Use resource cyral_integration_logging instead.
+    ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_splunk (Resource)
@@ -29,13 +29,13 @@ resource "cyral_integration_splunk" "some_resource_name" {
 
 ### Required
 
-- `access_token` (String, Sensitive) Splunk access token.
-- `host` (String) Splunk host.
-- `index` (String) Splunk data index name.
-- `name` (String) Integration name that will be used internally in the control plane.
-- `port` (Number) Splunk host port.
-- `use_tls` (Boolean) Should the communication with Splunk use TLS encryption?
+-   `access_token` (String, Sensitive) Splunk access token.
+-   `host` (String) Splunk host.
+-   `index` (String) Splunk data index name.
+-   `name` (String) Integration name that will be used internally in the control plane.
+-   `port` (Number) Splunk host port.
+-   `use_tls` (Boolean) Should the communication with Splunk use TLS encryption?
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

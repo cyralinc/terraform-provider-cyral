@@ -3,7 +3,7 @@
 page_title: "cyral_integration_elk Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  ~> DEPRECATED Use resource cyral_integration_logging instead.
+    ~> DEPRECATED Use resource cyral_integration_logging instead.
 ---
 
 # cyral_integration_elk (Resource)
@@ -26,10 +26,10 @@ resource "cyral_integration_elk" "some_resource_name" {
 
 ### Required
 
-- `es_url` (String) Elastic Search URL.
-- `kibana_url` (String) Kibana URL.
-- `name` (String) Integration name that will be used internally in the control plane.
+-   `es_url` (String) Elastic Search URL.
+-   `kibana_url` (String) Kibana URL.
+-   `name` (String) Integration name that will be used internally in the control plane.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

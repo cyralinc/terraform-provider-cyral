@@ -3,7 +3,7 @@
 page_title: "cyral_permission Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieve all Cyral permissions. See also resource cyral_service_account ../resources/service_account.md.
+    Retrieve all Cyral permissions. See also resource cyral_service_account ../resources/service_account.md.
 ---
 
 # cyral_permission (Data Source)
@@ -16,8 +16,8 @@ Retrieve all Cyral permissions. See also resource [`cyral_service_account`](../r
 
 ### Read-Only
 
-- `id` (String) The data source identifier.
-- `permission_list` (List of Object) List of all existing Cyral permissions. (see [below for nested schema](#nestedatt--permission_list))
+-   `id` (String) The data source identifier.
+-   `permission_list` (List of Object) List of all existing Cyral permissions. (see [below for nested schema](#nestedatt--permission_list))
 
 <a id="nestedatt--permission_list"></a>
 
@@ -25,6 +25,6 @@ Retrieve all Cyral permissions. See also resource [`cyral_service_account`](../r
 
 Read-Only:
 
-- `description` (String)
-- `id` (String)
-- `name` (String)
+-   `description` (String)
+-   `id` (String)
+-   `name` (String)

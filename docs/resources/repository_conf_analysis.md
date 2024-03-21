@@ -3,7 +3,7 @@
 page_title: "cyral_repository_conf_analysis Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages Repository Analysis Configuration. This resource allows configuring both Log Settings https://cyral.com/docs/manage-repositories/repo-log-volume and Advanced settings https://cyral.com/docs/manage-repositories/repo-advanced-settings (Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.
+    Manages Repository Analysis Configuration. This resource allows configuring both Log Settings https://cyral.com/docs/manage-repositories/repo-log-volume and Advanced settings https://cyral.com/docs/manage-repositories/repo-advanced-settings (Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.
 ---
 
 # cyral_repository_conf_analysis (Resource)
@@ -48,39 +48,39 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
 
 ### Required
 
-- `repository_id` (String) The ID of an existing data repository resource that will be configured.
+-   `repository_id` (String) The ID of an existing data repository resource that will be configured.
 
 ### Optional
 
-- `alert_on_violation` (Boolean) If set to `true` it will enable alert on policy violations.
-- `block_on_violation` (Boolean) If set to `true` it will enable query blocking in case of a policy violation.
-- `comment_annotation_groups` (Set of String) Valid values are: `identity`, `client`, `repo`, `sidecar`. The default behavior is to set only the `identity` when this option is enabled, but you can also opt to add the contents of `client`, `repo`, `sidecar` logging blocks as query comments. [Learn more](https://support.cyral.com/support/solutions/articles/44002218978).
-- `disable_filter_analysis` (Boolean) If set to `true` it will _disable_ filter analysis.
-- `disable_pre_configured_alerts` (Boolean) If set to `true` it will _disable_ preconfigured alerts.
-- `enable_data_masking` (Boolean) If set to `true` it will allow policies to force the masking of specified data fields in the results of queries. [Learn more](https://cyral.com/docs/using-cyral/masking/).
-- `enable_dataset_rewrites` (Boolean) If set to `true` it will enable rewriting queries.
-- `log_groups` (Set of String) Responsible for configuring the Log Settings. Valid values are documented below. The `log_groups` list support the following values:
-  - `everything` - Enables all the Log Settings.
-  - `dql` - Enables the `DQLs` setting for `all requests`.
-  - `dml` - Enables the `DMLs` setting for `all requests`.
-  - `ddl` - Enables the `DDLs` setting for `all requests`.
-  - `sensitive & dql` - Enables the `DQLs` setting for `logged fields`.
-  - `sensitive & dml` - Enables the `DMLs` setting for `logged fields`.
-  - `sensitive & ddl` - Enables the `DDLs` setting for `logged fields`.
-  - `privileged` - Enables the `Privileged commands` setting.
-  - `port-scan` - Enables the `Port scans` setting.
-  - `auth-failure` - Enables the `Authentication failures` setting.
-  - `full-table-scan` - Enables the `Full scans` setting.
-  - `violations` - Enables the `Policy violations` setting.
-  - `connections` - Enables the `Connection activity` setting.
-  - `sensitive` - Log all queries manipulating sensitive fields (watches)
-  - `data-classification` - Log all queries whose response was automatically classified as sensitive (credit card numbers, emails and so on).
-  - `audit` - Log `sensitive`, `DQLs`, `DDLs`, `DMLs` and `privileged`.
-  - `error` - Log analysis errors.
-  - `new-connections` - Log new connections.
-  - `closed-connections` - Log closed connections.
-- `redact` (String) Valid values are: `all`, `none` and `watched`. If set to `all` it will enable the redact of all literal values, `none` will disable it, and `watched` will only redact values from tracked fields set in the Datamap.
+-   `alert_on_violation` (Boolean) If set to `true` it will enable alert on policy violations.
+-   `block_on_violation` (Boolean) If set to `true` it will enable query blocking in case of a policy violation.
+-   `comment_annotation_groups` (Set of String) Valid values are: `identity`, `client`, `repo`, `sidecar`. The default behavior is to set only the `identity` when this option is enabled, but you can also opt to add the contents of `client`, `repo`, `sidecar` logging blocks as query comments. [Learn more](https://support.cyral.com/support/solutions/articles/44002218978).
+-   `disable_filter_analysis` (Boolean) If set to `true` it will _disable_ filter analysis.
+-   `disable_pre_configured_alerts` (Boolean) If set to `true` it will _disable_ preconfigured alerts.
+-   `enable_data_masking` (Boolean) If set to `true` it will allow policies to force the masking of specified data fields in the results of queries. [Learn more](https://cyral.com/docs/using-cyral/masking/).
+-   `enable_dataset_rewrites` (Boolean) If set to `true` it will enable rewriting queries.
+-   `log_groups` (Set of String) Responsible for configuring the Log Settings. Valid values are documented below. The `log_groups` list support the following values:
+    -   `everything` - Enables all the Log Settings.
+    -   `dql` - Enables the `DQLs` setting for `all requests`.
+    -   `dml` - Enables the `DMLs` setting for `all requests`.
+    -   `ddl` - Enables the `DDLs` setting for `all requests`.
+    -   `sensitive & dql` - Enables the `DQLs` setting for `logged fields`.
+    -   `sensitive & dml` - Enables the `DMLs` setting for `logged fields`.
+    -   `sensitive & ddl` - Enables the `DDLs` setting for `logged fields`.
+    -   `privileged` - Enables the `Privileged commands` setting.
+    -   `port-scan` - Enables the `Port scans` setting.
+    -   `auth-failure` - Enables the `Authentication failures` setting.
+    -   `full-table-scan` - Enables the `Full scans` setting.
+    -   `violations` - Enables the `Policy violations` setting.
+    -   `connections` - Enables the `Connection activity` setting.
+    -   `sensitive` - Log all queries manipulating sensitive fields (watches)
+    -   `data-classification` - Log all queries whose response was automatically classified as sensitive (credit card numbers, emails and so on).
+    -   `audit` - Log `sensitive`, `DQLs`, `DDLs`, `DMLs` and `privileged`.
+    -   `error` - Log analysis errors.
+    -   `new-connections` - Log new connections.
+    -   `closed-connections` - Log closed connections.
+-   `redact` (String) Valid values are: `all`, `none` and `watched`. If set to `all` it will enable the redact of all literal values, `none` will disable it, and `watched` will only redact values from tracked fields set in the Datamap.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

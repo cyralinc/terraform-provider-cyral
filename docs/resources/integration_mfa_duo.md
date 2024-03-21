@@ -3,7 +3,7 @@
 page_title: "cyral_integration_mfa_duo Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Manages integration with Duo MFA https://cyral.com/docs/mfa/duo.
+    Manages integration with Duo MFA https://cyral.com/docs/mfa/duo.
 ---
 
 # cyral_integration_mfa_duo (Resource)
@@ -16,11 +16,11 @@ Manages [integration with Duo MFA](https://cyral.com/docs/mfa/duo).
 
 ### Required
 
-- `api_hostname` (String) API hostname obtained from Duo management console.
-- `integration_key` (String) Integration key name obtained from Duo management console.
-- `name` (String) Integration display name that will be used in the control plane.
-- `secret_key` (String, Sensitive) Secret key obtained from Duo management console.
+-   `api_hostname` (String) API hostname obtained from Duo management console.
+-   `integration_key` (String) Integration key name obtained from Duo management console.
+-   `name` (String) Integration display name that will be used in the control plane.
+-   `secret_key` (String, Sensitive) Secret key obtained from Duo management console.
 
 ### Read-Only
 
-- `id` (String) ID of this resource in Cyral environment
+-   `id` (String) ID of this resource in Cyral environment

@@ -3,7 +3,7 @@
 page_title: "cyral_system_info Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-  Retrieve information from Cyral system.
+    Retrieve information from Cyral system.
 ---
 
 # cyral_system_info (Data Source)
@@ -16,6 +16,6 @@ Retrieve information from Cyral system.
 
 ### Read-Only
 
-- `control_plane_version` (String) Control Plane version.
-- `id` (String) Data source identifier.
-- `sidecar_latest_version` (String) Latest Sidecar version available to this Control Plane.
+-   `control_plane_version` (String) Control Plane version.
+-   `id` (String) Data source identifier.
+-   `sidecar_latest_version` (String) Latest Sidecar version available to this Control Plane.
