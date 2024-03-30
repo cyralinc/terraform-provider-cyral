@@ -8,6 +8,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
@@ -17,6 +18,7 @@ import (
 func packagesSchemas() []core.PackageSchema {
 	v := []core.PackageSchema{
 		accessgateway.PackageSchema(),
+		accessrules.PackageSchema(),
 		datalabel.PackageSchema(),
 		datamap.PackageSchema(),
 		hcvault.PackageSchema(),
