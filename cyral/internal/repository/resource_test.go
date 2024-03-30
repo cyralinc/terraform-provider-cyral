@@ -15,8 +15,8 @@ var (
 	initialRepoConfig = repository.RepoInfo{
 		Name:   utils.AccTestName(utils.RepositoryResourceName, "repo"),
 		Type:   repository.MongoDB,
-		Labels: []string{"rds", "us-east-2"},
-		RepoNodes: []*repository.RepoNode{
+		Labels: repository.Labels{"rds", "us-east-2"},
+		RepoNodes: repository.RepoNodes{
 			{
 				Host: "mongo.local",
 				Port: 3333,
@@ -30,8 +30,8 @@ var (
 	updatedRepoConfig = repository.RepoInfo{
 		Name:   utils.AccTestName(utils.RepositoryResourceName, "repo-updated"),
 		Type:   repository.MongoDB,
-		Labels: []string{"rds", "us-east-1"},
-		RepoNodes: []*repository.RepoNode{
+		Labels: repository.Labels{"rds", "us-east-1"},
+		RepoNodes: repository.RepoNodes{
 			{
 				Host: "mongo.local",
 				Port: 3334,
@@ -48,7 +48,7 @@ var (
 		ConnParams: &repository.ConnParams{
 			ConnDraining: &repository.ConnDraining{},
 		},
-		RepoNodes: []*repository.RepoNode{
+		RepoNodes: repository.RepoNodes{
 			{
 				Host: "mongo-cluster.local",
 				Port: 27017,
@@ -68,7 +68,7 @@ var (
 				WaitTime: 20,
 			},
 		},
-		RepoNodes: []*repository.RepoNode{
+		RepoNodes: repository.RepoNodes{
 			{
 				Host: "mongo-cluster.local",
 				Port: 27017,
@@ -88,7 +88,7 @@ var (
 				WaitTime: 20,
 			},
 		},
-		RepoNodes: []*repository.RepoNode{
+		RepoNodes: repository.RepoNodes{
 			{
 				Name: "node1",
 				Host: "mongo-cluster.local.node1",
@@ -122,7 +122,7 @@ var (
 	allRepoNodesAreDynamic = repository.RepoInfo{
 		Name: utils.AccTestName(utils.RepositoryResourceName, "repo-all-repo-nodes-are-dynamic"),
 		Type: "mongodb",
-		RepoNodes: []*repository.RepoNode{
+		RepoNodes: repository.RepoNodes{
 			{
 				Dynamic: true,
 			},

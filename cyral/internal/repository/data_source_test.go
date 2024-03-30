@@ -20,8 +20,8 @@ func repositoryDataSourceTestRepos() []repository.RepoInfo {
 		{
 			Name:   utils.AccTestName(repositoryDataSourceName, "sqlserver-1"),
 			Type:   "sqlserver",
-			Labels: []string{"rds", "us-east-2"},
-			RepoNodes: []*repository.RepoNode{
+			Labels: repository.Labels{"rds", "us-east-2"},
+			RepoNodes: repository.RepoNodes{
 				{
 					Host: "sql.local",
 					Port: 3333,
@@ -31,8 +31,8 @@ func repositoryDataSourceTestRepos() []repository.RepoInfo {
 		{
 			Name:   utils.AccTestName(repositoryDataSourceName, "mongodb-1"),
 			Type:   "mongodb",
-			Labels: []string{"rds", "us-east-1"},
-			RepoNodes: []*repository.RepoNode{
+			Labels: repository.Labels{"rds", "us-east-1"},
+			RepoNodes: repository.RepoNodes{
 				{
 					Host: "mongo.local",
 					Port: 27017,

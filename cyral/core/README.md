@@ -76,7 +76,6 @@ package newfeature
 var dsContextHandler = core.DefaultContextHandler{
 	ResourceName:        dataSourceName,
 	ResourceType:        resourcetype.DataSource,
-	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
 	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
