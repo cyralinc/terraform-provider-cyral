@@ -31,10 +31,10 @@ func (data *LookerIntegration) ReadFromSchema(d *schema.ResourceData) error {
 
 func ResourceIntegrationLooker() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        "Looker Integration",
-		ResourceType:        resourcetype.Resource,
-		SchemaReaderFactory: func() core.SchemaReader { return &LookerIntegration{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &LookerIntegration{} },
+		ResourceName:                 "Looker Integration",
+		ResourceType:                 resourcetype.Resource,
+		SchemaReaderFactory:          func() core.SchemaReader { return &LookerIntegration{} },
+		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &LookerIntegration{} },
 		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 		},

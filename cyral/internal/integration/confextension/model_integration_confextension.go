@@ -102,6 +102,7 @@ func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationC
 		SchemaReaderFactory: func() core.SchemaReader {
 			return NewIntegrationConfExtension(templateType)
 		},
+		SchemaWriterFactory: core.DefaultSchemaWriterFactory,
 	}
 }
 

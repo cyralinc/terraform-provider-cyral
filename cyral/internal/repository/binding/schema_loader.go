@@ -1,12 +1,14 @@
-package hcvault
+package binding
 
-import "github.com/cyralinc/terraform-provider-cyral/cyral/core"
+import (
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+)
 
 type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "hcvault"
+	return "binding"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

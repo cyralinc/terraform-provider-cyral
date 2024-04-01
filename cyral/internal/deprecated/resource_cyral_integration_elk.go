@@ -33,10 +33,10 @@ func (data *ELKIntegration) ReadFromSchema(d *schema.ResourceData) error {
 
 func ResourceIntegrationELK() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        "ELK Integration",
-		ResourceType:        resourcetype.Resource,
-		SchemaReaderFactory: func() core.SchemaReader { return &ELKIntegration{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ELKIntegration{} },
+		ResourceName:                 "ELK Integration",
+		ResourceType:                 resourcetype.Resource,
+		SchemaReaderFactory:          func() core.SchemaReader { return &ELKIntegration{} },
+		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &ELKIntegration{} },
 		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/elk", c.ControlPlane)
 		},

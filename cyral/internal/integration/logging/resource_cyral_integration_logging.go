@@ -181,6 +181,7 @@ func CreateLoggingIntegration() core.ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/logging", c.ControlPlane)
 		},
 		SchemaReaderFactory: func() core.SchemaReader { return &LoggingIntegration{} },
+		SchemaWriterFactory: core.DefaultSchemaWriterFactory,
 	}
 }
 

@@ -12,10 +12,10 @@ import (
 )
 
 var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:        resourceName,
-	ResourceType:        resourcetype.Resource,
-	SchemaReaderFactory: func() core.SchemaReader { return &RepoInfo{} },
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GetRepoByIDResponse{} },
+	ResourceName:                 resourceName,
+	ResourceType:                 resourcetype.Resource,
+	SchemaReaderFactory:          func() core.SchemaReader { return &RepoInfo{} },
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &GetRepoByIDResponse{} },
 	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf(
 			"https://%s/v1/repos",

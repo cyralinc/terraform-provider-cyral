@@ -12,10 +12,10 @@ import (
 )
 
 var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:        resourceName,
-	ResourceType:        resourcetype.Resource,
-	SchemaReaderFactory: func() core.SchemaReader { return &MsTeamsIntegration{} },
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &MsTeamsIntegration{} },
+	ResourceName:                 resourceName,
+	ResourceType:                 resourcetype.Resource,
+	SchemaReaderFactory:          func() core.SchemaReader { return &MsTeamsIntegration{} },
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &MsTeamsIntegration{} },
 	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 	},

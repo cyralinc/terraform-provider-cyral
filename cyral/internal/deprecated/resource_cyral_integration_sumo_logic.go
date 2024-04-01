@@ -28,10 +28,10 @@ func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) error {
 
 func ResourceIntegrationSumoLogic() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        "SumoLogic Integration",
-		ResourceType:        resourcetype.Resource,
-		SchemaReaderFactory: func() core.SchemaReader { return &SumoLogicIntegration{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SumoLogicIntegration{} },
+		ResourceName:                 "SumoLogic Integration",
+		ResourceType:                 resourcetype.Resource,
+		SchemaReaderFactory:          func() core.SchemaReader { return &SumoLogicIntegration{} },
+		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &SumoLogicIntegration{} },
 		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 		},

@@ -37,10 +37,10 @@ func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData) error {
 
 func ResourceIntegrationLogstash() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        "Logstash Integration",
-		ResourceType:        resourcetype.Resource,
-		SchemaReaderFactory: func() core.SchemaReader { return &LogstashIntegration{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &LogstashIntegration{} },
+		ResourceName:                 "Logstash Integration",
+		ResourceType:                 resourcetype.Resource,
+		SchemaReaderFactory:          func() core.SchemaReader { return &LogstashIntegration{} },
+		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &LogstashIntegration{} },
 		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 		},

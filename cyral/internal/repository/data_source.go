@@ -58,10 +58,10 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 }
 
 var dsContextHandler = core.DefaultContextHandler{
-	ResourceName:        dataSourceName,
-	ResourceType:        resourcetype.DataSource,
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	ResourceName:                 dataSourceName,
+	ResourceType:                 resourcetype.DataSource,
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
+	IdBasedURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		nameFilter := d.Get("name").(string)
 		typeFilter := d.Get("type").(string)
 		urlParams := utils.UrlQuery(map[string]string{

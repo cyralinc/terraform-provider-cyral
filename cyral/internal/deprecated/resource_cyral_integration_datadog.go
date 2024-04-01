@@ -30,10 +30,10 @@ func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) error {
 
 func ResourceIntegrationDatadog() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        "Datadog Integration",
-		ResourceType:        resourcetype.Resource,
-		SchemaReaderFactory: func() core.SchemaReader { return &DatadogIntegration{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DatadogIntegration{} },
+		ResourceName:                 "Datadog Integration",
+		ResourceType:                 resourcetype.Resource,
+		SchemaReaderFactory:          func() core.SchemaReader { return &DatadogIntegration{} },
+		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &DatadogIntegration{} },
 		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 		},

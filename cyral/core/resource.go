@@ -139,20 +139,10 @@ func handleRequests(operations []ResourceOperationConfig) func(context.Context, 
 				)
 			}
 
-			// If a `SchemaWriterFactory` implementation is NOT provided and this is a creation operation,
-			// use the `defaultSchemaWriterFactory`, assuming the response is a JSON with an `id` field.
-			/// TODO: Remove this feature after refactoring all resources to use the `DefaultContext`.
-			var responseDataFunc SchemaWriterFactoryFunc
-			if body != nil {
-				if operation.SchemaWriterFactory == nil && operation.Type == operationtype.Create {
-					responseDataFunc = defaultSchemaWriterFactory
-					tflog.Debug(ctx, "NewResponseData function set to defaultSchemaWriterFactory.")
-				} else {
-					responseDataFunc = operation.SchemaWriterFactory
-				}
-			}
-			if responseDataFunc != nil {
-				if responseData := responseDataFunc(d); responseData != nil {
+			if operation.SchemaWriterFactory == nil {
+				tflog.Debug(ctx, fmt.Sprintf("No SchemaWriterFactory found to %s resource %s", operation.Type, operation.ResourceName))
+			} else {
+				if responseData := operation.SchemaWriterFactory(d); responseData != nil {
 					tflog.Debug(ctx, fmt.Sprintf("NewResponseData function call performed. d: %#v", d))
 					if err := json.Unmarshal(body, responseData); err != nil {
 						return utils.CreateError("Unable to unmarshall JSON", err.Error())

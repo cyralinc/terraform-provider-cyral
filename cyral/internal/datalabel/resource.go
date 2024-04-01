@@ -17,10 +17,10 @@ import (
 
 func resourceSchema() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        resourceName,
-		ResourceType:        resourcetype.Resource,
-		SchemaReaderFactory: func() core.SchemaReader { return &DataLabel{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
+		ResourceName:                 resourceName,
+		ResourceType:                 resourcetype.Resource,
+		SchemaReaderFactory:          func() core.SchemaReader { return &DataLabel{} },
+		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/datalabels",
 				c.ControlPlane)
@@ -114,7 +114,7 @@ func resourceSchema() *schema.Resource {
 }
 
 var readDataLabelConfig = core.ResourceOperationConfig{
-	ResourceName: "DataLabelResourceRead",
+	ResourceName: resourceName,
 	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
