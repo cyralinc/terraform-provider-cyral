@@ -11,32 +11,33 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+var resourceContextHandler = core.DefaultContextHandler{
+	ResourceName:                  resourceName,
+	ResourceType:                  resourcetype.Resource,
+	SchemaReaderFactory:           func() core.SchemaReader { return &CreateBindingRequest{} },
+	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &GetBindingResponse{} },
+	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateBindingResponse{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings",
+			c.ControlPlane,
+			d.Get(utils.SidecarIDKey).(string))
+	},
+	IdBasedURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
+			c.ControlPlane,
+			d.Get(utils.SidecarIDKey).(string),
+			d.Get(utils.BindingIDKey).(string),
+		)
+	},
+}
+
 func resourceSchema() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
-		ResourceName:                  resourceName,
-		ResourceType:                  resourcetype.Resource,
-		SchemaReaderFactory:           func() core.SchemaReader { return &CreateBindingRequest{} },
-		SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &GetBindingResponse{} },
-		SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateBindingResponse{} },
-		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings",
-				c.ControlPlane,
-				d.Get(utils.SidecarIDKey).(string))
-		},
-		IdBasedURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
-				c.ControlPlane,
-				d.Get(utils.SidecarIDKey).(string),
-				d.Get(utils.BindingIDKey).(string),
-			)
-		},
-	}
 	return &schema.Resource{
 		Description:   "Manages [cyral repository to sidecar bindings](https://cyral.com/docs/sidecars/sidecar-assign-repo).",
-		CreateContext: contextHandler.CreateContext(),
-		ReadContext:   contextHandler.ReadContext(),
-		UpdateContext: contextHandler.UpdateContext(),
-		DeleteContext: contextHandler.DeleteContext(),
+		CreateContext: resourceContextHandler.CreateContext(),
+		ReadContext:   resourceContextHandler.ReadContext(),
+		UpdateContext: resourceContextHandler.UpdateContext(),
+		DeleteContext: resourceContextHandler.DeleteContext(),
 		SchemaVersion: 2,
 		Schema: map[string]*schema.Schema{
 			utils.BindingIDKey: {

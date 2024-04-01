@@ -26,7 +26,7 @@ var updatedTeamsConfig teams.MsTeamsIntegration = teams.MsTeamsIntegration{
 
 func TestAccMsTeamsIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupTeamsTest(initialTeamsConfig)
-	testUpdateConfig, testUpdateFunc := setupTeamsTest(initialTeamsConfig)
+	testUpdateConfig, testUpdateFunc := setupTeamsTest(updatedTeamsConfig)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: provider.ProviderFactories,

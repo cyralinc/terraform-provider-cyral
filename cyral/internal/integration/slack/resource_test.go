@@ -26,7 +26,7 @@ var updatedSlackAlertsConfig slack.SlackAlertsIntegration = slack.SlackAlertsInt
 
 func TestAccSlackAlertsIntegrationResource(t *testing.T) {
 	testConfig, testFunc := setupSlackAlertTest(initialSlackAlertsConfig)
-	testUpdateConfig, testUpdateFunc := setupSlackAlertTest(initialSlackAlertsConfig)
+	testUpdateConfig, testUpdateFunc := setupSlackAlertTest(updatedSlackAlertsConfig)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: provider.ProviderFactories,

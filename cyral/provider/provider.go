@@ -169,7 +169,6 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
 	schemaMap["cyral_service_account"] = serviceaccount.ResourceServiceAccount()
-	schemaMap["cyral_sidecar"] = sidecar.ResourceSidecar()
 	schemaMap["cyral_sidecar_credentials"] = credentials.ResourceSidecarCredentials()
 	schemaMap["cyral_sidecar_listener"] = listener.ResourceSidecarListener()
 

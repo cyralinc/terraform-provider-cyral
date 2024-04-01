@@ -59,7 +59,7 @@ func resourceSchema() *schema.Resource {
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				ResourceName: "RepositoryAccessRulesDelete",
+				ResourceName: resourceName,
 				Type:         operationtype.Delete,
 				HttpMethod:   http.MethodDelete,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {

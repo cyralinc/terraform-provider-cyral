@@ -13,6 +13,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/tokensettings"
 )
 
@@ -26,6 +27,7 @@ func packagesSchemas() []core.PackageSchema {
 		hcvault.PackageSchema(),
 		repository.PackageSchema(),
 		samlcertificate.PackageSchema(),
+		sidecar.PackageSchema(),
 		slack.PackageSchema(),
 		teams.PackageSchema(),
 		tokensettings.PackageSchema(),
