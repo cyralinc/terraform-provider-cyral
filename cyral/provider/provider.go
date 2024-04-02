@@ -28,7 +28,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/credentials"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
@@ -169,7 +168,6 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
 	schemaMap["cyral_service_account"] = serviceaccount.ResourceServiceAccount()
-	schemaMap["cyral_sidecar_credentials"] = credentials.ResourceSidecarCredentials()
 	schemaMap["cyral_sidecar_listener"] = listener.ResourceSidecarListener()
 
 	tflog.Debug(ctx, "End getResourceMap")
