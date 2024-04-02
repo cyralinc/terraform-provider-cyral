@@ -10,6 +10,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/binding"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
@@ -23,6 +24,7 @@ func packagesSchemas() []core.PackageSchema {
 		accessgateway.PackageSchema(),
 		accessrules.PackageSchema(),
 		binding.PackageSchema(),
+		confanalysis.PackageSchema(),
 		credentials.PackageSchema(),
 		datalabel.PackageSchema(),
 		datamap.PackageSchema(),

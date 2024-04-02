@@ -21,7 +21,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
@@ -163,7 +162,6 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_policy_rule"] = rule.ResourcePolicyRule()
 	schemaMap["cyral_rego_policy_instance"] = regopolicy.ResourceRegoPolicyInstance()
 	schemaMap["cyral_repository_conf_auth"] = confauth.ResourceRepositoryConfAuth()
-	schemaMap["cyral_repository_conf_analysis"] = confanalysis.ResourceRepositoryConfAnalysis()
 	schemaMap["cyral_repository_network_access_policy"] = network.ResourceRepositoryNetworkAccessPolicy()
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
