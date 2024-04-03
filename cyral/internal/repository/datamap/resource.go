@@ -17,7 +17,7 @@ func resourceSchema() *schema.Resource {
 		Description: "Manages [Data Map](https://cyral.com/docs/policy/datamap).",
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
-				ResourceName: "DataMapResourceCreate",
+				ResourceName: resourceName,
 				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -33,7 +33,7 @@ func resourceSchema() *schema.Resource {
 		ReadContext: core.ReadResource(readDataMapConfig),
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
-				ResourceName: "DataMapResourceUpdate",
+				ResourceName: resourceName,
 				Type:         operationtype.Update,
 				HttpMethod:   http.MethodPut,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -46,7 +46,7 @@ func resourceSchema() *schema.Resource {
 		),
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
-				ResourceName: "DataMapResourceDelete",
+				ResourceName: resourceName,
 				Type:         operationtype.Delete,
 				HttpMethod:   http.MethodDelete,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -113,7 +113,7 @@ func resourceSchema() *schema.Resource {
 }
 
 var readDataMapConfig = core.ResourceOperationConfig{
-	ResourceName: "DataMapResourceRead",
+	ResourceName: resourceName,
 	Type:         operationtype.Read,
 	HttpMethod:   http.MethodGet,
 	URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -122,5 +122,5 @@ var readDataMapConfig = core.ResourceOperationConfig{
 			d.Get("repository_id").(string))
 	},
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
-	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Data Map"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: resourceName},
 }
