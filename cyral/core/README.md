@@ -45,7 +45,7 @@ type NewFeature struct {
 	Description string `json:"description,omitempty"`
 }
 
-func (r *NewFeature) WriteToSchema(d *schema.ResourceData) error {
+func (r NewFeature) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("description", r.Description); err != nil {
 		return fmt.Errorf("error setting 'description' field: %w", err)
 	}
@@ -65,9 +65,7 @@ func (r *NewFeature) ReadFromSchema(d *schema.ResourceData) error {
 
 ### datasource.go
 
-Even though the `GET` url for this new feature is `https://<CP>/v1/NewFeature/<ID>`,
-the `BaseURLFactory` provided does not provide the `ID` as it will be automatically
-added by the default read handler returned in `contextHandler.ReadContext()`.
+Use the `GetPutDeleteURLFactory` to provide the URL factory to read the data source from the API.
 
 ```go
 // datasource.go
@@ -76,9 +74,9 @@ package newfeature
 var dsContextHandler = core.DefaultContextHandler{
 	ResourceName:        dataSourceName,
 	ResourceType:        resourcetype.DataSource,
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
-	IdBasedURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
+	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Get("my_id_field").(string))
 	},
 }
 
@@ -112,8 +110,8 @@ var resourceContextHandler = core.DefaultContextHandler{
 	ResourceName:        resourceName,
 	ResourceType:        resourcetype.Resource,
 	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
+	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
 	},
 }

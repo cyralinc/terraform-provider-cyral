@@ -24,8 +24,8 @@ var resourceContextHandler = core.DefaultContextHandler{
 	SchemaReaderFactory:           func() core.SchemaReader { return &NetworkAccessPolicy{} },
 	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicy{} },
 	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicyUpsertResp{} },
-	BaseURLFactory:                urlFactory,
-	IdBasedURLFactory:             urlFactory,
+	PostURLFactory:                urlFactory,
+	GetPutDeleteURLFactory:        urlFactory,
 }
 
 func resourceSchema() *schema.Resource {

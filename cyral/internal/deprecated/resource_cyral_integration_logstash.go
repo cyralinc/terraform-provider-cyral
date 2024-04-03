@@ -41,7 +41,7 @@ func ResourceIntegrationLogstash() *schema.Resource {
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &LogstashIntegration{} },
 		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &LogstashIntegration{} },
-		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/logstash", c.ControlPlane)
 		},
 	}

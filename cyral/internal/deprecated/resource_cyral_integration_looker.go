@@ -35,7 +35,7 @@ func ResourceIntegrationLooker() *schema.Resource {
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &LookerIntegration{} },
 		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &LookerIntegration{} },
-		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/looker", c.ControlPlane)
 		},
 	}

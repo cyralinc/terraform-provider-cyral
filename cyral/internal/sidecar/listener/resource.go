@@ -19,12 +19,12 @@ var resourceContextHandler = core.DefaultContextHandler{
 	SchemaReaderFactory:           func() core.SchemaReader { return &SidecarListenerResource{} },
 	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &ReadSidecarListenerAPIResponse{} },
 	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateListenerAPIResponse{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string))
 	},
-	IdBasedURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners/%s",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string),

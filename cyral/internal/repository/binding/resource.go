@@ -17,12 +17,12 @@ var resourceContextHandler = core.DefaultContextHandler{
 	SchemaReaderFactory:           func() core.SchemaReader { return &CreateBindingRequest{} },
 	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &GetBindingResponse{} },
 	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateBindingResponse{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string))
 	},
-	IdBasedURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string),

@@ -68,7 +68,7 @@ func ResourceIntegrationAWSIAM() *schema.Resource {
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &AWSIAMIntegrationWrapper{} },
 		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &AWSIAMIntegrationWrapper{} },
-		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/aws/iam", c.ControlPlane)
 		},
 	}

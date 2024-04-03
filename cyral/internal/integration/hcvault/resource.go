@@ -14,7 +14,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 	ResourceType:                 resourcetype.Resource,
 	SchemaReaderFactory:          func() core.SchemaReader { return &HCVaultIntegration{} },
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &HCVaultIntegration{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/secretProviders/hcvault", c.ControlPlane)
 	},
 }

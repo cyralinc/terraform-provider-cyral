@@ -21,7 +21,7 @@ func resourceSchema() *schema.Resource {
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &DataLabel{} },
 		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
-		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/datalabels",
 				c.ControlPlane)
 		},
