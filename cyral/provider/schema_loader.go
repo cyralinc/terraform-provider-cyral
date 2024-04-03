@@ -11,6 +11,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/binding"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
@@ -25,7 +26,7 @@ func packagesSchemas() []core.PackageSchema {
 		accessrules.PackageSchema(),
 		binding.PackageSchema(),
 		confanalysis.PackageSchema(),
-		//confauth.PackageSchema(),
+		confauth.PackageSchema(),
 		credentials.PackageSchema(),
 		datalabel.PackageSchema(),
 		datamap.PackageSchema(),
