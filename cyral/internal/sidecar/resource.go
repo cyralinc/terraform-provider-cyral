@@ -13,6 +13,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
 // Currently, the sidecar API always returns a status code of 500 for every error,
@@ -31,21 +32,26 @@ func (h *SidecarDeleteIgnoreHttpNotFound) HandleError(
 	_ *client.Client,
 	err error,
 ) error {
-	httpError, ok := err.(*client.HttpError)
-	if !ok || httpError.StatusCode != http.StatusNotFound {
-		return err
-	}
+	tflog.Debug(ctx, "==> Init HandleError SidecarDeleteIgnoreHttpNotFound")
 
 	matched, regexpError := regexp.MatchString(
 		"NotFound",
 		err.Error(),
 	)
 	if regexpError == nil && matched {
-		tflog.Debug(ctx, fmt.Sprintf("Sidecar not found. Skipping deletion. Error: %v", err))
+		tflog.Debug(ctx, fmt.Sprintf("===> %s not found. Skipping deletion. Error: %v", resourceName, err))
 		r.SetId("")
+		tflog.Debug(ctx, "==> End HandleError SidecarDeleteIgnoreHttpNotFound - Success")
 		return nil
 	}
 
+	httpError, ok := err.(*client.HttpError)
+	if !ok || httpError.StatusCode != http.StatusNotFound {
+		tflog.Debug(ctx, "===> End HandleError SidecarDeleteIgnoreHttpNotFound - Error")
+		return err
+	}
+
+	tflog.Debug(ctx, "==> End HandleError SidecarDeleteIgnoreHttpNotFound - Success")
 	return nil
 }
 
@@ -58,13 +64,27 @@ func (h *SidecarReadIgnoreHttpNotFound) HandleError(
 	_ *client.Client,
 	err error,
 ) error {
+	tflog.Debug(ctx, "==> Init HandleError SidecarReadIgnoreHttpNotFound")
+
+	matched, regexpError := regexp.MatchString(
+		"NotFound",
+		err.Error(),
+	)
+	if regexpError == nil && matched {
+		tflog.Debug(ctx, fmt.Sprintf("===> %s not found. Marking resource for recreation.", resourceName))
+		r.SetId("")
+		tflog.Debug(ctx, "==> End HandleError SidecarReadIgnoreHttpNotFound - Success")
+		return nil
+	}
+
 	httpError, ok := err.(*client.HttpError)
 	if !ok || httpError.StatusCode != http.StatusNotFound {
+		tflog.Debug(ctx, "===> End HandleError SidecarReadIgnoreHttpNotFound - Error")
 		return err
 	}
 
-	r.SetId("")
-	tflog.Debug(ctx, resourceName+" not found. Marking resource for recreation.")
+	tflog.Debug(ctx, "==> End HandleError SidecarReadIgnoreHttpNotFound - - Success")
+
 	return nil
 }
 
@@ -74,6 +94,7 @@ var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
 
 var readSidecarConfig = core.ResourceOperationConfig{
 	ResourceName:        resourceName,
+	ResourceType:        resourcetype.Resource,
 	Type:                operationtype.Read,
 	HttpMethod:          http.MethodGet,
 	URLFactory:          urlFactory,
@@ -87,6 +108,7 @@ func resourceSchema() *schema.Resource {
 		CreateContext: core.CreateResource(
 			core.ResourceOperationConfig{
 				ResourceName: resourceName,
+				ResourceType: resourcetype.Resource,
 				Type:         operationtype.Create,
 				HttpMethod:   http.MethodPost,
 				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -101,6 +123,7 @@ func resourceSchema() *schema.Resource {
 		UpdateContext: core.UpdateResource(
 			core.ResourceOperationConfig{
 				ResourceName:        resourceName,
+				ResourceType:        resourcetype.Resource,
 				Type:                operationtype.Update,
 				HttpMethod:          http.MethodPut,
 				URLFactory:          urlFactory,
@@ -112,6 +135,7 @@ func resourceSchema() *schema.Resource {
 		DeleteContext: core.DeleteResource(
 			core.ResourceOperationConfig{
 				ResourceName:        resourceName,
+				ResourceType:        resourcetype.Resource,
 				Type:                operationtype.Delete,
 				HttpMethod:          http.MethodDelete,
 				URLFactory:          urlFactory,

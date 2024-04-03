@@ -46,12 +46,8 @@ func TestAccIntegrationIdPSAMLResource(t *testing.T) {
 		"upgrade_test", samlMetadataDocumentSample("fakeCertificateUpdated"))
 	updatedAgainConfig, updatedAgainChecks := setupIntegrationIdPSAMLTest(
 		"upgrade_test", samlMetadataDocumentSample("fakeCertificateUpdated"))
-
-	println("========> initialConfig: " + initialConfig)
-	println("========> updatedConfig: " + updatedConfig)
-	println("========> updatedAgainConfig: " + updatedAgainConfig)
-	// newConfig, newChecks := setupIntegrationIdPSAMLTest(
-	// 	"new_test", samlMetadataDocumentSample("fakeCertificateNew"))
+	newConfig, newChecks := setupIntegrationIdPSAMLTest(
+		"new_test", samlMetadataDocumentSample("fakeCertificateNew"))
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: provider.ProviderFactories,
@@ -72,18 +68,18 @@ func TestAccIntegrationIdPSAMLResource(t *testing.T) {
 				// If user runs apply again, it should work.
 				Check: updatedAgainChecks,
 			},
-			// {
-			// 	Config: newConfig,
-			// 	// When a new SAML draft and a new integration
-			// 	// are created, there should be no no problem.
-			// 	Check: newChecks,
-			// },
-			// {
-			// 	ImportState:             true,
-			// 	ImportStateVerify:       true,
-			// 	ImportStateVerifyIgnore: []string{"idp_metadata_xml", "saml_draft_id"},
-			// 	ResourceName:            "cyral_integration_idp_saml.new_test",
-			// },
+			{
+				Config: newConfig,
+				// When a new SAML draft and a new integration
+				// are created, there should be no no problem.
+				Check: newChecks,
+			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"idp_metadata_xml", "saml_draft_id"},
+				ResourceName:            "cyral_integration_idp_saml.new_test",
+			},
 		},
 	})
 }

@@ -7,7 +7,7 @@ import (
 // TODO: v2 of this API should either return the repository ID
 // or something else as an ID. Currently it accepts a `UserConfig`
 // for the PUT payload, but returns a `RepositoryConfAnalysisData`.
-// This makes the whole API confusing.
+// This makes the whole API utilization quite confusing.
 
 type RepositoryConfAnalysisData struct {
 	UserConfig UserConfig `json:"userConfig"`
