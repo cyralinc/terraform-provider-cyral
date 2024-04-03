@@ -27,7 +27,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/systeminfo"
 )
 
@@ -113,7 +112,6 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_sidecar_instance_ids"] = deprecated.DataSourceSidecarInstanceIDs()
 	schemaMap["cyral_sidecar_instance_stats"] = instance.DataSourceSidecarInstanceStats()
 	schemaMap["cyral_sidecar_instance"] = instance.DataSourceSidecarInstance()
-	schemaMap["cyral_sidecar_listener"] = listener.DataSourceSidecarListener()
 	schemaMap["cyral_system_info"] = systeminfo.DataSourceSystemInfo()
 
 	tflog.Debug(ctx, "End getDataSourceMap")
@@ -162,7 +160,6 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
 	schemaMap["cyral_service_account"] = serviceaccount.ResourceServiceAccount()
-	schemaMap["cyral_sidecar_listener"] = listener.ResourceSidecarListener()
 
 	tflog.Debug(ctx, "End getResourceMap")
 
