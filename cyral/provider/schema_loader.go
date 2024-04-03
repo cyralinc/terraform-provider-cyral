@@ -13,6 +13,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
@@ -31,6 +32,7 @@ func packagesSchemas() []core.PackageSchema {
 		datalabel.PackageSchema(),
 		datamap.PackageSchema(),
 		hcvault.PackageSchema(),
+		network.PackageSchema(),
 		repository.PackageSchema(),
 		samlcertificate.PackageSchema(),
 		sidecar.PackageSchema(),
