@@ -122,5 +122,5 @@ var readDataMapConfig = core.ResourceOperationConfig{
 			d.Get("repository_id").(string))
 	},
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataMap{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Map"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Data Map"},
 }

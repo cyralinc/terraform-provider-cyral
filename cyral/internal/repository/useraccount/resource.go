@@ -46,7 +46,7 @@ var readRepositoryUserAccountConfig = core.ResourceOperationConfig{
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &UserAccountResource{}
 	},
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "User account"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "User account"},
 }
 
 func resourceSchema() *schema.Resource {

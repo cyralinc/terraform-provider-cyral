@@ -73,10 +73,8 @@ func (dch DefaultContextHandler) defaultOperationHandler(
 	}
 
 	var errorHandler RequestErrorHandler
-	if httpMethod == http.MethodGet {
-		errorHandler = &ReadIgnoreHttpNotFound{ResName: dch.ResourceName}
-	} else if httpMethod == http.MethodDelete {
-		errorHandler = &DeleteIgnoreHttpNotFound{ResName: dch.ResourceName}
+	if httpMethod == http.MethodGet || httpMethod == http.MethodDelete {
+		errorHandler = &IgnoreHttpNotFound{ResName: dch.ResourceName}
 	}
 	result := ResourceOperationConfig{
 		ResourceName:        dch.ResourceName,

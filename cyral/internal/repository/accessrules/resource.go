@@ -28,7 +28,7 @@ var readRepositoryAccessRulesConfig = core.ResourceOperationConfig{
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &AccessRulesResponse{}
 	},
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository access rule"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Repository access rule"},
 }
 
 func resourceSchema() *schema.Resource {
@@ -78,7 +78,7 @@ func resourceSchema() *schema.Resource {
 						userAccountID,
 					)
 				},
-				RequestErrorHandler: &core.DeleteIgnoreHttpNotFound{ResName: resourceName},
+				RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: resourceName},
 			},
 		),
 

@@ -28,7 +28,7 @@ var readRepositoryAccessGatewayConfig = core.ResourceOperationConfig{
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 		return &AccessGateway{}
 	},
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: resourceName},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: resourceName},
 }
 
 func resourceSchema() *schema.Resource {
@@ -61,7 +61,7 @@ func resourceSchema() *schema.Resource {
 				Type:                operationtype.Delete,
 				HttpMethod:          http.MethodDelete,
 				URLFactory:          urlFactory,
-				RequestErrorHandler: &core.DeleteIgnoreHttpNotFound{ResName: resourceName},
+				RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: resourceName},
 			},
 		),
 

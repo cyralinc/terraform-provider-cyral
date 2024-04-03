@@ -71,7 +71,7 @@ var ReadSidecarListenersConfig = core.ResourceOperationConfig{
 			d.Get(utils.ListenerIDKey).(string))
 	},
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadSidecarListenerAPIResponse{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Sidecar listener"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Sidecar listener"},
 }
 
 type ReadSidecarListenerAPIResponse struct {

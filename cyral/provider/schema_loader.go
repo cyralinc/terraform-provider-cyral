@@ -25,6 +25,7 @@ func packagesSchemas() []core.PackageSchema {
 		accessrules.PackageSchema(),
 		binding.PackageSchema(),
 		confanalysis.PackageSchema(),
+		//confauth.PackageSchema(),
 		credentials.PackageSchema(),
 		datalabel.PackageSchema(),
 		datamap.PackageSchema(),

@@ -123,5 +123,5 @@ var readDataLabelConfig = core.ResourceOperationConfig{
 			d.Get("name").(string))
 	},
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Data Label"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Data Label"},
 }

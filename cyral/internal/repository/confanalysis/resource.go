@@ -49,7 +49,7 @@ func resourceSchema() *schema.Resource {
 				HttpMethod:          http.MethodGet,
 				URLFactory:          urlFactory,
 				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RepositoryConfAnalysisData{} },
-				RequestErrorHandler: &core.ReadIgnoreHttpNotFound{},
+				RequestErrorHandler: &core.IgnoreHttpNotFound{},
 			},
 		),
 		ReadContext:   resourceContextHandler.ReadContext(),

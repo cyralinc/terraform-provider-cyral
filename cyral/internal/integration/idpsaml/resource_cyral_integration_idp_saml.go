@@ -93,7 +93,7 @@ func ReadGenericSAMLConfig() core.ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/sso/%s", c.ControlPlane, d.Id())
 		},
 		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadGenericSAMLResponse{} },
-		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Generic SAML"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Generic SAML"},
 	}
 }
 

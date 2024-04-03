@@ -163,7 +163,7 @@ func ReadConfAuthConfig() core.ResourceOperationConfig {
 			return fmt.Sprintf(repositoryConfAuthURLFormat, c.ControlPlane, d.Get("repository_id"))
 		},
 		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
-		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository conf auth"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Repository conf auth"},
 	}
 }
 

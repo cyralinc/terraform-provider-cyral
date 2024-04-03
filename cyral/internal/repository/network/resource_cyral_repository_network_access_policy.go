@@ -124,7 +124,7 @@ func readRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 				c.ControlPlane, d.Get("repository_id"))
 		},
 		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &NetworkAccessPolicy{} },
-		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Repository network access policy"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Repository network access policy"},
 	}
 }
 
@@ -151,7 +151,7 @@ func deleteRepositoryNetworkAccessPolicy() core.ResourceOperationConfig {
 			return fmt.Sprintf(repositoryNetworkAccessPolicyURLFormat,
 				c.ControlPlane, d.Get("repository_id"))
 		},
-		RequestErrorHandler: &core.DeleteIgnoreHttpNotFound{ResName: "Network Access Policy"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Network Access Policy"},
 	}
 }
 
