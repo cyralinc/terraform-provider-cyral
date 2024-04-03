@@ -1,6 +1,6 @@
 # cyral_repository_conf_auth (Resource)
 
-Manages the [Repository Authentication settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings/#authentication) that is shown in the Advanced tab.
+Manages Repository Analysis Configuration. This resource allows configuring both [Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) (Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.
 
 -> Import ID syntax is `{repository_id}`.
 

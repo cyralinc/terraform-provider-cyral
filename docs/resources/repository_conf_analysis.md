@@ -3,12 +3,12 @@
 page_title: "cyral_repository_conf_analysis Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages Repository Analysis Configuration. This resource allows configuring both Log Settings https://cyral.com/docs/manage-repositories/repo-log-volume and Advanced settings https://cyral.com/docs/manage-repositories/repo-advanced-settings (Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.
+    Manages Repository Analysis Configuration. This resource allows configuring Data Activity Logs https://cyral.com/docs/data-repos/config/#data-activity-logs, Alerts https://cyral.com/docs/data-repos/config/#alerts and Policy Enforcement https://cyral.com/docs/data-repos/config/#policy-enforcement settings for Data Repositories.
 ---
 
 # cyral_repository_conf_analysis (Resource)
 
-Manages Repository Analysis Configuration. This resource allows configuring both [Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) (Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.
+Manages Repository Analysis Configuration. This resource allows configuring [Data Activity Logs](https://cyral.com/docs/data-repos/config/#data-activity-logs), [Alerts](https://cyral.com/docs/data-repos/config/#alerts) and [Policy Enforcement](https://cyral.com/docs/data-repos/config/#policy-enforcement) settings for Data Repositories.
 
 ## Example Usage
 

@@ -3,12 +3,12 @@
 page_title: "cyral_sidecar Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages sidecars https://cyral.com/docs/sidecars/sidecar-manage.
+    Manages sidecars https://cyral.com/docs/sidecars/manage.
 ---
 
 # cyral_sidecar (Resource)
 
-Manages [sidecars](https://cyral.com/docs/sidecars/sidecar-manage).
+Manages [sidecars](https://cyral.com/docs/sidecars/manage).
 
 ## Example Usage
 
