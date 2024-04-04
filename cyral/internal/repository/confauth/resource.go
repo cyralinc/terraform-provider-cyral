@@ -17,8 +17,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-// TODO Fix the API status codes and simplify this code. We could easily use the default handlers
-// instead of this complex set of operations.
+// TODO This resource is more complex than it should be due to the fact that a call to
+// repo creation automatically creates the conf/auth and also the conf/analysis configurations.
+// Our API should be refactored so these operations should happen separately.
 
 var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
 	return fmt.Sprintf("https://%s/v1/repos/%s/conf/auth",
@@ -27,18 +28,13 @@ var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
 	)
 }
 
-var readConfig = core.ResourceOperationConfig{
-	ResourceName:        resourceName,
-	ResourceType:        resourcetype.Resource,
-	Type:                operationtype.Read,
-	HttpMethod:          http.MethodGet,
-	URLFactory:          urlFactory,
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
-	RequestErrorHandler: &core.IgnoreNotFoundByMessage{
-		ResName:        resourceName,
-		MessageMatches: "Failed to read repo",
-		OperationType:  operationtype.Read,
-	},
+var resourceContextHandler = core.DefaultContextHandler{
+	ResourceName:                 resourceName,
+	ResourceType:                 resourcetype.Resource,
+	SchemaReaderFactory:          func() core.SchemaReader { return &RepositoryConfAuthData{} },
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
+	PostURLFactory:               urlFactory,
+	GetPutDeleteURLFactory:       urlFactory,
 }
 
 func resourceSchema() *schema.Resource {
@@ -48,32 +44,21 @@ func resourceSchema() *schema.Resource {
 			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) " +
 			"(Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.",
 		CreateContext: resourceRepositoryConfAuthCreate,
-		ReadContext:   core.ReadResource(readConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				ResourceName:        resourceName,
-				ResourceType:        resourcetype.Resource,
-				Type:                operationtype.Update,
-				HttpMethod:          http.MethodPut,
-				URLFactory:          urlFactory,
-				SchemaReaderFactory: func() core.SchemaReader { return &RepositoryConfAuthData{} },
-			},
-			readConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				ResourceName: resourceName,
-				ResourceType: resourcetype.Resource,
-				Type:         operationtype.Delete,
-				HttpMethod:   http.MethodDelete,
-				URLFactory:   urlFactory,
-				RequestErrorHandler: &core.IgnoreNotFoundByMessage{
-					ResName:        resourceName,
-					MessageMatches: "Failed to read repo",
-					OperationType:  operationtype.Read,
-				},
-			},
-		),
+		ReadContext: resourceContextHandler.ReadContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "Failed to read repo",
+			OperationType:  operationtype.Read,
+		}),
+		UpdateContext: resourceContextHandler.UpdateContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "Failed to read repo",
+			OperationType:  operationtype.Update,
+		}, nil),
+		DeleteContext: resourceContextHandler.DeleteContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "Failed to read repo",
+			OperationType:  operationtype.Delete,
+		}),
 
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
@@ -192,17 +177,26 @@ func resourceRepositoryConfAuthCreate(
 			URLFactory:          urlFactory,
 			SchemaReaderFactory: func() core.SchemaReader { return &RepositoryConfAuthData{} },
 			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateRepositoryConfAuthResponse{} },
-		}, readConfig)(ctx, d, m)
+		},
+		core.ResourceOperationConfig{
+			ResourceName:        resourceName,
+			ResourceType:        resourcetype.Resource,
+			Type:                operationtype.Read,
+			HttpMethod:          http.MethodGet,
+			URLFactory:          urlFactory,
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
+			RequestErrorHandler: &core.IgnoreNotFoundByMessage{
+				ResName:        resourceName,
+				MessageMatches: "Failed to read repo",
+				OperationType:  operationtype.Read,
+			},
+		},
+	)(ctx, d, m)
 }
 
 func confAuthAlreadyExists(ctx context.Context, c *client.Client, d *schema.ResourceData) bool {
 	_, err := c.DoRequest(ctx, urlFactory(d, c), http.MethodGet, nil)
-	// TODO: Fix this API.
-
-	// The GET /v1/repos/{repoID}/conf/auth API currently returns 500 status code for every type
-	// of error, so its not possible to distinguish if the error is due to a 404 Not Found or not.
-	// Once the status code returned by this API is fixed we should return false only if it returns
-	// a 404 Not Found, otherwise, if a different error occurs, this function should return an error.
+	// See TODO on the top of this file
 	if err != nil {
 
 		tflog.Debug(ctx, fmt.Sprintf("Unable to read Conf Auth resource for repository %s: %v",

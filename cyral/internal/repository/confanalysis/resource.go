@@ -9,8 +9,14 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+// TODO This resource is more complex than it should be due to the fact that a call to
+// repo creation automatically creates the conf/auth and also the conf/analysis configurations.
+// Our API should be refactored so these operations should happen separately.
 
 var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
 	return fmt.Sprintf("https://%s/v1/repos/%s/conf/analysis",
@@ -28,6 +34,8 @@ var resourceContextHandler = core.DefaultContextHandler{
 	GetPutDeleteURLFactory:       urlFactory,
 }
 
+var requestErrorHandler = &core.IgnoreNotFoundByMessage{MessageMatches: "Cannot find config data for repo"}
+
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages Repository Analysis Configuration. This resource allows configuring " +
@@ -35,27 +43,22 @@ func resourceSchema() *schema.Resource {
 			"[Alerts](https://cyral.com/docs/data-repos/config/#alerts) and " +
 			"[Policy Enforcement](https://cyral.com/docs/data-repos/config/#policy-enforcement) " +
 			"settings for Data Repositories.",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-				ResourceName:        resourceName,
-				Type:                operationtype.Create,
-				HttpMethod:          http.MethodPut,
-				URLFactory:          urlFactory,
-				SchemaReaderFactory: func() core.SchemaReader { return &UserConfig{} },
-				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RepositoryConfAnalysisData{} },
-			},
-			core.ResourceOperationConfig{
-				ResourceName:        resourceName,
-				Type:                operationtype.Read,
-				HttpMethod:          http.MethodGet,
-				URLFactory:          urlFactory,
-				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RepositoryConfAnalysisData{} },
-				RequestErrorHandler: &core.IgnoreHttpNotFound{},
-			},
-		),
-		ReadContext:   resourceContextHandler.ReadContext(),
-		UpdateContext: resourceContextHandler.UpdateContext(),
-		DeleteContext: resourceContextHandler.DeleteContext(),
+		CreateContext: resourceRepositoryConfAnalysisCreate,
+		ReadContext: resourceContextHandler.ReadContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "Cannot find config data for repo",
+			OperationType:  operationtype.Read,
+		}),
+		UpdateContext: resourceContextHandler.UpdateContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "Cannot find config data for repo",
+			OperationType:  operationtype.Update,
+		}, nil),
+		DeleteContext: resourceContextHandler.DeleteContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "Cannot find config data for repo",
+			OperationType:  operationtype.Delete,
+		}),
 
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
@@ -191,4 +194,53 @@ func UpgradeRepositoryConfAnalysisV0(
 ) (map[string]interface{}, error) {
 	rawState["id"] = rawState["repository_id"]
 	return rawState, nil
+}
+
+func resourceRepositoryConfAnalysisCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	m interface{},
+) diag.Diagnostics {
+	tflog.Debug(ctx, "Init resourceRepositoryConfAnalysisCreate")
+	c := m.(*client.Client)
+	httpMethod := http.MethodPost
+	if confAnalysisAlreadyExists(ctx, c, d) {
+		httpMethod = http.MethodPut
+	}
+	tflog.Debug(ctx, "End resourceRepositoryConfAnalysisCreate")
+	return core.CreateResource(
+		core.ResourceOperationConfig{
+			ResourceName:        resourceName,
+			Type:                operationtype.Create,
+			HttpMethod:          httpMethod,
+			URLFactory:          urlFactory,
+			SchemaReaderFactory: func() core.SchemaReader { return &UserConfig{} },
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RepositoryConfAnalysisData{} },
+		},
+		core.ResourceOperationConfig{
+			ResourceName:        resourceName,
+			ResourceType:        resourcetype.Resource,
+			Type:                operationtype.Read,
+			HttpMethod:          http.MethodGet,
+			URLFactory:          urlFactory,
+			SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RepositoryConfAnalysisData{} },
+			RequestErrorHandler: &core.IgnoreNotFoundByMessage{
+				ResName:        resourceName,
+				MessageMatches: "Cannot find config data for repo",
+				OperationType:  operationtype.Read,
+			},
+		},
+	)(ctx, d, m)
+}
+
+func confAnalysisAlreadyExists(ctx context.Context, c *client.Client, d *schema.ResourceData) bool {
+	_, err := c.DoRequest(ctx, urlFactory(d, c), http.MethodGet, nil)
+	// See TODO on the top of this file
+	if err != nil {
+
+		tflog.Debug(ctx, fmt.Sprintf("Unable to read Conf Analysis resource for repository %s: %v",
+			d.Get("repository_id").(string), err))
+		return false
+	}
+	return true
 }
