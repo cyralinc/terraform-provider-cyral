@@ -13,30 +13,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 )
 
-type IgnoreByHttpStatusCode struct {
-	ResName        string
-	HttpStatusCode int
-	OperationType  operationtype.OperationType
-}
-
-func (h *IgnoreByHttpStatusCode) HandleError(
-	ctx context.Context,
-	r *schema.ResourceData,
-	_ *client.Client,
-	err error,
-) error {
-	tflog.Debug(ctx, "==> Init HandleError core.IgnoreByHttpStatusCode")
-	httpError, ok := err.(*client.HttpError)
-	if !ok || httpError.StatusCode != h.HttpStatusCode {
-		tflog.Debug(ctx, fmt.Sprintf("==> End HandleError core.IgnoreByHttpStatusCode - Did not find a %d, thus returning the original error", h.HttpStatusCode))
-		return err
-	}
-	r.SetId("")
-	tflog.Debug(ctx, fmt.Sprintf(
-		"==> End HandleError core.IgnoreHttpNotFound - %s not found. Marking resource for recreation or deletion.", h.ResName))
-	return nil
-}
-
 type IgnoreNotFoundByMessage struct {
 	ResName        string
 	MessageMatches string

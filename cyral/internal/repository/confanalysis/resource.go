@@ -34,8 +34,6 @@ var resourceContextHandler = core.DefaultContextHandler{
 	GetPutDeleteURLFactory:       urlFactory,
 }
 
-var requestErrorHandler = &core.IgnoreNotFoundByMessage{MessageMatches: "Cannot find config data for repo"}
-
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages Repository Analysis Configuration. This resource allows configuring " +
