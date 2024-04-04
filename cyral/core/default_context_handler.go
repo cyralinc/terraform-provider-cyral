@@ -56,6 +56,7 @@ func (dch DefaultContextHandler) defaultOperationHandler(
 	httpMethod string,
 	schemaReaderFactory SchemaReaderFactoryFunc,
 	schemaWriterFactory SchemaWriterFactoryFunc,
+	requestErrorHandler RequestErrorHandler,
 ) ResourceOperationConfig {
 	// POST = https://<CP>/<apiVersion>/<feature>
 	// GET, PUT and DELETE = https://<CP>/<apiVersion>/<feature>/<id>
@@ -73,10 +74,6 @@ func (dch DefaultContextHandler) defaultOperationHandler(
 		return url
 	}
 
-	var errorHandler RequestErrorHandler
-	if httpMethod == http.MethodGet || httpMethod == http.MethodDelete {
-		errorHandler = &IgnoreHttpNotFound{ResName: dch.ResourceName}
-	}
 	result := ResourceOperationConfig{
 		ResourceName:        dch.ResourceName,
 		Type:                operationType,
@@ -85,13 +82,18 @@ func (dch DefaultContextHandler) defaultOperationHandler(
 		URLFactory:          endpoint,
 		SchemaReaderFactory: schemaReaderFactory,
 		SchemaWriterFactory: schemaWriterFactory,
-		RequestErrorHandler: errorHandler,
+		RequestErrorHandler: requestErrorHandler,
 	}
 
 	return result
 }
 
 func (dch DefaultContextHandler) CreateContext() schema.CreateContextFunc {
+	return dch.CreateContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName}, nil)
+}
+
+func (dch DefaultContextHandler) CreateContextCustomErrorHandling(getErrorHandler RequestErrorHandler,
+	postErrorHandler RequestErrorHandler) schema.CreateContextFunc {
 	// By default, assumes that if no SchemaWriterFactoryPostMethod is provided,
 	// the POST api will return an ID
 	schemaWriterPost := DefaultSchemaWriterFactory
@@ -99,24 +101,37 @@ func (dch DefaultContextHandler) CreateContext() schema.CreateContextFunc {
 		schemaWriterPost = dch.SchemaWriterFactoryPostMethod
 	}
 	return CreateResource(
-		dch.defaultOperationHandler(ot.Create, http.MethodPost, dch.SchemaReaderFactory, schemaWriterPost),
-		dch.defaultOperationHandler(ot.Create, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod),
+		dch.defaultOperationHandler(ot.Create, http.MethodPost, dch.SchemaReaderFactory, schemaWriterPost, postErrorHandler),
+		dch.defaultOperationHandler(ot.Create, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod, getErrorHandler),
 	)
 }
 
 func (dch DefaultContextHandler) ReadContext() schema.ReadContextFunc {
-	return ReadResource(dch.ReadResourceOperationConfig())
+	return dch.ReadContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName})
 }
-func (dch DefaultContextHandler) ReadResourceOperationConfig() ResourceOperationConfig {
-	return dch.defaultOperationHandler(ot.Read, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod)
+
+func (dch DefaultContextHandler) ReadContextCustomErrorHandling(getErrorHandler RequestErrorHandler) schema.ReadContextFunc {
+	return ReadResource(
+		dch.defaultOperationHandler(ot.Read, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod, getErrorHandler),
+	)
 }
 
 func (dch DefaultContextHandler) UpdateContext() schema.UpdateContextFunc {
+	return dch.UpdateContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName}, nil)
+}
+
+func (dch DefaultContextHandler) UpdateContextCustomErrorHandling(getErrorHandler RequestErrorHandler,
+	putErrorHandler RequestErrorHandler) schema.UpdateContextFunc {
 	return UpdateResource(
-		dch.defaultOperationHandler(ot.Update, http.MethodPut, dch.SchemaReaderFactory, nil),
-		dch.defaultOperationHandler(ot.Update, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod))
+		dch.defaultOperationHandler(ot.Update, http.MethodPut, dch.SchemaReaderFactory, nil, putErrorHandler),
+		dch.defaultOperationHandler(ot.Update, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod, getErrorHandler),
+	)
 }
 
 func (dch DefaultContextHandler) DeleteContext() schema.DeleteContextFunc {
-	return DeleteResource(dch.defaultOperationHandler(ot.Delete, http.MethodDelete, nil, nil))
+	return dch.DeleteContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName})
+}
+
+func (dch DefaultContextHandler) DeleteContextCustomErrorHandling(deleteErrorHandler RequestErrorHandler) schema.DeleteContextFunc {
+	return DeleteResource(dch.defaultOperationHandler(ot.Delete, http.MethodDelete, nil, nil, deleteErrorHandler))
 }
