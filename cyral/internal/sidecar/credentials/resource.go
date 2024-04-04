@@ -15,7 +15,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 	SchemaReaderFactory:           func() core.SchemaReader { return &CreateSidecarCredentialsRequest{} },
 	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &SidecarCredentialsData{} },
 	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &SidecarCredentialsData{} },
-	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/sidecarAccounts", c.ControlPlane)
 	},
 }

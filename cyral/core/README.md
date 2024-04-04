@@ -111,7 +111,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 	ResourceType:        resourcetype.Resource,
 	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
-	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/NewFeature", c.ControlPlane)
 	},
 }

@@ -34,7 +34,7 @@ func ResourceIntegrationDatadog() *schema.Resource {
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &DatadogIntegration{} },
 		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &DatadogIntegration{} },
-		PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/datadog", c.ControlPlane)
 		},
 	}

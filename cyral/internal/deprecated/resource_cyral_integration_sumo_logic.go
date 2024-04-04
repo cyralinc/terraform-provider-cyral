@@ -32,7 +32,7 @@ func ResourceIntegrationSumoLogic() *schema.Resource {
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &SumoLogicIntegration{} },
 		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &SumoLogicIntegration{} },
-		PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/sumologic", c.ControlPlane)
 		},
 	}

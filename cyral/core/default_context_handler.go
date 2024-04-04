@@ -19,13 +19,13 @@ import (
 //     it will assume that a call to POST returns a JSON with
 //     an `id` field, meaning it will use the
 //     `IDBasedResponse` struct in such cases.
-//  3. `PostURLFactory` must be provided for resources. It will be used to
+//  3. `BaseURLFactory` must be provided for resources. It will be used to
 //     create the POST endpoint and others in case `GetPutDeleteURLFactory`
 //     is not provided.
 //  4. `GetPutDeleteURLFactory` must be provided for data sources.
 //  5. If `GetPutDeleteURLFactory` is NOT provided (data sources or resources),
 //     the endpoint to perform GET, PUT and DELETE calls are composed by the
-//     `PostURLFactory` endpoint plus the ID specification as follows:
+//     `BaseURLFactory` endpoint plus the ID specification as follows:
 //     - POST:    https://<CP>/<apiVersion>/<featureName>
 //     - GET:     https://<CP>/<apiVersion>/<featureName>/<id>
 //     - PUT:     https://<CP>/<apiVersion>/<featureName>/<id>
@@ -40,10 +40,10 @@ type DefaultContextHandler struct {
 	// SchemaWriterFactoryPostMethod defines how the schema will be
 	// written in POST operations.
 	SchemaWriterFactoryPostMethod SchemaWriterFactoryFunc
-	// PostURLFactory provides the URL used for POSTs and that
+	// BaseURLFactory provides the URL used for POSTs and that
 	// will also be used to compose the ID URL for GET, PUT and
-	// DELETE in case ` GetPutDeleteURLFactory` is not provided.
-	PostURLFactory         URLFactoryFunc
+	// DELETE in case `GetPutDeleteURLFactory` is not provided.
+	BaseURLFactory         URLFactoryFunc
 	GetPutDeleteURLFactory URLFactoryFunc
 }
 
@@ -63,11 +63,11 @@ func (dch DefaultContextHandler) defaultOperationHandler(
 	endpoint := func(d *schema.ResourceData, c *client.Client) string {
 		var url string
 		if httpMethod == http.MethodPost {
-			url = dch.PostURLFactory(d, c)
+			url = dch.BaseURLFactory(d, c)
 		} else if dch.GetPutDeleteURLFactory != nil {
 			url = dch.GetPutDeleteURLFactory(d, c)
 		} else {
-			url = fmt.Sprintf("%s/%s", dch.PostURLFactory(d, c), d.Id())
+			url = fmt.Sprintf("%s/%s", dch.BaseURLFactory(d, c), d.Id())
 		}
 		tflog.Debug(context.Background(), fmt.Sprintf("Returning base URL for %s '%s' operation '%s' and httpMethod %s: %s",
 			dch.ResourceType, dch.ResourceName, operationType, httpMethod, url))

@@ -30,7 +30,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 	ResourceType:                 resourcetype.Resource,
 	SchemaReaderFactory:          func() core.SchemaReader { return &UserConfig{} },
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &RepositoryConfAnalysisData{} },
-	PostURLFactory:               urlFactory,
+	BaseURLFactory:               urlFactory,
 	GetPutDeleteURLFactory:       urlFactory,
 }
 

@@ -17,7 +17,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 	SchemaReaderFactory:           func() core.SchemaReader { return &CreateBindingRequest{} },
 	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &GetBindingResponse{} },
 	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &CreateBindingResponse{} },
-	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string))

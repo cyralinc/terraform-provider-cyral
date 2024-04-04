@@ -14,7 +14,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 	ResourceType:                 resourcetype.Resource,
 	SchemaReaderFactory:          func() core.SchemaReader { return &MsTeamsIntegration{} },
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &MsTeamsIntegration{} },
-	PostURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/teams", c.ControlPlane)
 	},
 }
