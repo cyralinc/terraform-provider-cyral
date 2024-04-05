@@ -71,23 +71,26 @@ func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Clie
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
 // filling the response parameter (if not nil) with the response body.
 func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resourceData interface{}) ([]byte, error) {
-	tflog.Debug(ctx, "Init DoRequest")
-	tflog.Debug(ctx, fmt.Sprintf("Resource info: %#v", resourceData))
-	tflog.Debug(ctx, fmt.Sprintf("%s URL: %s", httpMethod, url))
+	tflog.Debug(ctx, "=> Init DoRequest")
+	tflog.Debug(ctx, fmt.Sprintf("==> Resource info: %#v", resourceData))
+	tflog.Debug(ctx, fmt.Sprintf("==> %s URL: %s", httpMethod, url))
 	var req *http.Request
 	var err error
 	if resourceData != nil {
 		payloadBytes, err := json.Marshal(resourceData)
 		if err != nil {
+			tflog.Debug(ctx, "=> End DoRequest - Error")
 			return nil, fmt.Errorf("failed to encode payload: %v", err)
 		}
 		payload := string(payloadBytes)
 		tflog.Debug(ctx, fmt.Sprintf("%s payload: %s", httpMethod, payload))
 		if req, err = http.NewRequest(httpMethod, url, strings.NewReader(payload)); err != nil {
+			tflog.Debug(ctx, "=> End DoRequest - Error")
 			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
 	} else {
 		if req, err = http.NewRequest(httpMethod, url, nil); err != nil {
+			tflog.Debug(ctx, "=> End DoRequest - Error")
 			return nil, fmt.Errorf("unable to create request; err: %v", err)
 		}
 	}
@@ -96,24 +99,27 @@ func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resource
 	token := &oauth2.Token{}
 	if c.TokenSource != nil {
 		if token, err = c.TokenSource.Token(); err != nil {
+			tflog.Debug(ctx, "=> End DoRequest - Error")
 			return nil, fmt.Errorf("unable to retrieve authorization token. error: %v", err)
 		} else {
-			tflog.Debug(ctx, fmt.Sprintf("Token Type: %s", token.Type()))
-			tflog.Debug(ctx, fmt.Sprintf("Access Token: %s", redactContent(token.AccessToken)))
-			tflog.Debug(ctx, fmt.Sprintf("Token Expiry: %s", token.Expiry))
+			tflog.Debug(ctx, fmt.Sprintf("==> Token Type: %s", token.Type()))
+			tflog.Debug(ctx, fmt.Sprintf("==> Access Token: %s", redactContent(token.AccessToken)))
+			tflog.Debug(ctx, fmt.Sprintf("==> Token Expiry: %s", token.Expiry))
 			req.Header.Add("Authorization", fmt.Sprintf("%s %s", token.Type(), token.AccessToken))
 		}
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("Executing %s", httpMethod))
+	tflog.Debug(ctx, fmt.Sprintf("==> Executing %s", httpMethod))
 	res, err := c.client.Do(req)
 	if err != nil {
+		tflog.Debug(ctx, "=> End DoRequest - Error")
 		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
 	}
 
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusConflict ||
 		(httpMethod == http.MethodPost && strings.Contains(strings.ToLower(res.Status), "already exists")) {
+		tflog.Debug(ctx, "=> End DoRequest - Error")
 		return nil, NewHttpError(
 			fmt.Sprintf("resource possibly exists in the control plane. Response status: %s", res.Status),
 			res.StatusCode)
@@ -121,6 +127,7 @@ func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resource
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		tflog.Debug(ctx, "=> End DoRequest - Error")
 		return nil, NewHttpError(
 			fmt.Sprintf("unable to read data from request body; err: %v", err),
 			res.StatusCode)
@@ -129,18 +136,19 @@ func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resource
 	// Redact token before logging the request
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.Type(), redactContent(token.AccessToken)))
 
-	tflog.Debug(ctx, fmt.Sprintf("Request: %#v", req))
-	tflog.Debug(ctx, fmt.Sprintf("Response status code: %d", res.StatusCode))
-	tflog.Debug(ctx, fmt.Sprintf("Response body: %s", string(body)))
+	tflog.Debug(ctx, fmt.Sprintf("==> Request: %#v", req))
+	tflog.Debug(ctx, fmt.Sprintf("==> Response status code: %d", res.StatusCode))
+	tflog.Debug(ctx, fmt.Sprintf("==> Response body: %s", string(body)))
 
 	if !(res.StatusCode >= 200 && res.StatusCode < 300) {
+		tflog.Debug(ctx, "=> End DoRequest - Error")
 		return nil, NewHttpError(
 			fmt.Sprintf("error executing %s request; status code: %d; body: %q",
 				httpMethod, res.StatusCode, body),
 			res.StatusCode)
 	}
 
-	tflog.Debug(ctx, "End DoRequest")
+	tflog.Debug(ctx, "=> End DoRequest - Success")
 
 	return body, nil
 }

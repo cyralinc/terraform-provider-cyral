@@ -6,7 +6,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "Microsoft Teams Integration"
+	return "teams"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

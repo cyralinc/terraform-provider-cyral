@@ -41,10 +41,10 @@ func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) error {
 
 func ResourceIntegrationSplunk() *schema.Resource {
 	contextHandler := core.DefaultContextHandler{
-		ResourceName:        "Splunk Integration",
-		ResourceType:        resourcetype.Resource,
-		SchemaReaderFactory: func() core.SchemaReader { return &SplunkIntegration{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SplunkIntegration{} },
+		ResourceName:                 "Splunk Integration",
+		ResourceType:                 resourcetype.Resource,
+		SchemaReaderFactory:          func() core.SchemaReader { return &SplunkIntegration{} },
+		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &SplunkIntegration{} },
 		BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/splunk", c.ControlPlane)
 		},

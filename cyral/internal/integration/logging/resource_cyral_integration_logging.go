@@ -181,6 +181,7 @@ func CreateLoggingIntegration() core.ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/integrations/logging", c.ControlPlane)
 		},
 		SchemaReaderFactory: func() core.SchemaReader { return &LoggingIntegration{} },
+		SchemaWriterFactory: core.DefaultSchemaWriterFactory,
 	}
 }
 
@@ -192,7 +193,7 @@ var ReadLoggingIntegration = core.ResourceOperationConfig{
 		return fmt.Sprintf(loggingApiUrl, c.ControlPlane, d.Id())
 	},
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &LoggingIntegration{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Integration logging"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Integration logging"},
 }
 
 func UpdateLoggingIntegration() core.ResourceOperationConfig {

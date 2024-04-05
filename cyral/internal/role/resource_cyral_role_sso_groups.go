@@ -143,7 +143,7 @@ var readRoleSSOGroupsConfig = core.ResourceOperationConfig{
 			d.Get("role_id").(string))
 	},
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RoleSSOGroupsReadResponse{} },
-	RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Role SSO groups"},
+	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Role SSO groups"},
 }
 
 var deleteRoleSSOGroupsConfig = core.ResourceOperationConfig{

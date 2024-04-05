@@ -21,21 +21,12 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/binding"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/credentials"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/systeminfo"
 )
 
@@ -112,7 +103,6 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_integration_idp_saml"] = idpsaml.DataSourceIntegrationIdPSAML()
 	schemaMap["cyral_integration_logging"] = logging.DataSourceIntegrationLogging()
 	schemaMap["cyral_permission"] = permission.DataSourcePermission()
-	schemaMap["cyral_repository"] = repository.DataSourceRepository()
 	schemaMap["cyral_role"] = role.DataSourceRole()
 	schemaMap["cyral_saml_configuration"] = samlconfiguration.DataSourceSAMLConfiguration()
 	schemaMap["cyral_sidecar_bound_ports"] = sidecar.DataSourceSidecarBoundPorts()
@@ -122,7 +112,6 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_sidecar_instance_ids"] = deprecated.DataSourceSidecarInstanceIDs()
 	schemaMap["cyral_sidecar_instance_stats"] = instance.DataSourceSidecarInstanceStats()
 	schemaMap["cyral_sidecar_instance"] = instance.DataSourceSidecarInstance()
-	schemaMap["cyral_sidecar_listener"] = listener.DataSourceSidecarListener()
 	schemaMap["cyral_system_info"] = systeminfo.DataSourceSystemInfo()
 
 	tflog.Debug(ctx, "End getDataSourceMap")
@@ -168,19 +157,9 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_policy"] = policy.ResourcePolicy()
 	schemaMap["cyral_policy_rule"] = rule.ResourcePolicyRule()
 	schemaMap["cyral_rego_policy_instance"] = regopolicy.ResourceRegoPolicyInstance()
-	schemaMap["cyral_repository"] = repository.ResourceRepository()
-	schemaMap["cyral_repository_access_rules"] = accessrules.ResourceRepositoryAccessRules()
-	schemaMap["cyral_repository_access_gateway"] = accessgateway.ResourceRepositoryAccessGateway()
-	schemaMap["cyral_repository_binding"] = binding.ResourceRepositoryBinding()
-	schemaMap["cyral_repository_conf_auth"] = confauth.ResourceRepositoryConfAuth()
-	schemaMap["cyral_repository_conf_analysis"] = confanalysis.ResourceRepositoryConfAnalysis()
-	schemaMap["cyral_repository_network_access_policy"] = network.ResourceRepositoryNetworkAccessPolicy()
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
 	schemaMap["cyral_service_account"] = serviceaccount.ResourceServiceAccount()
-	schemaMap["cyral_sidecar"] = sidecar.ResourceSidecar()
-	schemaMap["cyral_sidecar_credentials"] = credentials.ResourceSidecarCredentials()
-	schemaMap["cyral_sidecar_listener"] = listener.ResourceSidecarListener()
 
 	tflog.Debug(ctx, "End getResourceMap")
 

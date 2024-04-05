@@ -21,56 +21,84 @@ func getTestCBS() sidecar.CertificateBundleSecrets {
 }
 
 var cloudFormationSidecarConfig = sidecar.SidecarData{
-	Name:                     utils.AccTestName(utils.SidecarResourceName, "cft"),
-	Labels:                   []string{"test1"},
-	SidecarProperties:        sidecar.NewSidecarProperties("cft-ec2", "foo", ""),
+	Name:   utils.AccTestName(utils.SidecarResourceName, "cft"),
+	Labels: []string{"test1"},
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "cft-ec2",
+		LogIntegrationID:           "foo",
+		DiagnosticLogIntegrationID: "",
+	},
 	UserEndpoint:             "some.cft.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
 var dockerSidecarConfig = sidecar.SidecarData{
-	Name:                     utils.AccTestName(utils.SidecarResourceName, "docker"),
-	Labels:                   []string{"test2"},
-	SidecarProperties:        sidecar.NewSidecarProperties("docker", "bar", ""),
+	Name:   utils.AccTestName(utils.SidecarResourceName, "docker"),
+	Labels: []string{"test2"},
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "docker",
+		LogIntegrationID:           "bar",
+		DiagnosticLogIntegrationID: "",
+	},
 	UserEndpoint:             "some.docker.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
 var helmSidecarConfig = sidecar.SidecarData{
-	Name:                     utils.AccTestName(utils.SidecarResourceName, "helm3"),
-	Labels:                   []string{"test3"},
-	SidecarProperties:        sidecar.NewSidecarProperties("helm3", "baz", ""),
+	Name:   utils.AccTestName(utils.SidecarResourceName, "helm3"),
+	Labels: []string{"test3"},
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "helm3",
+		LogIntegrationID:           "baz",
+		DiagnosticLogIntegrationID: "",
+	},
 	UserEndpoint:             "some.helm3.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
 var tfSidecarConfig = sidecar.SidecarData{
-	Name:                     utils.AccTestName(utils.SidecarResourceName, "tf"),
-	Labels:                   []string{"test4"},
-	SidecarProperties:        sidecar.NewSidecarProperties("terraform", "qux", ""),
+	Name:   utils.AccTestName(utils.SidecarResourceName, "tf"),
+	Labels: []string{"test4"},
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "terraform",
+		LogIntegrationID:           "qux",
+		DiagnosticLogIntegrationID: "",
+	},
 	UserEndpoint:             "some.tf.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
 var singleContainerSidecarConfig = sidecar.SidecarData{
-	Name:                     utils.AccTestName(utils.SidecarResourceName, "singleContainer"),
-	Labels:                   []string{"test5"},
-	SidecarProperties:        sidecar.NewSidecarProperties("singleContainer", "quxx", ""),
+	Name:   utils.AccTestName(utils.SidecarResourceName, "singleContainer"),
+	Labels: []string{"test5"},
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "singleContainer",
+		LogIntegrationID:           "quxx",
+		DiagnosticLogIntegrationID: "",
+	},
 	UserEndpoint:             "some.singleContainer.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
 var linuxSidecarConfig = sidecar.SidecarData{
-	Name:                     utils.AccTestName(utils.SidecarResourceName, "linux"),
-	Labels:                   []string{"test6"},
-	SidecarProperties:        sidecar.NewSidecarProperties("linux", "empty", ""),
+	Name:   utils.AccTestName(utils.SidecarResourceName, "linux"),
+	Labels: []string{"test6"},
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "linux",
+		LogIntegrationID:           "empty",
+		DiagnosticLogIntegrationID: "",
+	},
 	UserEndpoint:             "some.linux.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
 }
 
 var bypassNeverSidecarConfig = sidecar.SidecarData{
-	Name:              utils.AccTestName(utils.SidecarResourceName, "bypassNeverSidecar"),
-	SidecarProperties: sidecar.NewSidecarProperties("terraform", "a", ""),
+	Name: utils.AccTestName(utils.SidecarResourceName, "bypassNeverSidecar"),
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "terraform",
+		LogIntegrationID:           "a",
+		DiagnosticLogIntegrationID: "",
+	},
 	ServicesConfig: sidecar.SidecarServicesConfig{
 		"dispatcher": map[string]string{
 			"bypass": "never",
@@ -80,8 +108,12 @@ var bypassNeverSidecarConfig = sidecar.SidecarData{
 }
 
 var bypassAlwaysSidecarConfig = sidecar.SidecarData{
-	Name:              utils.AccTestName(utils.SidecarResourceName, "bypassAlwaysSidecar"),
-	SidecarProperties: sidecar.NewSidecarProperties("terraform", "b", ""),
+	Name: utils.AccTestName(utils.SidecarResourceName, "bypassAlwaysSidecar"),
+	SidecarProperties: &sidecar.SidecarProperties{
+		DeploymentMethod:           "terraform",
+		LogIntegrationID:           "b",
+		DiagnosticLogIntegrationID: "",
+	},
 	ServicesConfig: sidecar.SidecarServicesConfig{
 		"dispatcher": map[string]string{
 			"bypass": "always",

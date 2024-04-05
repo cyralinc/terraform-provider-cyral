@@ -122,7 +122,7 @@ func DeleteGenericSAMLDraftConfig() core.ResourceOperationConfig {
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
 			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
 		},
-		RequestErrorHandler: &core.DeleteIgnoreHttpNotFound{ResName: "SAML draft"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "SAML draft"},
 	}
 }
 

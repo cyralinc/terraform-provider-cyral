@@ -14,7 +14,7 @@ func (p *packageSchema) Name() string {
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
-			Name:   "cyral_repository_datamap",
+			Name:   resourceName,
 			Type:   core.ResourceSchemaType,
 			Schema: resourceSchema,
 		},

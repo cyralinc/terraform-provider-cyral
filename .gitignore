@@ -2,6 +2,7 @@
 .terraform
 .terraform.lock.hcl
 terraform.tfstate*
+*.tf
 
 # Provider binary
 terraform-provider-cyral*

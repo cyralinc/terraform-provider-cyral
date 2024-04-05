@@ -33,7 +33,7 @@ var (
 		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 			return &ServiceAccount{}
 		},
-		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Service account"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Service account"},
 	}
 )
 

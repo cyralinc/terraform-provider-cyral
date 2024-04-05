@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +9,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -21,6 +20,10 @@ const (
 // GetReposSubResponse is different from GetRepoByIDResponse. For the by-id
 // response, we expect the ids to be embedded in the RepoInfo struct. For
 // GetReposSubResponse, the ids come outside of RepoInfo.
+//
+// Needles to say we need a new API version to fix these issues. For the
+// time being, I'm keeping the model here to isolate it from the rest of
+// the code - Wilson.
 type GetReposSubResponse struct {
 	ID   string   `json:"id"`
 	Repo RepoInfo `json:"repo"`
@@ -37,10 +40,10 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 			RepoIDKey:              repo.ID,
 			RepoNameKey:            repo.Repo.Name,
 			RepoTypeKey:            repo.Repo.Type,
-			RepoLabelsKey:          repo.Repo.LabelsAsInterface(),
-			RepoConnDrainingKey:    repo.Repo.ConnDrainingAsInterface(),
-			RepoNodesKey:           repo.Repo.RepoNodesAsInterface(),
-			RepoMongoDBSettingsKey: repo.Repo.MongoDBSettingsAsInterface(),
+			RepoLabelsKey:          repo.Repo.Labels.AsInterface(),
+			RepoConnDrainingKey:    repo.Repo.ConnParams.AsInterface(),
+			RepoNodesKey:           repo.Repo.RepoNodes.AsInterface(),
+			RepoMongoDBSettingsKey: repo.Repo.MongoDBSettings.AsInterface(),
 		}
 		repoList = append(repoList, argumentVals)
 	}
@@ -54,29 +57,26 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-func dataSourceRepositoryReadConfig() core.ResourceOperationConfig {
-	return core.ResourceOperationConfig{
-		ResourceName: "RepositoryDataSourceRead",
-		Type:         operationtype.Read,
-		HttpMethod:   http.MethodGet,
-		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-			nameFilter := d.Get("name").(string)
-			typeFilter := d.Get("type").(string)
-			urlParams := utils.UrlQuery(map[string]string{
-				"name": nameFilter,
-				"type": typeFilter,
-			})
+var dsContextHandler = core.DefaultContextHandler{
+	ResourceName:                 dataSourceName,
+	ResourceType:                 resourcetype.DataSource,
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
+	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		nameFilter := d.Get("name").(string)
+		typeFilter := d.Get("type").(string)
+		urlParams := utils.UrlQuery(map[string]string{
+			"name": nameFilter,
+			"type": typeFilter,
+		})
 
-			return fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
-		},
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
-	}
+		return fmt.Sprintf("https://%s/v1/repos%s", c.ControlPlane, urlParams)
+	},
 }
 
-func DataSourceRepository() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieves a list of repositories. See [`repository_list`](#nestedatt--repository_list).",
-		ReadContext: core.ReadResource(dataSourceRepositoryReadConfig()),
+		ReadContext: dsContextHandler.ReadContext(),
 		Schema: map[string]*schema.Schema{
 			RepoNameKey: {
 				Description: "Filter the results by a regular expression (regex) that matches names of existing repositories.",

@@ -10,10 +10,10 @@ import (
 )
 
 var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:        resourceName,
-	ResourceType:        resourcetype.Resource,
-	SchemaReaderFactory: func() core.SchemaReader { return &SlackAlertsIntegration{} },
-	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &SlackAlertsIntegration{} },
+	ResourceName:                 resourceName,
+	ResourceType:                 resourcetype.Resource,
+	SchemaReaderFactory:          func() core.SchemaReader { return &SlackAlertsIntegration{} },
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &SlackAlertsIntegration{} },
 	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/integrations/notifications/slack", c.ControlPlane)
 	},

@@ -109,67 +109,63 @@ func DeleteResource(deleteConfig ResourceOperationConfig) schema.DeleteContextFu
 func handleRequests(operations []ResourceOperationConfig) func(context.Context, *schema.ResourceData, any) diag.Diagnostics {
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		for _, operation := range operations {
-			tflog.Debug(ctx, fmt.Sprintf("Init %s - %s", operation.ResourceName, operation.Type))
+			tflog.Debug(ctx, fmt.Sprintf("Init handleRequests to %s %s %s", operation.Type, operation.ResourceType, operation.ResourceName))
 			c := m.(*client.Client)
 
 			var resourceData SchemaReader
 			if operation.SchemaReaderFactory != nil {
+				tflog.Debug(ctx, "=> Calling SchemaReaderFactory")
 				if resourceData = operation.SchemaReaderFactory(); resourceData != nil {
-					tflog.Debug(ctx, fmt.Sprintf("Calling ReadFromSchema. Schema: %#v", d))
+					tflog.Debug(ctx, fmt.Sprintf("=> Calling ReadFromSchema. Schema: %#v", d))
 					if err := resourceData.ReadFromSchema(d); err != nil {
+						tflog.Debug(ctx, fmt.Sprintf("End handleRequests to %s %s %s - Error: %s", operation.Type, operation.ResourceType, operation.ResourceName, err.Error()))
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.ResourceName),
+							fmt.Sprintf("Unable to %s %s %s", operation.Type, operation.ResourceType, operation.ResourceName),
 							err.Error(),
 						)
 					}
-					tflog.Debug(ctx, fmt.Sprintf("Succesful call to ReadFromSchema. resourceData: %#v", resourceData))
+					tflog.Debug(ctx, fmt.Sprintf("=> Succesful call to ReadFromSchema. resourceData: %#v", resourceData))
 				}
 			}
 
 			url := operation.URLFactory(d, c)
 
 			body, err := c.DoRequest(ctx, url, operation.HttpMethod, resourceData)
-			if operation.RequestErrorHandler != nil {
+			if err != nil && operation.RequestErrorHandler != nil {
+				tflog.Debug(ctx, "=> Calling operation.RequestErrorHandler.HandleError")
 				err = operation.RequestErrorHandler.HandleError(ctx, d, c, err)
 			}
 			if err != nil {
+				tflog.Debug(ctx, fmt.Sprintf("End handleRequests to %s %s %s - Error: %s", operation.Type, operation.ResourceType, operation.ResourceName, err.Error()))
 				return utils.CreateError(
-					fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.ResourceName),
+					fmt.Sprintf("Unable to %s %s %s", operation.Type, operation.ResourceType, operation.ResourceName),
 					err.Error(),
 				)
 			}
 
-			// If a `SchemaWriterFactory` implementation is NOT provided and this is a creation operation,
-			// use the `defaultSchemaWriterFactory`, assuming the response is a JSON with an `id` field.
-			/// TODO: Remove this feature after refactoring all resources to use the `DefaultContext`.
-			var responseDataFunc SchemaWriterFactoryFunc
-			if body != nil {
-				if operation.SchemaWriterFactory == nil && operation.Type == operationtype.Create {
-					responseDataFunc = defaultSchemaWriterFactory
-					tflog.Debug(ctx, "NewResponseData function set to defaultSchemaWriterFactory.")
-				} else {
-					responseDataFunc = operation.SchemaWriterFactory
-				}
-			}
-			if responseDataFunc != nil {
-				if responseData := responseDataFunc(d); responseData != nil {
-					tflog.Debug(ctx, fmt.Sprintf("NewResponseData function call performed. d: %#v", d))
+			if operation.SchemaWriterFactory == nil {
+				tflog.Debug(ctx, "=> No SchemaWriterFactory found.")
+			} else if body != nil {
+				if responseData := operation.SchemaWriterFactory(d); responseData != nil {
+					tflog.Debug(ctx, fmt.Sprintf("=> operation.SchemaWriterFactory function call performed. d: %#v", d))
 					if err := json.Unmarshal(body, responseData); err != nil {
+						tflog.Debug(ctx, fmt.Sprintf("End handleRequests to %s %s %s - Error: %s", operation.Type, operation.ResourceType, operation.ResourceName, err.Error()))
 						return utils.CreateError("Unable to unmarshall JSON", err.Error())
 					}
-					tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", responseData))
-					tflog.Debug(ctx, fmt.Sprintf("Calling WriteToSchema: responseData: %#v", responseData))
+					tflog.Debug(ctx, fmt.Sprintf("=> Response body (unmarshalled): %#v", responseData))
+					tflog.Debug(ctx, fmt.Sprintf("=> Calling WriteToSchema: responseData: %#v", responseData))
 					if err := responseData.WriteToSchema(d); err != nil {
+						tflog.Debug(ctx, fmt.Sprintf("End handleRequests to %s %s %s - Error: %s", operation.Type, operation.ResourceType, operation.ResourceName, err.Error()))
 						return utils.CreateError(
-							fmt.Sprintf("Unable to %s resource %s", operation.Type, operation.ResourceName),
+							fmt.Sprintf("Unable to %s %s %s", operation.Type, operation.ResourceType, operation.ResourceName),
 							err.Error(),
 						)
 					}
-					tflog.Debug(ctx, fmt.Sprintf("Succesful call to WriteToSchema. d: %#v", d))
+					tflog.Debug(ctx, fmt.Sprintf("=> Succesful call to WriteToSchema. d: %#v", d))
 				}
 			}
 
-			tflog.Debug(ctx, fmt.Sprintf("End %s - %s", operation.ResourceName, operation.Type))
+			tflog.Debug(ctx, fmt.Sprintf("End handleRequests to %s %s %s - Success", operation.Type, operation.ResourceType, operation.ResourceName))
 		}
 		return diag.Diagnostics{}
 	}

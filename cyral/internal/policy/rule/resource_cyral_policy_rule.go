@@ -420,7 +420,7 @@ func policyRuleDeleteConfig() core.ResourceOperationConfig {
 			return fmt.Sprintf("https://%s/v1/policies/%s/rules/%s",
 				c.ControlPlane, policyID, policyRuleID)
 		},
-		RequestErrorHandler: &core.DeleteIgnoreHttpNotFound{ResName: "Policy Rule"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Policy Rule"},
 	}
 }
 

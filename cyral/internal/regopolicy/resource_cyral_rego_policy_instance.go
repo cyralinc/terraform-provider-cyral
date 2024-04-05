@@ -50,7 +50,7 @@ var (
 		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 			return &RegoPolicyInstance{}
 		},
-		RequestErrorHandler: &core.ReadIgnoreHttpNotFound{ResName: "Rego policy instance"},
+		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Rego policy instance"},
 	}
 
 	regoPolicyChangeInformation = &schema.Resource{
