@@ -44,11 +44,11 @@ func TestAccSidecarListenerDataSource(t *testing.T) {
 	testConfigTypeFilter, testFuncTypeFilter := testListenerDataSource(
 		testListeners, testListeners[0].RepoTypes[0], 0)
 
-	// testConfigPortFilter, testFuncPortFilter := testListenerDataSource(
-	// 	testListeners, "", testListeners[1].NetworkAddress.Port)
+	testConfigPortFilter, testFuncPortFilter := testListenerDataSource(
+		testListeners, "", testListeners[1].NetworkAddress.Port)
 
-	// testConfigTypePortFilter, testFuncTypePortFilter := testListenerDataSource(
-	// 	testListeners, testListeners[2].RepoTypes[0], testListeners[0].NetworkAddress.Port)
+	testConfigTypePortFilter, testFuncTypePortFilter := testListenerDataSource(
+		testListeners, testListeners[2].RepoTypes[0], testListeners[0].NetworkAddress.Port)
 
 	resource.ParallelTest(t, resource.TestCase{
 		ProviderFactories: provider.ProviderFactories,
@@ -57,14 +57,14 @@ func TestAccSidecarListenerDataSource(t *testing.T) {
 				Config: testConfigTypeFilter,
 				Check:  testFuncTypeFilter,
 			},
-			// {
-			// 	Config: testConfigPortFilter,
-			// 	Check:  testFuncPortFilter,
-			// },
-			// {
-			// 	Config: testConfigTypePortFilter,
-			// 	Check:  testFuncTypePortFilter,
-			// },
+			{
+				Config: testConfigPortFilter,
+				Check:  testFuncPortFilter,
+			},
+			{
+				Config: testConfigTypePortFilter,
+				Check:  testFuncTypePortFilter,
+			},
 		},
 	})
 }

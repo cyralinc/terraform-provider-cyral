@@ -8,7 +8,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "datamap"
+	return "network"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
