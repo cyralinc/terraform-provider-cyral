@@ -82,7 +82,7 @@ func dataSourceIntegrationIdPSAMLReadConfig() core.ResourceOperationConfig {
 	}
 }
 
-func DataSourceIntegrationIdPSAML() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve and filter SAML IdP integrations.",
 		ReadContext: core.ReadResource(dataSourceIntegrationIdPSAMLReadConfig()),

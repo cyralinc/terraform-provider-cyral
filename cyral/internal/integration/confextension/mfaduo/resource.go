@@ -1,23 +1,18 @@
 package mfaduo
 
 import (
-	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	ce "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func ResourceIntegrationMFADuo() *schema.Resource {
+func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [integration with Duo MFA](https://cyral.com/docs/mfa/duo).",
-		CreateContext: core.CreateResource(
-			ce.ConfExtensionIntegrationCreate(ce.DuoMFATemplateType),
-			ce.ConfExtensionIntegrationRead(ce.DuoMFATemplateType)),
-		ReadContext: core.ReadResource(ce.ConfExtensionIntegrationRead(ce.DuoMFATemplateType)),
-		UpdateContext: core.UpdateResource(
-			ce.ConfExtensionIntegrationUpdate(ce.DuoMFATemplateType),
-			ce.ConfExtensionIntegrationRead(ce.DuoMFATemplateType)),
-		DeleteContext: core.DeleteResource(ce.ConfExtensionIntegrationDelete(ce.DuoMFATemplateType)),
+		Description:   "Manages [integration with Duo MFA](https://cyral.com/docs/mfa/duo).",
+		CreateContext: ce.CreateResource(resourceName, ce.DuoMFATemplateType),
+		ReadContext:   ce.ReadResource(resourceName, ce.DuoMFATemplateType),
+		UpdateContext: ce.UpdateResource(resourceName, ce.DuoMFATemplateType),
+		DeleteContext: ce.DeleteResource(resourceName, ce.DuoMFATemplateType),
 
 		Schema: map[string]*schema.Schema{
 			"id": {

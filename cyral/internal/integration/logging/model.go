@@ -1,6 +1,9 @@
 package logging
 
 import (
+	"fmt"
+
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -58,22 +61,191 @@ type LoggingIntegrationConfig struct {
 	FluentBit  *FluentBitConfig  `json:"fluentBit"`
 }
 
-const (
-	CloudWatchKey = "cloudwatch"
-	DatadogKey    = "datadog"
-	ElkKey        = "elk"
-	SplunkKey     = "splunk"
-	SumoLogicKey  = "sumo_logic"
-	FluentbitKey  = "fluent_bit"
-)
+func getLoggingConfig(resource *LoggingIntegration) (string, []interface{}, error) {
+	var configType string
+	var configScheme []interface{}
+	switch {
+	case resource.CloudWatch != nil:
+		configType = CloudWatchKey
+		configScheme = []interface{}{
+			map[string]interface{}{
+				"region": resource.CloudWatch.Region,
+				"group":  resource.CloudWatch.Group,
+				"stream": resource.CloudWatch.Stream,
+			},
+		}
+	case resource.Datadog != nil:
+		configType = DatadogKey
+		configScheme = []interface{}{
+			map[string]interface{}{
+				"api_key": resource.Datadog.ApiKey,
+			},
+		}
+	case resource.Elk != nil:
+		configType = ElkKey
+		elkConfig := map[string]interface{}{
+			"es_url":     resource.Elk.EsURL,
+			"kibana_url": resource.Elk.KibanaURL,
+		}
+		// Optional, so we need to verify separately
+		if resource.Elk.EsCredentials != nil {
+			elkConfig["es_credentials"] = []interface{}{
+				map[string]interface{}{
+					"username": resource.Elk.EsCredentials.Username,
+					"password": resource.Elk.EsCredentials.Password,
+				},
+			}
+		}
+		configScheme = []interface{}{elkConfig}
+	case resource.Splunk != nil:
+		configType = SplunkKey
+		configScheme = []interface{}{
+			map[string]interface{}{
+				"hostname":     resource.Splunk.Hostname,
+				"hec_port":     resource.Splunk.HecPort,
+				"access_token": resource.Splunk.AccessToken,
+				"index":        resource.Splunk.Index,
+				"use_tls":      resource.Splunk.UseTLS,
+			},
+		}
+	case resource.SumoLogic != nil:
+		configType = SumoLogicKey
+		configScheme = []interface{}{
+			map[string]interface{}{
+				"address": resource.SumoLogic.Address,
+			},
+		}
+	case resource.FluentBit != nil:
+		configType = FluentbitKey
+		configScheme = []interface{}{
+			map[string]interface{}{
+				"config":        resource.FluentBit.Config,
+				"skip_validate": resource.FluentBit.SkipValidate,
+			},
+		}
+	default:
+		return configType, nil, fmt.Errorf("config scheme is required, log integration config is corrupt: %v", resource)
+	}
 
-var allLogIntegrationConfigs = []string{
-	CloudWatchKey,
-	DatadogKey,
-	ElkKey,
-	SplunkKey,
-	SumoLogicKey,
-	FluentbitKey,
+	return configType, configScheme, nil
+}
+
+func (resource *LoggingIntegration) WriteToSchema(d *schema.ResourceData) error {
+	if err := d.Set("name", resource.Name); err != nil {
+		return fmt.Errorf("error setting 'name': %w", err)
+	}
+	if err := d.Set("receive_audit_logs", resource.ReceiveAuditLogs); err != nil {
+		return fmt.Errorf("error setting 'receive_audit_logs': %w", err)
+	}
+
+	configType, configScheme, err := getLoggingConfig(resource)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set(configType, configScheme); err != nil {
+		return fmt.Errorf("error setting 'config': %w", err)
+	}
+
+	return nil
+}
+
+// ReadFromSchema is used to parse the resource schema into a logging integration structure that is expected by the API
+func (integrationLogConfig *LoggingIntegration) ReadFromSchema(d *schema.ResourceData) error {
+	integrationLogConfig.Id = d.Id() //Get("integration_id").(string)
+	integrationLogConfig.Name = d.Get("name").(string)
+	integrationLogConfig.ReceiveAuditLogs = d.Get("receive_audit_logs").(bool)
+
+	// Handle Config Scheme (required field).
+	var configType string
+	var config interface{}
+	for _, integrationType := range allLogIntegrationConfigs {
+		configAux, isConfigOk := d.GetOk(integrationType)
+		if isConfigOk {
+			config = configAux.(interface{})
+			configType = integrationType
+			break
+		}
+	}
+
+	configDetails := config.(*schema.Set).List()
+
+	m := configDetails[0].(map[string]interface{})
+
+	switch configType {
+	case CloudWatchKey:
+		integrationLogConfig.CloudWatch = &CloudWatchConfig{
+			Region: m["region"].(string),
+			Group:  m["group"].(string),
+			Stream: m["stream"].(string),
+		}
+	case DatadogKey:
+		integrationLogConfig.Datadog = &DataDogConfig{
+			ApiKey: m["api_key"].(string),
+		}
+	case ElkKey:
+		integrationLogConfig.Elk = &ElkConfig{
+			EsURL:     m["es_url"].(string),
+			KibanaURL: m["kibana_url"].(string),
+		}
+		credentialsSet := m["es_credentials"].(*schema.Set).List()
+		if len(credentialsSet) != 0 {
+			credentialScheme := make(map[string]interface{})
+			credentialScheme = credentialsSet[0].(map[string]interface{})
+			integrationLogConfig.Elk.EsCredentials = &EsCredentials{
+				Username: credentialScheme["username"].(string),
+				Password: credentialScheme["password"].(string),
+			}
+		}
+	case SplunkKey:
+		integrationLogConfig.Splunk = &SplunkConfig{
+			Hostname:    m["hostname"].(string),
+			HecPort:     m["hec_port"].(string),
+			AccessToken: m["access_token"].(string),
+			Index:       m["index"].(string),
+			UseTLS:      m["use_tls"].(bool),
+		}
+	case SumoLogicKey:
+		integrationLogConfig.SumoLogic = &SumoLogicConfig{
+			Address: m["address"].(string),
+		}
+	case FluentbitKey:
+		integrationLogConfig.FluentBit = &FluentBitConfig{
+			Config:       m["config"].(string),
+			SkipValidate: m["skip_validate"].(bool),
+		}
+	default:
+		return fmt.Errorf("unexpected config type [%s]", configType)
+	}
+	return nil
+}
+
+type ListIntegrationLogsResponse struct {
+	Integrations []LoggingIntegration `json:"integrations"`
+}
+
+func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) error {
+	integrations := make([]interface{}, len(resp.Integrations))
+	for i, integration := range resp.Integrations {
+		// write in config scheme
+		configType, config, err := getLoggingConfig(&integration)
+		if err != nil {
+			return err
+		}
+		integrations[i] = map[string]interface{}{
+			"id":                 integration.Id,
+			"name":               integration.Name,
+			"receive_audit_logs": integration.ReceiveAuditLogs,
+			configType:           config,
+		}
+	}
+	if err := d.Set("integrations", integrations); err != nil {
+		return err
+	}
+
+	d.SetId(uuid.New().String())
+
+	return nil
 }
 
 func getIntegrationLogsSchema() map[string]*schema.Schema {

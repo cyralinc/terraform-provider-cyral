@@ -12,11 +12,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/awsiam"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/mfaduo"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
@@ -100,8 +95,6 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	}
 
 	schemaMap["cyral_integration_idp"] = deprecated.DataSourceIntegrationIdP()
-	schemaMap["cyral_integration_idp_saml"] = idpsaml.DataSourceIntegrationIdPSAML()
-	schemaMap["cyral_integration_logging"] = logging.DataSourceIntegrationLogging()
 	schemaMap["cyral_permission"] = permission.DataSourcePermission()
 	schemaMap["cyral_role"] = role.DataSourceRole()
 	schemaMap["cyral_saml_configuration"] = samlconfiguration.DataSourceSAMLConfiguration()
@@ -136,13 +129,10 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 
 	// // TODO Once the resources are migrated to the new SchemaRegister
 	// // abstraction, these calls from provider to resource will be removed.
-	schemaMap["cyral_integration_aws_iam"] = awsiam.ResourceIntegrationAWSIAM()
 	schemaMap["cyral_integration_datadog"] = deprecated.ResourceIntegrationDatadog()
-	schemaMap["cyral_integration_mfa_duo"] = mfaduo.ResourceIntegrationMFADuo()
 	schemaMap["cyral_integration_elk"] = deprecated.ResourceIntegrationELK()
 	schemaMap["cyral_integration_logstash"] = deprecated.ResourceIntegrationLogstash()
 	schemaMap["cyral_integration_looker"] = deprecated.ResourceIntegrationLooker()
-	schemaMap["cyral_integration_pager_duty"] = pagerduty.ResourceIntegrationPagerDuty()
 	schemaMap["cyral_integration_splunk"] = deprecated.ResourceIntegrationSplunk()
 	schemaMap["cyral_integration_idp_aad"] = deprecated.ResourceIntegrationIdP("aad", idpDeprecationMessage)
 	schemaMap["cyral_integration_idp_adfs"] = deprecated.ResourceIntegrationIdP("adfs-2016", idpDeprecationMessage)
@@ -150,10 +140,7 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_integration_idp_gsuite"] = deprecated.ResourceIntegrationIdP("gsuite", idpDeprecationMessage)
 	schemaMap["cyral_integration_idp_okta"] = deprecated.ResourceIntegrationIdP("okta", idpDeprecationMessage)
 	schemaMap["cyral_integration_idp_ping_one"] = deprecated.ResourceIntegrationIdP("pingone", idpDeprecationMessage)
-	schemaMap["cyral_integration_idp_saml"] = idpsaml.ResourceIntegrationIdPSAML()
-	schemaMap["cyral_integration_idp_saml_draft"] = idpsaml.ResourceIntegrationIdPSAMLDraft()
 	schemaMap["cyral_integration_sumo_logic"] = deprecated.ResourceIntegrationSumoLogic()
-	schemaMap["cyral_integration_logging"] = logging.ResourceIntegrationLogging()
 	schemaMap["cyral_policy"] = policy.ResourcePolicy()
 	schemaMap["cyral_policy_rule"] = rule.ResourcePolicyRule()
 	schemaMap["cyral_rego_policy_instance"] = regopolicy.ResourceRegoPolicyInstance()

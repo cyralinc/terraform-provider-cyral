@@ -8,38 +8,9 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
-
-type ListIntegrationLogsResponse struct {
-	Integrations []LoggingIntegration `json:"integrations"`
-}
-
-func (resp *ListIntegrationLogsResponse) WriteToSchema(d *schema.ResourceData) error {
-	integrations := make([]interface{}, len(resp.Integrations))
-	for i, integration := range resp.Integrations {
-		// write in config scheme
-		configType, config, err := getLoggingConfig(&integration)
-		if err != nil {
-			return err
-		}
-		integrations[i] = map[string]interface{}{
-			"id":                 integration.Id,
-			"name":               integration.Name,
-			"receive_audit_logs": integration.ReceiveAuditLogs,
-			configType:           config,
-		}
-	}
-	if err := d.Set("integrations", integrations); err != nil {
-		return err
-	}
-
-	d.SetId(uuid.New().String())
-
-	return nil
-}
 
 func dataSourceIntegrationLogsRead() core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
@@ -56,7 +27,7 @@ func dataSourceIntegrationLogsRead() core.ResourceOperationConfig {
 	}
 }
 
-func DataSourceIntegrationLogging() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	rawSchema := getIntegrationLogsSchema()
 	// all fields in integrations are computed.
 	// this function changes the schema to achieve this

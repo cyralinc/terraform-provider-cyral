@@ -3,7 +3,13 @@ package provider
 import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/datalabel"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/awsiam"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/mfaduo"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/hcvault"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
+	idpsaml_draft "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml/draft"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
@@ -24,6 +30,7 @@ import (
 
 func packagesSchemas() []core.PackageSchema {
 	v := []core.PackageSchema{
+		awsiam.PackageSchema(),
 		accessgateway.PackageSchema(),
 		accessrules.PackageSchema(),
 		binding.PackageSchema(),
@@ -33,8 +40,13 @@ func packagesSchemas() []core.PackageSchema {
 		datalabel.PackageSchema(),
 		datamap.PackageSchema(),
 		hcvault.PackageSchema(),
+		idpsaml.PackageSchema(),
+		idpsaml_draft.PackageSchema(),
 		listener.PackageSchema(),
+		logging.PackageSchema(),
+		mfaduo.PackageSchema(),
 		network.PackageSchema(),
+		pagerduty.PackageSchema(),
 		repository.PackageSchema(),
 		samlcertificate.PackageSchema(),
 		sidecar.PackageSchema(),

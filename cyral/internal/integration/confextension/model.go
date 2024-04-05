@@ -12,14 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const (
-	authorizationPurpose = "authorization"
-	builtinCategory      = "builtin"
-
-	PagerDutyTemplateType = "pagerduty"
-	DuoMFATemplateType    = "duoMfa"
-)
-
 type IntegrationConfExtension struct {
 	ID           string `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
@@ -44,7 +36,7 @@ type IntegrationConfExtensionParameters struct {
 	APIHostname    string `json:"apiHostname,omitempty"`
 }
 
-func (data *IntegrationConfExtension) WriteToSchema(d *schema.ResourceData) error {
+func (data IntegrationConfExtension) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("id", data.ID)
 	d.Set("name", data.Name)
 
@@ -89,9 +81,9 @@ func (data *IntegrationConfExtension) ReadFromSchema(d *schema.ResourceData) err
 	return nil
 }
 
-func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationConfig {
+func ConfExtensionIntegrationCreate(resourceName, templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		ResourceName: fmt.Sprintf("%s_IntegrationResourceCreate", templateType),
+		ResourceName: resourceName,
 		Type:         operationtype.Create,
 		HttpMethod:   http.MethodPost,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -106,9 +98,9 @@ func ConfExtensionIntegrationCreate(templateType string) core.ResourceOperationC
 	}
 }
 
-func ConfExtensionIntegrationRead(templateType string) core.ResourceOperationConfig {
+func ConfExtensionIntegrationRead(resourceName, templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		ResourceName: fmt.Sprintf("%s_IntegrationResourceRead", templateType),
+		ResourceName: resourceName,
 		Type:         operationtype.Read,
 		HttpMethod:   http.MethodGet,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -123,9 +115,9 @@ func ConfExtensionIntegrationRead(templateType string) core.ResourceOperationCon
 	}
 }
 
-func ConfExtensionIntegrationUpdate(templateType string) core.ResourceOperationConfig {
+func ConfExtensionIntegrationUpdate(resourceName, templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		ResourceName: fmt.Sprintf("%s_IntegrationResourceUpdate", templateType),
+		ResourceName: resourceName,
 		Type:         operationtype.Update,
 		HttpMethod:   http.MethodPut,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
@@ -139,9 +131,9 @@ func ConfExtensionIntegrationUpdate(templateType string) core.ResourceOperationC
 	}
 }
 
-func ConfExtensionIntegrationDelete(templateType string) core.ResourceOperationConfig {
+func ConfExtensionIntegrationDelete(resourceName, templateType string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
-		ResourceName: fmt.Sprintf("%s_IntegrationResourceDelete", templateType),
+		ResourceName: resourceName,
 		Type:         operationtype.Delete,
 		HttpMethod:   http.MethodDelete,
 		URLFactory: func(d *schema.ResourceData, c *client.Client) string {

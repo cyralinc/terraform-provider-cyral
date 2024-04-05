@@ -1,22 +1,17 @@
 package pagerduty
 
 import (
-	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	ce "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func ResourceIntegrationPagerDuty() *schema.Resource {
+func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral).",
-		CreateContext: core.CreateResource(
-			ce.ConfExtensionIntegrationCreate(ce.PagerDutyTemplateType),
-			ce.ConfExtensionIntegrationRead(ce.PagerDutyTemplateType)),
-		ReadContext: core.ReadResource(ce.ConfExtensionIntegrationRead(ce.PagerDutyTemplateType)),
-		UpdateContext: core.UpdateResource(
-			ce.ConfExtensionIntegrationUpdate(ce.PagerDutyTemplateType),
-			ce.ConfExtensionIntegrationRead(ce.PagerDutyTemplateType)),
-		DeleteContext: core.DeleteResource(ce.ConfExtensionIntegrationDelete(ce.PagerDutyTemplateType)),
+		Description:   "Manages [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral).",
+		CreateContext: ce.CreateResource(resourceName, ce.PagerDutyTemplateType),
+		ReadContext:   ce.ReadResource(resourceName, ce.PagerDutyTemplateType),
+		UpdateContext: ce.UpdateResource(resourceName, ce.PagerDutyTemplateType),
+		DeleteContext: ce.DeleteResource(resourceName, ce.PagerDutyTemplateType),
 
 		Schema: map[string]*schema.Schema{
 			"id": {

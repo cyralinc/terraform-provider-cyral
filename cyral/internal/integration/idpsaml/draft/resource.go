@@ -1,4 +1,4 @@
-package idpsaml
+package idpsaml_draft
 
 import (
 	"context"
@@ -12,7 +12,8 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
@@ -32,110 +33,24 @@ import (
 // 2. Provide the IdP metadata to the `cyral_integration_idp_saml` resource.
 //
 
-type CreateGenericSAMLDraftRequest struct {
-	DisplayName              string                  `json:"displayName"`
-	DisableIdPInitiatedLogin bool                    `json:"disableIdPInitiatedLogin"`
-	IdpType                  string                  `json:"idpType,omitempty"`
-	Attributes               *RequiredUserAttributes `json:"attributes,omitempty"`
+var resourceContextHandler = core.DefaultContextHandler{
+	ResourceName:                  resourceName,
+	ResourceType:                  resourcetype.Resource,
+	SchemaReaderFactory:           func() core.SchemaReader { return &CreateGenericSAMLDraftRequest{} },
+	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
+	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts", c.ControlPlane)
+	},
 }
 
-func (req *CreateGenericSAMLDraftRequest) ReadFromSchema(d *schema.ResourceData) error {
-	req.DisplayName = d.Get("display_name").(string)
-	req.DisableIdPInitiatedLogin = d.Get("disable_idp_initiated_login").(bool)
-	req.IdpType = d.Get("idp_type").(string)
-
-	attributes, err := RequiredUserAttributesFromSchema(d)
-	if err != nil {
-		return err
-	}
-	req.Attributes = attributes
-
-	return nil
-}
-
-type GenericSAMLDraftResponse struct {
-	Draft GenericSAMLDraft `json:"draft"`
-}
-
-func (resp *GenericSAMLDraftResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(resp.Draft.ID)
-	if err := d.Set("display_name", resp.Draft.DisplayName); err != nil {
-		return err
-	}
-	if err := d.Set("disable_idp_initiated_login", resp.Draft.DisableIdPInitiatedLogin); err != nil {
-		return err
-	}
-	if err := d.Set("sp_metadata", resp.Draft.SPMetadata.XMLDocument); err != nil {
-		return err
-	}
-	if resp.Draft.SPMetadata != nil {
-		if err := resp.Draft.SPMetadata.WriteToSchema(d); err != nil {
-			return err
-		}
-	}
-	if err := d.Set("idp_type", resp.Draft.IdpType); err != nil {
-		return err
-	}
-	if resp.Draft.Attributes != nil && utils.TypeSetNonEmpty(d, "attributes") {
-		if err := resp.Draft.Attributes.WriteToSchema(d); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-type ListGenericSAMLDraftsResponse struct {
-	Drafts []GenericSAMLDraft `json:"drafts"`
-}
-
-func CreateGenericSAMLDraftConfig() core.ResourceOperationConfig {
-	return core.ResourceOperationConfig{
-		ResourceName: "GenericSAMLDraftResourceCreate",
-		Type:         operationtype.Create,
-		HttpMethod:   http.MethodPost,
-		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts", c.ControlPlane)
-		},
-		SchemaReaderFactory: func() core.SchemaReader { return &CreateGenericSAMLDraftRequest{} },
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
-	}
-}
-
-func ReadGenericSAMLDraftConfig() core.ResourceOperationConfig {
-	return core.ResourceOperationConfig{
-		ResourceName: "GenericSAMLDraftResourceRead",
-		Type:         operationtype.Read,
-		HttpMethod:   http.MethodGet,
-		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
-		},
-		RequestErrorHandler: &readGenericSAMLDraftErrorHandler{},
-		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &GenericSAMLDraftResponse{} },
-	}
-}
-
-func DeleteGenericSAMLDraftConfig() core.ResourceOperationConfig {
-	return core.ResourceOperationConfig{
-		ResourceName: "GenericSAMLDraftResourceDelete",
-		Type:         operationtype.Delete,
-		HttpMethod:   http.MethodDelete,
-		URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-			return fmt.Sprintf("https://%s/v1/integrations/generic-saml/drafts/%s", c.ControlPlane, d.Id())
-		},
-		RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "SAML draft"},
-	}
-}
-
-func ResourceIntegrationIdPSAMLDraft() *schema.Resource {
+func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages SAML IdP integration drafts." +
 			"\n\nSee also the remaining SAML-related resources and data sources.",
-		CreateContext: core.CreateResource(
-			CreateGenericSAMLDraftConfig(),
-			ReadGenericSAMLDraftConfig(),
-		),
-		ReadContext:   core.ReadResource(ReadGenericSAMLDraftConfig()),
-		DeleteContext: core.DeleteResource(DeleteGenericSAMLDraftConfig()),
+		CreateContext: resourceContextHandler.CreateContextCustomErrorHandling(&readGenericSAMLDraftErrorHandler{}, nil),
+		ReadContext:   resourceContextHandler.ReadContextCustomErrorHandling(&readGenericSAMLDraftErrorHandler{}),
+		DeleteContext: resourceContextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			// All of the input arguments must force recreation of
 			// the resource, because the API does not support
@@ -176,7 +91,7 @@ func ResourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      DefaultUserAttributeFirstName,
+							Default:      idpsaml.DefaultUserAttributeFirstName,
 							ValidateFunc: utils.ValidationStringLenAtLeast(3),
 						},
 						"last_name": {
@@ -184,7 +99,7 @@ func ResourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      DefaultUserAttributeLastName,
+							Default:      idpsaml.DefaultUserAttributeLastName,
 							ValidateFunc: utils.ValidationStringLenAtLeast(3),
 						},
 						"email": {
@@ -192,7 +107,7 @@ func ResourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      DefaultUserAttributeEmail,
+							Default:      idpsaml.DefaultUserAttributeEmail,
 							ValidateFunc: utils.ValidationStringLenAtLeast(3),
 						},
 						"groups": {
@@ -200,7 +115,7 @@ func ResourceIntegrationIdPSAMLDraft() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							Default:      DefaultUserAttributeGroups,
+							Default:      idpsaml.DefaultUserAttributeGroups,
 							ValidateFunc: utils.ValidationStringLenAtLeast(3),
 						},
 					},
