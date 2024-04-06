@@ -30,7 +30,7 @@ func UpdateResource(resourceName, templateType string) schema.UpdateContextFunc 
 }
 
 func DeleteResource(resourceName, templateType string) schema.DeleteContextFunc {
-	return core.DeleteResource(delete(resourceName, templateType))
+	return core.DeleteResource(delete(resourceName))
 }
 
 func create(resourceName, templateType string) core.ResourceOperationConfig {
@@ -64,6 +64,11 @@ func read(resourceName, templateType string) core.ResourceOperationConfig {
 		SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter {
 			return NewIntegrationConfExtension(templateType)
 		},
+		RequestErrorHandler: &core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "not found for key",
+			OperationType:  operationtype.Read,
+		},
 	}
 }
 
@@ -83,7 +88,7 @@ func update(resourceName, templateType string) core.ResourceOperationConfig {
 	}
 }
 
-func delete(resourceName, templateType string) core.ResourceOperationConfig {
+func delete(resourceName string) core.ResourceOperationConfig {
 	return core.ResourceOperationConfig{
 		ResourceName: resourceName,
 		Type:         operationtype.Delete,
@@ -93,6 +98,11 @@ func delete(resourceName, templateType string) core.ResourceOperationConfig {
 				"https://%s/v1/integrations/confExtensions/instances/authorization/%s",
 				c.ControlPlane, d.Id(),
 			)
+		},
+		RequestErrorHandler: &core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "not found for key",
+			OperationType:  operationtype.Delete,
 		},
 	}
 }
