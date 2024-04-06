@@ -14,6 +14,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
@@ -23,6 +24,8 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role/ssogroups"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
@@ -51,12 +54,15 @@ func packagesSchemas() []core.PackageSchema {
 		network.PackageSchema(),
 		pagerduty.PackageSchema(),
 		policy.PackageSchema(),
+		regopolicy.PackageSchema(),
 		repository.PackageSchema(),
+		role.PackageSchema(),
 		rule.PackageSchema(),
 		samlcertificate.PackageSchema(),
 		serviceaccount.PackageSchema(),
 		sidecar.PackageSchema(),
 		slack.PackageSchema(),
+		ssogroups.PackageSchema(),
 		teams.PackageSchema(),
 		tokensettings.PackageSchema(),
 		useraccount.PackageSchema(),

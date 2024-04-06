@@ -1,4 +1,4 @@
-package role_test
+package ssogroups_test
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role/ssogroups"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -87,7 +87,7 @@ func TestRoleSSOGroupsResourceUpgradeV0(t *testing.T) {
 		"id":      "roleID/SSOGroups",
 		"role_id": "roleID",
 	}
-	actualNewState, err := role.UpgradeRoleSSOGroupsV0(context.Background(),
+	actualNewState, err := ssogroups.UpgradeRoleSSOGroupsV0(context.Background(),
 		previousState, nil)
 	require.NoError(t, err)
 	expectedNewState := map[string]interface{}{

@@ -8,32 +8,34 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-const (
-	// Schema keys
-	RegoPolicyInstanceResourceIDKey  = "id"
-	RegoPolicyInstancePolicyIDKey    = "policy_id"
-	RegoPolicyInstanceCategoryKey    = "category"
-	RegoPolicyInstanceNameKey        = "name"
-	RegoPolicyInstanceDescriptionKey = "description"
-	RegoPolicyInstanceTemplateIDKey  = "template_id"
-	RegoPolicyInstanceParametersKey  = "parameters"
-	RegoPolicyInstanceEnabledKey     = "enabled"
-	RegoPolicyInstanceScopeKey       = "scope"
-	RegoPolicyInstanceRepoIDsKey     = "repo_ids"
-	RegoPolicyInstanceTagsKey        = "tags"
-	RegoPolicyInstanceDurationKey    = "duration"
-	RegoPolicyInstanceLastUpdatedKey = "last_updated"
-	RegoPolicyInstanceCreatedKey     = "created"
-	RegoPolicyInstanceActorKey       = "actor"
-	RegoPolicyInstanceActorTypeKey   = "actor_type"
-	RegoPolicyInstanceTimestampKey   = "timestamp"
-)
-
+var resourceContextHandler = core.DefaultContextHandler{
+	ResourceName:                  resourceName,
+	ResourceType:                  resourcetype.Resource,
+	SchemaReaderFactory:           func() core.SchemaReader { return &RegoPolicyInstancePayload{} },
+	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &RegoPolicyInstance{} },
+	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &RegoPolicyInstanceKey{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf(
+			"https://%s/v1/regopolicies/instances/%s",
+			c.ControlPlane,
+			d.Get(RegoPolicyInstanceCategoryKey),
+		)
+	},
+	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf(
+			"https://%s/v1/regopolicies/instances/%s/%s",
+			c.ControlPlane,
+			d.Get(RegoPolicyInstanceCategoryKey),
+			d.Get(RegoPolicyInstancePolicyIDKey),
+		)
+	},
+}
 var (
 	ReadRegoPolicyInstanceConfig = core.ResourceOperationConfig{
 		ResourceName: "RegoPolicyInstanceRead",
@@ -74,61 +76,15 @@ var (
 	}
 )
 
-func ResourceRegoPolicyInstance() *schema.Resource {
+func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages a [Rego Policy](https://cyral.com/docs/policy/rego-policy/overview#) instance." +
 			"\n\n-> **Note** This resource can be used to create repo-level policies by specifying the repo IDs " +
 			"associated to the policy `scope`. For more information, see the [scope](#nestedblock--scope) field.",
-		CreateContext: core.CreateResource(
-			core.ResourceOperationConfig{
-				ResourceName: "RegoPolicyInstanceCreate",
-				Type:         operationtype.Create,
-				HttpMethod:   http.MethodPost,
-				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf(
-						"https://%s/v1/regopolicies/instances/%s",
-						c.ControlPlane,
-						d.Get(RegoPolicyInstanceCategoryKey),
-					)
-				},
-				SchemaReaderFactory: func() core.SchemaReader { return &RegoPolicyInstancePayload{} },
-				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &RegoPolicyInstanceKey{} },
-			},
-			ReadRegoPolicyInstanceConfig,
-		),
-		ReadContext: core.ReadResource(ReadRegoPolicyInstanceConfig),
-		UpdateContext: core.UpdateResource(
-			core.ResourceOperationConfig{
-				ResourceName: "RegoPolicyInstanceUpdate",
-				Type:         operationtype.Update,
-				HttpMethod:   http.MethodPut,
-				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf(
-						"https://%s/v1/regopolicies/instances/%s/%s",
-						c.ControlPlane,
-						d.Get(RegoPolicyInstanceCategoryKey),
-						d.Get(RegoPolicyInstancePolicyIDKey),
-					)
-				},
-				SchemaReaderFactory: func() core.SchemaReader { return &RegoPolicyInstancePayload{} },
-			},
-			ReadRegoPolicyInstanceConfig,
-		),
-		DeleteContext: core.DeleteResource(
-			core.ResourceOperationConfig{
-				ResourceName: "RegoPolicyInstanceDelete",
-				Type:         operationtype.Delete,
-				HttpMethod:   http.MethodDelete,
-				URLFactory: func(d *schema.ResourceData, c *client.Client) string {
-					return fmt.Sprintf(
-						"https://%s/v1/regopolicies/instances/%s/%s",
-						c.ControlPlane,
-						d.Get(RegoPolicyInstanceCategoryKey),
-						d.Get(RegoPolicyInstancePolicyIDKey),
-					)
-				},
-			},
-		),
+		CreateContext: resourceContextHandler.CreateContext(),
+		ReadContext:   resourceContextHandler.ReadContext(),
+		UpdateContext: resourceContextHandler.UpdateContext(),
+		DeleteContext: resourceContextHandler.DeleteContext(),
 
 		Schema: map[string]*schema.Schema{
 			RegoPolicyInstanceResourceIDKey: {

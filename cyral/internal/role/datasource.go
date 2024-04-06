@@ -14,6 +14,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role/ssogroups"
 )
 
 type GetUserGroupsResponse struct {
@@ -73,12 +74,12 @@ func (resp *GetUserGroupsResponse) WriteToSchema(d *schema.ResourceData) error {
 }
 
 type UserGroup struct {
-	ID          string      `json:"id,omitempty"`
-	Name        string      `json:"name,omitempty"`
-	Description string      `json:"description,omitempty"`
-	Roles       []string    `json:"roles,omitempty"`
-	Members     []string    `json:"members"`
-	Mappings    []*SSOGroup `json:"mappings"`
+	ID          string                `json:"id,omitempty"`
+	Name        string                `json:"name,omitempty"`
+	Description string                `json:"description,omitempty"`
+	Roles       []string              `json:"roles,omitempty"`
+	Members     []string              `json:"members"`
+	Mappings    []*ssogroups.SSOGroup `json:"mappings"`
 }
 
 func dataSourceRoleReadConfig() core.ResourceOperationConfig {
@@ -93,7 +94,7 @@ func dataSourceRoleReadConfig() core.ResourceOperationConfig {
 	}
 }
 
-func DataSourceRole() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve and filter [roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/) that exist in the Cyral Control Plane.",
 		ReadContext: core.ReadResource(dataSourceRoleReadConfig()),
