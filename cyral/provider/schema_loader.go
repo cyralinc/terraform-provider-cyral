@@ -23,6 +23,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/credentials"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
@@ -51,6 +52,7 @@ func packagesSchemas() []core.PackageSchema {
 		policy.PackageSchema(),
 		repository.PackageSchema(),
 		samlcertificate.PackageSchema(),
+		serviceaccount.PackageSchema(),
 		sidecar.PackageSchema(),
 		slack.PackageSchema(),
 		teams.PackageSchema(),

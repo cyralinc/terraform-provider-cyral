@@ -17,7 +17,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
@@ -144,7 +143,6 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_rego_policy_instance"] = regopolicy.ResourceRegoPolicyInstance()
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()
-	schemaMap["cyral_service_account"] = serviceaccount.ResourceServiceAccount()
 
 	tflog.Debug(ctx, "End getResourceMap")
 
