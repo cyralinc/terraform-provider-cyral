@@ -8,21 +8,31 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func ResourcePolicy() *schema.Resource {
+var resourceContextHandler = core.DefaultContextHandler{
+	ResourceName:                 resourceName,
+	ResourceType:                 resourcetype.Resource,
+	SchemaReaderFactory:          func() core.SchemaReader { return &Policy{} },
+	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &Policy{} },
+	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+		return fmt.Sprintf("https://%s/v1/policies", c.ControlPlane)
+	},
+}
+
+func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages [policies](https://cyral.com/docs/reference/policy). See also: " +
 			"[Policy Rule](./policy_rule.md). For more information, see the " +
 			"[Policy Guide](https://cyral.com/docs/policy/overview).",
-		CreateContext: resourcePolicyCreate,
-		ReadContext:   resourcePolicyRead,
-		UpdateContext: resourcePolicyUpdate,
-		DeleteContext: resourcePolicyDelete,
+		CreateContext: resourceContextHandler.CreateContext(),
+		ReadContext:   resourceContextHandler.ReadContext(),
+		UpdateContext: resourceContextHandler.UpdateContext(),
+		DeleteContext: resourceContextHandler.DeleteContext(),
 		Schema: map[string]*schema.Schema{
 			"created": {
 				Description: "Timestamp for the policy creation.",
@@ -114,145 +124,6 @@ func ResourcePolicy() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
-}
-
-func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	tflog.Debug(ctx, "Init resourcePolicyCreate")
-	c := m.(*client.Client)
-
-	d.Set("type", "terraform")
-	policy := getPolicyInfoFromResource(d)
-
-	url := fmt.Sprintf("https://%s/v1/policies", c.ControlPlane)
-
-	body, err := c.DoRequest(ctx, url, http.MethodPost, policy)
-	if err != nil {
-		return utils.CreateError("Unable to create policy", fmt.Sprintf("%v", err))
-	}
-
-	response := core.IDBasedResponse{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
-	}
-	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
-
-	d.SetId(response.ID)
-
-	tflog.Debug(ctx, "End resourcePolicyCreate")
-
-	return resourcePolicyRead(ctx, d, m)
-}
-
-func resourcePolicyRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	tflog.Debug(ctx, "Init resourcePolicyRead")
-	c := m.(*client.Client)
-
-	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
-
-	body, err := c.DoRequest(ctx, url, http.MethodGet, nil)
-	if err != nil {
-		return utils.CreateError("Unable to read policy", fmt.Sprintf("%v", err))
-	}
-
-	response := Policy{}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
-	}
-	tflog.Debug(ctx, fmt.Sprintf("Response body (unmarshalled): %#v", response))
-
-	d.Set("created", response.Meta.Created.String())
-	d.Set("data", response.Data)
-	d.Set("data_label_tags", response.Tags)
-	d.Set("description", response.Meta.Description)
-	d.Set("enabled", response.Meta.Enabled)
-	d.Set("last_updated", response.Meta.LastUpdated.String())
-	d.Set("name", response.Meta.Name)
-	d.Set("type", response.Meta.Type)
-	d.Set("version", response.Meta.Version)
-	// Once the `tags` field is removed, this conditional logic should also be
-	// removed and only the `metadata_tags` should be set.
-	_, isDeprecatedFieldSet := d.GetOk("tags")
-	if isDeprecatedFieldSet {
-		d.Set("tags", response.Meta.Tags)
-	} else {
-		d.Set("metadata_tags", response.Meta.Tags)
-	}
-
-	tflog.Debug(ctx, "End resourcePolicyRead")
-	return diag.Diagnostics{}
-}
-
-func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	tflog.Debug(ctx, "Init resourcePolicyUpdate")
-	c := m.(*client.Client)
-
-	d.Set("type", "terraform")
-	policy := getPolicyInfoFromResource(d)
-
-	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
-
-	_, err := c.DoRequest(ctx, url, http.MethodPut, policy)
-	if err != nil {
-		return utils.CreateError("Unable to update policy", fmt.Sprintf("%v", err))
-	}
-
-	tflog.Debug(ctx, "End resourcePolicyUpdate")
-
-	return resourcePolicyRead(ctx, d, m)
-}
-
-func resourcePolicyDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	tflog.Debug(ctx, "Init resourcePolicyDelete")
-	c := m.(*client.Client)
-
-	url := fmt.Sprintf("https://%s/v1/policies/%s", c.ControlPlane, d.Id())
-
-	if _, err := c.DoRequest(ctx, url, http.MethodDelete, nil); err != nil {
-		return utils.CreateError("Unable to delete policy", fmt.Sprintf("%v", err))
-	}
-
-	tflog.Debug(ctx, "End resourcePolicyDelete")
-
-	return diag.Diagnostics{}
-}
-
-func getPolicyInfoFromResource(d *schema.ResourceData) Policy {
-	data := utils.GetStrListFromSchemaField(d, "data")
-	dataTags := utils.GetStrListFromSchemaField(d, "data_label_tags")
-	metadataTags := utils.GetStrListFromSchemaField(d, "metadata_tags")
-	if len(metadataTags) == 0 {
-		metadataTags = utils.GetStrListFromSchemaField(d, "tags")
-	}
-
-	policy := Policy{
-		Data: data,
-		Tags: dataTags,
-		Meta: &PolicyMetadata{
-			Tags: metadataTags,
-		},
-	}
-
-	if v, ok := d.Get("name").(string); ok {
-		policy.Meta.Name = v
-	}
-
-	if v, ok := d.Get("version").(string); ok {
-		policy.Meta.Version = v
-	}
-
-	if v, ok := d.Get("type").(string); ok {
-		policy.Meta.Type = v
-	}
-
-	if v, ok := d.Get("enabled").(bool); ok {
-		policy.Meta.Enabled = v
-	}
-
-	if v, ok := d.Get("description").(string); ok {
-		policy.Meta.Description = v
-	}
-
-	return policy
 }
 
 func ListPolicies(c *client.Client) ([]Policy, error) {

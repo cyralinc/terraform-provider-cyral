@@ -12,6 +12,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
@@ -47,6 +48,7 @@ func packagesSchemas() []core.PackageSchema {
 		mfaduo.PackageSchema(),
 		network.PackageSchema(),
 		pagerduty.PackageSchema(),
+		policy.PackageSchema(),
 		repository.PackageSchema(),
 		samlcertificate.PackageSchema(),
 		sidecar.PackageSchema(),
