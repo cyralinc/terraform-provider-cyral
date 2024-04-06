@@ -61,7 +61,7 @@ var dsContextHandler = core.DefaultContextHandler{
 	ResourceName:                 dataSourceName,
 	ResourceType:                 resourcetype.DataSource,
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },
-	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		nameFilter := d.Get("name").(string)
 		typeFilter := d.Get("type").(string)
 		urlParams := utils.UrlQuery(map[string]string{

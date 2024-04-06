@@ -95,9 +95,7 @@ func (r *Policy) ReadFromSchema(d *schema.ResourceData) error {
 		r.Meta.Version = v
 	}
 
-	if v, ok := d.Get("type").(string); ok {
-		r.Meta.Type = v
-	}
+	r.Meta.Type = "terraform"
 
 	if v, ok := d.Get("enabled").(bool); ok {
 		r.Meta.Enabled = v

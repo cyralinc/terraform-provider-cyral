@@ -27,7 +27,7 @@ func (serviceAccount *ServiceAccount) ReadFromSchema(d *schema.ResourceData) err
 	return nil
 }
 
-func (serviceAccount *ServiceAccount) WriteToSchema(d *schema.ResourceData) error {
+func (serviceAccount ServiceAccount) WriteToSchema(d *schema.ResourceData) error {
 	d.SetId(serviceAccount.ClientID)
 	d.Set(ServiceAccountResourceDisplayNameKey, serviceAccount.DisplayName)
 	d.Set(ServiceAccountResourceClientIDKey, serviceAccount.ClientID)

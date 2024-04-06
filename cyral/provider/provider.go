@@ -13,7 +13,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
@@ -139,7 +138,6 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_integration_idp_okta"] = deprecated.ResourceIntegrationIdP("okta", idpDeprecationMessage)
 	schemaMap["cyral_integration_idp_ping_one"] = deprecated.ResourceIntegrationIdP("pingone", idpDeprecationMessage)
 	schemaMap["cyral_integration_sumo_logic"] = deprecated.ResourceIntegrationSumoLogic()
-	schemaMap["cyral_policy_rule"] = rule.ResourcePolicyRule()
 	schemaMap["cyral_rego_policy_instance"] = regopolicy.ResourceRegoPolicyInstance()
 	schemaMap["cyral_role"] = role.ResourceRole()
 	schemaMap["cyral_role_sso_groups"] = role.ResourceRoleSSOGroups()

@@ -20,15 +20,16 @@ import (
 //     an `id` field, meaning it will use the
 //     `IDBasedResponse` struct in such cases.
 //  3. `BaseURLFactory` must be provided for resources. It will be used to
-//     create the POST endpoint and others in case `GetPutDeleteURLFactory`
+//     create the POST endpoint and others in case `ReadUpdateDeleteURLFactory`
 //     is not provided.
-//  4. `GetPutDeleteURLFactory` must be provided for data sources.
-//  5. If `GetPutDeleteURLFactory` is NOT provided (data sources or resources),
-//     the endpoint to perform GET, PUT and DELETE calls are composed by the
+//  4. `ReadUpdateDeleteURLFactory` must be provided for data sources.
+//  5. If `ReadUpdateDeleteURLFactory` is NOT provided (data sources or resources),
+//     the endpoints to perform GET, PUT, PATCH and DELETE calls are composed by the
 //     `BaseURLFactory` endpoint plus the ID specification as follows:
 //     - POST:    https://<CP>/<apiVersion>/<featureName>
 //     - GET:     https://<CP>/<apiVersion>/<featureName>/<id>
 //     - PUT:     https://<CP>/<apiVersion>/<featureName>/<id>
+//     - PATCH:   https://<CP>/<apiVersion>/<featureName>/<id>
 //     - DELETE:  https://<CP>/<apiVersion>/<featureName>/<id>
 type DefaultContextHandler struct {
 	ResourceName        string
@@ -41,10 +42,13 @@ type DefaultContextHandler struct {
 	// written in POST operations.
 	SchemaWriterFactoryPostMethod SchemaWriterFactoryFunc
 	// BaseURLFactory provides the URL used for POSTs and that
-	// will also be used to compose the ID URL for GET, PUT and
-	// DELETE in case `GetPutDeleteURLFactory` is not provided.
-	BaseURLFactory         URLFactoryFunc
-	GetPutDeleteURLFactory URLFactoryFunc
+	// will also be used to compose the ID URL for GET, PUT/PATCH and
+	// DELETE in case `ReadUpdateDeleteURLFactory` is not provided.
+	BaseURLFactory             URLFactoryFunc
+	ReadUpdateDeleteURLFactory URLFactoryFunc
+
+	// Http method for update operations. If not provided, assumes http.MethodPut
+	UpdateMethod string
 }
 
 func DefaultSchemaWriterFactory(d *schema.ResourceData) SchemaWriter {
@@ -64,8 +68,8 @@ func (dch DefaultContextHandler) defaultOperationHandler(
 		var url string
 		if httpMethod == http.MethodPost {
 			url = dch.BaseURLFactory(d, c)
-		} else if dch.GetPutDeleteURLFactory != nil {
-			url = dch.GetPutDeleteURLFactory(d, c)
+		} else if dch.ReadUpdateDeleteURLFactory != nil {
+			url = dch.ReadUpdateDeleteURLFactory(d, c)
 		} else {
 			url = fmt.Sprintf("%s/%s", dch.BaseURLFactory(d, c), d.Id())
 		}
@@ -122,8 +126,12 @@ func (dch DefaultContextHandler) UpdateContext() schema.UpdateContextFunc {
 
 func (dch DefaultContextHandler) UpdateContextCustomErrorHandling(getErrorHandler RequestErrorHandler,
 	putErrorHandler RequestErrorHandler) schema.UpdateContextFunc {
+	updateMethod := http.MethodPut
+	if dch.UpdateMethod != "" {
+		updateMethod = dch.UpdateMethod
+	}
 	return UpdateResource(
-		dch.defaultOperationHandler(ot.Update, http.MethodPut, dch.SchemaReaderFactory, nil, putErrorHandler),
+		dch.defaultOperationHandler(ot.Update, updateMethod, dch.SchemaReaderFactory, nil, putErrorHandler),
 		dch.defaultOperationHandler(ot.Update, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod, getErrorHandler),
 	)
 }

@@ -2,6 +2,7 @@ package serviceaccount
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
@@ -11,13 +12,15 @@ import (
 )
 
 var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:                 resourceName,
-	ResourceType:                 resourcetype.Resource,
-	SchemaReaderFactory:          func() core.SchemaReader { return &ServiceAccount{} },
-	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &ServiceAccount{} },
+	ResourceName:                  resourceName,
+	ResourceType:                  resourcetype.Resource,
+	SchemaReaderFactory:           func() core.SchemaReader { return &ServiceAccount{} },
+	SchemaWriterFactoryGetMethod:  func(_ *schema.ResourceData) core.SchemaWriter { return &ServiceAccount{} },
+	SchemaWriterFactoryPostMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &ServiceAccount{} },
 	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/users/serviceAccounts", c.ControlPlane)
 	},
+	UpdateMethod: http.MethodPatch,
 }
 
 func resourceSchema() *schema.Resource {

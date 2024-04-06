@@ -16,7 +16,7 @@ var dsContextHandler = core.DefaultContextHandler{
 	ResourceName:                 dataSourceName,
 	ResourceType:                 resourcetype.DataSource,
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadDataSourceSidecarListenerAPIResponse{} },
-	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/listeners", c.ControlPlane, d.Get(utils.SidecarIDKey).(string))
 	},
 }

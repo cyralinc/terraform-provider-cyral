@@ -65,7 +65,7 @@ func (r *NewFeature) ReadFromSchema(d *schema.ResourceData) error {
 
 ### datasource.go
 
-Use the `GetPutDeleteURLFactory` to provide the URL factory to read the data source from the API.
+Use the `ReadUpdateDeleteURLFactory` to provide the URL factory to read the data source from the API.
 
 ```go
 // datasource.go
@@ -75,7 +75,7 @@ var dsContextHandler = core.DefaultContextHandler{
 	ResourceName:        dataSourceName,
 	ResourceType:        resourcetype.DataSource,
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
-	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/NewFeature/%s", c.ControlPlane, d.Get("my_id_field").(string))
 	},
 }
