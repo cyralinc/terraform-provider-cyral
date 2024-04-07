@@ -1,11 +1,11 @@
-package instance_test
+package stats_test
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance/stats"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -46,7 +46,7 @@ func accTestStepSidecarInstanceStatsDataSource_EmptyInstanceID(dataSourceName st
 	`, dataSourceName, "some-sidecar-id")
 	return resource.TestStep{
 		Config:      config,
-		ExpectError: regexp.MustCompile(fmt.Sprintf(`The argument "%s" is required`, instance.InstanceIDKey)),
+		ExpectError: regexp.MustCompile(fmt.Sprintf(`The argument "%s" is required`, stats.InstanceIDKey)),
 	}
 }
 

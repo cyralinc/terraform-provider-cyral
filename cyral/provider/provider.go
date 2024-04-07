@@ -15,8 +15,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/systeminfo"
 )
 
 func init() {
@@ -76,7 +74,7 @@ func Provider() *schema.Provider {
 
 func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	ctx := context.Background()
-	tflog.Debug(ctx, fmt.Sprintf("Init getDataSourceMap"))
+	tflog.Debug(ctx, "Init getDataSourceMap")
 	schemaMap := map[string]*schema.Resource{}
 	for _, p := range ps {
 		tflog.Debug(ctx, fmt.Sprintf("Looking for datasources in package `%s`", p.Name()))
@@ -89,16 +87,14 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	}
 
 	schemaMap["cyral_integration_idp"] = deprecated.DataSourceIntegrationIdP()
-	schemaMap["cyral_permission"] = permission.DataSourcePermission()
 	schemaMap["cyral_saml_configuration"] = deprecated.DataSourceSAMLConfiguration()
-	schemaMap["cyral_sidecar_bound_ports"] = sidecar.DataSourceSidecarBoundPorts()
 	schemaMap["cyral_sidecar_cft_template"] = deprecated.DataSourceSidecarCftTemplate()
+	schemaMap["cyral_sidecar_instance_ids"] = deprecated.DataSourceSidecarInstanceIDs()
+
+	schemaMap["cyral_permission"] = permission.DataSourcePermission()
+	schemaMap["cyral_sidecar_bound_ports"] = sidecar.DataSourceSidecarBoundPorts()
 	schemaMap["cyral_sidecar_health"] = health.DataSourceSidecarHealth()
 	schemaMap["cyral_sidecar_id"] = sidecar.DataSourceSidecarID()
-	schemaMap["cyral_sidecar_instance_ids"] = deprecated.DataSourceSidecarInstanceIDs()
-	schemaMap["cyral_sidecar_instance_stats"] = instance.DataSourceSidecarInstanceStats()
-	schemaMap["cyral_sidecar_instance"] = instance.DataSourceSidecarInstance()
-	schemaMap["cyral_system_info"] = systeminfo.DataSourceSystemInfo()
 
 	tflog.Debug(ctx, "End getDataSourceMap")
 
@@ -120,8 +116,7 @@ func getResourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 		}
 	}
 
-	// // TODO Once the resources are migrated to the new SchemaRegister
-	// // abstraction, these calls from provider to resource will be removed.
+	// TODO Remove all the following resources in the next major version.
 	schemaMap["cyral_integration_datadog"] = deprecated.ResourceIntegrationDatadog()
 	schemaMap["cyral_integration_elk"] = deprecated.ResourceIntegrationELK()
 	schemaMap["cyral_integration_logstash"] = deprecated.ResourceIntegrationLogstash()

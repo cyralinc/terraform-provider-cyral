@@ -11,27 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const (
-	// Schema keys
-	SidecarInstanceListKey = "instance_list"
-	MetadataKey            = "metadata"
-	MonitoringKey          = "monitoring"
-	VersionKey             = "version"
-	DynamicVersionKey      = "dynamic_version"
-	CapabilitiesKey        = "capabilities"
-	StartTimestampKey      = "start_timestamp"
-	LastRegistrationKey    = "last_registration"
-	RecyclingKey           = "recycling"
-	RecyclableKey          = "recyclable"
-	ServicesKey            = "services"
-	MetricsPortKey         = "metrics_port"
-	ComponentsKey          = "components"
-	ErrorKey               = "error"
-)
-
-func DataSourceSidecarInstance() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve sidecar instances.",
+		// The DefaultContextHandler is NOT used here as this data source intentionally
+		// does not handle 404 errors, returning them to the user.
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
 			ResourceName: "SidecarInstanceDataSourceRead",
 			Type:         operationtype.Read,

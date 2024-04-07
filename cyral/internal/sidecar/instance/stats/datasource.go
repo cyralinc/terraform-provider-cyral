@@ -1,4 +1,4 @@
-package instance
+package stats
 
 import (
 	"fmt"
@@ -11,30 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-const (
-	// Schema keys
-	InstanceIDKey        = "instance_id"
-	QueriesPerSecondKey  = "queries_per_second"
-	ActiveConnectionsKey = "active_connections"
-)
-
-type SidecarInstanceStats struct {
-	QueriesPerSecond  float32 `json:"queriesPerSecond"`
-	ActiveConnections uint32  `json:"activeConnections"`
-}
-
-func (stats *SidecarInstanceStats) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(d.Get(InstanceIDKey).(string))
-	d.Set(QueriesPerSecondKey, stats.QueriesPerSecond)
-	d.Set(ActiveConnectionsKey, stats.ActiveConnections)
-
-	return nil
-}
-
-func DataSourceSidecarInstanceStats() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve sidecar instance statistics. See also data source " +
 			"[`cyral_sidecar_instance`](../data-sources/sidecar_instance.md).",
+		// The DefaultContextHandler is NOT used here as this data source intentionally
+		// does not handle 404 errors, returning them to the user.
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
 			ResourceName: "SidecarInstanceStatsDataSourceRead",
 			Type:         operationtype.Read,

@@ -1,4 +1,4 @@
-package credentials
+package instance
 
 import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
@@ -8,15 +8,15 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "sidecar.credentials"
+	return "sidecar.instance"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
-			Name:   resourceName,
-			Type:   core.ResourceSchemaType,
-			Schema: resourceSchema,
+			Name:   dataSourceName,
+			Type:   core.DataSourceSchemaType,
+			Schema: dataSourceSchema,
 		},
 	}
 }

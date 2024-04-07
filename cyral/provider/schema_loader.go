@@ -3,69 +3,75 @@ package provider
 import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/datalabel"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/awsiam"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/mfaduo"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/hcvault"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
-	idpsaml_draft "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml/draft"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
+	integration_awsiam "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/awsiam"
+	integration_mfa_duo "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/mfaduo"
+	integration_pager_duty "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
+	integration_hcvault "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/hcvault"
+	integration_idp_saml "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml"
+	integration_idp_saml_draft "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/idpsaml/draft"
+	integration_logging "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
+	integration_slack "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
+	integration_teams "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
+	policy_rule "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/binding"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
+	repository_accessgateway "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
+	repository_accessrules "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessrules"
+	repository_binding "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/binding"
+	repository_confanalysis "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confanalysis"
+	repository_confauth "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/confauth"
+	repository_datamap "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/datamap"
+	repository_network "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/network"
+	repository_useraccount "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/useraccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role/ssogroups"
+	role_ssogroups "github.com/cyralinc/terraform-provider-cyral/cyral/internal/role/ssogroups"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlcertificate"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/credentials"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
+	sidecar_credentials "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/credentials"
+	sidecar_instance "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
+	sidecar_instance_stats "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance/stats"
+	sidecar_listener "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/systeminfo"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/tokensettings"
 )
 
 func packagesSchemas() []core.PackageSchema {
 	v := []core.PackageSchema{
-		awsiam.PackageSchema(),
-		accessgateway.PackageSchema(),
-		accessrules.PackageSchema(),
-		binding.PackageSchema(),
-		confanalysis.PackageSchema(),
-		confauth.PackageSchema(),
-		credentials.PackageSchema(),
 		datalabel.PackageSchema(),
-		datamap.PackageSchema(),
-		hcvault.PackageSchema(),
-		idpsaml.PackageSchema(),
-		idpsaml_draft.PackageSchema(),
-		listener.PackageSchema(),
-		logging.PackageSchema(),
-		mfaduo.PackageSchema(),
-		network.PackageSchema(),
-		pagerduty.PackageSchema(),
+		integration_awsiam.PackageSchema(),
+		integration_hcvault.PackageSchema(),
+		integration_idp_saml.PackageSchema(),
+		integration_idp_saml_draft.PackageSchema(),
+		integration_logging.PackageSchema(),
+		integration_mfa_duo.PackageSchema(),
+		integration_pager_duty.PackageSchema(),
+		integration_slack.PackageSchema(),
+		integration_teams.PackageSchema(),
+		repository_network.PackageSchema(),
 		policy.PackageSchema(),
+		policy_rule.PackageSchema(),
 		regopolicy.PackageSchema(),
 		repository.PackageSchema(),
+		repository_accessgateway.PackageSchema(),
+		repository_accessrules.PackageSchema(),
+		repository_binding.PackageSchema(),
+		repository_confanalysis.PackageSchema(),
+		repository_confauth.PackageSchema(),
+		repository_datamap.PackageSchema(),
+		repository_useraccount.PackageSchema(),
 		role.PackageSchema(),
-		rule.PackageSchema(),
+		role_ssogroups.PackageSchema(),
 		samlcertificate.PackageSchema(),
 		serviceaccount.PackageSchema(),
 		sidecar.PackageSchema(),
-		slack.PackageSchema(),
-		ssogroups.PackageSchema(),
-		teams.PackageSchema(),
+		sidecar_credentials.PackageSchema(),
+		sidecar_listener.PackageSchema(),
+		sidecar_instance.PackageSchema(),
+		sidecar_instance_stats.PackageSchema(),
+		systeminfo.PackageSchema(),
 		tokensettings.PackageSchema(),
-		useraccount.PackageSchema(),
 	}
 	return v
 }
