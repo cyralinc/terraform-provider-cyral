@@ -8,6 +8,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -30,9 +31,21 @@ func resourceSchema() *schema.Resource {
 			"[Policy Rule](./policy_rule.md). For more information, see the " +
 			"[Policy Guide](https://cyral.com/docs/policy/overview).",
 		CreateContext: resourceContextHandler.CreateContext(),
-		ReadContext:   resourceContextHandler.ReadContext(),
-		UpdateContext: resourceContextHandler.UpdateContext(),
-		DeleteContext: resourceContextHandler.DeleteContext(),
+		ReadContext: resourceContextHandler.ReadContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "policy not found",
+			OperationType:  operationtype.Read,
+		}),
+		UpdateContext: resourceContextHandler.UpdateContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "policy not found",
+			OperationType:  operationtype.Update,
+		}, nil),
+		DeleteContext: resourceContextHandler.DeleteContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "policy not found",
+			OperationType:  operationtype.Delete,
+		}),
 		Schema: map[string]*schema.Schema{
 			"created": {
 				Description: "Timestamp for the policy creation.",

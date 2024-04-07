@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -39,9 +40,21 @@ func resourceSchema() *schema.Resource {
 			"<br>4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address.",
 
 		CreateContext: resourceContextHandler.CreateContext(),
-		ReadContext:   resourceContextHandler.ReadContext(),
-		UpdateContext: resourceContextHandler.UpdateContext(),
-		DeleteContext: resourceContextHandler.DeleteContext(),
+		ReadContext: resourceContextHandler.ReadContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "not found in policy",
+			OperationType:  operationtype.Read,
+		}),
+		UpdateContext: resourceContextHandler.UpdateContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "not found in policy",
+			OperationType:  operationtype.Update,
+		}, nil),
+		DeleteContext: resourceContextHandler.DeleteContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
+			ResName:        resourceName,
+			MessageMatches: "not found in policy",
+			OperationType:  operationtype.Delete,
+		}),
 
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
