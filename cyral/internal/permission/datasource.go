@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
@@ -13,26 +12,12 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
-const (
-	// Schema keys
-	PermissionDataSourcePermissionListKey = "permission_list"
-)
-
-type PermissionDataSourceResponse struct {
-	// Permissions correspond to Roles in API.
-	Permissions []Permission `json:"roles"`
-}
-
-func (response *PermissionDataSourceResponse) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(uuid.New().String())
-	d.Set(PermissionDataSourcePermissionListKey, permissionsToInterfaceList(response.Permissions))
-	return nil
-}
-
-func DataSourcePermission() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve all Cyral permissions. See also resource " +
 			"[`cyral_service_account`](../resources/service_account.md).",
+		// The DefaultContextHandler is NOT used here as this data source intentionally
+		// does not handle 404 errors, returning them to the user.
 		ReadContext: core.ReadResource(
 			core.ResourceOperationConfig{
 				ResourceName: "PermissionDataSourceRead",

@@ -12,9 +12,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 )
 
 func init() {
@@ -91,9 +89,7 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 	schemaMap["cyral_sidecar_cft_template"] = deprecated.DataSourceSidecarCftTemplate()
 	schemaMap["cyral_sidecar_instance_ids"] = deprecated.DataSourceSidecarInstanceIDs()
 
-	schemaMap["cyral_permission"] = permission.DataSourcePermission()
 	schemaMap["cyral_sidecar_bound_ports"] = sidecar.DataSourceSidecarBoundPorts()
-	schemaMap["cyral_sidecar_health"] = health.DataSourceSidecarHealth()
 	schemaMap["cyral_sidecar_id"] = sidecar.DataSourceSidecarID()
 
 	tflog.Debug(ctx, "End getDataSourceMap")

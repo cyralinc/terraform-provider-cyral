@@ -6,7 +6,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "hcvault"
+	return "integration.hcvault"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

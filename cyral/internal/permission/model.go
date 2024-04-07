@@ -2,6 +2,8 @@ package permission
 
 import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
+	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type Permission struct {
@@ -36,4 +38,15 @@ var AllPermissionNames = []string{
 	"View Roles",
 	"View Users",
 	"Modify Integrations",
+}
+
+type PermissionDataSourceResponse struct {
+	// Permissions correspond to Roles in API.
+	Permissions []Permission `json:"roles"`
+}
+
+func (response *PermissionDataSourceResponse) WriteToSchema(d *schema.ResourceData) error {
+	d.SetId(uuid.New().String())
+	d.Set(PermissionDataSourcePermissionListKey, permissionsToInterfaceList(response.Permissions))
+	return nil
 }

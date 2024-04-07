@@ -12,6 +12,7 @@ import (
 	integration_logging "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/logging"
 	integration_slack "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
 	integration_teams "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	policy_rule "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
@@ -30,6 +31,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/serviceaccount"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	sidecar_credentials "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/credentials"
+	sidecar_health "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 	sidecar_instance "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
 	sidecar_instance_stats "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance/stats"
 	sidecar_listener "github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/listener"
@@ -49,7 +51,7 @@ func packagesSchemas() []core.PackageSchema {
 		integration_pager_duty.PackageSchema(),
 		integration_slack.PackageSchema(),
 		integration_teams.PackageSchema(),
-		repository_network.PackageSchema(),
+		permission.PackageSchema(),
 		policy.PackageSchema(),
 		policy_rule.PackageSchema(),
 		regopolicy.PackageSchema(),
@@ -60,6 +62,7 @@ func packagesSchemas() []core.PackageSchema {
 		repository_confanalysis.PackageSchema(),
 		repository_confauth.PackageSchema(),
 		repository_datamap.PackageSchema(),
+		repository_network.PackageSchema(),
 		repository_useraccount.PackageSchema(),
 		role.PackageSchema(),
 		role_ssogroups.PackageSchema(),
@@ -67,6 +70,7 @@ func packagesSchemas() []core.PackageSchema {
 		serviceaccount.PackageSchema(),
 		sidecar.PackageSchema(),
 		sidecar_credentials.PackageSchema(),
+		sidecar_health.PackageSchema(),
 		sidecar_listener.PackageSchema(),
 		sidecar_instance.PackageSchema(),
 		sidecar_instance_stats.PackageSchema(),

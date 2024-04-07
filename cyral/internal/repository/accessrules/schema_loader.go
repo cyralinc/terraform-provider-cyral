@@ -8,7 +8,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "accessrules"
+	return "repository.accessrules"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

@@ -8,7 +8,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "binding"
+	return "repository.binding"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

@@ -8,25 +8,13 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/operationtype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-type SidecarHealth struct {
-	Status string `json:"status"`
-}
-
-func (health *SidecarHealth) WriteToSchema(d *schema.ResourceData) error {
-	d.SetId(uuid.New().String())
-	d.Set(utils.StatusKey, health.Status)
-
-	return nil
-}
-
-func DataSourceSidecarHealth() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Retrieve aggregated information about the " +
-			"[sidecar's health](https://cyral.com/docs/sidecars/sidecar-manage/#check-sidecar-cluster-status), " +
+			"[sidecar's health](https://cyral.com/docs/sidecars/manage/#check-sidecar-cluster-status), " +
 			"considering all instances of the sidecar.",
 		ReadContext: core.ReadResource(core.ResourceOperationConfig{
 			ResourceName: "SidecarHealthDataSourceRead",

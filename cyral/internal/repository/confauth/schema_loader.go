@@ -8,7 +8,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "confauth"
+	return "repository.confauth"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

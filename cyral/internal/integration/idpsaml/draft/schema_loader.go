@@ -1,4 +1,4 @@
-package idpsaml_draft
+package draft
 
 import "github.com/cyralinc/terraform-provider-cyral/cyral/core"
 
@@ -6,7 +6,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "idpsaml_draft"
+	return "integration.idpsaml.draft"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

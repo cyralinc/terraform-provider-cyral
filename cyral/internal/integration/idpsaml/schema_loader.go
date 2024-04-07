@@ -6,7 +6,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "idpsaml"
+	return "integration.idpsaml"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {

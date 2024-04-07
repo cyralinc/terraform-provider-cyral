@@ -1,4 +1,4 @@
-package idpsaml_draft
+package draft
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package idpsaml_draft_test
+package draft_test
 
 import (
 	"fmt"

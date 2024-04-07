@@ -6,7 +6,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "awsiam"
+	return "integration.awsiam"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
