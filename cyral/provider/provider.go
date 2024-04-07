@@ -13,7 +13,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/samlconfiguration"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/health"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar/instance"
@@ -91,7 +90,7 @@ func getDataSourceMap(ps []core.PackageSchema) map[string]*schema.Resource {
 
 	schemaMap["cyral_integration_idp"] = deprecated.DataSourceIntegrationIdP()
 	schemaMap["cyral_permission"] = permission.DataSourcePermission()
-	schemaMap["cyral_saml_configuration"] = samlconfiguration.DataSourceSAMLConfiguration()
+	schemaMap["cyral_saml_configuration"] = deprecated.DataSourceSAMLConfiguration()
 	schemaMap["cyral_sidecar_bound_ports"] = sidecar.DataSourceSidecarBoundPorts()
 	schemaMap["cyral_sidecar_cft_template"] = deprecated.DataSourceSidecarCftTemplate()
 	schemaMap["cyral_sidecar_health"] = health.DataSourceSidecarHealth()

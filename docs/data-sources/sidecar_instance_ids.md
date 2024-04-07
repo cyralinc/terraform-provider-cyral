@@ -3,12 +3,12 @@
 page_title: "cyral_sidecar_instance_ids Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    ~> DEPRECATED This data source was deprecated. It will be removed in the next major version of the provider. Use the data source cyral_sidecar_instance instead
+    ~> DEPRECATED This data source has been deprecated. It will be removed in the next major version of the provider. Use the data source cyral_sidecar_instance instead
 ---
 
 # cyral_sidecar_instance_ids (Data Source)
 
-~> **DEPRECATED** This data source was deprecated. It will be removed in the next major version of the provider. Use the data source `cyral_sidecar_instance` instead
+~> **DEPRECATED** This data source has been deprecated. It will be removed in the next major version of the provider. Use the data source `cyral_sidecar_instance` instead
 
 ## Example Usage
 

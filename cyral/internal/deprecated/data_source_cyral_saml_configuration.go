@@ -1,4 +1,4 @@
-package samlconfiguration
+package deprecated
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -21,6 +20,8 @@ var (
 
 func DataSourceSAMLConfiguration() *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: "This data source has been deprecated. It will be removed in the next major version of " +
+			"the provider.",
 		Description: "Parses a SAML metadata URL or a Base64 document into a SAML configuration." +
 			"\n\nSee also the remaining SAML-related resources and data sources.",
 		ReadContext: dataSourceSAMLConfigurationRead,
@@ -182,7 +183,7 @@ func dataSourceSAMLConfigurationRead(ctx context.Context, d *schema.ResourceData
 		return utils.CreateError("Unable to retrieve saml configuration", fmt.Sprintf("%v", err))
 	}
 
-	response := deprecated.SAMLConfiguration{}
+	response := SAMLConfiguration{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return utils.CreateError("Unable to unmarshall JSON", fmt.Sprintf("%v", err))
 	}
@@ -197,14 +198,14 @@ func dataSourceSAMLConfigurationRead(ctx context.Context, d *schema.ResourceData
 	return diag.Diagnostics{}
 }
 
-func getSAMLMetadataRequestFromSchema(d *schema.ResourceData) deprecated.ParseSAMLMetadataRequest {
-	return deprecated.ParseSAMLMetadataRequest{
+func getSAMLMetadataRequestFromSchema(d *schema.ResourceData) ParseSAMLMetadataRequest {
+	return ParseSAMLMetadataRequest{
 		SamlMetadataURL:            d.Get("saml_metadata_url").(string),
 		Base64SamlMetadataDocument: d.Get("base_64_saml_metadata_document").(string),
 	}
 }
 
-func setSAMLConfigurationToSchema(d *schema.ResourceData, data deprecated.SAMLConfiguration) {
+func setSAMLConfigurationToSchema(d *schema.ResourceData, data SAMLConfiguration) {
 	if data.Config != nil {
 		d.Set("disable_using_jwks_url", data.Config.DisableUsingJWKSUrl)
 		d.Set("sync_mode", data.Config.SyncMode)

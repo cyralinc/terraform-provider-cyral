@@ -3,15 +3,12 @@
 page_title: "cyral_saml_configuration Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Parses a SAML metadata URL or a Base64 document into a SAML configuration.
-    See also the remaining SAML-related resources and data sources.
+    ~> DEPRECATED This data source has been deprecated. It will be removed in the next major version of the provider.
 ---
 
 # cyral_saml_configuration (Data Source)
 
-Parses a SAML metadata URL or a Base64 document into a SAML configuration.
-
-See also the remaining SAML-related resources and data sources.
+~> **DEPRECATED** This data source has been deprecated. It will be removed in the next major version of the provider.
 
 ## Example Usage
 

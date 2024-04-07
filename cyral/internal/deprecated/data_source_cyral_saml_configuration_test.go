@@ -1,4 +1,4 @@
-package samlconfiguration_test
+package deprecated_test
 
 import (
 	"fmt"
