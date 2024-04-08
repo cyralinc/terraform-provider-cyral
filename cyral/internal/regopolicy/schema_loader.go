@@ -8,7 +8,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "policy"
+	return "regopolicy"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
