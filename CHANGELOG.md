@@ -1,3 +1,28 @@
+## 4.10.0 (April 9, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.12.0`.
+
+See the list of incompatible attributes, data sources and resources
+with previous `v4` control planes in the [`v4.9.0`](#490-january-31-2024)
+release documentation.
+
+### Documentation:
+
+- ENG-13675: update documentation for identity_provider field ([#516](https://github.com/cyralinc/terraform-provider-cyral/pull/516))
+- Fix docs formatting ([#520](https://github.com/cyralinc/terraform-provider-cyral/pull/520))
+
+### Improvements:
+
+- Standardize error handling and refactor old resources ([#521](https://github.com/cyralinc/terraform-provider-cyral/pull/521))
+- Refactor remaining resources and data sources ([#522](https://github.com/cyralinc/terraform-provider-cyral/pull/522))
+- Bump golang.org/x/oauth2 from 0.18.0 to 0.19.0 ([#523](https://github.com/cyralinc/terraform-provider-cyral/pull/523))
+- Ignore regex analysis for 404 status code ([#524](https://github.com/cyralinc/terraform-provider-cyral/pull/524))
+
 ## 4.9.3 (March 14, 2024)
 
 It is safe to use this version with all `v4` control planes as long
