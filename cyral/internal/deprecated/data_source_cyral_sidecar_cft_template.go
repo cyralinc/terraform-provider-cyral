@@ -19,7 +19,7 @@ const CloudFormationDeploymentMethod = "cft-ec2"
 
 func DataSourceSidecarCftTemplate() *schema.Resource {
 	return &schema.Resource{
-		DeprecationMessage: "This data source was deprecated. It will be removed in the next major version of " +
+		DeprecationMessage: "This data source has been deprecated. It will be removed in the next major version of " +
 			"the provider and no longer works for control planes `v4.13` and later.",
 		Description: "Retrieves the CloudFormation deployment template for a given sidecar. This data source only " +
 			"supports sidecars with `cft-ec2` deployment method. For Terraform template, use our " +

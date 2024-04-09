@@ -34,7 +34,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 	SchemaReaderFactory:          func() core.SchemaReader { return &RepositoryConfAuthData{} },
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &ReadRepositoryConfAuthResponse{} },
 	BaseURLFactory:               urlFactory,
-	GetPutDeleteURLFactory:       urlFactory,
+	ReadUpdateDeleteURLFactory:   urlFactory,
 }
 
 func resourceSchema() *schema.Resource {

@@ -22,7 +22,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string))
 	},
-	GetPutDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
+	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
 		return fmt.Sprintf("https://%s/v1/sidecars/%s/bindings/%s",
 			c.ControlPlane,
 			d.Get(utils.SidecarIDKey).(string),

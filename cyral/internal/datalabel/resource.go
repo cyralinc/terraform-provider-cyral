@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var getPutDeleteURLFactory = func(d *schema.ResourceData, c *client.Client) string {
+var readUpdateDeleteURLFactory = func(d *schema.ResourceData, c *client.Client) string {
 	return fmt.Sprintf("https://%s/v1/datalabels/%s",
 		c.ControlPlane,
 		d.Get("name").(string))
@@ -27,7 +27,7 @@ func resourceSchema() *schema.Resource {
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &DataLabel{} },
 		SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
-		GetPutDeleteURLFactory:       getPutDeleteURLFactory,
+		ReadUpdateDeleteURLFactory:   readUpdateDeleteURLFactory,
 	}
 	return &schema.Resource{
 		Description: "Manages data labels. Data labels are part of the Cyral [Data Map](https://cyral.com/docs/policy/datamap).",
@@ -36,7 +36,7 @@ func resourceSchema() *schema.Resource {
 				ResourceName:        resourceName,
 				Type:                operationtype.Create,
 				HttpMethod:          http.MethodPut,
-				URLFactory:          getPutDeleteURLFactory,
+				URLFactory:          readUpdateDeleteURLFactory,
 				SchemaReaderFactory: func() core.SchemaReader { return &DataLabel{} },
 				SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 			}, readDataLabelConfig,
@@ -116,7 +116,7 @@ var readDataLabelConfig = core.ResourceOperationConfig{
 	ResourceName:        resourceName,
 	Type:                operationtype.Read,
 	HttpMethod:          http.MethodGet,
-	URLFactory:          getPutDeleteURLFactory,
+	URLFactory:          readUpdateDeleteURLFactory,
 	SchemaWriterFactory: func(_ *schema.ResourceData) core.SchemaWriter { return &DataLabel{} },
 	RequestErrorHandler: &core.IgnoreHttpNotFound{ResName: "Data Label"},
 }

@@ -25,7 +25,7 @@ type DeprecatedSidecarInstances struct {
 
 func DataSourceSidecarInstanceIDs() *schema.Resource {
 	return &schema.Resource{
-		DeprecationMessage: "This data source was deprecated. It will be removed in the next major version of " +
+		DeprecationMessage: "This data source has been deprecated. It will be removed in the next major version of " +
 			"the provider. Use the data source `cyral_sidecar_instance` instead",
 		Description: "Retrieves the IDs of all the current instances of a given sidecar.",
 		ReadContext: dataSourceSidecarInstanceIDsRead,

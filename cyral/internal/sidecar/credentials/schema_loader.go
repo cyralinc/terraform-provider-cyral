@@ -8,7 +8,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "credentials"
+	return "sidecar.credentials"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
