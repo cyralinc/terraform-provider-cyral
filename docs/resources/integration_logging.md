@@ -109,7 +109,7 @@ resource "cyral_integration_logging" "elk_integration" {
 
 -   `cloudwatch` (Block Set, Max: 1) Represents the configuration data required for the `AWS` CloudWatch log management system. (see [below for nested schema](#nestedblock--cloudwatch))
 -   `datadog` (Block Set, Max: 1) Represents the configuration data required for the Datadog's log management system. (see [below for nested schema](#nestedblock--datadog))
--   `elk` (Block Set, Max: 1) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--elk))
+-   `elk` (Block Set, Max: 1, Deprecated) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--elk))
 -   `fluent_bit` (Block Set, Max: 1) Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper. (see [below for nested schema](#nestedblock--fluent_bit))
 -   `receive_audit_logs` (Boolean) Whether or not Cyral audit logs should be forwarded to this logging integration. Declaration not supported in conjunction with `fluent_bit` block.
 -   `splunk` (Block Set, Max: 1) Represents the configuration data required for the Splunk log management system. (see [below for nested schema](#nestedblock--splunk))

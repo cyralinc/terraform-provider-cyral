@@ -318,6 +318,7 @@ func getIntegrationLogsSchema() map[string]*schema.Schema {
 			Type:          schema.TypeSet,
 			ConflictsWith: []string{CloudWatchKey, DatadogKey, SplunkKey, SumoLogicKey, FluentbitKey},
 			MaxItems:      1,
+			Deprecated:    "Use `Fluentbit` (custom) integration instead. This will be removed in the next major version of the provider.",
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"es_url": {
