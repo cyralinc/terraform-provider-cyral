@@ -82,17 +82,13 @@ resource "cyral_integration_logging" "s3" {
   }
 }
 
-# Configures a raw Elk integration with no sidecar associated.
-resource "cyral_integration_logging" "elk_integration" {
-  name = "my-elk-integration"
-  elk {
-    es_url     = "http://es.com"
-    kibana_url = "http://kibana.com"
-    # `es_credentials` can omitted for unprotected instances.
-    es_credentials {
-      username = "another-user"
-      password = "123"
-    }
+# Configures a raw Splunk integration with no sidecar associated.
+resource "cyral_integration_logging" "splunk_integration" {
+  name = "my-splunk-integration"
+  splunk {
+    hostname = "http://splunk.com"
+    hec_port = "8088"
+    access_token = "XXXXXXXXXXX"
   }
 }
 ```
@@ -109,7 +105,7 @@ resource "cyral_integration_logging" "elk_integration" {
 
 -   `cloudwatch` (Block Set, Max: 1) Represents the configuration data required for the `AWS` CloudWatch log management system. (see [below for nested schema](#nestedblock--cloudwatch))
 -   `datadog` (Block Set, Max: 1) Represents the configuration data required for the Datadog's log management system. (see [below for nested schema](#nestedblock--datadog))
--   `elk` (Block Set, Max: 1) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--elk))
+-   `elk` (Block Set, Max: 1, Deprecated) Represents the configuration data required for the ELK stack log management system. (see [below for nested schema](#nestedblock--elk))
 -   `fluent_bit` (Block Set, Max: 1) Represents a custom Fluent Bit configuration which will be utilized by the sidecar's log shipper. (see [below for nested schema](#nestedblock--fluent_bit))
 -   `receive_audit_logs` (Boolean) Whether or not Cyral audit logs should be forwarded to this logging integration. Declaration not supported in conjunction with `fluent_bit` block.
 -   `splunk` (Block Set, Max: 1) Represents the configuration data required for the Splunk log management system. (see [below for nested schema](#nestedblock--splunk))
