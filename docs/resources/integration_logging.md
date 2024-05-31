@@ -82,17 +82,13 @@ resource "cyral_integration_logging" "s3" {
   }
 }
 
-# Configures a raw Elk integration with no sidecar associated.
-resource "cyral_integration_logging" "elk_integration" {
-  name = "my-elk-integration"
-  elk {
-    es_url     = "http://es.com"
-    kibana_url = "http://kibana.com"
-    # `es_credentials` can omitted for unprotected instances.
-    es_credentials {
-      username = "another-user"
-      password = "123"
-    }
+# Configures a raw Splunk integration with no sidecar associated.
+resource "cyral_integration_logging" "splunk_integration" {
+  name = "my-splunk-integration"
+  splunk {
+    hostname = "http://splunk.com"
+    hec_port = "8088"
+    access_token = "XXXXXXXXXXX"
   }
 }
 ```
