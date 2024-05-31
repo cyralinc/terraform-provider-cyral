@@ -105,9 +105,10 @@ func resourceSchema() *schema.Resource {
 			},
 
 			"rule": {
-				Description: "An ordered list of access rules.",
-				Required:    true,
-				Type:        schema.TypeList,
+				Description: "A list of access rules. The order in which access rules are declared " +
+					"dictates the precedence of the rules (first one has the highest priority)",
+				Required: true,
+				Type:     schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 

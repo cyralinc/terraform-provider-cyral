@@ -52,7 +52,7 @@ resource "cyral_repository_access_rules" "some_resource_name" {
 ### Required
 
 -   `repository_id` (String) ID of the repository.
--   `rule` (Block List, Min: 1) An ordered list of access rules. (see [below for nested schema](#nestedblock--rule))
+-   `rule` (Block List, Min: 1) A list of access rules. The order in which access rules are declared dictates the precedence of the rules (first one has the highest priority) (see [below for nested schema](#nestedblock--rule))
 -   `user_account_id` (String) ID of the database account. This should be the attribute `user_account_id` of the resource `cyral_repository_user_account`.
 
 ### Read-Only
