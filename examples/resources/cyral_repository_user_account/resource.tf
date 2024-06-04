@@ -58,6 +58,18 @@ resource "cyral_repository_user_account" "gcp_secrets" {
   }
 }
 
+# cyral_repository_user_account with auth scheme azure_key_vault will be created
+resource "cyral_repository_user_account" "azure_key_vault" {
+  name          = "hbf_azure_key_vault"
+  repository_id = cyral_repository.tf_test_repo.id
+
+  auth_scheme {
+    azure_key_vault {
+      secret_url = "https://vaultName.vault.azure.net/secrets/secretName"
+    }
+  }
+}
+
 # cyral_repository_user_account with auth scheme hashicorp will be created
 resource "cyral_repository_user_account" "hashicorp" {
   name          = "hbf_hashicorp"
