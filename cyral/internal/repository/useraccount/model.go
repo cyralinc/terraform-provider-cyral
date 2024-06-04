@@ -16,7 +16,7 @@ type AuthScheme struct {
 	EnvironmentVariable *AuthSchemeEnvironmentVariable `json:"environmentVariable"`
 	KubernetesSecret    *AuthSchemeKubernetesSecret    `json:"kubernetesSecret"`
 	GCPSecretManager    *AuthSchemeGCPSecretManager    `json:"gcpSecretManager"`
-	AzureKeyVault       *AuthSchemeAzureKeyVault `json:"azureKeyVault"`
+	AzureKeyVault       *AuthSchemeAzureKeyVault       `json:"azureKeyVault"`
 }
 
 type AuthSchemeAWSIAM struct {
