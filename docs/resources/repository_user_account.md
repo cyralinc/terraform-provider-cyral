@@ -69,6 +69,18 @@ resource "cyral_repository_user_account" "gcp_secrets" {
   }
 }
 
+# cyral_repository_user_account with auth scheme azure_key_vault will be created
+resource "cyral_repository_user_account" "azure_key_vault" {
+  name          = "hbf_azure_key_vault"
+  repository_id = cyral_repository.tf_test_repo.id
+
+  auth_scheme {
+    azure_key_vault {
+      secret_url = "https://vaultName.vault.azure.net/secrets/secretName"
+    }
+  }
+}
+
 # cyral_repository_user_account with auth scheme hashicorp will be created
 resource "cyral_repository_user_account" "hashicorp" {
   name          = "hbf_hashicorp"
@@ -109,7 +121,8 @@ resource "cyral_repository_user_account" "kubernetes" {
     -   `hashicorp_vault`
     -   `environment_variable`
     -   `kubernetes_secret`
-    -   `gcp_secrets_manager` (see [below for nested schema](#nestedblock--auth_scheme))
+    -   `gcp_secrets_manager`
+    -   `azure_key_vault` (see [below for nested schema](#nestedblock--auth_scheme))
 -   `name` (String) The name of the User Account.
 -   `repository_id` (String) ID of the repository.
 
@@ -131,6 +144,7 @@ Optional:
 
 -   `aws_iam` (Block Set, Max: 1) Credential option to set the repository user account from AWS IAM. (see [below for nested schema](#nestedblock--auth_scheme--aws_iam))
 -   `aws_secrets_manager` (Block Set, Max: 1) Credential option to set the repository user account from AWS Secrets Manager. (see [below for nested schema](#nestedblock--auth_scheme--aws_secrets_manager))
+-   `azure_key_vault` (Block Set, Max: 1) Credential option to set the repository user account from Azure Key Vault. (see [below for nested schema](#nestedblock--auth_scheme--azure_key_vault))
 -   `cyral_storage` (Block Set, Max: 1) Credential option to set the repository user account from Cyral Storage. (see [below for nested schema](#nestedblock--auth_scheme--cyral_storage))
 -   `environment_variable` (Block Set, Max: 1) Credential option to set the repository user account from Environment Variable. (see [below for nested schema](#nestedblock--auth_scheme--environment_variable))
 -   `gcp_secrets_manager` (Block Set, Max: 1) Credential option to set the repository user account from GCP Secrets Manager. (see [below for nested schema](#nestedblock--auth_scheme--gcp_secrets_manager))
@@ -152,6 +166,14 @@ Required:
 Required:
 
 -   `secret_arn` (String) The AWS Secrets Manager secretARN to gain access to the database.
+
+<a id="nestedblock--auth_scheme--azure_key_vault"></a>
+
+### Nested Schema for `auth_scheme.azure_key_vault`
+
+Required:
+
+-   `secret_url` (String) The URL of the secret in the Azure Key Vault.
 
 <a id="nestedblock--auth_scheme--cyral_storage"></a>
 

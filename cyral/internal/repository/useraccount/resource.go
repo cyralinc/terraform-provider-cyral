@@ -21,6 +21,7 @@ var allAuthSchemes = []string{
 	"environment_variable",
 	"kubernetes_secret",
 	"gcp_secrets_manager",
+	"azure_key_vault",
 }
 
 var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
@@ -311,6 +312,24 @@ func resourceSchema() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"secret_name": {
 										Description: "The unique identifier of the secret in GCP Secrets Manager.",
+										Type:        schema.TypeString,
+										Required:    true,
+									},
+								},
+							},
+						},
+
+						"azure_key_vault": {
+							Description: "Credential option to set the repository user account from " +
+								"Azure Key Vault.",
+							Optional:     true,
+							Type:         schema.TypeSet,
+							ExactlyOneOf: authSchemeTypesFullScopes,
+							MaxItems:     1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"secret_url": {
+										Description: "The URL of the secret in the Azure Key Vault.",
 										Type:        schema.TypeString,
 										Required:    true,
 									},

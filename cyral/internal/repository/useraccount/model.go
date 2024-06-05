@@ -16,6 +16,7 @@ type AuthScheme struct {
 	EnvironmentVariable *AuthSchemeEnvironmentVariable `json:"environmentVariable"`
 	KubernetesSecret    *AuthSchemeKubernetesSecret    `json:"kubernetesSecret"`
 	GCPSecretManager    *AuthSchemeGCPSecretManager    `json:"gcpSecretManager"`
+	AzureKeyVault       *AuthSchemeAzureKeyVault       `json:"azureKeyVault"`
 }
 
 type AuthSchemeAWSIAM struct {
@@ -46,6 +47,10 @@ type AuthSchemeKubernetesSecret struct {
 
 type AuthSchemeGCPSecretManager struct {
 	SecretName string `json:"secretName,omitempty"`
+}
+
+type AuthSchemeAzureKeyVault struct {
+	SecretURL string `json:"secretUrl,omitempty"`
 }
 
 type ApprovalConfig struct {
@@ -154,6 +159,16 @@ func (resource *UserAccountResource) WriteToSchema(d *schema.ResourceData) error
 				"gcp_secrets_manager": []interface{}{
 					map[string]interface{}{
 						"secret_name": resource.AuthScheme.GCPSecretManager.SecretName,
+					},
+				},
+			},
+		}
+	case resource.AuthScheme.AzureKeyVault != nil:
+		authScheme = []interface{}{
+			map[string]interface{}{
+				"azure_key_vault": []interface{}{
+					map[string]interface{}{
+						"secret_url": resource.AuthScheme.AzureKeyVault.SecretURL,
 					},
 				},
 			},
@@ -277,6 +292,12 @@ func (userAccount *UserAccountResource) ReadFromSchema(d *schema.ResourceData) e
 			userAccount.AuthScheme = &AuthScheme{
 				GCPSecretManager: &AuthSchemeGCPSecretManager{
 					SecretName: m["secret_name"].(string),
+				},
+			}
+		case "azure_key_vault":
+			userAccount.AuthScheme = &AuthScheme{
+				AzureKeyVault: &AuthSchemeAzureKeyVault{
+					SecretURL: m["secret_url"].(string),
 				},
 			}
 		default:
