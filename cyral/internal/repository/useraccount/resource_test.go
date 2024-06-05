@@ -151,6 +151,14 @@ func TestAccRepositoryUserAccountResource(t *testing.T) {
 			},
 		},
 	}
+	azureKeyVault := useraccount.UserAccountResource{
+		Name: "azure-useracc",
+		AuthScheme: &useraccount.AuthScheme{
+			AzureKeyVault: &useraccount.AuthSchemeAzureKeyVault{
+				SecretURL: "https://vaultName.vault.azure.net/secrets/secretName",
+			},
+		},
+	}
 	awsIAMTest := setupRepositoryUserAccountTest(
 		"aws_iam_test", awsIAM)
 	awsSecretsManagerTest := setupRepositoryUserAccountTest(
@@ -165,6 +173,8 @@ func TestAccRepositoryUserAccountResource(t *testing.T) {
 		"kubernetes_secret_test", kubernetesSecret)
 	gcpSecretManagerTest := setupRepositoryUserAccountTest(
 		"gcp_secret_manager_test", gcpSecretManager)
+	azureKeyVaultTest := setupRepositoryUserAccountTest(
+		"azure_key_vault_test", azureKeyVault)
 
 	// Test with multiple user accounts
 	userAccount1ResName := "multiple_accounts_test_1"
@@ -216,6 +226,7 @@ func TestAccRepositoryUserAccountResource(t *testing.T) {
 			environmentVariableTest,
 			kubernetesSecretTest,
 			gcpSecretManagerTest,
+			azureKeyVaultTest,
 
 			// Test with multiple user accounts
 			multipleAccountsTest,
@@ -307,6 +318,11 @@ func setupRepositoryUserAccountCheck(resName string, userAccount useraccount.Use
 			resource.TestCheckResourceAttr(resFullName,
 				authSchemeScope+"gcp_secrets_manager.0.secret_name",
 				authScheme.GCPSecretManager.SecretName))
+	case authScheme.AzureKeyVault != nil:
+		checkFuncs = append(checkFuncs,
+			resource.TestCheckResourceAttr(resFullName,
+				authSchemeScope+"azure_key_vault.0.secret_url",
+				authScheme.AzureKeyVault.SecretURL))
 	case authScheme.HashicorpVault != nil:
 		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(resFullName,
@@ -360,6 +376,11 @@ func setupRepositoryUserAccountConfig(resName string, userAccount useraccount.Us
 			gcp_secrets_manager {
 				secret_name = "%s"
 			}`, authScheme.GCPSecretManager.SecretName)
+	case authScheme.AzureKeyVault != nil:
+		authSchemeStr = fmt.Sprintf(`
+			azure_key_vault {
+				secret_url = "%s"
+			}`, authScheme.AzureKeyVault.SecretURL)
 	case authScheme.HashicorpVault != nil:
 		authSchemeStr = fmt.Sprintf(`
 			hashicorp_vault {
