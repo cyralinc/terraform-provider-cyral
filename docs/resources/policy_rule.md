@@ -9,51 +9,31 @@ Manages [policy rules](https://cyral.com/docs/reference/policy/#rules). See also
 ## Example Usage
 
 ```terraform
-resource "cyral_policy_rule" "some_resource_name" {
-    policy_id = ""
-    hosts = [""]
-    identities {
-        db_roles = [""]
-        groups = [""]
-        services = [""]
-        users = [""]
-    }
-    deletes {
-        additional_checks = ""
-        data = [""]
-        dataset_rewrites {
-            dataset = ""
-            repo = ""
-            substitution = ""
-            parameters = [""]
-        }
-        rows = 1
-        severity = "low"
-    }
-    reads {
-        additional_checks = ""
-        data = [""]
-        dataset_rewrites {
-            dataset = ""
-            repo = ""
-            substitution = ""
-            parameters = [""]
-        }
-        rows = 1
-        severity = "low"
-    }
-    updates {
-        additional_checks = ""
-        data = [""]
-        dataset_rewrites {
-            dataset = ""
-            repo = ""
-            substitution = ""
-            parameters = [""]
-        }
-        rows = 1
-        severity = "low"
-    }
+# An example of a policy and a policy rule with a rego policy
+# in `additional_checks`.
+resource "cyral_policy" "this" {
+  name = "My first policy"
+  description = "This is my first policy"
+  enabled = true
+  data = ["EMAIL"]
+  metadata_tags = ["Risk Level 1"]
+}
+
+resource "cyral_policy_rule" "this" {
+  policy_id = cyral_policy.this.id
+  deletes {
+    additional_checks = <<EOT
+is_valid_request {
+  filter := request.filters[_]
+  filter.field == "entity.user.is_real"
+  filter.op == "="
+  filter.value == false
+}
+EOT
+    data = ["EMAIL"]
+    rows = -1
+    severity = "low"
+  }
 }
 ```
 

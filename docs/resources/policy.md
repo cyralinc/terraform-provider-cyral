@@ -13,13 +13,12 @@ Manages [policies](https://cyral.com/docs/reference/policy). See also: [Policy R
 ## Example Usage
 
 ```terraform
-resource "cyral_policy" "some_resource_name" {
-  name = ""
-  description = ""
+resource "cyral_policy" "this" {
+  name = "My first policy"
+  description = "This is my first policy"
   enabled = true
-  data = [""]
-  data_label_tags = [""]
-  tags = [""]
+  data = ["EMAIL"]
+  metadata_tags = ["Risk Level 1"]
 }
 ```
 
