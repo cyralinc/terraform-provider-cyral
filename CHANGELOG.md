@@ -1,3 +1,66 @@
+## 4.11.0 (June 6, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.14`.
+
+Argument incompatible with control planes previous to `v4.14`:
+
+- `cyral_repository_user_account.auth_scheme.azure_key_vault`
+
+Argument incompatible with control planes previous to `v4.12`:
+
+- `cyral_repository.mongodb_settings.flavor`
+
+Resource incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Data source incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Arguments incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_logging.skip_validate`
+
+Resource incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_aws_iam`
+
+Data sources incompatible with control planes previous to `v4.10`:
+
+- `cyral_sidecar_health`
+- `cyral_sidecar_instance_stats`
+- `cyral_system_info`
+
+Arguments incompatible with control planes previous to `v4.8`:
+
+- `cyral_sidecar.activity_log_integration_id`
+- `cyral_sidecar.diagnostic_log_integration_id`
+
+Resource incompatible with control planes previous to `v4.7`:
+
+- `cyral_integration_logging`
+
+Argument incompatible with control planes previous to `v4.2`:
+
+- `cyral_repository.mongodb_settings.srv_record_name`
+
+See the list of incompatible resources with control planes `v3.x` and provider `v3.x` in the [`v4.0.0`](#400-january-27-2023) release documentation.
+
+### Documentation:
+
+- Improve examples for resources policy and policy_rules ([#545](https://github.com/cyralinc/terraform-provider-cyral/pull/545))
+
+### Improvements:
+
+- ENG-14083: Add Azure Key Vault user account auth scheme ([#542](https://github.com/cyralinc/terraform-provider-cyral/pull/542))
+- Bump golang.org/x/oauth2 from 0.20.0 to 0.21.0 ([#544](https://github.com/cyralinc/terraform-provider-cyral/pull/544))
+
 ## 4.10.1 (May 31, 2024)
 
 It is safe to use this version with all `v4` control planes as long
