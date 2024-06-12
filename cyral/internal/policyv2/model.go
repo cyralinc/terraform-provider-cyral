@@ -105,11 +105,7 @@ func (r *PolicyV2) ReadFromSchema(d *schema.ResourceData) error {
 	r.Policy.Tags = expandStringList(d.Get("tags").([]interface{}))
 	r.Policy.ValidFrom = d.Get("valid_from").(string)
 	r.Policy.ValidUntil = d.Get("valid_until").(string)
-
 	r.Policy.Document = d.Get("document").(string)
-
-	r.Policy.LastUpdated = expandChangeInfo(d.Get("last_updated").(map[string]interface{}))
-	r.Policy.Created = expandChangeInfo(d.Get("created").(map[string]interface{}))
 	r.Policy.Enforced = d.Get("enforced").(bool)
 	r.Policy.Type = d.Get("type").(string)
 	if v, ok := d.GetOk("scope"); ok {
@@ -127,21 +123,13 @@ func expandStringList(list []interface{}) []string {
 	return result
 }
 
-// expandChangeInfo converts a map to a ChangeInfo struct
-func expandChangeInfo(m map[string]interface{}) ChangeInfo {
-	return ChangeInfo{
-		Actor:     getStringOrDefault(m["actor"]),
-		ActorType: getStringOrDefault(m["actor_type"]),
-		Timestamp: getStringOrDefault(m["timestamp"]),
-	}
-}
-
-// getStringOrDefault returns the string value or an empty string if nil
+// getStringOrDefault returns the string value or an empty string if nil or not a string
 func getStringOrDefault(v interface{}) string {
-	if v == nil {
+	str, ok := v.(string)
+	if !ok {
 		return ""
 	}
-	return v.(string)
+	return str
 }
 
 // flattenScope converts the Scope struct to a list of maps
