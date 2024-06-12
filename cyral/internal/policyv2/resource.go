@@ -41,16 +41,17 @@ func resourceSchema() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Identifier for the policy, unique within the policy type.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"name": {
-				Description: "...",
+				Description: "Name of the policy.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"description": {
-				Description: "...",
+				Description: "Description of the policy.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
@@ -60,14 +61,16 @@ func resourceSchema() *schema.Resource {
 				Optional:    true,
 			},
 			"scope": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Description: "Scope of the policy. If empty or omitted, all repositories are in scope.",
+				Type:        schema.TypeList,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"repo_ids": {
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
+							Description: "List of repository IDs that are in scope.",
+							Type:        schema.TypeList,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Optional:    true,
 						},
 					},
 				},
@@ -79,17 +82,17 @@ func resourceSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"valid_from": {
-				Description: "Time when the policy comes into effect.",
+				Description: "Time when the policy comes into effect. If omitted, the policy is in effect immediately.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
 			"valid_until": {
-				Description: "Time after which the policy is no longer in effect.",
+				Description: "Time after which the policy is no longer in effect. If omitted, the policy is in effect indefinitely.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
 			"document": {
-				Description: "The actual policy document in JSON format.",
+				Description: "The actual policy document in JSON format. It must conform to the schema for the policy type.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
@@ -110,17 +113,20 @@ func resourceSchema() *schema.Resource {
 				},
 			},
 			"enforced": {
-				Description: "Indicates if the policy is enforced.",
+				Description: "Indicates if the policy is enforced. If not enforced, no action is taken based on the policy, but alerts are triggered for violations.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 			},
 			"type": {
-				Description: "Type of the policy.",
+				Description: "Type of the policy, one of [`local`, `global`, `approval`]",
 				Type:        schema.TypeString,
 				Required:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					v := val.(string)
-					validTypes := []string{"POLICY_TYPE_UNSPECIFIED", "POLICY_TYPE_GLOBAL", "global", "POLICY_TYPE_LOCAL", "local", "POLICY_TYPE_APPROVAL", "approval"}
+					// Valid values for the type fields have aliases ie POLICY_TYPE_GLOBAL and global are the same.
+					// This is consistent with the API, which accepts both.
+					// However, the recommendation is to stick to local, global, and approval.
+					validTypes := []string{"POLICY_TYPE_GLOBAL", "global", "POLICY_TYPE_LOCAL", "local", "POLICY_TYPE_APPROVAL", "approval"}
 					for _, validType := range validTypes {
 						if v == validType {
 							return
@@ -140,7 +146,7 @@ func importPolicyV2StateContext(ctx context.Context, d *schema.ResourceData, met
 	}
 	policyType := ids[0]
 	policyID := ids[1]
-	d.Set("type", policyType)
+	_ = d.Set("type", policyType)
 	d.SetId(policyID)
 	return []*schema.ResourceData{d}, nil
 }

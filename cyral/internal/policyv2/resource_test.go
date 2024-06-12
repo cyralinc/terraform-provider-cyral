@@ -45,7 +45,7 @@ func minimalPolicyConfig() map[string]interface{} {
 	return map[string]interface{}{
 		"name":     "policy2",
 		"document": `{"governedData":{"locations":["gym_db.users"]},"readRules":[{"conditions":[{"attribute":"identity.userGroups","operator":"contains","value":"ADMINS"}],"constraints":{"datasetRewrite":"SELECT * FROM ${dataset} WHERE email = '${identity.endUserEmail}'"}},{"conditions":[],"constraints":{}}]}`,
-		"type":     "POLICY_TYPE_LOCAL",
+		"type":     "local",
 	}
 }
 

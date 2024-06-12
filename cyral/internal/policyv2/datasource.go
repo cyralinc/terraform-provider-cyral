@@ -25,63 +25,65 @@ func dataSourceSchema() *schema.Resource {
 		ReadContext: dsContextHandler.ReadContext(),
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description: "Identifier for the policy, unique within the policy type.",
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The unique ID for the policy. This field is automatically set.",
 			},
 			"type": {
+				Description: "Type of the policy, one of [`local`, `global`, `approval`]",
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The type of the policy.",
 			},
 			"name": {
+				Description: "Name of the policy.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "A human-friendly name for the policy.",
 			},
 			"description": {
+				Description: "Description of the policy.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "A description for the policy.",
 			},
 			"enabled": {
+				Description: "Indicates if the policy is enabled.",
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Description: "Indicates if the policy is enabled.",
 			},
 			"tags": {
+				Description: "Tags associated with the policy for categorization.",
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "Tags associated with the policy for categorization.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"scope": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Scope of the policy. If empty or omitted, all repositories are in scope.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"repo_ids": {
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Computed: true,
+							Description: "List of repository IDs that are in scope.",
+							Type:        schema.TypeList,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"valid_from": {
+				Description: "Time when the policy comes into effect. If omitted, the policy is in effect immediately.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The time when the policy comes into effect. An unspecified value implies the policy has no start time.",
 			},
 			"valid_until": {
+				Description: "Time after which the policy is no longer in effect. If omitted, the policy is in effect indefinitely.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The time after which the policy is no longer in effect. An unspecified value implies the policy will always apply once it comes into effect.",
 			},
 			"document": {
+				Description: "The actual policy document in JSON format. It must conform to the schema for the policy type.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The actual policy document in JSON format. It must conform to the schema for the policy type.",
 			},
 			"last_updated": {
 				Description: "Information about when and by whom the policy was last updated.",
@@ -100,9 +102,9 @@ func dataSourceSchema() *schema.Resource {
 				},
 			},
 			"enforced": {
+				Description: "Indicates if the policy is enforced. If not enforced, no action is taken based on the policy, but alerts are triggered for violations.",
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Description: "Indicates if the policy is enforced.",
 			},
 		},
 	}
