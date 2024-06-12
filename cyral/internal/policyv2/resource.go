@@ -31,7 +31,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Some description.",
+		Description:   "This resource allows management of various types of policies in the Cyral platform. Policies can be used to define access controls, data governance rules, and approval mechanisms to ensure compliance and security within your database environment.",
 		CreateContext: resourceContextHandler.CreateContext(),
 		ReadContext:   resourceContextHandler.ReadContext(),
 		UpdateContext: resourceContextHandler.UpdateContext(),
