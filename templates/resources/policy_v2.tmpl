@@ -1,0 +1,11 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+-> Import ID syntax is `{policy_type}/{policy_id}`, where `{policy_type}` is one of [local, global, approval] `{policy_id}` is the ID of the policy in the Cyral Control Plane.
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_policy_rule/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
