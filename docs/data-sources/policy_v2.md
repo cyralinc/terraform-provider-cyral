@@ -19,17 +19,14 @@ This data source provides information about a policy.
 -   `id` (String) Identifier for the policy, unique within the policy type.
 -   `type` (String) Type of the policy, one of [`local`, `global`, `approval`]
 
-### Optional
-
--   `created` (Map of String) Information about when and by whom the policy was created.
--   `last_updated` (Map of String) Information about when and by whom the policy was last updated.
-
 ### Read-Only
 
+-   `created` (Map of String) Information about when and by whom the policy was created.
 -   `description` (String) Description of the policy.
 -   `document` (String) The actual policy document in JSON format. It must conform to the schema for the policy type.
 -   `enabled` (Boolean) Indicates if the policy is enabled.
 -   `enforced` (Boolean) Indicates if the policy is enforced. If not enforced, no action is taken based on the policy, but alerts are triggered for violations.
+-   `last_updated` (Map of String) Information about when and by whom the policy was last updated.
 -   `name` (String) Name of the policy.
 -   `scope` (List of Object) Scope of the policy. If empty or omitted, all repositories are in scope. (see [below for nested schema](#nestedatt--scope))
 -   `tags` (List of String) Tags associated with the policy for categorization.

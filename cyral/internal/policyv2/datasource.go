@@ -88,7 +88,7 @@ func dataSourceSchema() *schema.Resource {
 			"last_updated": {
 				Description: "Information about when and by whom the policy was last updated.",
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -96,7 +96,7 @@ func dataSourceSchema() *schema.Resource {
 			"created": {
 				Description: "Information about when and by whom the policy was created.",
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
