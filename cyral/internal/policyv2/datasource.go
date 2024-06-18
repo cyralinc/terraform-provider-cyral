@@ -30,7 +30,7 @@ func dataSourceSchema() *schema.Resource {
 				Required:    true,
 			},
 			"type": {
-				Description: "Type of the policy, one of [`local`, `global`, `approval`]",
+				Description: "Type of the policy, one of [`local`, `global`]",
 				Type:        schema.TypeString,
 				Required:    true,
 			},

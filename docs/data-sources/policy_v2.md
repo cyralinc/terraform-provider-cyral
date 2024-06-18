@@ -17,7 +17,7 @@ This data source provides information about a policy.
 ### Required
 
 -   `id` (String) Identifier for the policy, unique within the policy type.
--   `type` (String) Type of the policy, one of [`local`, `global`, `approval`]
+-   `type` (String) Type of the policy, one of [`local`, `global`]
 
 ### Read-Only
 

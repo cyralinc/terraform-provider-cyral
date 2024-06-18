@@ -123,15 +123,6 @@ func expandStringList(list []interface{}) []string {
 	return result
 }
 
-// getStringOrDefault returns the string value or an empty string if nil or not a string
-func getStringOrDefault(v interface{}) string {
-	str, ok := v.(string)
-	if !ok {
-		return ""
-	}
-	return str
-}
-
 // flattenScope converts the Scope struct to a list of maps
 func flattenScope(scope *Scope) []map[string]interface{} {
 	if scope == nil {

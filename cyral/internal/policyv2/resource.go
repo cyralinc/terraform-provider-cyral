@@ -31,7 +31,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "This resource allows management of various types of policies in the Cyral platform. Policies can be used to define access controls, data governance rules, and approval mechanisms to ensure compliance and security within your database environment.",
+		Description:   "This resource allows management of various types of policies in the Cyral platform. Policies can be used to define access controls, data governance rules to ensure compliance and security within your database environment.",
 		CreateContext: resourceContextHandler.CreateContext(),
 		ReadContext:   resourceContextHandler.ReadContext(),
 		UpdateContext: resourceContextHandler.UpdateContext(),
@@ -118,14 +118,14 @@ func resourceSchema() *schema.Resource {
 				Optional:    true,
 			},
 			"type": {
-				Description: "Type of the policy, one of [`local`, `global`, `approval`]",
+				Description: "Type of the policy, one of [`local`, `global`]",
 				Type:        schema.TypeString,
 				Required:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					v := val.(string)
 					// Valid values for the type fields have aliases ie POLICY_TYPE_GLOBAL and global are the same.
 					// This is consistent with the API, which accepts both.
-					// However, the recommendation is to stick to local, global, and approval.
+					// However, the recommendation is to stick to [local, global, approval].
 					validTypes := []string{"POLICY_TYPE_GLOBAL", "global", "POLICY_TYPE_LOCAL", "local", "POLICY_TYPE_APPROVAL", "approval"}
 					for _, validType := range validTypes {
 						if v == validType {
@@ -139,7 +139,7 @@ func resourceSchema() *schema.Resource {
 		},
 	}
 }
-func importPolicyV2StateContext(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func importPolicyV2StateContext(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	ids, err := utils.UnMarshalComposedID(d.Id(), "/", 2)
 	if err != nil {
 		return nil, err
