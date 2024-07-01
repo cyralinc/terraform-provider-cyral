@@ -100,7 +100,7 @@ func (r PolicyV2) WriteToSchema(d *schema.ResourceData) error {
 			return fmt.Errorf("error setting 'type' field: %w", err)
 		}
 	}
-	if err := d.Set("scope", r.Policy.Scope.ToMap()); err != nil { // Use the new ToMap method for Scope
+	if err := d.Set("scope", r.Policy.Scope.ToMap()); err != nil {
 		return fmt.Errorf("error setting 'scope' field: %w", err)
 	}
 	d.SetId(r.Policy.ID)
