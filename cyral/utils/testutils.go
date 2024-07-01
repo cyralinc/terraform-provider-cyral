@@ -288,10 +288,10 @@ resource "cyral_policy_v2" "%s" {
 		config.WriteString(fmt.Sprintf("  enabled     = %v\n", enabled))
 	}
 	if tags, ok := policy["tags"]; ok {
-		config.WriteString(fmt.Sprintf("  tags        = %s\n", FormatTags(tags)))
+		config.WriteString(fmt.Sprintf("  tags        = %s\n", formatTags(tags)))
 	}
 	if scope, ok := policy["scope"]; ok {
-		config.WriteString(fmt.Sprintf("  scope       %s\n", FormatScope(scope)))
+		config.WriteString(fmt.Sprintf("  scope       %s\n", formatScope(scope)))
 	}
 	if validFrom, ok := policy["valid_from"]; ok {
 		config.WriteString(fmt.Sprintf("  valid_from  = \"%s\"\n", validFrom))
@@ -315,10 +315,10 @@ resource "cyral_policy_v2" "%s" {
 	return config.String()
 }
 
-// FormatScope formats the scope data into a string suitable for Terraform configuration.
+// formatScope formats the scope data into a string suitable for Terraform configuration.
 //
 // scope is an interface that should be a map with string keys and slice of strings as values.
-func FormatScope(scope interface{}) string {
+func formatScope(scope interface{}) string {
 	if scope == nil {
 		return "= null"
 	}
@@ -331,17 +331,17 @@ func FormatScope(scope interface{}) string {
 	var formattedScope strings.Builder
 	formattedScope.WriteString("{\n")
 	for _, value := range scopeMap {
-		formattedScope.WriteString(fmt.Sprintf(`  %s = %s`, "repo_ids", FormatTags(value)))
+		formattedScope.WriteString(fmt.Sprintf(`  %s = %s`, "repo_ids", formatTags(value)))
 	}
 	formattedScope.WriteString("\n}")
 
 	return formattedScope.String()
 }
 
-// FormatTags formats a slice of tags into a string suitable for Terraform configuration.
+// formatTags formats a slice of tags into a string suitable for Terraform configuration.
 //
 // tags is an interface that should be a slice of strings.
-func FormatTags(tags interface{}) string {
+func formatTags(tags interface{}) string {
 	if tags == nil {
 		return "null"
 	}

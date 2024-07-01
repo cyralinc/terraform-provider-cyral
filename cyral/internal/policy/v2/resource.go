@@ -3,6 +3,7 @@ package policyv2
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -27,6 +28,10 @@ var resourceContextHandler = core.DefaultContextHandler{
 			d.Get("id").(string),
 		)
 	},
+}
+
+func PolicyTypes() []string {
+	return []string{"POLICY_TYPE_GLOBAL", "global", "POLICY_TYPE_LOCAL", "local", "POLICY_TYPE_APPROVAL", "approval"}
 }
 
 func resourceSchema() *schema.Resource {
@@ -118,23 +123,10 @@ func resourceSchema() *schema.Resource {
 				Optional:    true,
 			},
 			"type": {
-				Description: "Type of the policy, one of [`local`, `global`]",
-				Type:        schema.TypeString,
-				Required:    true,
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					v := val.(string)
-					// Valid values for the type fields have aliases ie POLICY_TYPE_GLOBAL and global are the same.
-					// This is consistent with the API, which accepts both.
-					// However, the recommendation is to stick to [local, global, approval].
-					validTypes := []string{"POLICY_TYPE_GLOBAL", "global", "POLICY_TYPE_LOCAL", "local", "POLICY_TYPE_APPROVAL", "approval"}
-					for _, validType := range validTypes {
-						if v == validType {
-							return
-						}
-					}
-					errs = append(errs, fmt.Errorf("%q must be one of %v, got: %s", key, validTypes, v))
-					return
-				},
+				Description:  "Type of the policy, one of [`local`, `global`]",
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice(append(PolicyTypes(), ""), false),
 			},
 		},
 	}

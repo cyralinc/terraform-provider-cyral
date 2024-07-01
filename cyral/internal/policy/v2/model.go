@@ -3,6 +3,7 @@ package policyv2
 import (
 	"fmt"
 
+	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -13,6 +14,15 @@ type ChangeInfo struct {
 	Timestamp string `json:"timestamp,omitempty"`
 }
 
+// ToMap converts ChangeInfo to a map
+func (c ChangeInfo) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"actor":      c.Actor,
+		"actor_type": c.ActorType,
+		"timestamp":  c.Timestamp,
+	}
+}
+
 // PolicyV2 represents the top-level policy structure
 type PolicyV2 struct {
 	Policy Policy `json:"policy,omitempty"`
@@ -20,6 +30,15 @@ type PolicyV2 struct {
 
 type Scope struct {
 	RepoIds []string `json:"repoIds,omitempty"`
+}
+
+// ToMap converts Scope to a list of maps
+func (s *Scope) ToMap() []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"repo_ids": s.RepoIds,
+		},
+	}
 }
 
 // Policy represents the policy details
@@ -62,23 +81,15 @@ func (r PolicyV2) WriteToSchema(d *schema.ResourceData) error {
 	if err := d.Set("valid_until", r.Policy.ValidUntil); err != nil {
 		return fmt.Errorf("error setting 'valid_until' field: %w", err)
 	}
-
 	if err := d.Set("document", r.Policy.Document); err != nil {
 		return fmt.Errorf("error setting 'document' field: %w", err)
 	}
 
-	if err := d.Set("last_updated", map[string]interface{}{
-		"actor":      r.Policy.LastUpdated.Actor,
-		"actor_type": r.Policy.LastUpdated.ActorType,
-		"timestamp":  r.Policy.LastUpdated.Timestamp,
-	}); err != nil {
+	// Use the ToMap method to set the last_updated and created fields
+	if err := d.Set("last_updated", r.Policy.LastUpdated.ToMap()); err != nil {
 		return fmt.Errorf("error setting 'last_updated' field: %w", err)
 	}
-	if err := d.Set("created", map[string]interface{}{
-		"actor":      r.Policy.Created.Actor,
-		"actor_type": r.Policy.Created.ActorType,
-		"timestamp":  r.Policy.Created.Timestamp,
-	}); err != nil {
+	if err := d.Set("created", r.Policy.Created.ToMap()); err != nil {
 		return fmt.Errorf("error setting 'created' field: %w", err)
 	}
 	if err := d.Set("enforced", r.Policy.Enforced); err != nil {
@@ -89,7 +100,7 @@ func (r PolicyV2) WriteToSchema(d *schema.ResourceData) error {
 			return fmt.Errorf("error setting 'type' field: %w", err)
 		}
 	}
-	if err := d.Set("scope", flattenScope(r.Policy.Scope)); err != nil {
+	if err := d.Set("scope", r.Policy.Scope.ToMap()); err != nil { // Use the new ToMap method for Scope
 		return fmt.Errorf("error setting 'scope' field: %w", err)
 	}
 	d.SetId(r.Policy.ID)
@@ -102,7 +113,7 @@ func (r *PolicyV2) ReadFromSchema(d *schema.ResourceData) error {
 	r.Policy.Name = d.Get("name").(string)
 	r.Policy.Description = d.Get("description").(string)
 	r.Policy.Enabled = d.Get("enabled").(bool)
-	r.Policy.Tags = expandStringList(d.Get("tags").([]interface{}))
+	r.Policy.Tags = utils.ConvertFromInterfaceList[string](d.Get("tags").([]interface{}))
 	r.Policy.ValidFrom = d.Get("valid_from").(string)
 	r.Policy.ValidUntil = d.Get("valid_until").(string)
 	r.Policy.Document = d.Get("document").(string)
@@ -114,28 +125,6 @@ func (r *PolicyV2) ReadFromSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-// expandStringList converts a list of interface{} to a list of strings
-func expandStringList(list []interface{}) []string {
-	result := make([]string, len(list))
-	for i, v := range list {
-		result[i] = v.(string)
-	}
-	return result
-}
-
-// flattenScope converts the Scope struct to a list of maps
-func flattenScope(scope *Scope) []map[string]interface{} {
-	if scope == nil {
-		return nil
-	}
-	scopeMap := []map[string]interface{}{
-		{
-			"repo_ids": scope.RepoIds,
-		},
-	}
-	return scopeMap
-}
-
 // scopeFromInterface converts the map to a Scope struct
 func scopeFromInterface(s []interface{}) *Scope {
 	if len(s) == 0 || s[0] == nil {
@@ -143,7 +132,7 @@ func scopeFromInterface(s []interface{}) *Scope {
 	}
 	m := s[0].(map[string]interface{})
 	scope := Scope{
-		RepoIds: expandStringList(m["repo_ids"].([]interface{})),
+		RepoIds: utils.ConvertFromInterfaceList[string](m["repo_ids"].([]interface{})),
 	}
 	return &scope
 }
