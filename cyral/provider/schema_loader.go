@@ -15,7 +15,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	policy_rule "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policyv2"
+	policyv2 "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/v2"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	repository_accessgateway "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"

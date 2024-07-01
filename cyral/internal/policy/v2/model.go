@@ -109,7 +109,7 @@ func (r *PolicyV2) ReadFromSchema(d *schema.ResourceData) error {
 	r.Policy.Enforced = d.Get("enforced").(bool)
 	r.Policy.Type = d.Get("type").(string)
 	if v, ok := d.GetOk("scope"); ok {
-		r.Policy.Scope = expandScope(v.([]interface{}))
+		r.Policy.Scope = scopeFromInterface(v.([]interface{}))
 	}
 	return nil
 }
@@ -136,8 +136,8 @@ func flattenScope(scope *Scope) []map[string]interface{} {
 	return scopeMap
 }
 
-// expandScope converts the map to a Scope struct
-func expandScope(s []interface{}) *Scope {
+// scopeFromInterface converts the map to a Scope struct
+func scopeFromInterface(s []interface{}) *Scope {
 	if len(s) == 0 || s[0] == nil {
 		return nil
 	}
