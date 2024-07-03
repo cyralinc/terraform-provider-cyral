@@ -12,13 +12,14 @@ resource "cyral_repository" "myrepo" {
       server_type = "standalone"
     }
 }
+
 resource "cyral_policy_v2" "local_policy_example" {
   name        = "local_policy"
   description = "Local policy to allow gym users to read their own data"
   enabled     = true
   tags        = ["gym", "local"]
   scope {
-    repo_ids = ["cyral_repository.myrepo.id"]
+    repo_ids = [cyral_repository.myrepo.id]
   }
   document    = jsonencode({
     governedData = {
@@ -49,7 +50,7 @@ resource "cyral_policy_v2" "global_policy_example" {
   enabled     = true
   tags        = ["finance", "global"]
   scope {
-    repo_ids = ["cyral_repository.myrepo.id"]
+    repo_ids = [cyral_repository.myrepo.id]
   }
   document    = jsonencode({
     governedData = {
