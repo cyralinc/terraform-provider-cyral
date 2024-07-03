@@ -266,3 +266,100 @@ func FormatDatadogIntegrationDataIntoConfig(name, apiKey string) string {
 		api_key = "%s"
 	}`, name, apiKey)
 }
+
+// FormatPolicyIntoConfig formats a policy map into a Terraform configuration string.
+//
+// resName is the resource name to be used in the Terraform configuration.
+// policy is a map containing the policy data.
+func FormatPolicyIntoConfig(resName string, policy map[string]interface{}) string {
+	var config strings.Builder
+
+	config.WriteString(fmt.Sprintf(`
+resource "cyral_policy_v2" "%s" {
+`, resName))
+
+	if name, ok := policy["name"]; ok {
+		config.WriteString(fmt.Sprintf("  name        = \"%s\"\n", name))
+	}
+	if description, ok := policy["description"]; ok {
+		config.WriteString(fmt.Sprintf("  description = \"%s\"\n", description))
+	}
+	if enabled, ok := policy["enabled"]; ok {
+		config.WriteString(fmt.Sprintf("  enabled     = %v\n", enabled))
+	}
+	if tags, ok := policy["tags"]; ok {
+		config.WriteString(fmt.Sprintf("  tags        = %s\n", formatTags(tags)))
+	}
+	if scope, ok := policy["scope"]; ok {
+		config.WriteString(fmt.Sprintf("  scope       %s\n", formatScope(scope)))
+	}
+	if validFrom, ok := policy["valid_from"]; ok {
+		config.WriteString(fmt.Sprintf("  valid_from  = \"%s\"\n", validFrom))
+	}
+	if validUntil, ok := policy["valid_until"]; ok {
+		config.WriteString(fmt.Sprintf("  valid_until = \"%s\"\n", validUntil))
+	}
+	if document, ok := policy["document"]; ok {
+		escapedDocument := strings.ReplaceAll(document.(string), "${", "$${")
+		config.WriteString(fmt.Sprintf("  document    = chomp(\n<<EOT\n%s\nEOT\n)\n", escapedDocument))
+	}
+	if enforced, ok := policy["enforced"]; ok {
+		config.WriteString(fmt.Sprintf("  enforced    = %v\n", enforced))
+	}
+	if policyType, ok := policy["type"]; ok {
+		config.WriteString(fmt.Sprintf("  type        = \"%s\"\n", policyType))
+	}
+
+	config.WriteString("}\n")
+
+	return config.String()
+}
+
+// formatScope formats the scope data into a string suitable for Terraform configuration.
+//
+// scope is an interface that should be a map with string keys and slice of strings as values.
+func formatScope(scope interface{}) string {
+	if scope == nil {
+		return "= null"
+	}
+
+	scopeMap := scope.(map[string][]string)
+	if len(scopeMap) == 0 {
+		return "= null"
+	}
+
+	var formattedScope strings.Builder
+	formattedScope.WriteString("{\n")
+	for _, value := range scopeMap {
+		formattedScope.WriteString(fmt.Sprintf(`  %s = %s`, "repo_ids", formatTags(value)))
+	}
+	formattedScope.WriteString("\n}")
+
+	return formattedScope.String()
+}
+
+// formatTags formats a slice of tags into a string suitable for Terraform configuration.
+//
+// tags is an interface that should be a slice of strings.
+func formatTags(tags interface{}) string {
+	if tags == nil {
+		return "null"
+	}
+
+	tagList := tags.([]string)
+	if len(tagList) == 0 {
+		return "[]"
+	}
+
+	var formattedTags strings.Builder
+	formattedTags.WriteString("[")
+	for i, tag := range tagList {
+		if i > 0 {
+			formattedTags.WriteString(", ")
+		}
+		formattedTags.WriteString(fmt.Sprintf(`"%s"`, tag))
+	}
+	formattedTags.WriteString("]")
+
+	return formattedTags.String()
+}

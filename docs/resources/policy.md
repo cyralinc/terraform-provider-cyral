@@ -3,12 +3,12 @@
 page_title: "cyral_policy Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages policies https://cyral.com/docs/reference/policy. See also: Policy Rule ./policy_rule.md. For more information, see the Policy Guide https://cyral.com/docs/policy/overview.
+    ~> DEPRECATED For control planes >= v4.15, please use resource cyral_policy_v2 instead.
 ---
 
 # cyral_policy (Resource)
 
-Manages [policies](https://cyral.com/docs/reference/policy). See also: [Policy Rule](./policy_rule.md). For more information, see the [Policy Guide](https://cyral.com/docs/policy/overview).
+~> **DEPRECATED** For control planes `>= v4.15`, please use resource `cyral_policy_v2` instead.
 
 ## Example Usage
 

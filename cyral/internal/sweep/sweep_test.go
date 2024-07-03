@@ -9,7 +9,7 @@ import (
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
+	deprecated_policy "github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/role"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
@@ -151,7 +151,7 @@ func sweepPolicy(_ string) error {
 	if err != nil {
 		return err
 	}
-	policies, err := policy.ListPolicies(c)
+	policies, err := deprecated_policy.ListPolicies(c)
 	if err != nil {
 		return err
 	}
