@@ -3,6 +3,7 @@ package provider
 import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/datalabel"
+	deprecated_policy "github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated/policy"
 	integration_awsiam "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/awsiam"
 	integration_mfa_duo "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/mfaduo"
 	integration_pager_duty "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/confextension/pagerduty"
@@ -13,7 +14,6 @@ import (
 	integration_slack "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
 	integration_teams "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
 	policy_rule "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/rule"
 	policyv2 "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/v2"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
@@ -43,6 +43,7 @@ import (
 func packagesSchemas() []core.PackageSchema {
 	v := []core.PackageSchema{
 		datalabel.PackageSchema(),
+		deprecated_policy.PackageSchema(),
 		integration_awsiam.PackageSchema(),
 		integration_hcvault.PackageSchema(),
 		integration_idp_saml.PackageSchema(),
@@ -53,7 +54,6 @@ func packagesSchemas() []core.PackageSchema {
 		integration_slack.PackageSchema(),
 		integration_teams.PackageSchema(),
 		permission.PackageSchema(),
-		policy.PackageSchema(),
 		policy_rule.PackageSchema(),
 		regopolicy.PackageSchema(),
 		policyv2.PackageSchema(),

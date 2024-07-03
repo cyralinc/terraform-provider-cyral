@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/deprecated/policy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
