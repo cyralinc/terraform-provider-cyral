@@ -1,6 +1,6 @@
-FROM hashicorp/terraform:1.7.5 as terraform
+FROM hashicorp/terraform:1.9.0 as terraform
 
-FROM golang:1.21.5-alpine3.17 AS build
+FROM golang:1.22.5-alpine3.20 AS build
 WORKDIR /go/src/cyral
 COPY main.go go.mod go.sum ./
 COPY client/ client/
