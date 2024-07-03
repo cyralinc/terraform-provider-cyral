@@ -67,7 +67,7 @@ func TestAccPolicyV2Resource(t *testing.T) {
 	})
 }
 
-func TestMinimalPolicyV2Resource(t *testing.T) {
+func TestAccMinimalPolicyV2Resource(t *testing.T) {
 	testMinimalConfig, testMinimalFunc := setupMinimalPolicyTest("main_test", minimalPolicyConfig())
 	resource.Test(t, resource.TestCase{
 		ProviderFactories: provider.ProviderFactories,
