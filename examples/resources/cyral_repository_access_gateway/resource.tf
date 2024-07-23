@@ -37,7 +37,7 @@ resource "cyral_repository_binding" "binding" {
 # Set the sidecar and binding as the access gateway
 # for the repository.
 resource "cyral_repository_access_gateway" "access_gateway" {
-		repository_id  = cyral_repository.repo.id
-		sidecar_id  = cyral_sidecar.sidecar.id
-		binding_id = cyral_repository_binding.binding.binding_id
+  repository_id  = cyral_repository.repo.id
+  sidecar_id  = cyral_sidecar.sidecar.id
+  binding_id = cyral_repository_binding.binding.binding_id
 }
