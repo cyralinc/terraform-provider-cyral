@@ -159,6 +159,10 @@ Required:
 
 -   `role_arn` (String) The AWS IAM roleARN to gain access to the database.
 
+Optional:
+
+-   `authenticate_as_iam_user` (Boolean) Boolean flag which indicates whether to access as an IAM user or IAM role on the Redshift cluster. By default, this is false, which means this governs access for a user.
+
 <a id="nestedblock--auth_scheme--aws_secrets_manager"></a>
 
 ### Nested Schema for `auth_scheme.aws_secrets_manager`
