@@ -171,6 +171,31 @@ func resourceSchema() *schema.Resource {
 					},
 				},
 			},
+			RepoRedshiftSettingsKey: {
+				Description: "Parameters related to Redshift repositories.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						RepoRedshiftClusterIdentifier: {
+							Description: "Name of the provisioned cluster.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoRedshiftWorkgroupName: {
+							Description: "Workgroup name for serverless cluster.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+						RepoRedshiftAWSRegion: {
+							Description: "AWS region where the Redshift instance is deployed.",
+							Type:        schema.TypeString,
+							Optional:    true,
+						},
+					},
+				},
+			},
 		},
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,

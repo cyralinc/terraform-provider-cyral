@@ -11,15 +11,16 @@ type Labels []string
 type RepoNodes []*RepoNode
 
 type RepoInfo struct {
-	ID              string           `json:"id"`
-	Name            string           `json:"name"`
-	Type            string           `json:"type"`
-	Host            string           `json:"repoHost"`
-	Port            uint32           `json:"repoPort"`
-	ConnParams      *ConnParams      `json:"connParams"`
-	Labels          Labels           `json:"labels"`
-	RepoNodes       RepoNodes        `json:"repoNodes,omitempty"`
-	MongoDBSettings *MongoDBSettings `json:"mongoDbSettings,omitempty"`
+	ID               string            `json:"id"`
+	Name             string            `json:"name"`
+	Type             string            `json:"type"`
+	Host             string            `json:"repoHost"`
+	Port             uint32            `json:"repoPort"`
+	ConnParams       *ConnParams       `json:"connParams"`
+	Labels           Labels            `json:"labels"`
+	RepoNodes        RepoNodes         `json:"repoNodes,omitempty"`
+	MongoDBSettings  *MongoDBSettings  `json:"mongoDbSettings,omitempty"`
+	RedshiftSettings *RedshiftSettings `json:"redshiftSettings,omitempty"`
 }
 
 type ConnParams struct {
@@ -36,6 +37,12 @@ type MongoDBSettings struct {
 	ServerType     string `json:"serverType,omitempty"`
 	SRVRecordName  string `json:"srvRecordName,omitempty"`
 	Flavor         string `json:"flavor,omitempty"`
+}
+
+type RedshiftSettings struct {
+	ClusterIdentifier string `json:"clusterIdentifier,omitempty"`
+	WorkgroupName     string `json:"workgroupName,omitempty"`
+	AwsRegion         string `json:"awsRegion,omitempty"`
 }
 
 type RepoNode struct {
@@ -60,6 +67,7 @@ func (res *RepoInfo) WriteToSchema(d *schema.ResourceData) error {
 	d.Set(RepoConnDrainingKey, res.ConnParams.AsInterface())
 	d.Set(RepoNodesKey, res.RepoNodes.AsInterface())
 	d.Set(RepoMongoDBSettingsKey, res.MongoDBSettings.AsInterface())
+	d.Set(RepoRedshiftSettingsKey, res.RedshiftSettings.AsInterface())
 	return nil
 }
 
@@ -77,7 +85,18 @@ func (r *RepoInfo) ReadFromSchema(d *schema.ResourceData) error {
 		return fmt.Errorf("'%s' block is only allowed when '%s=%s'", RepoMongoDBSettingsKey, utils.TypeKey, MongoDB)
 	}
 	m, err := mongoDBSettingsFromInterface(mongoDBSettings)
+	if err != nil {
+		return err
+	}
 	r.MongoDBSettings = m
+
+	var redshiftSettings = d.Get(RepoRedshiftSettingsKey).(*schema.Set).List()
+	if r.Type != Redshift && len(redshiftSettings) > 0 {
+		return fmt.Errorf("'%s' block is only allowed when '%s=%s'", RepoRedshiftSettingsKey, utils.TypeKey, Redshift)
+	}
+	redshift, err := redshiftSettingsFromInterface(redshiftSettings)
+	r.RedshiftSettings = redshift
+
 	return err
 }
 
@@ -156,6 +175,18 @@ func repoNodesFromInterface(i []interface{}) RepoNodes {
 	return repoNodes
 }
 
+func (r *RedshiftSettings) AsInterface() []interface{} {
+	if r == nil {
+		return nil
+	}
+
+	return []interface{}{map[string]interface{}{
+		RepoRedshiftClusterIdentifier: r.ClusterIdentifier,
+		RepoRedshiftWorkgroupName:     r.WorkgroupName,
+		RepoRedshiftAWSRegion:         r.AwsRegion,
+	}}
+}
+
 func (m *MongoDBSettings) AsInterface() []interface{} {
 	if m == nil {
 		return nil
@@ -167,6 +198,22 @@ func (m *MongoDBSettings) AsInterface() []interface{} {
 		RepoMongoDBSRVRecordName:     m.SRVRecordName,
 		RepoMongoDBFlavorKey:         m.Flavor,
 	}}
+}
+
+func redshiftSettingsFromInterface(i []interface{}) (*RedshiftSettings, error) {
+	if len(i) == 0 {
+		return nil, nil
+	}
+
+	var clusterIdentifier = i[0].(map[string]interface{})[RepoRedshiftClusterIdentifier].(string)
+	var workgroupName = i[0].(map[string]interface{})[RepoRedshiftWorkgroupName].(string)
+	var awsRegion = i[0].(map[string]interface{})[RepoRedshiftAWSRegion].(string)
+
+	return &RedshiftSettings{
+		ClusterIdentifier: clusterIdentifier,
+		WorkgroupName:     workgroupName,
+		AwsRegion:         awsRegion,
+	}, nil
 }
 
 func mongoDBSettingsFromInterface(i []interface{}) (*MongoDBSettings, error) {
