@@ -42,7 +42,7 @@ type MongoDBSettings struct {
 type RedshiftSettings struct {
 	ClusterIdentifier string `json:"clusterIdentifier,omitempty"`
 	WorkgroupName     string `json:"workgroupName,omitempty"`
-	AwsRegion         string `json:"awsRegion,omitempty"`
+	AWSRegion         string `json:"awsRegion,omitempty"`
 }
 
 type RepoNode struct {
@@ -183,7 +183,7 @@ func (r *RedshiftSettings) AsInterface() []interface{} {
 	return []interface{}{map[string]interface{}{
 		RepoRedshiftClusterIdentifier: r.ClusterIdentifier,
 		RepoRedshiftWorkgroupName:     r.WorkgroupName,
-		RepoRedshiftAWSRegion:         r.AwsRegion,
+		RepoRedshiftAWSRegion:         r.AWSRegion,
 	}}
 }
 
@@ -212,7 +212,7 @@ func redshiftSettingsFromInterface(i []interface{}) (*RedshiftSettings, error) {
 	return &RedshiftSettings{
 		ClusterIdentifier: clusterIdentifier,
 		WorkgroupName:     workgroupName,
-		AwsRegion:         awsRegion,
+		AWSRegion:         awsRegion,
 	}, nil
 }
 

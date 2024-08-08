@@ -98,7 +98,7 @@ func TestAccRepositoryUserAccountResource(t *testing.T) {
 		AuthScheme: &useraccount.AuthScheme{
 			AWSIAM: &useraccount.AuthSchemeAWSIAM{
 				RoleARN:               "role-arn-1",
-				AuthenticateAsIAMUser: true,
+				AuthenticateAsIAMRole: true,
 			},
 		},
 	}
@@ -289,8 +289,8 @@ func setupRepositoryUserAccountCheck(resName string, userAccount useraccount.Use
 				authSchemeScope+"aws_iam.0.role_arn",
 				authScheme.AWSIAM.RoleARN),
 			resource.TestCheckResourceAttr(resFullName,
-				authSchemeScope+"aws_iam.0.authenticate_as_iam_user",
-				strconv.FormatBool(authScheme.AWSIAM.AuthenticateAsIAMUser)),
+				authSchemeScope+"aws_iam.0.authenticate_as_iam_role",
+				strconv.FormatBool(authScheme.AWSIAM.AuthenticateAsIAMRole)),
 		)
 	case authScheme.AWSSecretsManager != nil:
 		checkFuncs = append(checkFuncs,
@@ -353,10 +353,10 @@ func setupRepositoryUserAccountConfig(resName string, userAccount useraccount.Us
 		authSchemeStr = fmt.Sprintf(`
 			aws_iam {
 				role_arn = "%s"
-				authenticate_as_iam_user = %t
+				authenticate_as_iam_role = %t
 			}`,
 			authScheme.AWSIAM.RoleARN,
-			authScheme.AWSIAM.AuthenticateAsIAMUser)
+			authScheme.AWSIAM.AuthenticateAsIAMRole)
 	case authScheme.AWSSecretsManager != nil:
 		authSchemeStr = fmt.Sprintf(`
 			aws_secrets_manager {

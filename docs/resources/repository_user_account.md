@@ -161,7 +161,7 @@ Required:
 
 Optional:
 
--   `authenticate_as_iam_user` (Boolean) Boolean flag which indicates whether to access as an IAM user or IAM role on the Redshift cluster. By default, this is false, which means this governs access for a user.
+-   `authenticate_as_iam_role` (Boolean) Indicates whether to access as an AWS IAM role or a native database user. The default (false) value means that login will use a native database user.
 
 <a id="nestedblock--auth_scheme--aws_secrets_manager"></a>
 

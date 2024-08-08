@@ -152,7 +152,7 @@ var (
 		},
 		RedshiftSettings: &repository.RedshiftSettings{
 			ClusterIdentifier: "myCluster",
-			AwsRegion:         "us-east-1",
+			AWSRegion:         "us-east-1",
 		},
 	}
 )
@@ -286,7 +286,7 @@ func repoCheckFuctions(repo repository.RepoInfo, resName string) resource.TestCh
 			),
 			resource.TestCheckResourceAttr(resourceFullName,
 				"redshift_settings.0.aws_region",
-				repo.RedshiftSettings.AwsRegion,
+				repo.RedshiftSettings.AWSRegion,
 			),
 		}...)
 	}
@@ -355,8 +355,8 @@ func repoAsConfig(repo repository.RepoInfo, resName string) string {
 			workgroupName = fmt.Sprintf(`"%s"`, repo.RedshiftSettings.WorkgroupName)
 		}
 
-		if repo.RedshiftSettings.AwsRegion != "" {
-			awsRegion = fmt.Sprintf(`"%s"`, repo.RedshiftSettings.AwsRegion)
+		if repo.RedshiftSettings.AWSRegion != "" {
+			awsRegion = fmt.Sprintf(`"%s"`, repo.RedshiftSettings.AWSRegion)
 		}
 
 		config += fmt.Sprintf(`
