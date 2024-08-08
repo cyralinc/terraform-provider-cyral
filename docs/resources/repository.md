@@ -183,6 +183,6 @@ Optional:
 
 Optional:
 
--   `aws_region` (String) AWS region where the Redshift instance is deployed.
+-   `aws_region` (String) Code of the AWS region where the Redshift instance is deployed.
 -   `cluster_identifier` (String) Name of the provisioned cluster.
 -   `workgroup_name` (String) Workgroup name for serverless cluster.

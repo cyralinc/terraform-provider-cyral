@@ -189,7 +189,7 @@ func resourceSchema() *schema.Resource {
 							Optional:    true,
 						},
 						RepoRedshiftAWSRegion: {
-							Description: "AWS region where the Redshift instance is deployed.",
+							Description: "Code of the AWS region where the Redshift instance is deployed.",
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
