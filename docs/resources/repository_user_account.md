@@ -161,7 +161,7 @@ Required:
 
 Optional:
 
--   `authenticate_as_iam_role` (Boolean) Indicates whether to access as an AWS IAM role or a native database user. The default (false) value means that login will use a native database user.
+-   `authenticate_as_iam_role` (Boolean) Indicates whether to access as an AWS IAM role (`true`)or a native database user (`false`). Defaults to `false`.
 
 <a id="nestedblock--auth_scheme--aws_secrets_manager"></a>
 
