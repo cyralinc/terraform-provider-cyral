@@ -212,6 +212,12 @@ func resourceSchema() *schema.Resource {
 										Type:        schema.TypeString,
 										Required:    true,
 									},
+									"authenticate_as_iam_role": {
+										Description: "Indicates whether to access as an AWS IAM role (`true`)" +
+											"or a native database user (`false`). Defaults to `false`.",
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
 								},
 							},
 						},

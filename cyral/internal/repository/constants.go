@@ -26,6 +26,11 @@ const (
 	RepoMongoDBServerTypeKey     = "server_type"
 	RepoMongoDBSRVRecordName     = "srv_record_name"
 	RepoMongoDBFlavorKey         = "flavor"
+	// Redshift settings keys
+	RepoRedshiftSettingsKey       = "redshift_settings"
+	RepoRedshiftClusterIdentifier = "cluster_identifier"
+	RepoRedshiftWorkgroupName     = "workgroup_name"
+	RepoRedshiftAWSRegion         = "aws_region"
 )
 
 const (

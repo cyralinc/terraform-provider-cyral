@@ -159,6 +159,10 @@ Required:
 
 -   `role_arn` (String) The AWS IAM roleARN to gain access to the database.
 
+Optional:
+
+-   `authenticate_as_iam_role` (Boolean) Indicates whether to access as an AWS IAM role (`true`)or a native database user (`false`). Defaults to `false`.
+
 <a id="nestedblock--auth_scheme--aws_secrets_manager"></a>
 
 ### Nested Schema for `auth_scheme.aws_secrets_manager`

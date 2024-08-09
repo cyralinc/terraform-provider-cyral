@@ -112,6 +112,7 @@ resource "cyral_repository" "multi_node_mongo_repo" {
 -   `connection_draining` (Block Set, Max: 1) Parameters related to connection draining. (see [below for nested schema](#nestedblock--connection_draining))
 -   `labels` (List of String) Labels enable you to categorize your repository.
 -   `mongodb_settings` (Block Set, Max: 1) Parameters related to MongoDB repositories. (see [below for nested schema](#nestedblock--mongodb_settings))
+-   `redshift_settings` (Block Set, Max: 1) Parameters related to Redshift repositories. (see [below for nested schema](#nestedblock--redshift_settings))
 
 ### Read-Only
 
@@ -175,3 +176,13 @@ Optional:
 
 -   `replica_set_name` (String) Name of the replica set, if applicable.
 -   `srv_record_name` (String) Name of a DNS SRV record which contains cluster topology details. If specified, then all `repo_node` blocks must be declared dynamic (see [`dynamic`](#dynamic)). Only supported for `server_type="sharded"` or `server_type="replicaset".
+
+<a id="nestedblock--redshift_settings"></a>
+
+### Nested Schema for `redshift_settings`
+
+Optional:
+
+-   `aws_region` (String) Code of the AWS region where the Redshift instance is deployed.
+-   `cluster_identifier` (String) Name of the provisioned cluster.
+-   `workgroup_name` (String) Workgroup name for serverless cluster.
