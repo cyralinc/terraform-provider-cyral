@@ -20,7 +20,8 @@ type AuthScheme struct {
 }
 
 type AuthSchemeAWSIAM struct {
-	RoleARN string `json:"roleARN,omitempty"`
+	RoleARN               string `json:"roleARN,omitempty"`
+	AuthenticateAsIAMRole bool   `json:"authenticateAsIAMRole,omitempty"`
 }
 
 type AuthSchemeAWSSecretsManager struct {
@@ -118,7 +119,8 @@ func (resource *UserAccountResource) WriteToSchema(d *schema.ResourceData) error
 			map[string]interface{}{
 				"aws_iam": []interface{}{
 					map[string]interface{}{
-						"role_arn": resource.AuthScheme.AWSIAM.RoleARN,
+						"role_arn":                 resource.AuthScheme.AWSIAM.RoleARN,
+						"authenticate_as_iam_role": resource.AuthScheme.AWSIAM.AuthenticateAsIAMRole,
 					},
 				},
 			},
@@ -259,7 +261,8 @@ func (userAccount *UserAccountResource) ReadFromSchema(d *schema.ResourceData) e
 		case "aws_iam":
 			userAccount.AuthScheme = &AuthScheme{
 				AWSIAM: &AuthSchemeAWSIAM{
-					RoleARN: m["role_arn"].(string),
+					RoleARN:               m["role_arn"].(string),
+					AuthenticateAsIAMRole: m["authenticate_as_iam_role"].(bool),
 				},
 			}
 		case "aws_secrets_manager":

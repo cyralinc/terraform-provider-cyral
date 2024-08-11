@@ -140,6 +140,21 @@ var (
 			Flavor:         "documentdb",
 		},
 	}
+
+	withRedshiftSettings = repository.RepoInfo{
+		Name: utils.AccTestName(utils.RepositoryResourceName, "repo-with-redshift-settings"),
+		Type: "redshift",
+		RepoNodes: repository.RepoNodes{
+			{
+				Host: "redshift.local",
+				Port: 3333,
+			},
+		},
+		RedshiftSettings: &repository.RedshiftSettings{
+			ClusterIdentifier: "myCluster",
+			AWSRegion:         "us-east-1",
+		},
+	}
 )
 
 func TestAccRepositoryResource(t *testing.T) {
@@ -153,11 +168,13 @@ func TestAccRepositoryResource(t *testing.T) {
 		connDrainingConfig, "conn_draining_test")
 	allDynamic := setupRepositoryTest(
 		allRepoNodesAreDynamic, "all_repo_nodes_are_dynamic")
+	redshift := setupRepositoryTest(
+		withRedshiftSettings, "with_redshift_settings")
 
 	multiNode := setupRepositoryTest(
 		mixedMultipleNodesConfig, "multi_node_test")
 
-	// Should use name of the last resource created.
+	// Must use name of the last resource created.
 	importTest := resource.TestStep{
 		ImportState:       true,
 		ImportStateVerify: true,
@@ -171,6 +188,7 @@ func TestAccRepositoryResource(t *testing.T) {
 			update,
 			connDrainingEmpty,
 			connDraining,
+			redshift,
 			allDynamic,
 			multiNode,
 			importTest,
@@ -256,6 +274,23 @@ func repoCheckFuctions(repo repository.RepoInfo, resName string) resource.TestCh
 		}...)
 	}
 
+	if repo.RedshiftSettings != nil {
+		checkFuncs = append(checkFuncs, []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceFullName,
+				"redshift_settings.0.cluster_identifier",
+				repo.RedshiftSettings.ClusterIdentifier,
+			),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"redshift_settings.0.workgroup_name",
+				repo.RedshiftSettings.WorkgroupName,
+			),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"redshift_settings.0.aws_region",
+				repo.RedshiftSettings.AWSRegion,
+			),
+		}...)
+	}
+
 	return resource.ComposeTestCheckFunc(checkFuncs...)
 }
 
@@ -304,6 +339,35 @@ func repoAsConfig(repo repository.RepoInfo, resName string) string {
 			serverType,
 			srvRecordName,
 			flavor,
+		)
+	}
+
+	if repo.RedshiftSettings != nil {
+		clusterIdentifier := "null"
+		workgroupName := "null"
+		awsRegion := "null"
+
+		if repo.RedshiftSettings.ClusterIdentifier != "" {
+			clusterIdentifier = fmt.Sprintf(`"%s"`, repo.RedshiftSettings.ClusterIdentifier)
+		}
+
+		if repo.RedshiftSettings.WorkgroupName != "" {
+			workgroupName = fmt.Sprintf(`"%s"`, repo.RedshiftSettings.WorkgroupName)
+		}
+
+		if repo.RedshiftSettings.AWSRegion != "" {
+			awsRegion = fmt.Sprintf(`"%s"`, repo.RedshiftSettings.AWSRegion)
+		}
+
+		config += fmt.Sprintf(`
+			redshift_settings {
+				cluster_identifier = %s
+				workgroup_name = %s
+				aws_region = %s
+			}`,
+			clusterIdentifier,
+			workgroupName,
+			awsRegion,
 		)
 	}
 
