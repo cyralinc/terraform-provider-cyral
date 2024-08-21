@@ -1,8 +1,6 @@
 package confauth
 
 import (
-	"errors"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -26,21 +24,9 @@ func (data RepositoryConfAuthData) WriteToSchema(d *schema.ResourceData) error {
 	}
 
 	d.Set("allow_native_auth", data.AllowNativeAuth)
-
-	if err := data.isClientTLSValid(); err != nil {
-		panic(err)
-	}
-
 	d.Set("client_tls", data.ClientTLS)
-
 	d.Set("identity_provider", data.IdentityProvider)
-
-	if err := data.isRepoTLSValid(); err != nil {
-		panic(err)
-	}
-
 	d.Set("repo_tls", data.RepoTLS)
-
 	d.Set("auth_type", data.AuthType)
 
 	return nil
@@ -58,20 +44,6 @@ func (data *RepositoryConfAuthData) ReadFromSchema(d *schema.ResourceData) error
 	data.IdentityProvider = d.Get("identity_provider").(string)
 	data.RepoTLS = d.Get("repo_tls").(string)
 
-	return nil
-}
-
-func (data RepositoryConfAuthData) isClientTLSValid() error {
-	if !(data.ClientTLS == "enable" || data.ClientTLS == "disable" || data.ClientTLS == "enabledAndVerifyCertificate") {
-		return errors.New("invalid option to client_tls")
-	}
-	return nil
-}
-
-func (data RepositoryConfAuthData) isRepoTLSValid() error {
-	if !(data.RepoTLS == "enable" || data.RepoTLS == "disable" || data.RepoTLS == "enabledAndVerifyCertificate") {
-		return errors.New("invalid option to repo_tls")
-	}
 	return nil
 }
 

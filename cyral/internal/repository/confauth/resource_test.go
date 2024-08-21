@@ -29,8 +29,8 @@ func repositoryConfAuthDependencyConfig() string {
 func initialRepositoryConfAuthConfig() auth.RepositoryConfAuthData {
 	return auth.RepositoryConfAuthData{
 		AllowNativeAuth: false,
-		ClientTLS:       "disable",
-		RepoTLS:         "enable",
+		ClientTLS:       string(auth.TLSDisable),
+		RepoTLS:         string(auth.TLSEnable),
 		AuthType:        "ACCESS_TOKEN",
 	}
 }
@@ -38,8 +38,8 @@ func initialRepositoryConfAuthConfig() auth.RepositoryConfAuthData {
 func update1RepositoryConfAuthConfig() auth.RepositoryConfAuthData {
 	return auth.RepositoryConfAuthData{
 		AllowNativeAuth: true,
-		ClientTLS:       "enable",
-		RepoTLS:         "disable",
+		ClientTLS:       string(auth.TLSEnable),
+		RepoTLS:         string(auth.TLSDisable),
 		AuthType:        "AWS_IAM",
 	}
 }
@@ -47,8 +47,8 @@ func update1RepositoryConfAuthConfig() auth.RepositoryConfAuthData {
 func update2RepositoryConfAuthConfig() auth.RepositoryConfAuthData {
 	return auth.RepositoryConfAuthData{
 		AllowNativeAuth: false,
-		ClientTLS:       "enable",
-		RepoTLS:         "disable",
+		ClientTLS:       string(auth.TLSEnable),
+		RepoTLS:         string(auth.TLSDisable),
 		AuthType:        "ACCESS_TOKEN",
 	}
 }
@@ -69,8 +69,8 @@ func repositoryConfAuthMinimalConfigTest(resName string) resource.TestStep {
 		Check: setupRepositoryConfAuthCheck(
 			resName,
 			auth.RepositoryConfAuthData{
-				ClientTLS: auth.DefaultClientTLS,
-				RepoTLS:   auth.DefaultRepoTLS,
+				ClientTLS: string(auth.TLSDisable),
+				RepoTLS:   string(auth.TLSDisable),
 				AuthType:  auth.DefaultAuthType,
 			},
 		),
