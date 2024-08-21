@@ -38,7 +38,10 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
         -   If not supplied, then end-user authentication is disabled.
         -   If end-user authentication with Cyral Access Token is desired, then set to `ACCESS_TOKEN` or any other non-empty string.
         -   If end-user authentication with AWS IAM is desired, then this must be the ID of an AWS IAM integration, and the `auth_type` attribute must be set to `AWS_IAM`.
--   `repo_tls` (String) Specifies whether the sidecar will communicate with the repository using TLS. Defaults to `"disable"`. List of supported values: "\n - `enable`\n - `enableAndVerifyCert`\n - `disable`"
+-   `repo_tls` (String) Specifies whether the sidecar will communicate with the repository using TLS. Defaults to `disable`. List of supported values:
+    -   `enable`
+    -   `enableAndVerifyCert`
+    -   `disable`
 
 ### Read-Only
 
