@@ -1,3 +1,88 @@
+## 4.13.0 (August 21, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.16`.
+
+Arguments incompatible with control planes previous to `v4.16`:
+
+- `cyral_repository.redshift_settings.aws_region`
+- `cyral_repository.redshift_settings.cluster_identifier`
+- `cyral_repository.redshift_settings.workgroup_name`
+
+Resource incompatible with control planes previous to `v4.15`:
+
+- `cyral_policy_v2`
+
+Argument incompatible with control planes previous to `v4.14`:
+
+- `cyral_repository_user_account.auth_scheme.azure_key_vault`
+
+Argument incompatible with control planes previous to `v4.12`:
+
+- `cyral_repository.mongodb_settings.flavor`
+
+Resource incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Data source incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Arguments incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_logging.skip_validate`
+
+Resource incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_aws_iam`
+
+Data sources incompatible with control planes previous to `v4.10`:
+
+- `cyral_sidecar_health`
+- `cyral_sidecar_instance_stats`
+- `cyral_system_info`
+
+Arguments incompatible with control planes previous to `v4.8`:
+
+- `cyral_sidecar.activity_log_integration_id`
+- `cyral_sidecar.diagnostic_log_integration_id`
+
+Resource incompatible with control planes previous to `v4.7`:
+
+- `cyral_integration_logging`
+
+Argument incompatible with control planes previous to `v4.2`:
+
+- `cyral_repository.mongodb_settings.srv_record_name`
+
+See the list of incompatible resources with control planes `v3.x` and provider `v3.x` in the [`v4.0.0`](#400-january-27-2023) release documentation.
+
+### Bug fixes:
+
+- ENG-14351: Fix invalid TLS option check ([#561](https://github.com/cyralinc/terraform-provider-cyral/pull/561))
+
+### Documentation:
+
+- Minor doc fix ([#554](https://github.com/cyralinc/terraform-provider-cyral/pull/554))
+
+### Features:
+
+- ENG-14270: redshift iam ([#559](https://github.com/cyralinc/terraform-provider-cyral/pull/559))
+
+### Improvements:
+
+- Bump github.com/hashicorp/terraform-plugin-docs from 0.18.0 to 0.19.4 ([#543](https://github.com/cyralinc/terraform-provider-cyral/pull/543))
+- Bump alpine from 3.20.1 to 3.20.2 ([#553](https://github.com/cyralinc/terraform-provider-cyral/pull/553))
+- Bump golang.org/x/oauth2 from 0.21.0 to 0.22.0 ([#556](https://github.com/cyralinc/terraform-provider-cyral/pull/556))
+- Bump hashicorp/terraform from 1.9.0 to 1.9.4 ([#557](https://github.com/cyralinc/terraform-provider-cyral/pull/557))
+- Bump golang from 1.22.5-alpine3.20 to 1.22.6-alpine3.20 ([#558](https://github.com/cyralinc/terraform-provider-cyral/pull/558))
+- Bump hashicorp/terraform from 1.9.4 to 1.9.5 ([#562](https://github.com/cyralinc/terraform-provider-cyral/pull/562))
+
 ## 4.12.0 (July 15, 2024)
 
 It is safe to use this version with all `v4` control planes as long
