@@ -104,10 +104,13 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 				Optional:    true,
 			},
 			"client_tls": {
-				Description: fmt.Sprintf("Is the repo Client using TLS? Default is %q.", DefaultClientTLS),
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     DefaultClientTLS,
+				Description: fmt.Sprintf(
+					"Specifies whether the sidecar will require TLS communication with clients."+
+						" Defaults to `%s`. List of supported values: %s", TLSDisable, utils.SupportedValuesAsMarkdown(ClientTLSTypesAsString())),
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      TLSDisable,
+				ValidateFunc: validation.StringInSlice(append(ClientTLSTypesAsString(), ""), false),
 			},
 			"identity_provider": {
 				Description: fmt.Sprintf(
@@ -127,10 +130,13 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 				Optional: true,
 			},
 			"repo_tls": {
-				Description: fmt.Sprintf("Is TLS enabled for the repository? Default is %q.", DefaultRepoTLS),
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     DefaultRepoTLS,
+				Description: fmt.Sprintf(
+					"Specifies whether the sidecar will communicate with the repository using TLS."+
+						" Defaults to `%s`. List of supported values: %s", TLSDisable, utils.SupportedValuesAsMarkdown(RepoTLSTypesAsString())),
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      TLSDisable,
+				ValidateFunc: validation.StringInSlice(append(RepoTLSTypesAsString(), ""), false),
 			},
 			"auth_type": {
 				Description: fmt.Sprintf("Authentication type for this repository. **Note**: `%s` is currently "+
