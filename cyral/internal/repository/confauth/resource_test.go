@@ -48,7 +48,7 @@ func update2RepositoryConfAuthConfig() auth.RepositoryConfAuthData {
 	return auth.RepositoryConfAuthData{
 		AllowNativeAuth: false,
 		ClientTLS:       string(auth.TLSEnable),
-		RepoTLS:         string(auth.TLSDisable),
+		RepoTLS:         string(auth.TLSEnableAndVerifyCert),
 		AuthType:        "ACCESS_TOKEN",
 	}
 }
