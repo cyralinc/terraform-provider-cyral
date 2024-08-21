@@ -106,7 +106,7 @@ func repositoryConfAuthResourceSchemaV0() *schema.Resource {
 			"client_tls": {
 				Description: fmt.Sprintf(
 					"Specifies whether the sidecar will require TLS communication with clients."+
-						" Defaults to `%q`. List of supported values: %q", TLSDisable, utils.SupportedValuesAsMarkdown(ClientTLSTypesAsString())),
+						" Defaults to `%s`. List of supported values: %s", TLSDisable, utils.SupportedValuesAsMarkdown(ClientTLSTypesAsString())),
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      TLSDisable,

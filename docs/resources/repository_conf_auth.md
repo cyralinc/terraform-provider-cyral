@@ -30,7 +30,9 @@ resource "cyral_repository_conf_auth" "some_resource_name" {
 -   `auth_type` (String) Authentication type for this repository. **Note**: `AWS_IAM` is currently only supported by `mongodb` repo type. List of supported values:
     -   `ACCESS_TOKEN`
     -   `AWS_IAM`
--   `client_tls` (String) Specifies whether the sidecar will require TLS communication with clients. Defaults to `"disable"`. List of supported values: "\n - `enable`\n - `disable`"
+-   `client_tls` (String) Specifies whether the sidecar will require TLS communication with clients. Defaults to `disable`. List of supported values:
+    -   `enable`
+    -   `disable`
 -   `identity_provider` (String) The semantics of this field changed in control planes `v4.13` and later. See how it should be configured depending on your control plane version:
     -   `v4.12` and below:
         -   Provide the ID (Alias) of the identity provider integration to allow user authentication using an IdP.
