@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/sidecar"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/provider"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func getTestCBS() sidecar.CertificateBundleSecrets {
@@ -27,6 +28,7 @@ var cloudFormationSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "cft-ec2",
 		LogIntegrationID:           "foo",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "",
 	},
 	UserEndpoint:             "some.cft.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
@@ -39,6 +41,7 @@ var dockerSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "docker",
 		LogIntegrationID:           "bar",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "invalid-vault-integration-id",
 	},
 	UserEndpoint:             "some.docker.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
@@ -51,6 +54,7 @@ var helmSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "helm3",
 		LogIntegrationID:           "baz",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "123",
 	},
 	UserEndpoint:             "some.helm3.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
@@ -63,6 +67,7 @@ var tfSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "terraform",
 		LogIntegrationID:           "qux",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "123",
 	},
 	UserEndpoint:             "some.tf.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
@@ -75,6 +80,7 @@ var singleContainerSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "singleContainer",
 		LogIntegrationID:           "quxx",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "123",
 	},
 	UserEndpoint:             "some.singleContainer.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
@@ -87,6 +93,7 @@ var linuxSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "linux",
 		LogIntegrationID:           "empty",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "123",
 	},
 	UserEndpoint:             "some.linux.user.endpoint",
 	CertificateBundleSecrets: getTestCBS(),
@@ -98,6 +105,7 @@ var bypassNeverSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "terraform",
 		LogIntegrationID:           "a",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "123",
 	},
 	ServicesConfig: sidecar.SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -113,6 +121,7 @@ var bypassAlwaysSidecarConfig = sidecar.SidecarData{
 		DeploymentMethod:           "terraform",
 		LogIntegrationID:           "b",
 		DiagnosticLogIntegrationID: "",
+		VaultIntegrationID:         "123",
 	},
 	ServicesConfig: sidecar.SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -185,15 +194,17 @@ func TestAccSidecarResource(t *testing.T) {
 func setupSidecarTest(sidecarData sidecar.SidecarData) (string, resource.TestCheckFunc) {
 	configuration := formatSidecarDataIntoConfig(sidecarData)
 
-	var deploymentMethod, logIntegrationID string
+	var deploymentMethod, logIntegrationID, vaultIntegrationID string
 	if properties := sidecarData.SidecarProperties; properties != nil {
 		deploymentMethod = properties.DeploymentMethod
 		logIntegrationID = properties.LogIntegrationID
+		vaultIntegrationID = properties.VaultIntegrationID
 	}
 	testFunctions := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "name", sidecarData.Name),
 		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "deployment_method", deploymentMethod),
 		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "activity_log_integration_id", logIntegrationID),
+		resource.TestCheckResourceAttr("cyral_sidecar.test_sidecar", "vault_integration_id", vaultIntegrationID),
 	}
 
 	if bypassMode := sidecarData.BypassMode(); bypassMode != "" {
@@ -232,18 +243,20 @@ func formatSidecarDataIntoConfig(sidecarData sidecar.SidecarData) string {
 		)
 	}
 
-	var deploymentMethod, logIntegrationID string
+	var deploymentMethod, logIntegrationID, vaultIntegrationID string
 	if properties := sidecarData.SidecarProperties; properties != nil {
 		deploymentMethod = properties.DeploymentMethod
 		logIntegrationID = properties.LogIntegrationID
+		vaultIntegrationID = properties.VaultIntegrationID
 	}
 
 	config := fmt.Sprintf(
 		`
 	resource "cyral_sidecar" "test_sidecar" {
-      		name = "%s"
-	      	deployment_method = "%s"
-	      	activity_log_integration_id = "%s"
+		name = "%s"
+		deployment_method = "%s"
+		activity_log_integration_id = "%s"
+		vault_integration_id = "%s"
 		labels = %s
 		user_endpoint = "%s"
 		%s
@@ -251,6 +264,7 @@ func formatSidecarDataIntoConfig(sidecarData sidecar.SidecarData) string {
       	}`, sidecarData.Name,
 		deploymentMethod,
 		logIntegrationID,
+		vaultIntegrationID,
 		utils.ListToStr(sidecarData.Labels),
 		sidecarData.UserEndpoint,
 		certBundleConfig,
