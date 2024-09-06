@@ -40,7 +40,7 @@ resource "cyral_sidecar" "some_resource_name" {
 -   `labels` (List of String) Labels that can be attached to the sidecar and shown in the `Tags` field in the UI.
 -   `log_integration_id` (String, Deprecated) ID of the log integration mapped to this sidecar, used for Cyral activity logs.
 -   `user_endpoint` (String) User-defined endpoint (also referred as `alias`) that can be used to override the sidecar DNS endpoint shown in the UI.
--   `vault_integration_id` (String) ID of the HashiCorp Vault integration mapped to this sidecar, used for vault user account authentication.
+-   `vault_integration_id` (String) ID of the HashiCorp Vault integration to associate to this sidecar to be used for database account authentication.
 
 ### Read-Only
 
