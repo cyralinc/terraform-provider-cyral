@@ -47,6 +47,9 @@ func (r *SidecarData) WriteToSchema(d *schema.ResourceData) error {
 		if err := d.Set("diagnostic_log_integration_id", r.SidecarProperties.DiagnosticLogIntegrationID); err != nil {
 			return fmt.Errorf("error setting 'diagnostic_log_integration_id' field: %w", err)
 		}
+		if err := d.Set("vault_integration_id", r.SidecarProperties.VaultIntegrationID); err != nil {
+			return fmt.Errorf("error setting 'vault_integration_id' field: %w", err)
+		}
 	}
 	if err := d.Set("labels", r.Labels); err != nil {
 		return fmt.Errorf("error setting 'labels' field: %w", err)
@@ -87,6 +90,7 @@ func (r *SidecarData) ReadFromSchema(d *schema.ResourceData) error {
 		DeploymentMethod:           d.Get("deployment_method").(string),
 		LogIntegrationID:           activityLogIntegrationID,
 		DiagnosticLogIntegrationID: d.Get("diagnostic_log_integration_id").(string),
+		VaultIntegrationID:         d.Get("vault_integration_id").(string),
 	}
 	r.ServicesConfig = SidecarServicesConfig{
 		"dispatcher": map[string]string{
@@ -103,6 +107,7 @@ type SidecarProperties struct {
 	DeploymentMethod           string `json:"deploymentMethod"`
 	LogIntegrationID           string `json:"logIntegrationID,omitempty"`
 	DiagnosticLogIntegrationID string `json:"diagnosticLogIntegrationID,omitempty"`
+	VaultIntegrationID         string `json:"vaultIntegrationID,omitempty"`
 }
 
 type SidecarServicesConfig map[string]map[string]string
