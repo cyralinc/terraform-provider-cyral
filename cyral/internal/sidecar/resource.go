@@ -116,7 +116,7 @@ func resourceSchema() *schema.Resource {
 				Optional:    true,
 			},
 			"vault_integration_id": {
-				Description: "ID of the HashiCorp Vault integration mapped to this sidecar, used for vault user account authentication.",
+				Description: "ID of the HashiCorp Vault integration to associate to this sidecar to be used for database account authentication.",
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
