@@ -3,12 +3,12 @@
 page_title: "cyral_policy Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    ~> DEPRECATED For control planes >= v4.15, please use resource cyral_policy_v2 instead.
+    ~> DEPRECATED For control planes >= v4.15, use resource cyral_policy_v2 instead.
 ---
 
 # cyral_policy (Resource)
 
-~> **DEPRECATED** For control planes `>= v4.15`, please use resource `cyral_policy_v2` instead.
+~> **DEPRECATED** For control planes `>= v4.15`, use resource `cyral_policy_v2` instead.
 
 ## Example Usage
 
