@@ -1,8 +1,6 @@
 # cyral_policy_rule (Resource)
 
-Manages [policy rules](https://cyral.com/docs/reference/policy/#rules). See also the [`cyral_policy`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy) resource and the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy).
-
--> 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them.<br> 2. Each contexted rule comprises these fields: `data`, `rows`, `severity` `additional_checks`, `dataset_rewrites`. The only required fields are `data` and `rows`.<br> 3. The rules block does not need to include all three operation types (reads, updates and deletes); actions you omit are disallowed.<br>4. If you do not include a hosts block, Cyral does not enforce limits based on the connecting client's host address.
+~> **DEPRECATED** For control planes `>= v4.15`, use resource `cyral_policy_v2` instead.
 
 -> Import ID syntax is `{policy_id}/{policy_rule_id}`, where `{policy_rule_id}` is the ID of the policy rule in the Cyral Control Plane.
 

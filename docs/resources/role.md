@@ -3,12 +3,12 @@
 page_title: "cyral_role Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages roles for Cyral control plane users https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users. See also: Role SSO Groups ./role_sso_groups.md.
+    Manages roles for Cyral control plane users https://cyral.com/docs/user-administration/manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users. See also: Role SSO Groups ./role_sso_groups.md.
 ---
 
 # cyral_role (Resource)
 
-Manages [roles for Cyral control plane users](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users). See also: [Role SSO Groups](./role_sso_groups.md).
+Manages [roles for Cyral control plane users](https://cyral.com/docs/user-administration/manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users). See also: [Role SSO Groups](./role_sso_groups.md).
 
 ## Example Usage
 

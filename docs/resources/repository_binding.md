@@ -1,6 +1,6 @@
 # cyral_repository_binding (Resource)
 
-Manages [cyral repository to sidecar bindings](https://cyral.com/docs/sidecars/sidecar-assign-repo).
+Manages [cyral repository to sidecar bindings](https://cyral.com/docs/sidecars/manage/bind-repo/).
 
 -> Import ID syntax is `{sidecar_id}/{binding_id}`.
 

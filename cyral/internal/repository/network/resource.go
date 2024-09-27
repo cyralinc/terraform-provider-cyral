@@ -31,7 +31,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages the network access policy of a repository. Network access policies are" +
-			" also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/)." +
+			" also known as the [Network Shield](https://cyral.com/docs/data-repos/network-shield/)." +
 			" This feature is supported for the following repository types:" +
 			utils.SupportedValuesAsMarkdown(repositoryTypesNetworkShield()) +
 			"\n\n-> **Note** If you also use the resource `cyral_repository_conf_auth` for the same repository," +

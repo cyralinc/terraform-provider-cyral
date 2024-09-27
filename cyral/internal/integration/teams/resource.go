@@ -21,7 +21,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [integration with Microsoft Teams](https://cyral.com/docs/integrations/messaging/microsoft-teams/).",
+		Description:   "Manages [integration with Microsoft Teams](https://cyral.com/docs/integrations/alerting/microsoft-teams).",
 		CreateContext: resourceContextHandler.CreateContext(),
 		ReadContext:   resourceContextHandler.ReadContext(),
 		UpdateContext: resourceContextHandler.UpdateContext(),

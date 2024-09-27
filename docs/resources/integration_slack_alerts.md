@@ -3,12 +3,12 @@
 page_title: "cyral_integration_slack_alerts Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages integration with Slack to push alerts https://cyral.com/docs/integrations/messaging/slack.
+    Manages integration with Slack to push alerts https://cyral.com/docs/integrations/alerting/slack.
 ---
 
 # cyral_integration_slack_alerts (Resource)
 
-Manages [integration with Slack to push alerts](https://cyral.com/docs/integrations/messaging/slack).
+Manages [integration with Slack to push alerts](https://cyral.com/docs/integrations/alerting/slack).
 
 ## Example Usage
 

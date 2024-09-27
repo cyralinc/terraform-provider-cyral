@@ -26,9 +26,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [repositories](https://cyral.com/docs/manage-repositories/repo-track)." +
-			"\n\nSee also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config)." +
-			"\nThis module provides the repository configuration options as shown in Cyral UI.",
+		Description:   "Manages [repositories](https://cyral.com/docs/how-to/track-repos/).",
 		CreateContext: resourceContextHandler.CreateContext(),
 		ReadContext:   resourceContextHandler.ReadContext(),
 		UpdateContext: resourceContextHandler.UpdateContext(),

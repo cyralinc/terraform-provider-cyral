@@ -21,7 +21,7 @@ var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [roles for Cyral control plane users](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users). See also: [Role SSO Groups](./role_sso_groups.md).",
+		Description: "Manages [roles for Cyral control plane users](https://cyral.com/docs/user-administration/manage-cyral-roles/#create-and-manage-administrator-roles-for-cyral-control-plane-users). See also: [Role SSO Groups](./role_sso_groups.md).",
 
 		CreateContext: resourceRoleCreate,
 		ReadContext:   resourceRoleRead,

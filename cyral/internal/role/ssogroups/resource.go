@@ -13,7 +13,7 @@ import (
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [mapping SSO groups to specific roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role) on Cyral control plane. See also: [Role](./role.md).",
+		Description:   "Manages [mapping SSO groups to specific roles](https://cyral.com/docs/user-administration/manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role) on Cyral control plane. See also: [Role](./role.md).",
 		CreateContext: core.CreateResource(createRoleSSOGroupsConfig, readRoleSSOGroupsConfig),
 		ReadContext:   core.ReadResource(readRoleSSOGroupsConfig),
 		DeleteContext: core.DeleteResource(deleteRoleSSOGroupsConfig),

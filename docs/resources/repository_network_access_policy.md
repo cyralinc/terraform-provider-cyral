@@ -3,14 +3,14 @@
 page_title: "cyral_repository_network_access_policy Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages the network access policy of a repository. Network access policies are also known as the Network Shield https://cyral.com/docs/manage-repositories/network-shield/. This feature is supported for the following repository types:
+    Manages the network access policy of a repository. Network access policies are also known as the Network Shield https://cyral.com/docs/data-repos/network-shield/. This feature is supported for the following repository types:
     sqlserveroracle
     -> Note If you also use the resource cyral_repository_conf_auth for the same repository, create a depends_on relationship from this resource to the cyral_repository_conf_auth to avoid errors when running terraform destroy.
 ---
 
 # cyral_repository_network_access_policy (Resource)
 
-Manages the network access policy of a repository. Network access policies are also known as the [Network Shield](https://cyral.com/docs/manage-repositories/network-shield/). This feature is supported for the following repository types:
+Manages the network access policy of a repository. Network access policies are also known as the [Network Shield](https://cyral.com/docs/data-repos/network-shield/). This feature is supported for the following repository types:
 
 -   `sqlserver`
 -   `oracle`

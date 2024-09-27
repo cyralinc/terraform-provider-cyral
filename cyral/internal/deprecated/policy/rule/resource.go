@@ -31,7 +31,8 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [policy rules](https://cyral.com/docs/reference/policy/#rules). " +
+		DeprecationMessage: "For control planes `>= v4.15`, use resource `cyral_policy_v2` instead.",
+		Description: "Manages [policy rules](https://cyral.com/docs/policy/#rules). " +
 			"See also the [`cyral_policy`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy) " +
 			"resource and the [Policy Guide](https://cyral.com/docs/policy#the-rules-block-of-a-policy)." +
 			"\n\n-> 1. Unless you create a default rule, users and groups only have the rights you explicitly grant them." +

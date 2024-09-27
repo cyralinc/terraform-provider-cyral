@@ -35,7 +35,7 @@ resource "cyral_datalabel" "NAME" {
 
 ### Optional
 
--   `classification_rule` (Block Set, Max: 1) Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. (see [below for nested schema](#nestedblock--classification_rule))
+-   `classification_rule` (Block Set, Max: 1) Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/repo-crawler/use-auto-mapping/) feature to automatically map data locations to labels. (see [below for nested schema](#nestedblock--classification_rule))
 -   `description` (String) Description of the data label.
 -   `tags` (List of String) Tags that can be used to categorize data labels.
 

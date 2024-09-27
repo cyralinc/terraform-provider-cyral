@@ -21,4 +21,4 @@ Retrieve aggregated information about the [sidecar's health](https://cyral.com/d
 ### Read-Only
 
 -   `id` (String) Data source identifier.
--   `status` (String) Sidecar health status. Possible values are: `HEALTHY`, `DEGRADED`, `UNHEALTHY` and `UNKNOWN`. For more information, see [Sidecar Status](https://cyral.com/docs/sidecars/sidecar-manage/#check-sidecar-cluster-status).
+-   `status` (String) Sidecar health status. Possible values are: `HEALTHY`, `DEGRADED`, `UNHEALTHY` and `UNKNOWN`. For more information, see [Sidecar Status](https://cyral.com/docs/sidecars/manage/#check-sidecar-cluster-status).

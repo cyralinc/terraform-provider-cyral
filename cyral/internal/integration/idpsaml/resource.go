@@ -111,7 +111,7 @@ func DeleteGenericSAMLConfig() core.ResourceOperationConfig {
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages identity provider (IdP) integrations using SAML to allow " +
-			"[Single Sing-On](https://cyral.com/docs/sso/overview) to Cyral.\n\nSee also " +
+			"[Single Sing-On](https://cyral.com/docs/integrations/authentication/idp/) to Cyral.\n\nSee also " +
 			"the remaining SAML-related resources and data sources.",
 		CreateContext: core.CRUDResources(
 			[]core.ResourceOperationConfig{

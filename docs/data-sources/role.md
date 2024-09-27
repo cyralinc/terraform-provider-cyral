@@ -3,12 +3,12 @@
 page_title: "cyral_role Data Source - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Retrieve and filter roles https://cyral.com/docs/account-administration/acct-manage-cyral-roles/ that exist in the Cyral Control Plane.
+    Retrieve and filter roles https://cyral.com/docs/user-administration/manage-cyral-roles/ that exist in the Cyral Control Plane.
 ---
 
 # cyral_role (Data Source)
 
-Retrieve and filter [roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/) that exist in the Cyral Control Plane.
+Retrieve and filter [roles](https://cyral.com/docs/user-administration/manage-cyral-roles/) that exist in the Cyral Control Plane.
 
 ## Example Usage
 

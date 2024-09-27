@@ -3,12 +3,12 @@
 page_title: "cyral_role_sso_groups Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages mapping SSO groups to specific roles https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role on Cyral control plane. See also: Role ./role.md.
+    Manages mapping SSO groups to specific roles https://cyral.com/docs/user-administration/manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role on Cyral control plane. See also: Role ./role.md.
 ---
 
 # cyral_role_sso_groups (Resource)
 
-Manages [mapping SSO groups to specific roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role) on Cyral control plane. See also: [Role](./role.md).
+Manages [mapping SSO groups to specific roles](https://cyral.com/docs/user-administration/manage-cyral-roles/#map-an-sso-group-to-a-cyral-administrator-role) on Cyral control plane. See also: [Role](./role.md).
 
 ## Example Usage
 

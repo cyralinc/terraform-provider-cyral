@@ -22,7 +22,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Create new [credentials for Cyral sidecar](https://cyral.com/docs/sidecars/sidecar-manage/#rotate-the-client-secret-for-a-sidecar).",
+		Description:   "Create new [credentials for Cyral sidecar](https://cyral.com/docs/sidecars/manage/#rotate-the-client-secret-for-a-sidecar).",
 		CreateContext: resourceContextHandler.CreateContext(),
 		ReadContext:   resourceContextHandler.ReadContext(),
 		DeleteContext: resourceContextHandler.DeleteContext(),

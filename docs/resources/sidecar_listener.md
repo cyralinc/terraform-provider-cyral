@@ -1,6 +1,6 @@
 # cyral_sidecar_listener (Resource)
 
-Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners).
+Manages sidecar listeners.
 ~> **Warning** Multiple listeners can be associated to a single sidecar as long as `host` and `port` are unique. If `host` is omitted, then `port` must be unique.
 
 -> Import ID syntax is `{sidecar_id}/{listener_id}`.

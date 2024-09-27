@@ -1,9 +1,6 @@
 # cyral_repository (Resource)
 
-Manages [repositories](https://cyral.com/docs/manage-repositories/repo-track).
-
-See also [Cyral Repository Configuration Module](https://github.com/cyralinc/terraform-cyral-repository-config).
-This module provides the repository configuration options as shown in Cyral UI.
+Manages [repositories](https://cyral.com/docs/how-to/track-repos/).
 
 -> Import ID syntax is `{repository_id}`.
 

@@ -62,7 +62,7 @@ func dataSourceSchema() *schema.Resource {
 							},
 						},
 						"classification_rule": {
-							Description: "Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map data locations to labels. Currently, only `PREDEFINED` labels have classification rules.",
+							Description: "Classification rules are used by the [Automatic Data Map](https://cyral.com/docs/policy/repo-crawler/use-auto-mapping/) feature to automatically map data locations to labels. Currently, only `PREDEFINED` labels have classification rules.",
 							Type:        schema.TypeSet,
 							Computed:    true,
 							Elem: &schema.Resource{

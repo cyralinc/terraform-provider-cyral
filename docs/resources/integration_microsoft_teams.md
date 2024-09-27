@@ -3,12 +3,12 @@
 page_title: "cyral_integration_microsoft_teams Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages integration with Microsoft Teams https://cyral.com/docs/integrations/messaging/microsoft-teams/.
+    Manages integration with Microsoft Teams https://cyral.com/docs/integrations/alerting/microsoft-teams.
 ---
 
 # cyral_integration_microsoft_teams (Resource)
 
-Manages [integration with Microsoft Teams](https://cyral.com/docs/integrations/messaging/microsoft-teams/).
+Manages [integration with Microsoft Teams](https://cyral.com/docs/integrations/alerting/microsoft-teams).
 
 ## Example Usage
 
