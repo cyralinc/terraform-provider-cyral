@@ -83,7 +83,7 @@ func resourceSchema() *schema.Resource {
 								"location in `attributes`, separating spaces by dots. For example, an attribute " +
 								"`my_attr` from table `my_tbl` within space `inner_space` within space `outer_space` " +
 								"would be referenced as `outer_space.inner_space.my_tbl.my_attr`. For more information, " +
-								"please see the [Policy Guide](https://cyral.com/docs/reference/policy/).",
+								"please see the [Policy Guide](https://cyral.com/docs/policy/).",
 							Type:     schema.TypeList,
 							Required: true,
 							// TODO: this ForceNew propagates to the parent attribute `mapping`. Therefore, any
