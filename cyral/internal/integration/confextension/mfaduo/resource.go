@@ -8,7 +8,7 @@ import (
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [integration with Duo MFA](https://cyral.com/docs/mfa/duo).",
+		Description:   "Manages [integration with Duo MFA](https://cyral.com/docs/integrations/authentication/mfa/duo).",
 		CreateContext: ce.CreateResource(resourceName, ce.DuoMFATemplateType),
 		ReadContext:   ce.ReadResource(resourceName, ce.DuoMFATemplateType),
 		UpdateContext: ce.UpdateResource(resourceName, ce.DuoMFATemplateType),

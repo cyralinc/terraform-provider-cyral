@@ -39,10 +39,9 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages Repository Analysis Configuration. This resource allows configuring both " +
-			"[Log Settings](https://cyral.com/docs/manage-repositories/repo-log-volume) " +
-			"and [Advanced settings](https://cyral.com/docs/manage-repositories/repo-advanced-settings) " +
-			"(Logs, Alerts, Analysis and Enforcement) configurations for Data Repositories.",
+		Description: "Manages Repository Analysis Configuration. This resource allows configuring " +
+			"Logs, Alerts, Analysis and Enforcement configurations for Data Repositories." +
+			"[See also](https://cyral.com/docs/data-repos/config).",
 		CreateContext: resourceRepositoryConfAuthCreate,
 		ReadContext: resourceContextHandler.ReadContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
 			ResName:        resourceName,

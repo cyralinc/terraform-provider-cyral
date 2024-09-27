@@ -43,7 +43,7 @@ func ResourceIntegrationELK() *schema.Resource {
 	}
 	return &schema.Resource{
 		DeprecationMessage: "Use resource `cyral_integration_logging` instead.",
-		Description:        "Manages [integration with ELK](https://cyral.com/docs/integrations/siem/elk/) to push sidecar metrics.",
+		Description:        "Manages [integration with ELK](https://cyral.com/docs/integrations/siem/custom#elk) to push sidecar metrics.",
 		CreateContext:      contextHandler.CreateContext(),
 		ReadContext:        contextHandler.ReadContext(),
 		UpdateContext:      contextHandler.UpdateContext(),

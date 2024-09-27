@@ -21,7 +21,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [integration with Slack to push alerts](https://cyral.com/docs/integrations/messaging/slack).",
+		Description:   "Manages [integration with Slack to push alerts](https://cyral.com/docs/integrations/alerting/slack).",
 		CreateContext: resourceContextHandler.CreateContext(),
 		ReadContext:   resourceContextHandler.ReadContext(),
 		UpdateContext: resourceContextHandler.UpdateContext(),

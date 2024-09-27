@@ -7,7 +7,7 @@ import (
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description:   "Manages [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral).",
+		Description:   "Manages [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty).",
 		CreateContext: ce.CreateResource(resourceName, ce.PagerDutyTemplateType),
 		ReadContext:   ce.ReadResource(resourceName, ce.PagerDutyTemplateType),
 		UpdateContext: ce.UpdateResource(resourceName, ce.PagerDutyTemplateType),

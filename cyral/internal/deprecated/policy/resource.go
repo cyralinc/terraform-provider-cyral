@@ -28,9 +28,9 @@ var resourceContextHandler = core.DefaultContextHandler{
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		DeprecationMessage: "For control planes `>= v4.15`, use resource `cyral_policy_v2` instead.",
-		Description: "Manages [policies](https://cyral.com/docs/reference/policy). See also: " +
+		Description: "Manages [policies](https://cyral.com/docs/policy). See also: " +
 			"[Policy Rule](./policy_rule.md). For more information, see the " +
-			"[Policy Guide](https://cyral.com/docs/policy/overview).",
+			"[Policy Guide](https://cyral.com/docs/policy).",
 		CreateContext: resourceContextHandler.CreateContext(),
 		ReadContext: resourceContextHandler.ReadContextCustomErrorHandling(&core.IgnoreNotFoundByMessage{
 			ResName:        resourceName,

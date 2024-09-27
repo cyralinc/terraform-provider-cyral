@@ -3,12 +3,12 @@
 page_title: "cyral_integration_pager_duty Resource - terraform-provider-cyral"
 subcategory: ""
 description: |-
-    Manages integration with PagerDuty https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral.
+    Manages integration with PagerDuty https://cyral.com/docs/integrations/incident-response/pagerduty.
 ---
 
 # cyral_integration_pager_duty (Resource)
 
-Manages [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty/#in-cyral).
+Manages [integration with PagerDuty](https://cyral.com/docs/integrations/incident-response/pagerduty).
 
 ## Example Usage
 

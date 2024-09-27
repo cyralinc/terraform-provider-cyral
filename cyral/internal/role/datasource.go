@@ -96,7 +96,7 @@ func dataSourceRoleReadConfig() core.ResourceOperationConfig {
 
 func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Retrieve and filter [roles](https://cyral.com/docs/account-administration/acct-manage-cyral-roles/) that exist in the Cyral Control Plane.",
+		Description: "Retrieve and filter [roles](https://cyral.com/docs/user-administration/manage-cyral-roles/) that exist in the Cyral Control Plane.",
 		ReadContext: core.ReadResource(dataSourceRoleReadConfig()),
 		Schema: map[string]*schema.Schema{
 			"name": {

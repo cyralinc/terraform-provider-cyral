@@ -40,7 +40,7 @@ func ResourceIntegrationDatadog() *schema.Resource {
 	}
 	return &schema.Resource{
 		DeprecationMessage: "If configuring Datadog for logging purposes, use resource `cyral_integration_logging` instead.",
-		Description: "Manages [integration with DataDog](https://cyral.com/docs/integrations/apm/datadog/) " +
+		Description: "Manages [integration with DataDog](https://cyral.com/docs/integrations/siem/datadog-logs) " +
 			"to push sidecar logs and/or metrics.",
 		CreateContext: contextHandler.CreateContext(),
 		ReadContext:   contextHandler.ReadContext(),

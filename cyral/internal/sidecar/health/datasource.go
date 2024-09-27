@@ -43,7 +43,7 @@ func dataSourceSchema() *schema.Resource {
 			utils.StatusKey: {
 				Description: "Sidecar health status. Possible values are: `HEALTHY`, `DEGRADED`, `UNHEALTHY` " +
 					"and `UNKNOWN`. For more information, see " +
-					"[Sidecar Status](https://cyral.com/docs/sidecars/sidecar-manage/#check-sidecar-cluster-status).",
+					"[Sidecar Status](https://cyral.com/docs/sidecars/manage/#check-sidecar-cluster-status).",
 				Type:     schema.TypeString,
 				Computed: true,
 			},

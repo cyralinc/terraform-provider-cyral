@@ -66,7 +66,7 @@ func resourceSchema() *schema.Resource {
 			},
 			"classification_rule": {
 				Description: "Classification rules are used by the " +
-					"[Automatic Data Map](https://cyral.com/docs/policy/automatic-datamap) feature to automatically map " +
+					"[Automatic Data Map](https://cyral.com/docs/policy/repo-crawler/use-auto-mapping/) feature to automatically map " +
 					"data locations to labels.",
 				Optional: true,
 				Type:     schema.TypeSet,

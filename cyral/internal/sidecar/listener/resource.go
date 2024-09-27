@@ -41,7 +41,7 @@ var resourceContextHandler = core.DefaultContextHandler{
 // DELETE {{baseURL}}/sidecars/:sidecarID/listeners/:listenerID (Delete a listener)
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages [sidecar listeners](https://cyral.com/docs/sidecars/sidecar-listeners)." +
+		Description: "Manages sidecar listeners." +
 			"\n~> **Warning** Multiple listeners can be associated to a single sidecar as long as " +
 			"`host` and `port` are unique. If `host` is omitted, then `port` must be unique.",
 		CreateContext: resourceContextHandler.CreateContext(),
