@@ -15,7 +15,7 @@ repos:
       - id: prettier
         stages: [commit]
   - repo: https://github.com/turo/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.0.0
     hooks:
       - id: go-fmt
       - id: go-mod-tidy
