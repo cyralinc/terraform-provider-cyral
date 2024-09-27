@@ -1,3 +1,80 @@
+## 4.14.0 (September 27, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.16`.
+
+Arguments incompatible with control planes previous to `v4.16`:
+
+- `cyral_repository.redshift_settings.aws_region`
+- `cyral_repository.redshift_settings.cluster_identifier`
+- `cyral_repository.redshift_settings.workgroup_name`
+- `cyral_sidecar.vault_integration_id`
+
+Resource incompatible with control planes previous to `v4.15`:
+
+- `cyral_policy_v2`
+
+Argument incompatible with control planes previous to `v4.14`:
+
+- `cyral_repository_user_account.auth_scheme.azure_key_vault`
+
+Argument incompatible with control planes previous to `v4.12`:
+
+- `cyral_repository.mongodb_settings.flavor`
+
+Resource incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Data source incompatible with control planes previous to `v4.12`:
+
+- `cyral_access_token_settings`
+
+Arguments incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_logging.skip_validate`
+
+Resource incompatible with control planes previous to `v4.10`:
+
+- `cyral_integration_aws_iam`
+
+Data sources incompatible with control planes previous to `v4.10`:
+
+- `cyral_sidecar_health`
+- `cyral_sidecar_instance_stats`
+- `cyral_system_info`
+
+Arguments incompatible with control planes previous to `v4.8`:
+
+- `cyral_sidecar.activity_log_integration_id`
+- `cyral_sidecar.diagnostic_log_integration_id`
+
+Resource incompatible with control planes previous to `v4.7`:
+
+- `cyral_integration_logging`
+
+Argument incompatible with control planes previous to `v4.2`:
+
+- `cyral_repository.mongodb_settings.srv_record_name`
+
+### Documentation
+
+- Deprecate policy rule and fix broken links ([#569](https://github.com/cyralinc/terraform-provider-cyral/pull/569))
+
+### Features:
+
+- ENG-14011: Add vault_integration_id field to cyral_sidecar resource in terraform provider ([#565](https://github.com/cyralinc/terraform-provider-cyral/pull/565))
+
+### Improvements:
+
+- Bump golang.org/x/oauth2 from 0.22.0 to 0.23.0 ([#564](https://github.com/cyralinc/terraform-provider-cyral/pull/564))
+- Bump alpine from 3.20.2 to 3.20.3 ([#567](https://github.com/cyralinc/terraform-provider-cyral/pull/567))
+- Bump hashicorp/terraform from 1.9.5 to 1.9.6 ([#568](https://github.com/cyralinc/terraform-provider-cyral/pull/568))
+
 ## 4.13.1 (August 21, 2024)
 
 It is safe to use this version with all `v4` control planes as long
