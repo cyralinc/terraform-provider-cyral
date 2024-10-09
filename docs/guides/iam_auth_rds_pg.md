@@ -265,11 +265,11 @@ module "cyral_sidecar" {
   load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
   associate_public_ip_address = local.sidecar.public_sidecar
 
-  sidecar_dns_hosted_zone_id = local.sidecar.dns_hosted_zone_id
-  sidecar_dns_name           = local.sidecar.dns_name
+  dns_hosted_zone_id = local.sidecar.dns_hosted_zone_id
+  dns_name           = local.sidecar.dns_name
 }
 
 output "sidecar_load_balancer_dns" {
-  value = module.cyral_sidecar.sidecar_load_balancer_dns
+  value = module.cyral_sidecar.load_balancer_dns
 }
 ```
