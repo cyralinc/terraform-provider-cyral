@@ -246,7 +246,7 @@ module "cyral_sidecar" {
   source = "cyralinc/sidecar-ec2/aws"
 
   # Use the module version that is compatible with your sidecar.
-  version = "~> 4.3"
+  version = "~> 5.0"
 
   sidecar_id = cyral_sidecar.sidecar.id
   control_plane = local.control_plane_host
