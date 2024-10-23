@@ -1,3 +1,20 @@
+## 4.14.1 (October 22, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.16`.
+
+See the list of incompatible attributes, data sources and resources
+with previous `v4` control planes in the [`v4.14.0`](#4140-september-27-2024)
+release documentation.
+
+### Documentation:
+
+- Update TF EC2 module to v5 ([#572](https://github.com/cyralinc/terraform-provider-cyral/pull/572))
+
 ## 4.14.0 (September 27, 2024)
 
 It is safe to use this version with all `v4` control planes as long
