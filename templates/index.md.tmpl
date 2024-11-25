@@ -37,7 +37,7 @@ terraform {
   required_providers {
     cyral = {
       source = "cyralinc/cyral"
-      version = "~> 4.1"
+      version = "~> 4.0"
     }
   }
 }
