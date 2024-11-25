@@ -77,8 +77,6 @@ locals {
     # Set to true if you want a sidecar deployed with an
     # internet-facing load balancer (requires a public subnet).
     public_sidecar  = false
-    # Set the desired sidecar version.
-    sidecar_version = "v4.7.0"
 
     # Set the AWS region that the sidecar will be deployed to
     region  = ""
@@ -244,8 +242,6 @@ module "cyral_sidecar" {
 
   # Use the module version that is compatible with your sidecar.
   version = "~> 5.0"
-
-  sidecar_version = local.sidecar.sidecar_version
 
   sidecar_id = cyral_sidecar.sidecar.id
 
