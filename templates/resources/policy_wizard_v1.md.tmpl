@@ -1,0 +1,11 @@
+# {{ .Name | trimspace }} ({{ .Type | trimspace }})
+
+{{ .Description | trimspace }}
+
+-> Import ID syntax is `{policy_set_id}`.
+
+## Example Usage
+
+{{ tffile "examples/resources/cyral_policy_wizard_v1/resource.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}
