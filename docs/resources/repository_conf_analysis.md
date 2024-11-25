@@ -23,6 +23,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_enabled" {
   disable_filter_analysis = false
   enable_dataset_rewrites = true
   enable_data_masking = true
+  mask_all_occurrences = true
   comment_annotation_groups = [ "identity" ]
   log_groups = [ "everything" ]
 }
@@ -37,6 +38,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
   disable_filter_analysis = true
   enable_dataset_rewrites = false
   enable_data_masking = false
+  mask_all_occurrences = false
   comment_annotation_groups = []
   log_groups = []
 }
