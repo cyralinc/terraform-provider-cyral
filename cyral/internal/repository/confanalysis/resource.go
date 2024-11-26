@@ -130,6 +130,8 @@ func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
 					"on large tables.",
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  false,
+				RequiredWith: []string{"enable_data_masking"}
 			},
 			"block_on_violation": {
 				Description: "If set to `true` it will enable query blocking in case of a " +
