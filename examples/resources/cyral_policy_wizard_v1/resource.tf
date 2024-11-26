@@ -14,16 +14,16 @@ resource "cyral_repository" "myrepo" {
 }
 
 resource "cyral_policy_wizard_v1" "repo_lockdown_example" {
-  wizardId    = "repo_lockdown"
-  name        = "block by default"
-  description = "Block all access to this repository by default, but allow queries not parsed by Cyral"
-  enabled     = true
-  tags        = ["default block", "fail open"]
-  scope {
+  wizard_id    = "repo-lockdown"
+  name        = "default block with failopen"
+  description = "This default policy will block by default all queries for myrepo except the ones not parsed by Cyral"
+  enabled = true
+  tags = ["default block", "fail open"]
+    scope {
     repo_ids = [cyral_repository.myrepo.id]
   }
-  wizardParameters    = jsonencode({
+  wizard_parameters    = jsonencode({
     denyByDefault = true
+    failClosed = false
     })
-  enabled    = true
 }
