@@ -73,9 +73,6 @@ locals {
     # internet-facing load balancer (requires a public subnet).
     public_sidecar = false
 
-    # Set the desired sidecar version.
-    sidecar_version = "v4.7.0"
-
     # Set the AWS region that the sidecar will be deployed to
     region                    = ""
     # Set the ID of VPC that the sidecar will be deployed to
@@ -93,17 +90,6 @@ locals {
     # Set the allowed CIDR block for monitoring requests to the
     # sidecar
     monitoring_inbound_cidr = ["0.0.0.0/0"]
-
-    # Set the parameters to access the private Cyral container
-    # registry. These parameters can be found in the sidecar
-    # Terraform template downloaded from the UI. Use the
-    # commented values to locate the variables and copy the
-    # values from the downloaded template.
-    container_registry = {
-      name         = "" # container_registry
-      username     = "" # container_registry_username
-      registry_key = "" # container_registry_key
-    }
   }
 }
 
@@ -316,9 +302,7 @@ module "cyral_sidecar" {
   source = "cyralinc/sidecar-ec2/aws"
 
   # Use the module version that is compatible with your sidecar.
-  version = "~> 4.0"
-
-  sidecar_version = local.sidecar.sidecar_version
+  version = "~> 5.0"
 
   sidecar_id = cyral_sidecar.sidecar.id
 
@@ -336,19 +320,12 @@ module "cyral_sidecar" {
   load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
   associate_public_ip_address = local.sidecar.public_sidecar
 
-  deploy_secrets   = true
-  secrets_location = "/cyral/sidecars/${cyral_sidecar.sidecar.id}/secrets"
-
-  container_registry          = local.sidecar.container_registry.name
-  container_registry_username = local.sidecar.container_registry.username
-  container_registry_key      = local.sidecar.container_registry.registry_key
-
   client_id     = cyral_sidecar_credentials.sidecar_credentials.client_id
   client_secret = cyral_sidecar_credentials.sidecar_credentials.client_secret
 }
 
 output "sidecar_load_balancer_dns" {
-  value = module.cyral_sidecar.sidecar_load_balancer_dns
+  value = module.cyral_sidecar.load_balancer_dns
 }
 ```
 
@@ -409,9 +386,6 @@ locals {
     # internet-facing load balancer (requires a public subnet).
     public_sidecar = false
 
-    # Set the desired sidecar version.
-    sidecar_version = "v4.7.0"
-
     # Set the AWS region that the sidecar will be deployed to
     region                    = ""
     # Set the ID of VPC that the sidecar will be deployed to
@@ -429,17 +403,6 @@ locals {
     # Set the allowed CIDR block for monitoring requests to the
     # sidecar
     monitoring_inbound_cidr = ["0.0.0.0/0"]
-
-    # Set the parameters to access the private Cyral container
-    # registry. These parameters can be found in the sidecar
-    # Terraform template downloaded from the UI. Use the
-    # commented values to locate the variables and copy the
-    # values from the downloaded template.
-    container_registry = {
-      name         = "" # container_registry
-      username     = "" # container_registry_username
-      registry_key = "" # container_registry_key
-    }
   }
 }
 
@@ -588,9 +551,7 @@ module "cyral_sidecar" {
   source = "cyralinc/sidecar-ec2/aws"
 
   # Use the module version that is compatible with your sidecar.
-  version = "~> 4.0"
-
-  sidecar_version = local.sidecar.sidecar_version
+  version = "~> 5.0"
 
   sidecar_id = cyral_sidecar.sidecar.id
 
@@ -608,18 +569,11 @@ module "cyral_sidecar" {
   load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
   associate_public_ip_address = local.sidecar.public_sidecar
 
-  deploy_secrets   = true
-  secrets_location = "/cyral/sidecars/${cyral_sidecar.sidecar.id}/secrets"
-
-  container_registry          = local.sidecar.container_registry.name
-  container_registry_username = local.sidecar.container_registry.username
-  container_registry_key      = local.sidecar.container_registry.registry_key
-
   client_id     = cyral_sidecar_credentials.sidecar_credentials.client_id
   client_secret = cyral_sidecar_credentials.sidecar_credentials.client_secret
 }
 
 output "sidecar_load_balancer_dns" {
-  value = module.cyral_sidecar.sidecar_load_balancer_dns
+  value = module.cyral_sidecar.load_balancer_dns
 }
 ```

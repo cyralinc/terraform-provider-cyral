@@ -25,7 +25,7 @@ resource "cyral_sidecar_credentials" "creds" {
 
 module "cyral_sidecar" {
   source  = "cyralinc/sidecar-ec2/aws"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   sidecar_id = cyral_sidecar.sidecar.id
 
