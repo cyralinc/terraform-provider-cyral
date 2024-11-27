@@ -1,4 +1,4 @@
-package policysetv1
+package policyset
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package policysetv1
+package policyset
 
 const (
 	resourceName     = "cyral_policy_set"

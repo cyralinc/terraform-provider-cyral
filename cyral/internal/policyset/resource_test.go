@@ -1,4 +1,4 @@
-package policysetv1_test
+package policyset_test
 
 import (
 	"fmt"
