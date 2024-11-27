@@ -1,4 +1,4 @@
-# cyral_policy_wizard_v1 (Resource)
+# cyral_policy_set (Resource)
 
 This resource allows management of policy sets in the Cyral platform.
 
@@ -22,7 +22,7 @@ resource "cyral_repository" "myrepo" {
     }
 }
 
-resource "cyral_policy_wizard_v1" "repo_lockdown_example" {
+resource "cyral_policy_set" "repo_lockdown_example" {
   wizard_id    = "repo-lockdown"
   name        = "default block with failopen"
   description = "This default policy will block by default all queries for myrepo except the ones not parsed by Cyral"

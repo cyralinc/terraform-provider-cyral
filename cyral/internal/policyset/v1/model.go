@@ -1,4 +1,4 @@
-package policywizardv1
+package policysetv1
 
 import (
 	"fmt"
