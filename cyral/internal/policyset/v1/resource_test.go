@@ -1,4 +1,4 @@
-package policywizardv1_test
+package policysetv1_test
 
 import (
 	"fmt"
@@ -54,9 +54,9 @@ func TestAccPolicyWizardV1Resource(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				ResourceName:      "cyral_policy_wizard_v1.main_test",
+				ResourceName:      "cyral_policy_set.main_test",
 				ImportState:       true,
-				ImportStateIdFunc: testImportStateIdFunc("cyral_policy_wizard_v1.main_test"),
+				ImportStateIdFunc: testImportStateIdFunc("cyral_policy_set.main_test"),
 				ImportStateVerify: true,
 			},
 		},
@@ -65,7 +65,7 @@ func TestAccPolicyWizardV1Resource(t *testing.T) {
 
 func setupPolicySetTest(resName string, policySet map[string]interface{}) (string, resource.TestCheckFunc) {
 	config := formatPolicySetIntoConfig(resName, policySet)
-	resourceFullName := fmt.Sprintf("cyral_policy_wizard_v1.%s", resName)
+	resourceFullName := fmt.Sprintf("cyral_policy_set.%s", resName)
 
 	testFunction := resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(resourceFullName, "wizard_id", policySet["wizard_id"].(string)),
@@ -104,7 +104,7 @@ func setupPolicySetTest(resName string, policySet map[string]interface{}) (strin
 
 func formatPolicySetIntoConfig(resName string, policySet map[string]interface{}) string {
 	config := fmt.Sprintf(`
-resource "cyral_policy_wizard_v1" "%s" {
+resource "cyral_policy_set" "%s" {
   wizard_id         = "%s"
   name              = "%s"
 `, resName, policySet["wizard_id"].(string), policySet["name"].(string))
