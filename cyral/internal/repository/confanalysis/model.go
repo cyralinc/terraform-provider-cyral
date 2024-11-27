@@ -20,6 +20,7 @@ type UserConfig struct {
 	DisableFilterAnalysis      bool     `json:"disableFilterAnalysis"`
 	DisablePreConfiguredAlerts bool     `json:"disablePreConfiguredAlerts"`
 	EnableDataMasking          bool     `json:"enableDataMasking"`
+	MaskAllOccurrences         bool     `json:"maskAllOccurrences"`
 	LogGroups                  []string `json:"logGroups,omitempty"`
 	Redact                     string   `json:"redact"`
 	EnableDatasetRewrites      bool     `json:"enableDatasetRewrites"`
@@ -49,6 +50,7 @@ func (r *UserConfig) WriteToSchema(d *schema.ResourceData) error {
 	d.Set("disable_filter_analysis", r.DisableFilterAnalysis)
 	d.Set("disable_pre_configured_alerts", r.DisablePreConfiguredAlerts)
 	d.Set("enable_data_masking", r.EnableDataMasking)
+	d.Set("mask_all_occurrences", r.MaskAllOccurrences)
 	d.Set("log_groups", logGroupsSet)
 	d.Set("redact", r.Redact)
 	d.Set("enable_dataset_rewrites", r.EnableDatasetRewrites)
@@ -80,6 +82,7 @@ func (r *UserConfig) ReadFromSchema(d *schema.ResourceData) error {
 	r.DisableFilterAnalysis = d.Get("disable_filter_analysis").(bool)
 	r.DisablePreConfiguredAlerts = d.Get("disable_pre_configured_alerts").(bool)
 	r.EnableDataMasking = d.Get("enable_data_masking").(bool)
+	r.MaskAllOccurrences = d.Get("mask_all_occurrences").(bool)
 	r.CommentAnnotationGroups = annotationGroups
 	r.LogGroups = logGroups
 	r.Redact = d.Get("redact").(string)

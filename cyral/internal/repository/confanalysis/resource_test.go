@@ -137,6 +137,8 @@ func testAccRepoConfAnalysisCheck_DefaultValues() resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"enable_data_masking", "false"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
+			"mask_all_occurrences", "false"),
+		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"log_groups.#", "0"),
 		resource.TestCheckResourceAttr("cyral_repository_conf_analysis.test_conf_analysis",
 			"redact", "all"),

@@ -121,6 +121,16 @@ func repositoryConfAnalysisResourceSchemaV0() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"mask_all_occurrences": {
+				Description: "If set to `true` it will also mask filtering conditions like in" +
+					" `WHERE`, `HAVING` or `ON` clauses. **Note**: Enabling this may cause some" +
+					" performance degradation on large tables. It is required to set" +
+					" `enable_data_masking=true` to use this feature.",
+				Type:         schema.TypeBool,
+				Optional:     true,
+				Default:      false,
+				RequiredWith: []string{"enable_data_masking"},
+			},
 			"block_on_violation": {
 				Description: "If set to `true` it will enable query blocking in case of a " +
 					"policy violation.",

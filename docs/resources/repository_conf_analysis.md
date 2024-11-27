@@ -23,6 +23,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_enabled" {
   disable_filter_analysis = false
   enable_dataset_rewrites = true
   enable_data_masking = true
+  mask_all_occurrences = true
   comment_annotation_groups = [ "identity" ]
   log_groups = [ "everything" ]
 }
@@ -37,6 +38,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
   disable_filter_analysis = true
   enable_dataset_rewrites = false
   enable_data_masking = false
+  mask_all_occurrences = false
   comment_annotation_groups = []
   log_groups = []
 }
@@ -79,6 +81,7 @@ resource "cyral_repository_conf_analysis" "all_conf_analysis_disabled" {
     -   `error` - Log analysis errors.
     -   `new-connections` - Log new connections.
     -   `closed-connections` - Log closed connections.
+-   `mask_all_occurrences` (Boolean) If set to `true` it will also mask filtering conditions like in `WHERE`, `HAVING` or `ON` clauses. **Note**: Enabling this may cause some performance degradation on large tables. It is required to set `enable_data_masking=true` to use this feature.
 -   `redact` (String) Valid values are: `all`, `none` and `watched`. If set to `all` it will enable the redact of all literal values, `none` will disable it, and `watched` will only redact values from tracked fields set in the Datamap.
 
 ### Read-Only
