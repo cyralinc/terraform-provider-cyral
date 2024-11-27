@@ -1,4 +1,4 @@
-package policysetv1
+package policyset
 
 import "github.com/cyralinc/terraform-provider-cyral/cyral/core"
 
@@ -6,7 +6,7 @@ type packageSchema struct {
 }
 
 func (p *packageSchema) Name() string {
-	return "policysetv1"
+	return "policyset"
 }
 
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
