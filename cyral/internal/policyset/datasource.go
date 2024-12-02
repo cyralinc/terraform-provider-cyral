@@ -58,7 +58,7 @@ func dataSourceSchema() *schema.Resource {
 			},
 			"scope": {
 				Description: "Scope of the policy set.",
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
