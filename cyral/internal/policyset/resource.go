@@ -74,8 +74,9 @@ func resourceSchema() *schema.Resource {
 			},
 			"scope": {
 				Description: "Scope of the policy set.",
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"repo_ids": {

@@ -26,7 +26,7 @@ This data source provides information about a policy set.
 -   `last_updated` (Map of String) Information about when and by whom the policy set was last updated.
 -   `name` (String) Name of the policy set.
 -   `policies` (List of Object) List of policies that comprise the policy set. (see [below for nested schema](#nestedatt--policies))
--   `scope` (List of Object) Scope of the policy set. (see [below for nested schema](#nestedatt--scope))
+-   `scope` (Set of Object) Scope of the policy set. (see [below for nested schema](#nestedatt--scope))
 -   `tags` (List of String) Tags associated with the policy set.
 -   `wizard_id` (String) The ID of the policy wizard used to create this policy set.
 -   `wizard_parameters` (String) Parameters passed to the wizard while creating the policy set.
