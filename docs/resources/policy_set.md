@@ -52,7 +52,7 @@ resource "cyral_policy_set" "repo_lockdown_example" {
 
 -   `description` (String) Description of the policy set.
 -   `enabled` (Boolean) Indicates if the policy set is enabled.
--   `scope` (Block Set, Max: 1) Scope of the policy set. (see [below for nested schema](#nestedblock--scope))
+-   `scope` (Block List, Max: 1) Scope of the policy set. (see [below for nested schema](#nestedblock--scope))
 -   `tags` (List of String) Tags associated with the policy set.
 
 ### Read-Only
