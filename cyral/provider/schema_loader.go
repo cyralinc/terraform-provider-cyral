@@ -16,6 +16,7 @@ import (
 	integration_teams "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
 	policyv2 "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/v2"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policyset"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	repository_accessgateway "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
@@ -56,6 +57,7 @@ func packagesSchemas() []core.PackageSchema {
 		integration_teams.PackageSchema(),
 		permission.PackageSchema(),
 		policyv2.PackageSchema(),
+		policyset.PackageSchema(),
 		regopolicy.PackageSchema(),
 		repository.PackageSchema(),
 		repository_accessgateway.PackageSchema(),
