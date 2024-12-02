@@ -28,7 +28,7 @@ func TestNewClient_WhenTLSSkipVerifyIsEnabled_ThenInsecureSkipVerifyIsTrue(t *te
 	}
 
 	assert.Equal(t, controlPlane, client.ControlPlane)
-	assert.Equal(t, expectedClient, client.client)
+	assert.Equal(t, expectedClient, client.httpClient)
 }
 
 func TestNewClient_WhenTLSSkipVerifyIsDisabled_ThenInsecureSkipVerifyIsFalse(t *testing.T) {
@@ -50,7 +50,7 @@ func TestNewClient_WhenTLSSkipVerifyIsDisabled_ThenInsecureSkipVerifyIsFalse(t *
 	}
 
 	assert.Equal(t, controlPlane, client.ControlPlane)
-	assert.Equal(t, expectedClient, client.client)
+	assert.Equal(t, expectedClient, client.httpClient)
 }
 
 func TestNewClient_WhenClientIDIsEmpty_ThenThrowError(t *testing.T) {

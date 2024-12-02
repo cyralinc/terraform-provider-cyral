@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -14,6 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"golang.org/x/oauth2"
 	cc "golang.org/x/oauth2/clientcredentials"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/oauth"
 )
 
 const redactedString = "**********"
@@ -30,7 +33,8 @@ const (
 type Client struct {
 	ControlPlane string
 	TokenSource  oauth2.TokenSource
-	client       *http.Client
+	httpClient   *http.Client
+	grpcClient   grpc.ClientConnInterface
 }
 
 // New configures and returns a fully initialized Client.
@@ -41,12 +45,13 @@ func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Clie
 	if clientID == "" || clientSecret == "" || controlPlane == "" {
 		return nil, fmt.Errorf("clientID, clientSecret and controlPlane must have non-empty values")
 	}
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: tlsSkipVerify,
+	}
 
-	client := &http.Client{
+	httpClient := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: tlsSkipVerify,
-			},
+			TLSClientConfig: tlsConfig,
 		},
 	}
 
@@ -59,12 +64,24 @@ func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Clie
 	tokenSource := tokenConfig.TokenSource(ctx)
 
 	tflog.Debug(ctx, fmt.Sprintf("TokenSource: %v", tokenSource))
+
+	grpcClient, err := grpc.NewClient(
+		fmt.Sprintf("dns:///%s", controlPlane),
+		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+		grpc.WithPerRPCCredentials(oauth.TokenSource{TokenSource: tokenSource}),
+	)
+	if err != nil {
+		// we don't really expect this to happen (even if the server is unreachable!).
+		return nil, fmt.Errorf("error creating grpc client: %v", err)
+	}
+
 	tflog.Debug(ctx, "End client.New")
 
 	return &Client{
 		ControlPlane: controlPlane,
 		TokenSource:  tokenSource,
-		client:       client,
+		httpClient:   httpClient,
+		grpcClient:   grpcClient,
 	}, nil
 }
 
@@ -110,7 +127,7 @@ func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("==> Executing %s", httpMethod))
-	res, err := c.client.Do(req)
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		tflog.Debug(ctx, "=> End DoRequest - Error")
 		return nil, fmt.Errorf("unable to execute request. Check the control plane address; err: %v", err)
@@ -125,7 +142,7 @@ func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resource
 			res.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		tflog.Debug(ctx, "=> End DoRequest - Error")
 		return nil, NewHttpError(
