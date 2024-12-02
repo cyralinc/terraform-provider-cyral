@@ -74,7 +74,7 @@ func resourceSchema() *schema.Resource {
 			},
 			"scope": {
 				Description: "Scope of the policy set.",
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
