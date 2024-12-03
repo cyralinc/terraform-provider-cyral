@@ -85,6 +85,10 @@ func New(clientID, clientSecret, controlPlane string, tlsSkipVerify bool) (*Clie
 	}, nil
 }
 
+func (c *Client) GRPCClient() grpc.ClientConnInterface {
+	return c.grpcClient
+}
+
 // DoRequest calls the httpMethod informed and delivers the resourceData as a payload,
 // filling the response parameter (if not nil) with the response body.
 func (c *Client) DoRequest(ctx context.Context, url, httpMethod string, resourceData interface{}) ([]byte, error) {
