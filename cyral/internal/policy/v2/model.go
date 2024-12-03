@@ -92,18 +92,15 @@ func updateSchema(p *msg.Policy, ptype msg.PolicyType, d *schema.ResourceData) e
 }
 
 func timestampFromResourceData(key string, d *schema.ResourceData) (*timestamppb.Timestamp, error) {
-	if v, ok := d.GetOk(key); ok {
-		ts := v.(string)
-		if ts == "" {
-			return nil, nil
-		}
-		if t, err := time.Parse(time.RFC3339, ts); err != nil {
-			return nil, fmt.Errorf("invalid valid_from value: %s", ts)
-		} else {
-			return timestamppb.New(t), nil
-		}
+	ts := d.Get(key).(string)
+	if ts == "" {
+		return nil, nil
 	}
-	return nil, nil
+	t, err := time.Parse(time.RFC3339, ts)
+	if err != nil {
+		return nil, fmt.Errorf("invalid %s value: %s", key, ts)
+	}
+	return timestamppb.New(t), nil
 }
 
 func timestampFromProtobuf(ts *timestamppb.Timestamp) string {
@@ -116,7 +113,7 @@ func timestampFromProtobuf(ts *timestamppb.Timestamp) string {
 func policyAndTypeFromSchema(d *schema.ResourceData) (*msg.Policy, msg.PolicyType, error) {
 	ptypeString := d.Get("type").(string)
 	ptype := msg.PolicyType(msg.PolicyType_value[ptypeString])
-	if ptype == msg.PolicyType_POLICY_TYPE_UNSPECIFIED {
+	if ptype == msg.PolicyType_POLICY_TYPE_UNSPECIFIED || ptype == msg.PolicyType_rego {
 		return nil, msg.PolicyType_POLICY_TYPE_UNSPECIFIED, fmt.Errorf(
 			"invalid policy type: %s", ptypeString,
 		)
@@ -150,10 +147,9 @@ func scopeFromInterface(s []interface{}) *msg.Scope {
 		return nil
 	}
 	m := s[0].(map[string]interface{})
-	scope := msg.Scope{
+	return &msg.Scope{
 		RepoIds: utils.ConvertFromInterfaceList[string](m["repo_ids"].([]interface{})),
 	}
-	return &scope
 }
 
 func createPolicy(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
@@ -202,8 +198,11 @@ func updatePolicy(ctx context.Context, cl *client.Client, rd *schema.ResourceDat
 		Policy: p,
 	}
 	grpcClient := methods.NewPolicyServiceClient(cl.GRPCClient())
-	_, err = grpcClient.UpdatePolicy(ctx, req)
-	return err
+	resp, err := grpcClient.UpdatePolicy(ctx, req)
+	if err != nil {
+		return err
+	}
+	return updateSchema(resp.GetPolicy(), ptype, rd)
 }
 
 func deletePolicy(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
