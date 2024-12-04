@@ -5,8 +5,8 @@ go 1.22.7
 toolchain go1.23.3
 
 require (
-	buf.build/gen/go/cyral/policy/grpc/go v1.5.1-00000000000000-06010c37d88b.1
-	buf.build/gen/go/cyral/policy/protocolbuffers/go v1.35.2-00000000000000-06010c37d88b.1
+	buf.build/gen/go/cyral/policy/grpc/go v1.5.1-20241204234652-6dee75984790.1
+	buf.build/gen/go/cyral/policy/protocolbuffers/go v1.35.2-20241204234652-6dee75984790.1
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-docs v0.19.4
@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	buf.build/gen/go/cyral/utils/protocolbuffers/go v1.35.2-20221122012125-346ce30c6b6d.1 // indirect
+	buf.build/gen/go/cyral/utils/protocolbuffers/go v1.35.2-20241202152456-363249a7515c.1 // indirect
 	buf.build/gen/go/envoyproxy/protoc-gen-validate/protocolbuffers/go v1.35.2-20240617172848-daf171c6cdb5.1 // indirect
 	buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.35.2-20240617172850-a48fcebcf8f1.1 // indirect
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect

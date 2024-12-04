@@ -1,9 +1,9 @@
-buf.build/gen/go/cyral/policy/grpc/go v1.5.1-00000000000000-06010c37d88b.1 h1:mDYI2bzlus/l9fZKX462fn5/GLqljrcxsRZH8nYOv68=
-buf.build/gen/go/cyral/policy/grpc/go v1.5.1-00000000000000-06010c37d88b.1/go.mod h1:UyFvfFdzwg21Q8UrUaCpw2bfD5sCBwIpGtw+ee2ezQ8=
-buf.build/gen/go/cyral/policy/protocolbuffers/go v1.35.2-00000000000000-06010c37d88b.1 h1:h1fllMqXEMHC0BV0KtfGSXeNquAbguBM7DZezfEmdRg=
-buf.build/gen/go/cyral/policy/protocolbuffers/go v1.35.2-00000000000000-06010c37d88b.1/go.mod h1:ru47HSe8iRfxg+qM64V62vPugPohZkUJVcHH4VZI79w=
-buf.build/gen/go/cyral/utils/protocolbuffers/go v1.35.2-20221122012125-346ce30c6b6d.1 h1:YQ3HGPEaSQxU9qBBNL7aJobsBDusaa6MyVELvY/1/UQ=
-buf.build/gen/go/cyral/utils/protocolbuffers/go v1.35.2-20221122012125-346ce30c6b6d.1/go.mod h1:ipQzpfXSRqyrq1AY8zKzgW8titg+Thb3NGOedOvvny8=
+buf.build/gen/go/cyral/policy/grpc/go v1.5.1-20241204234652-6dee75984790.1 h1:tl6pcZSURzy71NYelbi7ZARClsFxsOy3Zz97lfgraU8=
+buf.build/gen/go/cyral/policy/grpc/go v1.5.1-20241204234652-6dee75984790.1/go.mod h1:nnv6Imx5xapOLV612Q4oJ2z7hQDz1FyO0bJGImPJKEU=
+buf.build/gen/go/cyral/policy/protocolbuffers/go v1.35.2-20241204234652-6dee75984790.1 h1:VINEVz7GCjGZpToWwKvqByj5prflUYhIR5zXOAen0Us=
+buf.build/gen/go/cyral/policy/protocolbuffers/go v1.35.2-20241204234652-6dee75984790.1/go.mod h1:HaUahWmaWjs7GLE4d4NPRncGzqQDNEyT81G7x91Wvs8=
+buf.build/gen/go/cyral/utils/protocolbuffers/go v1.35.2-20241202152456-363249a7515c.1 h1:w2A++1mU0D4AvDTq3nEPsJoitNnAVz67h5uy90QgfAc=
+buf.build/gen/go/cyral/utils/protocolbuffers/go v1.35.2-20241202152456-363249a7515c.1/go.mod h1:ipQzpfXSRqyrq1AY8zKzgW8titg+Thb3NGOedOvvny8=
 buf.build/gen/go/envoyproxy/protoc-gen-validate/protocolbuffers/go v1.35.2-20240617172848-daf171c6cdb5.1 h1:RtDhLRivrB9Ig3/nyALj2oo5OnGNR0k9IYBakUvAxc0=
 buf.build/gen/go/envoyproxy/protoc-gen-validate/protocolbuffers/go v1.35.2-20240617172848-daf171c6cdb5.1/go.mod h1:40OhQ/xCl77rWTxJGOyDLeiNNBA0obo659aSUCqi3VE=
 buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.35.2-20240617172850-a48fcebcf8f1.1 h1:dMiy8/ofks7iD5NH6EUuqZuVCNgqNfjHlzSBBYrtIHk=
