@@ -7,11 +7,10 @@ import (
 
 	methods "buf.build/gen/go/cyral/policy/grpc/go/policy/v1/policyv1grpc"
 	msg "buf.build/gen/go/cyral/policy/protocolbuffers/go/policy/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // ChangeInfo represents information about changes to the policy
@@ -56,10 +55,10 @@ func updateSchema(p *msg.Policy, ptype msg.PolicyType, d *schema.ResourceData) e
 	if err := d.Set("tags", p.GetTags()); err != nil {
 		return fmt.Errorf("error setting 'tags' field: %w", err)
 	}
-	if err := d.Set("valid_from", timestampFromProtobuf(p.GetValidFrom())); err != nil {
+	if err := d.Set("valid_from", utils.StringTimestampFromProto(p.GetValidFrom())); err != nil {
 		return fmt.Errorf("error setting 'valid_from' field: %w", err)
 	}
-	if err := d.Set("valid_until", timestampFromProtobuf(p.GetValidUntil())); err != nil {
+	if err := d.Set("valid_until", utils.StringTimestampFromProto(p.GetValidUntil())); err != nil {
 		return fmt.Errorf("error setting 'valid_until' field: %w", err)
 	}
 	if err := d.Set("document", p.GetDocument()); err != nil {
@@ -91,25 +90,6 @@ func updateSchema(p *msg.Policy, ptype msg.PolicyType, d *schema.ResourceData) e
 	return nil
 }
 
-func timestampFromResourceData(key string, d *schema.ResourceData) (*timestamppb.Timestamp, error) {
-	ts := d.Get(key).(string)
-	if ts == "" {
-		return nil, nil
-	}
-	t, err := time.Parse(time.RFC3339, ts)
-	if err != nil {
-		return nil, fmt.Errorf("invalid %s value: %s", key, ts)
-	}
-	return timestamppb.New(t), nil
-}
-
-func timestampFromProtobuf(ts *timestamppb.Timestamp) string {
-	if ts == nil {
-		return ""
-	}
-	return ts.AsTime().Format(time.RFC3339)
-}
-
 func policyAndTypeFromSchema(d *schema.ResourceData) (*msg.Policy, msg.PolicyType, error) {
 	ptypeString := d.Get("type").(string)
 	ptype := msg.PolicyType(msg.PolicyType_value[ptypeString])
@@ -128,10 +108,10 @@ func policyAndTypeFromSchema(d *schema.ResourceData) (*msg.Policy, msg.PolicyTyp
 		Enforced:    d.Get("enforced").(bool),
 	}
 	var err error
-	if p.ValidFrom, err = timestampFromResourceData("valid_from", d); err != nil {
+	if p.ValidFrom, err = utils.ProtoTimestampFromString(d.Get("valid_from").(string)); err != nil {
 		return nil, msg.PolicyType_POLICY_TYPE_UNSPECIFIED, nil
 	}
-	if p.ValidUntil, err = timestampFromResourceData("valid_until", d); err != nil {
+	if p.ValidUntil, err = utils.ProtoTimestampFromString(d.Get("valid_until").(string)); err != nil {
 		return nil, msg.PolicyType_POLICY_TYPE_UNSPECIFIED, nil
 	}
 

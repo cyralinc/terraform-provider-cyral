@@ -11,9 +11,6 @@ var dsContextHandler = core.GenericContextHandler{
 	ResourceName: dataSourceName,
 	ResourceType: resourcetype.DataSource,
 	Read:         readPolicy,
-	Create:       createPolicy,
-	Update:       updatePolicy,
-	Delete:       deletePolicy,
 }
 
 func dataSourceSchema() *schema.Resource {
