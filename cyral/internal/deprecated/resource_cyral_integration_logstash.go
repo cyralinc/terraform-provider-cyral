@@ -36,7 +36,7 @@ func (data *LogstashIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 func ResourceIntegrationLogstash() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 "Logstash Integration",
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &LogstashIntegration{} },

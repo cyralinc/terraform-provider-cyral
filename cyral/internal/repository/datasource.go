@@ -57,7 +57,7 @@ func (resp *GetReposResponse) WriteToSchema(d *schema.ResourceData) error {
 	return nil
 }
 
-var dsContextHandler = core.DefaultContextHandler{
+var dsContextHandler = core.HTTPContextHandler{
 	ResourceName:                 dataSourceName,
 	ResourceType:                 resourcetype.DataSource,
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &GetReposResponse{} },

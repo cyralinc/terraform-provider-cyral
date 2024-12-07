@@ -1,28 +1,22 @@
 package policyv2
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var dsContextHandler = core.DefaultContextHandler{
-	ResourceName:                 dataSourceName,
-	ResourceType:                 resourcetype.DataSource,
-	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &PolicyV2{} },
-	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/%s/%s", c.ControlPlane, getAPIPath(d.Get("type").(string)), d.Get("id").(string))
-	},
+var dsContextHandler = core.ContextHandler{
+	ResourceName: dataSourceName,
+	ResourceType: resourcetype.DataSource,
+	Read:         readPolicy,
 }
 
 func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "This data source provides information about a policy.",
-		ReadContext: dsContextHandler.ReadContext(),
+		ReadContext: dsContextHandler.ReadContext,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "Identifier for the policy, unique within the policy type.",

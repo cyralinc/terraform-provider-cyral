@@ -33,7 +33,7 @@ import (
 // 2. Provide the IdP metadata to the `cyral_integration_idp_saml` resource.
 //
 
-var resourceContextHandler = core.DefaultContextHandler{
+var resourceContextHandler = core.HTTPContextHandler{
 	ResourceName:                  resourceName,
 	ResourceType:                  resourcetype.Resource,
 	SchemaReaderFactory:           func() core.SchemaReader { return &CreateGenericSAMLDraftRequest{} },

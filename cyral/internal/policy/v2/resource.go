@@ -2,32 +2,22 @@ package policyv2
 
 import (
 	"context"
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
-var resourceContextHandler = core.DefaultContextHandler{
-	ResourceName:                 resourceName,
-	ResourceType:                 resourcetype.Resource,
-	SchemaReaderFactory:          func() core.SchemaReader { return &PolicyV2{} },
-	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &PolicyV2{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/%s", c.ControlPlane, getAPIPath(d.Get("type").(string)))
-	},
-	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		return fmt.Sprintf("https://%s/%s/%s",
-			c.ControlPlane,
-			getAPIPath(d.Get("type").(string)),
-			d.Get("id").(string),
-		)
-	},
+var resourceContextHandler = core.ContextHandler{
+	ResourceName: resourceName,
+	ResourceType: resourcetype.Resource,
+	Create:       createPolicy,
+	Read:         readPolicy,
+	Update:       updatePolicy,
+	Delete:       deletePolicy,
 }
 
 func PolicyTypes() []string {
@@ -37,10 +27,10 @@ func PolicyTypes() []string {
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description:   "This resource allows management of various types of policies in the Cyral platform. Policies can be used to define access controls, data governance rules to ensure compliance and security within your database environment.",
-		CreateContext: resourceContextHandler.CreateContext(),
-		ReadContext:   resourceContextHandler.ReadContext(),
-		UpdateContext: resourceContextHandler.UpdateContext(),
-		DeleteContext: resourceContextHandler.DeleteContext(),
+		CreateContext: resourceContextHandler.CreateContext,
+		ReadContext:   resourceContextHandler.ReadContext,
+		UpdateContext: resourceContextHandler.UpdateContext,
+		DeleteContext: resourceContextHandler.DeleteContext,
 		Importer: &schema.ResourceImporter{
 			StateContext: importPolicyV2StateContext,
 		},

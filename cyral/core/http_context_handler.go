@@ -12,7 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Implementation of a default context handler that can be used by all resources.
+// HTTPContextHandler facilitates easy resource and data source implementation
+// for any resource that is accessed and modified using an HTTP/REST API.
 //
 //  1. `SchemaWriterFactoryGetMethod“ must be provided.
 //  2. In case `SchemaWriterFactoryPostMethod“ is not provided,
@@ -31,7 +32,7 @@ import (
 //     - PUT:     https://<CP>/<apiVersion>/<featureName>/<id>
 //     - PATCH:   https://<CP>/<apiVersion>/<featureName>/<id>
 //     - DELETE:  https://<CP>/<apiVersion>/<featureName>/<id>
-type DefaultContextHandler struct {
+type HTTPContextHandler struct {
 	ResourceName        string
 	ResourceType        rt.ResourceType
 	SchemaReaderFactory SchemaReaderFactoryFunc
@@ -55,7 +56,7 @@ func DefaultSchemaWriterFactory(d *schema.ResourceData) SchemaWriter {
 	return &IDBasedResponse{}
 }
 
-func (dch DefaultContextHandler) defaultOperationHandler(
+func (dch HTTPContextHandler) defaultOperationHandler(
 	operationType ot.OperationType,
 	httpMethod string,
 	schemaReaderFactory SchemaReaderFactoryFunc,
@@ -92,11 +93,11 @@ func (dch DefaultContextHandler) defaultOperationHandler(
 	return result
 }
 
-func (dch DefaultContextHandler) CreateContext() schema.CreateContextFunc {
+func (dch HTTPContextHandler) CreateContext() schema.CreateContextFunc {
 	return dch.CreateContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName}, nil)
 }
 
-func (dch DefaultContextHandler) CreateContextCustomErrorHandling(getErrorHandler RequestErrorHandler,
+func (dch HTTPContextHandler) CreateContextCustomErrorHandling(getErrorHandler RequestErrorHandler,
 	postErrorHandler RequestErrorHandler) schema.CreateContextFunc {
 	// By default, assumes that if no SchemaWriterFactoryPostMethod is provided,
 	// the POST api will return an ID
@@ -110,21 +111,21 @@ func (dch DefaultContextHandler) CreateContextCustomErrorHandling(getErrorHandle
 	)
 }
 
-func (dch DefaultContextHandler) ReadContext() schema.ReadContextFunc {
+func (dch HTTPContextHandler) ReadContext() schema.ReadContextFunc {
 	return dch.ReadContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName})
 }
 
-func (dch DefaultContextHandler) ReadContextCustomErrorHandling(getErrorHandler RequestErrorHandler) schema.ReadContextFunc {
+func (dch HTTPContextHandler) ReadContextCustomErrorHandling(getErrorHandler RequestErrorHandler) schema.ReadContextFunc {
 	return ReadResource(
 		dch.defaultOperationHandler(ot.Read, http.MethodGet, nil, dch.SchemaWriterFactoryGetMethod, getErrorHandler),
 	)
 }
 
-func (dch DefaultContextHandler) UpdateContext() schema.UpdateContextFunc {
+func (dch HTTPContextHandler) UpdateContext() schema.UpdateContextFunc {
 	return dch.UpdateContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName}, nil)
 }
 
-func (dch DefaultContextHandler) UpdateContextCustomErrorHandling(getErrorHandler RequestErrorHandler,
+func (dch HTTPContextHandler) UpdateContextCustomErrorHandling(getErrorHandler RequestErrorHandler,
 	putErrorHandler RequestErrorHandler) schema.UpdateContextFunc {
 	updateMethod := http.MethodPut
 	if dch.UpdateMethod != "" {
@@ -136,10 +137,10 @@ func (dch DefaultContextHandler) UpdateContextCustomErrorHandling(getErrorHandle
 	)
 }
 
-func (dch DefaultContextHandler) DeleteContext() schema.DeleteContextFunc {
+func (dch HTTPContextHandler) DeleteContext() schema.DeleteContextFunc {
 	return dch.DeleteContextCustomErrorHandling(&IgnoreHttpNotFound{ResName: dch.ResourceName})
 }
 
-func (dch DefaultContextHandler) DeleteContextCustomErrorHandling(deleteErrorHandler RequestErrorHandler) schema.DeleteContextFunc {
+func (dch HTTPContextHandler) DeleteContextCustomErrorHandling(deleteErrorHandler RequestErrorHandler) schema.DeleteContextFunc {
 	return DeleteResource(dch.defaultOperationHandler(ot.Delete, http.MethodDelete, nil, nil, deleteErrorHandler))
 }

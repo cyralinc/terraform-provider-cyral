@@ -32,7 +32,7 @@ func (data *ELKIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 func ResourceIntegrationELK() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 "ELK Integration",
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &ELKIntegration{} },

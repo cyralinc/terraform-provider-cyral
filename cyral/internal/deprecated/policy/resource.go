@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var resourceContextHandler = core.DefaultContextHandler{
+var resourceContextHandler = core.HTTPContextHandler{
 	ResourceName:                 resourceName,
 	ResourceType:                 resourcetype.Resource,
 	SchemaReaderFactory:          func() core.SchemaReader { return &Policy{} },

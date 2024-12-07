@@ -40,7 +40,7 @@ func (data *SplunkIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 func ResourceIntegrationSplunk() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 "Splunk Integration",
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &SplunkIntegration{} },

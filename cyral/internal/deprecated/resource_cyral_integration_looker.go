@@ -30,7 +30,7 @@ func (data *LookerIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 func ResourceIntegrationLooker() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 "Looker Integration",
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &LookerIntegration{} },
