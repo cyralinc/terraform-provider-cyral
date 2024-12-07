@@ -23,7 +23,7 @@ type ResourceMethod func(context.Context, *client.Client, *schema.ResourceData) 
 // 404 errors, following a create/update with a get etc). The resource implementation
 // needs to supply functions that implement the basic CRUD operations on the resource
 // using gRPC or whatever else. Note that if REST APIs are used, it is recommended
-// to use the DefaultContextHandler instead.
+// to use the HTTPContextHandler instead.
 type ContextHandler struct {
 	ResourceName string
 	ResourceType resourcetype.ResourceType

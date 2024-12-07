@@ -13,7 +13,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
-var resourceContextHandler = core.DefaultContextHandler{
+var resourceContextHandler = core.HTTPContextHandler{
 	ResourceName:                  resourceName,
 	ResourceType:                  resourcetype.Resource,
 	SchemaReaderFactory:           func() core.SchemaReader { return &SidecarListenerResource{} },

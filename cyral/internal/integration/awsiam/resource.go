@@ -11,7 +11,7 @@ import (
 )
 
 func resourceSchema() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 "AWS IAM Integration",
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &AWSIAMIntegrationWrapper{} },
