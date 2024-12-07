@@ -18,13 +18,13 @@ import (
 
 type ResourceMethod func(context.Context, *client.Client, *schema.ResourceData) error
 
-// GenericContextHandler can be used by resource implementations to ensure that
+// ContextHandler can be used by resource implementations to ensure that
 // the recommended best practices are consistently followed (e.g., handling of
 // 404 errors, following a create/update with a get etc). The resource implementation
 // needs to supply functions that implement the basic CRUD operations on the resource
 // using gRPC or whatever else. Note that if REST APIs are used, it is recommended
 // to use the DefaultContextHandler instead.
-type GenericContextHandler struct {
+type ContextHandler struct {
 	ResourceName string
 	ResourceType resourcetype.ResourceType
 	Create       ResourceMethod
@@ -39,7 +39,7 @@ type method struct {
 	errorHandler func(context.Context, *schema.ResourceData, error) error
 }
 
-func (gch *GenericContextHandler) handleResourceNotFoundError(
+func (gch *ContextHandler) handleResourceNotFoundError(
 	ctx context.Context, rd *schema.ResourceData, err error,
 ) error {
 	var isNotFoundError bool
@@ -64,7 +64,7 @@ func (gch *GenericContextHandler) handleResourceNotFoundError(
 }
 
 // CreateContext is used to create a resource instance.
-func (gch *GenericContextHandler) CreateContext(
+func (gch *ContextHandler) CreateContext(
 	ctx context.Context,
 	rd *schema.ResourceData,
 	pd any,
@@ -86,7 +86,7 @@ func (gch *GenericContextHandler) CreateContext(
 }
 
 // UpdateContext is used to update a resource instance.
-func (gch *GenericContextHandler) UpdateContext(
+func (gch *ContextHandler) UpdateContext(
 	ctx context.Context,
 	rd *schema.ResourceData,
 	pd any,
@@ -108,7 +108,7 @@ func (gch *GenericContextHandler) UpdateContext(
 }
 
 // ReadContext is used to read a resource instance.
-func (gch *GenericContextHandler) ReadContext(
+func (gch *ContextHandler) ReadContext(
 	ctx context.Context,
 	rd *schema.ResourceData,
 	pd any,
@@ -126,7 +126,7 @@ func (gch *GenericContextHandler) ReadContext(
 }
 
 // DeleteContext is used to delete a resource instance.
-func (gch *GenericContextHandler) DeleteContext(
+func (gch *ContextHandler) DeleteContext(
 	ctx context.Context,
 	rd *schema.ResourceData,
 	pd any,
@@ -143,7 +143,7 @@ func (gch *GenericContextHandler) DeleteContext(
 	)
 }
 
-func (gch *GenericContextHandler) executeMethods(
+func (gch *ContextHandler) executeMethods(
 	ctx context.Context, c *client.Client, rd *schema.ResourceData, methods []method,
 ) diag.Diagnostics {
 	for _, m := range methods {

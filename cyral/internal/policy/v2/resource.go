@@ -11,7 +11,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
-var resourceContextHandler = core.GenericContextHandler{
+var resourceContextHandler = core.ContextHandler{
 	ResourceName: resourceName,
 	ResourceType: resourcetype.Resource,
 	Create:       createPolicy,

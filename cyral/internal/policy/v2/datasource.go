@@ -7,7 +7,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var dsContextHandler = core.GenericContextHandler{
+var dsContextHandler = core.ContextHandler{
 	ResourceName: dataSourceName,
 	ResourceType: resourcetype.DataSource,
 	Read:         readPolicy,
