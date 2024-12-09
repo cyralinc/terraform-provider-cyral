@@ -1,147 +1,168 @@
 package policyset
 
 import (
+	"context"
 	"fmt"
+	"time"
 
+	methods "buf.build/gen/go/cyral/policy/grpc/go/policy/v1/policyv1grpc"
+	msg "buf.build/gen/go/cyral/policy/protocolbuffers/go/policy/v1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
-// ChangeInfo represents information about changes to the policy set
-type ChangeInfo struct {
-	Actor     string `json:"actor,omitempty"`
-	ActorType string `json:"actorType,omitempty"`
-	Timestamp string `json:"timestamp,omitempty"`
-}
-
-// ToMap converts ChangeInfo to a map
-func (c ChangeInfo) ToMap() map[string]interface{} {
-	return map[string]interface{}{
-		"actor":      c.Actor,
-		"actor_type": c.ActorType,
-		"timestamp":  c.Timestamp,
-	}
-}
-
-// PolicySetPolicy represents a policy in the policy set
-type PolicySetPolicy struct {
-	Type string `json:"type,omitempty"`
-	ID   string `json:"id,omitempty"`
-}
-
 // ToMap converts PolicySetPolicy to a map
-func (p PolicySetPolicy) ToMap() map[string]interface{} {
+func policySetPolicyToMap(p *msg.PolicySetPolicy) map[string]interface{} {
 	return map[string]interface{}{
-		"type": p.Type,
-		"id":   p.ID,
+		"type": p.GetType().String(),
+		"id":   p.GetId(),
 	}
 }
 
-// Scope represents the scope of the policy set
-type Scope struct {
-	RepoIds []string `json:"repoIds,omitempty"`
-}
-
-// ToMap converts Scope to a list of maps
-func (s *Scope) ToMap() []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"repo_ids": s.RepoIds,
-		},
-	}
-}
-
-// PolicySet represents the policy set details
-type PolicySet struct {
-	ID               string            `json:"id,omitempty"`
-	WizardID         string            `json:"wizardId,omitempty"`
-	Name             string            `json:"name,omitempty"`
-	Description      string            `json:"description,omitempty"`
-	Tags             []string          `json:"tags,omitempty"`
-	Scope            *Scope            `json:"scope,omitempty"`
-	WizardParameters string            `json:"wizardParameters,omitempty"`
-	Enabled          bool              `json:"enabled,omitempty"`
-	Policies         []PolicySetPolicy `json:"policies,omitempty"`
-	LastUpdated      ChangeInfo        `json:"lastUpdated,omitempty"`
-	Created          ChangeInfo        `json:"created,omitempty"`
-}
-
-// WriteToSchema writes the policy set data to the schema
-func (r *PolicySet) WriteToSchema(d *schema.ResourceData) error {
-	if err := d.Set("id", r.ID); err != nil {
-		return fmt.Errorf("error setting 'id' field: %w", err)
-	}
-	if err := d.Set("wizard_id", r.WizardID); err != nil {
-		return fmt.Errorf("error setting 'wizard_id' field: %w", err)
-	}
-	if err := d.Set("name", r.Name); err != nil {
-		return fmt.Errorf("error setting 'name' field: %w", err)
-	}
-	if err := d.Set("description", r.Description); err != nil {
-		return fmt.Errorf("error setting 'description' field: %w", err)
-	}
-	if err := d.Set("tags", r.Tags); err != nil {
-		return fmt.Errorf("error setting 'tags' field: %w", err)
-	}
-	if err := d.Set("wizard_parameters", r.WizardParameters); err != nil {
-		return fmt.Errorf("error setting 'wizard_parameters' field: %w", err)
-	}
-	if err := d.Set("enabled", r.Enabled); err != nil {
-		return fmt.Errorf("error setting 'enabled' field: %w", err)
-	}
-	if err := d.Set("policies", policiesToMaps(r.Policies)); err != nil {
-		return fmt.Errorf("error setting 'policies' field: %w", err)
-	}
-	if err := d.Set("last_updated", r.LastUpdated.ToMap()); err != nil {
-		return fmt.Errorf("error setting 'last_updated' field: %w", err)
-	}
-	if err := d.Set("created", r.Created.ToMap()); err != nil {
-		return fmt.Errorf("error setting 'created' field: %w", err)
-	}
-	if r.Scope != nil {
-		if err := d.Set("scope", r.Scope.ToMap()); err != nil {
-			return fmt.Errorf("error setting 'scope' field: %w", err)
-		}
-	}
-	d.SetId(r.ID)
-	return nil
-}
-
-func policiesToMaps(policies []PolicySetPolicy) []map[string]interface{} {
+func policiesToMaps(policies []*msg.PolicySetPolicy) []map[string]interface{} {
 	var result []map[string]interface{}
 	for _, policy := range policies {
-		result = append(result, policy.ToMap())
+		result = append(result, policySetPolicyToMap(policy))
 	}
 	return result
 }
 
-// ReadFromSchema reads the policy set data from the schema
-func (r *PolicySet) ReadFromSchema(d *schema.ResourceData) error {
-	r.ID = d.Get("id").(string)
-	r.WizardID = d.Get("wizard_id").(string)
-	r.Name = d.Get("name").(string)
-	r.Description = d.Get("description").(string)
-	r.Tags = utils.ConvertFromInterfaceList[string](d.Get("tags").([]interface{}))
-	r.WizardParameters = d.Get("wizard_parameters").(string)
-	r.Enabled = d.Get("enabled").(bool)
-	if v, ok := d.GetOk("scope"); ok {
-		r.Scope = scopeFromInterface(v.([]interface{}))
+// changeInfoToMap converts ChangeInfo to a map
+func changeInfoToMap(c *msg.ChangeInfo) map[string]interface{} {
+	return map[string]interface{}{
+		"actor":      c.GetActor(),
+		"actor_type": c.GetActorType().String(),
+		"timestamp":  c.GetTimestamp().AsTime().Format(time.RFC3339),
 	}
+}
+
+// scopeToMap converts Scope to a list of maps
+func scopeToMap(s *msg.Scope) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"repo_ids": s.GetRepoIds(),
+		},
+	}
+}
+
+// updateSchema writes the policy set data to the schema
+func updateSchema(ps *msg.PolicySet, d *schema.ResourceData) error {
+	if err := d.Set("id", ps.GetId()); err != nil {
+		return fmt.Errorf("error setting 'id' field: %w", err)
+	}
+	if err := d.Set("wizard_id", ps.GetWizardId()); err != nil {
+		return fmt.Errorf("error setting 'id' field: %w", err)
+	}
+	if err := d.Set("name", ps.GetName()); err != nil {
+		return fmt.Errorf("error setting 'name' field: %w", err)
+	}
+	if err := d.Set("description", ps.GetDescription()); err != nil {
+		return fmt.Errorf("error setting 'description' field: %w", err)
+	}
+	if err := d.Set("enabled", ps.GetEnabled()); err != nil {
+		return fmt.Errorf("error setting 'enabled' field: %w", err)
+	}
+	if err := d.Set("tags", ps.GetTags()); err != nil {
+		return fmt.Errorf("error setting 'tags' field: %w", err)
+	}
+	if err := d.Set("wizard_parameters", ps.GetWizardParameters()); err != nil {
+		return fmt.Errorf("error setting 'document' field: %w", err)
+	}
+
+	if err := d.Set("policies", policiesToMaps(ps.GetPolicies())); err != nil {
+		return fmt.Errorf("error setting 'policies' field: %w", err)
+	}
+	if ps.GetScope() != nil {
+		if err := d.Set("scope", scopeToMap(ps.GetScope())); err != nil {
+			return fmt.Errorf("error setting 'scope' field: %w", err)
+		}
+	}
+	// Use the changeInfoToMap method to set the last_updated and created fields
+	if err := d.Set("last_updated", changeInfoToMap(ps.GetLastUpdated())); err != nil {
+		return fmt.Errorf("error setting 'last_updated' field: %w", err)
+	}
+	if err := d.Set("created", changeInfoToMap(ps.GetCreated())); err != nil {
+		return fmt.Errorf("error setting 'created' field: %w", err)
+	}
+	d.SetId(ps.GetId())
 	return nil
 }
 
+func policySetFromSchema(d *schema.ResourceData) *msg.PolicySet {
+	p := &msg.PolicySet{
+		Id:               d.Get("id").(string),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		Enabled:          d.Get("enabled").(bool),
+		Tags:             utils.ConvertFromInterfaceList[string](d.Get("tags").([]interface{})),
+		WizardId:         d.Get("wizard_id").(string),
+		WizardParameters: d.Get("wizard_parameters").(string),
+	}
+
+	if v, ok := d.GetOk("scope"); ok {
+		p.Scope = scopeFromInterface(v.([]interface{}))
+	}
+	return p
+}
+
 // scopeFromInterface converts the map to a Scope struct
-func scopeFromInterface(s []interface{}) *Scope {
+func scopeFromInterface(s []interface{}) *msg.Scope {
 	if len(s) == 0 || s[0] == nil {
-		// return an empty scope (ie a scope with a repo ids array of length 0)
-		return &Scope{
-			RepoIds: []string{},
-		}
+		return nil
 	}
 	m := s[0].(map[string]interface{})
-	scope := Scope{
+	return &msg.Scope{
 		RepoIds: utils.ConvertFromInterfaceList[string](m["repo_ids"].([]interface{})),
 	}
-	return &scope
+}
+
+func createPolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	ps := policySetFromSchema(rd)
+	req := &msg.CreatePolicySetRequest{
+		PolicySet: ps,
+	}
+	grpcClient := methods.NewPolicyWizardServiceClient(cl.GRPCClient())
+	resp, err := grpcClient.CreatePolicySet(ctx, req)
+	if err != nil {
+		return err
+	}
+	rd.SetId(resp.GetPolicySet().GetId())
+	return nil
+}
+
+func readPolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	req := &msg.ReadPolicySetRequest{
+		Id: rd.Get("id").(string),
+	}
+	grpcClient := methods.NewPolicyWizardServiceClient(cl.GRPCClient())
+	resp, err := grpcClient.ReadPolicySet(ctx, req)
+	if err != nil {
+		return err
+	}
+	return updateSchema(resp.GetPolicySet(), rd)
+}
+
+func updatePolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	ps := policySetFromSchema(rd)
+	req := &msg.UpdatePolicySetRequest{
+		Id:        ps.GetId(),
+		PolicySet: ps,
+	}
+	grpcClient := methods.NewPolicyWizardServiceClient(cl.GRPCClient())
+	resp, err := grpcClient.UpdatePolicySet(ctx, req)
+	if err != nil {
+		return err
+	}
+	return updateSchema(resp.GetPolicySet(), rd)
+}
+
+func deletePolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	req := &msg.DeletePolicySetRequest{
+		Id: rd.Get("id").(string),
+	}
+	grpcClient := methods.NewPolicyWizardServiceClient(cl.GRPCClient())
+	_, err := grpcClient.DeletePolicySet(ctx, req)
+	return err
 }

@@ -2,46 +2,29 @@ package policyset
 
 import (
 	"context"
-	"fmt"
-	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var resourceContextHandler = core.HTTPContextHandler{
-	ResourceName:                 resourceName,
-	ResourceType:                 resourcetype.Resource,
-	SchemaReaderFactory:          func() core.SchemaReader { return &PolicySet{} },
-	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &PolicySet{} },
-	BaseURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		baseURL := &url.URL{
-			Scheme: "https",
-			Host:   c.ControlPlane,
-			Path:   apiPathPolicySet,
-		}
-		return baseURL.String()
-	},
-	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		baseURL := &url.URL{
-			Scheme: "https",
-			Host:   c.ControlPlane,
-			Path:   fmt.Sprintf("%s/%s", apiPathPolicySet, d.Id()),
-		}
-		return baseURL.String()
-	},
+var resourceContextHandler = core.ContextHandler{
+	ResourceName: resourceName,
+	ResourceType: resourcetype.Resource,
+	Create:       createPolicySet,
+	Read:         readPolicySet,
+	Update:       updatePolicySet,
+	Delete:       deletePolicySet,
 }
 
 func resourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description:   "This resource allows management of policy sets in the Cyral platform.",
-		CreateContext: resourceContextHandler.CreateContext(),
-		ReadContext:   resourceContextHandler.ReadContext(),
-		UpdateContext: resourceContextHandler.UpdateContext(),
-		DeleteContext: resourceContextHandler.DeleteContext(),
+		CreateContext: resourceContextHandler.CreateContext,
+		ReadContext:   resourceContextHandler.ReadContext,
+		UpdateContext: resourceContextHandler.UpdateContext,
+		DeleteContext: resourceContextHandler.DeleteContext,
 		Importer: &schema.ResourceImporter{
 			StateContext: importPolicySetStateContext,
 		},

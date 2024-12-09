@@ -1,34 +1,22 @@
 package policyset
 
 import (
-	"fmt"
-	"net/url"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var dsContextHandler = core.HTTPContextHandler{
-	ResourceName:                 dataSourceName,
-	ResourceType:                 resourcetype.DataSource,
-	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &PolicySet{} },
-	ReadUpdateDeleteURLFactory: func(d *schema.ResourceData, c *client.Client) string {
-		baseURL := &url.URL{
-			Scheme: "https",
-			Host:   c.ControlPlane,
-			Path:   fmt.Sprintf("%s/%s", apiPathPolicySet, d.Get("id").(string)),
-		}
-		return baseURL.String()
-	},
+var dsContextHandler = core.ContextHandler{
+	ResourceName: dataSourceName,
+	ResourceType: resourcetype.DataSource,
+	Read:         readPolicySet,
 }
 
 func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "This data source provides information about a policy set.",
-		ReadContext: dsContextHandler.ReadContext(),
+		ReadContext: dsContextHandler.ReadContext,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "Identifier for the policy set.",
