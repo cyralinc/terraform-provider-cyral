@@ -12,7 +12,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var resourceContextHandler = core.DefaultContextHandler{
+var resourceContextHandler = core.HTTPContextHandler{
 	ResourceName:                 resourceName,
 	ResourceType:                 resourcetype.Resource,
 	SchemaReaderFactory:          func() core.SchemaReader { return &PolicySet{} },

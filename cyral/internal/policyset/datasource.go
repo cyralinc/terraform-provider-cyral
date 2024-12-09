@@ -11,7 +11,7 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var dsContextHandler = core.DefaultContextHandler{
+var dsContextHandler = core.HTTPContextHandler{
 	ResourceName:                 dataSourceName,
 	ResourceType:                 resourcetype.DataSource,
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &PolicySet{} },
