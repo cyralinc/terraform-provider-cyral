@@ -252,7 +252,7 @@ module "cyral_sidecar" {
   source = "cyralinc/sidecar-ec2/aws"
 
   # Use the module version that is compatible with your sidecar.
-  version = "~> 5.0"
+  version = "~> 4.3"
 
   sidecar_id = cyral_sidecar.sidecar.id
   control_plane = local.control_plane_host
@@ -271,16 +271,17 @@ module "cyral_sidecar" {
   load_balancer_scheme        = local.sidecar.public_sidecar ? "internet-facing" : "internal"
   associate_public_ip_address = local.sidecar.public_sidecar
 
+
   load_balancer_certificate_arn = local.sidecar.load_balancer_certificate_arn
   load_balancer_tls_ports       = [
     local.repos.s3.browser_port
   ]
 
-  dns_hosted_zone_id = local.sidecar.dns_hosted_zone_id
-  dns_name           = local.sidecar.dns_name
+  sidecar_dns_hosted_zone_id = local.sidecar.dns_hosted_zone_id
+  sidecar_dns_name           = local.sidecar.dns_name
 }
 
 output "sidecar_load_balancer_dns" {
-  value = module.cyral_sidecar.load_balancer_dns
+  value = module.cyral_sidecar.sidecar_load_balancer_dns
 }
 ```

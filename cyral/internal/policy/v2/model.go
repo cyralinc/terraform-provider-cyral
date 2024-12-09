@@ -13,13 +13,6 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
 )
 
-// ChangeInfo represents information about changes to the policy
-type ChangeInfo struct {
-	Actor     string `json:"actor,omitempty"`
-	ActorType string `json:"actorType,omitempty"`
-	Timestamp string `json:"timestamp,omitempty"`
-}
-
 // changeInfoToMap converts ChangeInfo to a map
 func changeInfoToMap(c *msg.ChangeInfo) map[string]interface{} {
 	return map[string]interface{}{
