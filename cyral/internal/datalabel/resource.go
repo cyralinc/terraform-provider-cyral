@@ -22,7 +22,7 @@ var readUpdateDeleteURLFactory = func(d *schema.ResourceData, c *client.Client) 
 }
 
 func resourceSchema() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 resourceName,
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &DataLabel{} },

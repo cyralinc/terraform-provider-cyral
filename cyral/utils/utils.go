@@ -6,11 +6,13 @@ import (
 	"math"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -226,4 +228,22 @@ func GetStrListFromSchemaField(d *schema.ResourceData, field string) []string {
 	}
 
 	return strList
+}
+
+func ProtoTimestampFromString(ts string) (*timestamppb.Timestamp, error) {
+	if ts == "" {
+		return nil, nil
+	}
+	t, err := time.Parse(time.RFC3339, ts)
+	if err != nil {
+		return nil, fmt.Errorf("invalid timestamp value: %s", ts)
+	}
+	return timestamppb.New(t), nil
+}
+
+func StringTimestampFromProto(ts *timestamppb.Timestamp) string {
+	if ts == nil {
+		return ""
+	}
+	return ts.AsTime().Format(time.RFC3339)
 }

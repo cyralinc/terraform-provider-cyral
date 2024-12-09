@@ -29,7 +29,7 @@ func (data *DatadogIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 func ResourceIntegrationDatadog() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 "Datadog Integration",
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &DatadogIntegration{} },

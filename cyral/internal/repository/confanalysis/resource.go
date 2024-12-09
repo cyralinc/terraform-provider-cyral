@@ -25,7 +25,7 @@ var urlFactory = func(d *schema.ResourceData, c *client.Client) string {
 	)
 }
 
-var resourceContextHandler = core.DefaultContextHandler{
+var resourceContextHandler = core.HTTPContextHandler{
 	ResourceName:                 resourceName,
 	ResourceType:                 resourcetype.Resource,
 	SchemaReaderFactory:          func() core.SchemaReader { return &UserConfig{} },

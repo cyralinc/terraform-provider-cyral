@@ -27,7 +27,7 @@ func (data *SumoLogicIntegration) ReadFromSchema(d *schema.ResourceData) error {
 }
 
 func ResourceIntegrationSumoLogic() *schema.Resource {
-	contextHandler := core.DefaultContextHandler{
+	contextHandler := core.HTTPContextHandler{
 		ResourceName:                 "SumoLogic Integration",
 		ResourceType:                 resourcetype.Resource,
 		SchemaReaderFactory:          func() core.SchemaReader { return &SumoLogicIntegration{} },
