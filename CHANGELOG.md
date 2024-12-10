@@ -1,3 +1,32 @@
+## 4.15.0 (December 10, 2024)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.18`.
+
+Resource incompatible with control planes previous to `v4.18`:
+
+- `cyral_policy_set`
+
+Arguments incompatible with control planes previous to `v4.17`:
+
+- `cyral_repository_conf_analysis.mask_all_occurrences`
+
+### Features:
+
+- ENG-14573: Add support for `cyral_repository_conf_analysis.mask_all_occurrences` ([#580](https://github.com/cyralinc/terraform-provider-cyral/pull/580))
+- ENG-14563: Add support for resource `cyral_policy_set` ([#579](https://github.com/cyralinc/terraform-provider-cyral/pull/579))
+
+### Improvements:
+
+- Fix docs templates ([#581](https://github.com/cyralinc/terraform-provider-cyral/pull/581))
+- Bump github.com/stretchr/testify from 1.9.0 to 1.10.0 ([#578](https://github.com/cyralinc/terraform-provider-cyral/pull/578))
+- Bump golang.org/x/oauth2 from 0.23.0 to 0.24.0 ([#577](https://github.com/cyralinc/terraform-provider-cyral/pull/577))
+- Reimplement `cyral_policy_v2` resource using gRPC ([#584](https://github.com/cyralinc/terraform-provider-cyral/pull/584))
+
 ## 4.14.1 (October 22, 2024)
 
 It is safe to use this version with all `v4` control planes as long
