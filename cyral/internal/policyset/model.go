@@ -47,8 +47,8 @@ func scopeToMap(s *msg.Scope) []map[string]interface{} {
 	}
 }
 
-// updateSchema writes the policy set data to the schema
-func updateSchema(ps *msg.PolicySet, d *schema.ResourceData) error {
+// updatePolicySetSchema writes the policy set data to the schema
+func updatePolicySetSchema(ps *msg.PolicySet, d *schema.ResourceData) error {
 	if err := d.Set("id", ps.GetId()); err != nil {
 		return fmt.Errorf("error setting 'id' field: %w", err)
 	}
@@ -141,7 +141,7 @@ func readPolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceDa
 	if err != nil {
 		return err
 	}
-	return updateSchema(resp.GetPolicySet(), rd)
+	return updatePolicySetSchema(resp.GetPolicySet(), rd)
 }
 
 func updatePolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
@@ -155,7 +155,7 @@ func updatePolicySet(ctx context.Context, cl *client.Client, rd *schema.Resource
 	if err != nil {
 		return err
 	}
-	return updateSchema(resp.GetPolicySet(), rd)
+	return updatePolicySetSchema(resp.GetPolicySet(), rd)
 }
 
 func deletePolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
@@ -165,4 +165,55 @@ func deletePolicySet(ctx context.Context, cl *client.Client, rd *schema.Resource
 	grpcClient := methods.NewPolicyWizardServiceClient(cl.GRPCClient())
 	_, err := grpcClient.DeletePolicySet(ctx, req)
 	return err
+}
+
+func readPolicyWizards(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	var wizardList []*msg.PolicyWizard
+
+	wizId := rd.Get("wizard_id").(string)
+	grpcClient := methods.NewPolicyWizardServiceClient(cl.GRPCClient())
+	if wizId != "" {
+		req := &msg.ReadPolicyWizardRequest{
+			Id: wizId,
+		}
+		resp, err := grpcClient.ReadPolicyWizard(ctx, req)
+		if err != nil {
+			return err
+		}
+		wizardList = []*msg.PolicyWizard{resp.GetPolicyWizard()}
+	} else {
+		req := &msg.ListPolicyWizardsRequest{}
+		resp, err := grpcClient.ListPolicyWizards(ctx, req)
+		if err != nil {
+			return err
+		}
+		wizardList = resp.GetPolicyWizards()
+	}
+	updatePolicyWizardsSchema(wizardList, rd)
+	return nil
+}
+
+func wizardToMap(wiz *msg.PolicyWizard) map[string]any {
+	return map[string]any{
+		"id":               wiz.GetId(),
+		"name":             wiz.GetName(),
+		"description":      wiz.GetDescription(),
+		"parameter_schema": wiz.GetParameterSchema(),
+		"tags": func() []any {
+			tags := make([]any, 0, len(wiz.GetTags()))
+			for _, t := range wiz.GetTags() {
+				tags = append(tags, t)
+			}
+			return tags
+		}(),
+	}
+}
+
+func updatePolicyWizardsSchema(wizards []*msg.PolicyWizard, rd *schema.ResourceData) {
+	wizardList := make([]any, 0, len(wizards))
+	for _, wiz := range wizards {
+		wizardList = append(wizardList, wizardToMap(wiz))
+	}
+	rd.Set("wizards", wizardList)
+	rd.SetId("cyral-wizard-list")
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var resourceContextHandler = core.ContextHandler{
-	ResourceName: resourceName,
+var policySetResourceContextHandler = core.ContextHandler{
+	ResourceName: policySetResourceName,
 	ResourceType: resourcetype.Resource,
 	Create:       createPolicySet,
 	Read:         readPolicySet,
@@ -18,13 +18,13 @@ var resourceContextHandler = core.ContextHandler{
 	Delete:       deletePolicySet,
 }
 
-func resourceSchema() *schema.Resource {
+func policySetResourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description:   "This resource allows management of policy sets in the Cyral platform.",
-		CreateContext: resourceContextHandler.CreateContext,
-		ReadContext:   resourceContextHandler.ReadContext,
-		UpdateContext: resourceContextHandler.UpdateContext,
-		DeleteContext: resourceContextHandler.DeleteContext,
+		CreateContext: policySetResourceContextHandler.CreateContext,
+		ReadContext:   policySetResourceContextHandler.ReadContext,
+		UpdateContext: policySetResourceContextHandler.UpdateContext,
+		DeleteContext: policySetResourceContextHandler.DeleteContext,
 		Importer: &schema.ResourceImporter{
 			StateContext: importPolicySetStateContext,
 		},
