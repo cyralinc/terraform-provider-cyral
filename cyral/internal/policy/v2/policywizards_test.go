@@ -1,4 +1,4 @@
-package policyv2
+package policyv2_test
 
 import (
 	"testing"
