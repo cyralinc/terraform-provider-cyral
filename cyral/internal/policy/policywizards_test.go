@@ -27,6 +27,14 @@ data "cyral_policy_wizards" "wizard_list" {
 `,
 				Check: checkOneWizard(dsName, "data-firewall"),
 			},
+			{
+				Config: `
+data "cyral_policy_wizards" "wizard_list" {
+  wizard_id = "XXX"
+}
+`,
+				Check: resource.TestCheckResourceAttr(dsName, "wizards.#", "0"),
+			},
 		},
 	})
 }

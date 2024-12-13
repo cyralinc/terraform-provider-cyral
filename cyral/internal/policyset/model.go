@@ -8,6 +8,8 @@ import (
 	methods "buf.build/gen/go/cyral/policy/grpc/go/policy/v1/policyv1grpc"
 	msg "buf.build/gen/go/cyral/policy/protocolbuffers/go/policy/v1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/cyralinc/terraform-provider-cyral/cyral/client"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/utils"
@@ -177,10 +179,12 @@ func readPolicyWizards(ctx context.Context, cl *client.Client, rd *schema.Resour
 			Id: wizId,
 		}
 		resp, err := grpcClient.ReadPolicyWizard(ctx, req)
-		if err != nil {
+		if err != nil && status.Code(err) != codes.NotFound {
 			return err
 		}
-		wizardList = []*msg.PolicyWizard{resp.GetPolicyWizard()}
+		if status.Code(err) != codes.NotFound {
+			wizardList = []*msg.PolicyWizard{resp.GetPolicyWizard()}
+		}
 	} else {
 		req := &msg.ListPolicyWizardsRequest{}
 		resp, err := grpcClient.ListPolicyWizards(ctx, req)
