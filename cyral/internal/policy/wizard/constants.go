@@ -1,5 +1,5 @@
 package wizard
 
 const (
-	policyWizardsDataSourceName = "cyral_policy_wizards"
+	dataSourceName = "cyral_policy_wizards"
 )

@@ -1,6 +1,6 @@
 package policyset
 
 const (
-	policySetResourceName   = "cyral_policy_set"
-	policySetDataSourceName = policySetResourceName
+	resourceName   = "cyral_policy_set"
+	dataSourceName = resourceName
 )

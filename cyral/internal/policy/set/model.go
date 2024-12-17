@@ -47,8 +47,8 @@ func scopeToMap(s *msg.Scope) []map[string]interface{} {
 	}
 }
 
-// updatePolicySetSchema writes the policy set data to the schema
-func updatePolicySetSchema(ps *msg.PolicySet, d *schema.ResourceData) error {
+// updateSchema writes the policy set data to the schema
+func updateSchema(ps *msg.PolicySet, d *schema.ResourceData) error {
 	if err := d.Set("id", ps.GetId()); err != nil {
 		return fmt.Errorf("error setting 'id' field: %w", err)
 	}
@@ -141,7 +141,7 @@ func readPolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceDa
 	if err != nil {
 		return err
 	}
-	return updatePolicySetSchema(resp.GetPolicySet(), rd)
+	return updateSchema(resp.GetPolicySet(), rd)
 }
 
 func updatePolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
@@ -155,7 +155,7 @@ func updatePolicySet(ctx context.Context, cl *client.Client, rd *schema.Resource
 	if err != nil {
 		return err
 	}
-	return updatePolicySetSchema(resp.GetPolicySet(), rd)
+	return updateSchema(resp.GetPolicySet(), rd)
 }
 
 func deletePolicySet(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {

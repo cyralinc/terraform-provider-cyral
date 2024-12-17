@@ -13,14 +13,14 @@ func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 
 		{
-			Name:   policySetDataSourceName,
+			Name:   dataSourceName,
 			Type:   core.DataSourceSchemaType,
-			Schema: policySetDataSourceSchema,
+			Schema: dataSourceSchema,
 		},
 		{
-			Name:   policySetResourceName,
+			Name:   resourceName,
 			Type:   core.ResourceSchemaType,
-			Schema: policySetResourceSchema,
+			Schema: resourceSchema,
 		},
 	}
 }

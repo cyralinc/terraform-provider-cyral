@@ -12,9 +12,9 @@ func (p *packageSchema) Name() string {
 func (p *packageSchema) Schemas() []*core.SchemaDescriptor {
 	return []*core.SchemaDescriptor{
 		{
-			Name:   policyWizardsDataSourceName,
+			Name:   dataSourceName,
 			Type:   core.DataSourceSchemaType,
-			Schema: policyWizardsDataSourceSchema,
+			Schema: dataSourceSchema,
 		},
 	}
 }

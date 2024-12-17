@@ -7,16 +7,16 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var policySetDataSourceContextHandler = core.ContextHandler{
-	ResourceName: policySetDataSourceName,
+var dsContextHandler = core.ContextHandler{
+	ResourceName: dataSourceName,
 	ResourceType: resourcetype.DataSource,
 	Read:         readPolicySet,
 }
 
-func policySetDataSourceSchema() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "This data source provides information about a policy set.",
-		ReadContext: policySetDataSourceContextHandler.ReadContext,
+		ReadContext: dsContextHandler.ReadContext,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "Identifier for the policy set.",

@@ -36,7 +36,7 @@ func readPolicyWizards(ctx context.Context, cl *client.Client, rd *schema.Resour
 		}
 		wizardList = resp.GetPolicyWizards()
 	}
-	updatePolicyWizardsSchema(wizardList, rd)
+	updateSchema(wizardList, rd)
 	return nil
 }
 
@@ -56,7 +56,7 @@ func wizardToMap(wiz *msg.PolicyWizard) map[string]any {
 	}
 }
 
-func updatePolicyWizardsSchema(wizards []*msg.PolicyWizard, rd *schema.ResourceData) {
+func updateSchema(wizards []*msg.PolicyWizard, rd *schema.ResourceData) {
 	wizardList := make([]any, 0, len(wizards))
 	for _, wiz := range wizards {
 		wizardList = append(wizardList, wizardToMap(wiz))

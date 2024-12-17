@@ -7,16 +7,16 @@ import (
 	"github.com/cyralinc/terraform-provider-cyral/cyral/core/types/resourcetype"
 )
 
-var policyWizardsDataSourceContextHandler = core.ContextHandler{
-	ResourceName: policyWizardsDataSourceName,
+var dsContextHandler = core.ContextHandler{
+	ResourceName: dataSourceName,
 	ResourceType: resourcetype.DataSource,
 	Read:         readPolicyWizards,
 }
 
-func policyWizardsDataSourceSchema() *schema.Resource {
+func dataSourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Description: "This data source provides information policy wizards",
-		ReadContext: policyWizardsDataSourceContextHandler.ReadContext,
+		ReadContext: dsContextHandler.ReadContext,
 		Schema: map[string]*schema.Schema{
 			"wizard_id": {
 				Description: "id of the policy wizard of interest.",
