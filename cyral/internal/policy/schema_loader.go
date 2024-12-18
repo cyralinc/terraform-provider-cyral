@@ -1,4 +1,4 @@
-package policyv2
+package policy
 
 import "github.com/cyralinc/terraform-provider-cyral/cyral/core"
 
