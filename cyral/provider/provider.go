@@ -180,8 +180,6 @@ func getCredentials(d *schema.ResourceData) (string, string, diag.Diagnostics) {
 	return clientID, clientSecret, diags
 }
 
-var provider = Provider()
-
 var ProviderFactories = map[string]func() (*schema.Provider, error){
 	"cyral": func() (*schema.Provider, error) {
 		return Provider(), nil

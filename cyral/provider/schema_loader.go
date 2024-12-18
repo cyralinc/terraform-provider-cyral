@@ -15,8 +15,9 @@ import (
 	integration_slack "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/slack"
 	integration_teams "github.com/cyralinc/terraform-provider-cyral/cyral/internal/integration/teams"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/permission"
-	policyv2 "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/v2"
-	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policyset"
+	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy"
+	policyset "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/set"
+	policywizard "github.com/cyralinc/terraform-provider-cyral/cyral/internal/policy/wizard"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/regopolicy"
 	"github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository"
 	repository_accessgateway "github.com/cyralinc/terraform-provider-cyral/cyral/internal/repository/accessgateway"
@@ -56,8 +57,9 @@ func packagesSchemas() []core.PackageSchema {
 		integration_slack.PackageSchema(),
 		integration_teams.PackageSchema(),
 		permission.PackageSchema(),
-		policyv2.PackageSchema(),
+		policy.PackageSchema(),
 		policyset.PackageSchema(),
+		policywizard.PackageSchema(),
 		regopolicy.PackageSchema(),
 		repository.PackageSchema(),
 		repository_accessgateway.PackageSchema(),
