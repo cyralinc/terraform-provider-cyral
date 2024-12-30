@@ -113,9 +113,10 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 
 ### Deprecated policy templates
 
-The remaining list of policy templates are deprecated and can not be used for creating new policies.
-Manage existing policy instances is still supported.
-Please visit [`cyral_policy_set`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_set) resource to find replacements for the deprecated policy templates.
+The remaining list of policy templates have been deprecated in v4.18.X of the Cyral Control Plane
+and can not be used for creating new policies. Managing existing policy instances is still supported.
+Please visit [`cyral_policy_set`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_set)
+resource to find replacements for the deprecated policy templates.
 
 #### Data Firewall (data-firewall)
 

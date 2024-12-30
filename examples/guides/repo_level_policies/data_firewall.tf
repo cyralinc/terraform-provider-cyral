@@ -18,7 +18,7 @@ resource "cyral_policy_set" "data_firewall_policy" {
   wizard_id   = "data-firewall"
   parameters  = jsonencode(
     {
-      "dataSet" = "finance.cards"
+      "dataset" = "finance.cards"
       "dataFilter" = " finance.cards.country = 'US' "
       "labels" = ["CCN"]
       "excludedIdentities" = { "groups" = ["Admin"] }
