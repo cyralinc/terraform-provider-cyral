@@ -1,20 +1,17 @@
 ---
-page_title: "Setup repo-level policy"
+page_title: "Setup repo-level policies"
 ---
 
-Cyral offers several pre-built [repo-level policy types](https://cyral.com/docs/policy/repo-level/).
-In this guide, we provide different examples on how to use them.
+Cyral offers several [policy wizards](https://cyral.com/docs/policy/repo-level/).
+  These wizards generate policies for common use cases based on the parameters you provide. The created policies are part of a _policy set_.
+  This guide shows how to define policy sets that use these wizards to create policies in Terraform.
 
 Recommended further reading:
 
-* Refer to the [Cyral policies](https://cyral.com/docs/policy/overview/) page in our public
-docs for a complete documentation about the Cyral policy framework.
-* Refer to the [`cyral_policy_set`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_set)
-resource for more details about how to create policy sets in Terraform.
-and how to use the pre-built repo-level policies in Terraform.
-* Refer to the [`cyral_rego_policy_instance`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance)
-resource for more details about the [template parameters](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters)
-and how to use the pre-built repo-level policies in Terraform.
+-   Refer to the [Cyral policies](https://cyral.com/docs/policy/overview/) page in our public
+    docs for a complete documentation about the Cyral policy framework.
+-   Refer to the [`cyral_policy_set`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_set)
+    resource for more details about how to create policy sets in Terraform.
 
 ## Example: data firewall
 

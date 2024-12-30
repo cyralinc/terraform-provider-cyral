@@ -9,14 +9,19 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to apply null masking to
+# Creates a policy set using the data masking wizard to apply null masking to
 # any data labeled as CCN for users in group 'Marketing'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "data-masking-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "data_masking_policy" {
+  name        = "data masking policy"
   description = "Apply null masking to any data labeled as CCN for users in group 'Marketing'"
-  template_id = "data-masking"
-  parameters  = "{ \"maskType\": \"NULL_MASK\", \"labels\": [\"CCN\"], \"identities\": { \"included\": { \"groups\": [\"Marketing\"] } }}"
+  wizard_id   = "data-masking"
+  parameters  = jsonencode(
+    {
+      "maskType" = "null"
+      "labels" = ["CCN"]
+      "identities" = { "included": { "groups" = ["Marketing"] } }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]

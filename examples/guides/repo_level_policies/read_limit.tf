@@ -9,15 +9,21 @@ resource "cyral_repository" "pg1" {
   }
 }
 
-# Creates a policy instance from template to limits to 100 the
+# Creates a policy set using the read limit wizard to limits to 100 the
 # amount of rows that can be read per query on the entire
 # repository for group 'Devs'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "read-limit-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "read_limit_policy" {
+  name        = "read limit policy"
   description = "Limits to 100 the amount of rows that can be read per query on the entire repository for group 'Devs'"
-  template_id = "read-limit"
-  parameters  = "{ \"rowLimit\": 100, \"block\": true, \"alertSeverity\": \"high\", \"appliesToAllData\": true, \"identities\": { \"included\": { \"groups\": [\"Devs\"] } }}"
+  wizard_id   = "read-limit"
+  parameters  = jsonencode(
+    {
+      "rowLimit" = 100
+      "enforce" = true
+      "datasets" = "*"
+      "identities" = { "included": { "groups" = ["Devs"] } }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.pg1.id]

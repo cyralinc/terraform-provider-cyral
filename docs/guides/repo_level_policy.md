@@ -1,9 +1,10 @@
 ---
-page_title: "Setup repo-level policy"
+page_title: "Setup repo-level policies"
 ---
 
-Cyral offers several pre-built [repo-level policy types](https://cyral.com/docs/policy/repo-level/).
-In this guide, we provide different examples on how to use them.
+Cyral offers several [policy wizards](https://cyral.com/docs/policy/repo-level/).
+These wizards generate policies for common use cases based on the parameters you provide. The created policies are part of a _policy set_.
+This guide shows how to define policy sets that use these wizards to create policies in Terraform.
 
 Recommended further reading:
 
@@ -11,10 +12,6 @@ Recommended further reading:
     docs for a complete documentation about the Cyral policy framework.
 -   Refer to the [`cyral_policy_set`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_set)
     resource for more details about how to create policy sets in Terraform.
-    and how to use the pre-built repo-level policies in Terraform.
--   Refer to the [`cyral_rego_policy_instance`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance)
-    resource for more details about the [template parameters](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/rego_policy_instance#template-parameters)
-    and how to use the pre-built repo-level policies in Terraform.
 
 ## Example: data firewall
 
@@ -32,15 +29,21 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to filter table
+# Creates a policy set using the data firewall wizard to filter table
 # 'finance.cards', returning only data where
 # finance.cards.country = 'US' for users not in 'Admin' group
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "data-firewall-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "data_firewall_policy" {
+  name        = "data firewall policy"
   description = "Returns only data where finance.cards.country = 'US' in table 'finance.cards' for users not in 'Admin' group"
-  template_id = "data-firewall"
-  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"excludedIdentities\": { \"groups\": [\"Admin\"] } }"
+  wizard_id   = "data-firewall"
+  parameters  = jsonencode(
+    {
+      "dataSet" = "finance.cards"
+      "dataFilter" = " finance.cards.country = 'US' "
+      "labels" = ["CCN"]
+      "excludedIdentities" = { "groups" = ["Admin"] }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]
@@ -65,14 +68,19 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to apply null masking to
+# Creates a policy set using the data masking wizard to apply null masking to
 # any data labeled as CCN for users in group 'Marketing'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "data-masking-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "data_masking_policy" {
+  name        = "data masking policy"
   description = "Apply null masking to any data labeled as CCN for users in group 'Marketing'"
-  template_id = "data-masking"
-  parameters  = "{ \"maskType\": \"NULL_MASK\", \"labels\": [\"CCN\"], \"identities\": { \"included\": { \"groups\": [\"Marketing\"] } }}"
+  wizard_id   = "data-masking"
+  parameters  = jsonencode(
+    {
+      "maskType" = "null"
+      "labels" = ["CCN"]
+      "identities" = { "included": { "groups" = ["Marketing"] } }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]
@@ -97,14 +105,20 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to raise a 'high' alert
-# and block updates and deletes on label CCN
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "data-protection-policy"
-  category    = "SECURITY"
-  description = "Raise a 'high' alert and block updates and deletes on label CCN"
-  template_id = "data-protection"
-  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorDeletes\": true, \"labels\": [\"CCN\"]}"
+# Creates a policy set using the data protection wizard to raise
+# an alert and block updates and deletes on label CCN
+resource "cyral_policy_set" "data_protection_policy" {
+  name        = "data protection policy"
+  description = "Raise an alert and block updates and deletes on label CCN"
+  wizard_id   = "data-protection"
+  parameters  = jsonencode(
+    {
+      "block" = true
+      "alertSeverity" = "high"
+      "governedOperations" = ["update", "delete"]
+      "labels" = ["CCN"]
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]
@@ -129,15 +143,21 @@ resource "cyral_repository" "pg1" {
   }
 }
 
-# Creates a policy instance from template to raise a 'high' alert
+# Creates a policy set using the rate limit wizard to raise an alert
 # and set a rate limit of 500 rows per hour for group 'Marketing'
 # and any data labeled as CCN
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "rate-limit-policy"
-  category    = "SECURITY"
-  description = "Raise a 'high' alert and set a rate limit of 500 rows per hour for group 'Marketing' and any data labeled as CCN"
-  template_id = "rate-limit"
-  parameters  = "{ \"rateLimit\": 500, \"block\": true, \"alertSeverity\": \"high\", \"labels\": [\"CCN\"], \"identities\": { \"included\": { \"groups\": [\"Marketing\"] } }}"
+resource "cyral_policy_set" "rate_limit_policy" {
+  name        = "rate limit policy"
+  description = "Raise an alert and set a rate limit of 500 rows per hour for group 'Marketing' and any data labeled as CCN"
+  wizard_id   = "rate-limit"
+  parameters  = jsonencode(
+    {
+      "rateLimit" = 500
+      "enforce" = true
+      "labels" = ["CCN"]
+      "identities" = { "included": { "groups" = ["Marketing"] } }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.pg1.id]
@@ -162,15 +182,21 @@ resource "cyral_repository" "pg1" {
   }
 }
 
-# Creates a policy instance from template to limits to 100 the
+# Creates a policy set using the read limit wizard to limits to 100 the
 # amount of rows that can be read per query on the entire
 # repository for group 'Devs'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "read-limit-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "read_limit_policy" {
+  name        = "read limit policy"
   description = "Limits to 100 the amount of rows that can be read per query on the entire repository for group 'Devs'"
-  template_id = "read-limit"
-  parameters  = "{ \"rowLimit\": 100, \"block\": true, \"alertSeverity\": \"high\", \"appliesToAllData\": true, \"identities\": { \"included\": { \"groups\": [\"Devs\"] } }}"
+  wizard_id   = "read-limit"
+  parameters  = jsonencode(
+    {
+      "rowLimit" = 100
+      "enforce" = true
+      "datasets" = "*"
+      "identities" = { "included": { "groups" = ["Devs"] } }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.pg1.id]
@@ -194,15 +220,20 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to limits to 100 the
-# amount of rows that can be updated or deleted per query on
-# all repository data for anyone except group 'Admin'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "repository-protection-policy"
-  category    = "SECURITY"
-  description = "Limits to 100 the amount of rows that can be updated or deleted per query on all repository data for anyone except group 'Admin'"
-  template_id = "repository-protection"
-  parameters  = "{ \"rowLimit\": 100, \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorDeletes\": true, \"identities\": { \"excluded\": { \"groups\": [\"Admin\"] } }}"
+# Creates a policy set using the repository protection wizard to alert if more than
+# 100 rows are updated or deleted per query on all repository data by anyone except group 'Admin'
+resource "cyral_policy_set" "repository_protection_policy" {
+  name        = "repository protection policy"
+  description = "Alert if more than 100 rows are updated or deleted per query on all repository data by anyone except group 'Admin'"
+  wizard_id   = "repository-protection"
+  parameters  = jsonencode(
+    {
+      "rowLimit" = 100
+      "datasets" = "*"
+      "governedOperations" = ["update", "delete"]
+      "identities" = { "excluded": { "groups" = ["Admin"] } }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]
@@ -226,16 +257,19 @@ resource "cyral_repository" "pg1" {
   }
 }
 
-# Creates a policy instance from template to alert and block
-# whenever the following service accounts john try to read,
-# update, or delete data from the repository without end
-# user attribution.
-resource "cyral_rego_policy_instance" "policy" {
+# Creates a policy set using the service account abuse wizard to alert and block
+# whenever the service accounts john is used without end user attribution.
+resource "cyral_policy_set" "service_account_abuse_policy" {
   name        = "service account abuse policy"
-  category    = "SECURITY"
-  description = "Alert and block whenever the following service accounts john try to read, update, or delete data from the repository without end user attribution"
-  template_id = "service-account-abuse"
-  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"serviceAccounts\": [\"john\"]}"
+  description = "Alert and block whenever the service accounts john is used without end user attribution"
+  wizard_id   = "service-account-abuse"
+  parameters  = jsonencode(
+    {
+      "block" = true
+      "alertSeverity" = "high"
+      "serviceAccounts" = ["john"]
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.pg1.id]
@@ -259,15 +293,21 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to filter table
+# Creates a policy set using the user segmentation wizard to filter table
 # 'finance.cards' when users in group 'Marketing' read label
 # CCN, returning only data where finance.cards.country = 'US'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "user-segmentation-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "user_segmentation_policy" {
+  name        = "user segmentation policy"
   description = "Filter table 'finance.cards' when users in group 'Marketing' read label CCN, returning only data where finance.cards.country = 'US'"
-  template_id = "user-segmentation"
-  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"includedIdentities\": { \"groups\": [\"Marketing\"] } }"
+  wizard_id   = "user-segmentation"
+  parameters  = jsonencode(
+    {
+      "dataSet" = "finance.cards"
+      "dataFilter" = " finance.cards.country = 'US' "
+      "labels" = ["CCN"]
+      "includedIdentities" = { "groups" = ["Marketing"] }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]
