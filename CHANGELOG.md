@@ -1,3 +1,28 @@
+## 4.16.0 (January 2, 2025)
+
+It is safe to use this version with all `v4` control planes as long
+as the new incompatible features are not used. These features require
+a minimum version of the control plane and are detailed below.
+
+The minimum control plane version required for full compatibility
+with all the features in this release is `v4.18`.
+
+Data source incompatible with control planes previous to `v4.18`:
+
+- `cyral_policy_wizards`
+
+## Features:
+
+- ENG-14612: Implement cyral_policy_wizards datasource ([#593](https://github.com/cyralinc/terraform-provider-cyral/pull/593))
+
+## Improvements:
+
+- Bump golang.org/x/crypto from 0.30.0 to 0.31.0 ([#590](https://github.com/cyralinc/terraform-provider-cyral/pull/590))
+- Bump google.golang.org/grpc from 1.68.1 to 1.69.0 ([#592](https://github.com/cyralinc/terraform-provider-cyral/pull/592))
+- Bump hashicorp/terraform from 1.9.6 to 1.10.2 ([#591](https://github.com/cyralinc/terraform-provider-cyral/pull/591))
+- Bump all dependencies to the latest version ([#598](https://github.com/cyralinc/terraform-provider-cyral/pull/598))
+- ENG-14702: Update documentation for repo level policies ([#602](https://github.com/cyralinc/terraform-provider-cyral/pull/602))
+
 ## 4.15.0 (December 10, 2024)
 
 It is safe to use this version with all `v4` control planes as long
