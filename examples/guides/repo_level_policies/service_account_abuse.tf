@@ -9,16 +9,19 @@ resource "cyral_repository" "pg1" {
   }
 }
 
-# Creates a policy instance from template to alert and block
-# whenever the following service accounts john try to read,
-# update, or delete data from the repository without end
-# user attribution.
-resource "cyral_rego_policy_instance" "policy" {
+# Creates a policy set using the service account abuse wizard to alert and block
+# whenever the service accounts john is used without end user attribution.
+resource "cyral_policy_set" "service_account_abuse_policy" {
   name        = "service account abuse policy"
-  category    = "SECURITY"
-  description = "Alert and block whenever the following service accounts john try to read, update, or delete data from the repository without end user attribution"
-  template_id = "service-account-abuse"
-  parameters  = "{ \"block\": true, \"alertSeverity\": \"high\", \"serviceAccounts\": [\"john\"]}"
+  description = "Alert and block whenever the service accounts john is used without end user attribution"
+  wizard_id   = "service-account-abuse"
+  parameters  = jsonencode(
+    {
+      "block" = true
+      "alertSeverity" = "high"
+      "serviceAccounts" = ["john"]
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.pg1.id]

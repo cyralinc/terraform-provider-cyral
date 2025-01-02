@@ -9,15 +9,21 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to filter table
+# Creates a policy set using the data firewall wizard to filter table
 # 'finance.cards', returning only data where
 # finance.cards.country = 'US' for users not in 'Admin' group
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "data-firewall-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "data_firewall_policy" {
+  name        = "data firewall policy"
   description = "Returns only data where finance.cards.country = 'US' in table 'finance.cards' for users not in 'Admin' group"
-  template_id = "data-firewall"
-  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"excludedIdentities\": { \"groups\": [\"Admin\"] } }"
+  wizard_id   = "data-firewall"
+  parameters  = jsonencode(
+    {
+      "dataset" = "finance.cards"
+      "dataFilter" = " finance.cards.country = 'US' "
+      "labels" = ["CCN"]
+      "excludedIdentities" = { "groups" = ["Admin"] }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]

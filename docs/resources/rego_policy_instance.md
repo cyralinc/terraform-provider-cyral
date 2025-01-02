@@ -71,7 +71,54 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 
 -> You can also use the Cyral API `GET` `/v1/regopolicies/templates` to retrieve all existing templates and their corresponding parameters schema.
 
-### Data Firewall (data-firewall)
+### Fail Closed (fail-closed) - Protect against statements that are not understood by Cyral.
+
+-   `block` (Boolean) Indicates whether unauthorized operations should be blocked. If true, operations violating the policy are prevented.
+-   `identities` (Object) Defines users, groups, or emails that are included or excluded from the policy. If included identities are defined, only those users are exempt from policy enforcement. Excluded identities are always subject to the policy. See [identities](#objects--identities).
+-   `dbAccounts` (Object) Defines database accounts to include or exclude from the policy. Excluded accounts are not subject to the policy, while included accounts must adhere to it. See [dbAccounts](#objects--dbAccounts).
+-   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
+
+### Object Protection (object-protection) - Guards against operations like create, drop, and alter for specified object types.
+
+-   `objectType` (String) The type of object to monitor or protect. Supported types include tables, views, roles/users, and schemas. Specific actions depend on the object type.
+-   `block` (Boolean) Indicates whether unauthorized operations should be blocked. If true, operations violating the policy are prevented.
+-   `monitorCreates` (Boolean) Specifies whether to monitor 'CREATE' operations for the defined object type. Applies only to relevant object types.
+-   `monitorDrops` (Boolean) Specifies whether to monitor 'DROP' operations for the defined object type. Applies only to relevant object types.
+-   `monitorAlters` (Boolean) Specifies whether to monitor 'ALTER' operations for the defined object type. Applies only to relevant object types.
+-   `objects` (Array) A list of specific objects (e.g., tables or views) to monitor or protect. Required for 'table' or 'view' object types. Not applicable to 'role/user' or 'schema'.
+-   `identities` (Object) Defines users, groups, or emails that are included or excluded from the policy. If included identities are defined, only those users are exempt from policy enforcement. Excluded identities are always subject to the policy. See [identities](#objects--identities).
+-   `dbAccounts` (Object) Defines database accounts to include or exclude from the policy. Excluded accounts are not subject to the policy, while included accounts must adhere to it. See [dbAccounts](#objects--dbAccounts).
+-   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
+
+### Service Account Abuse (service-account-abuse) - Ensure service accounts can only be used by intended applications.
+
+-   `block` (Boolean) Policy action to enforce.
+-   `serviceAccounts` (Array) Service accounts for which end user attribution is always required.
+-   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
+
+### Stored Procedure Governance (stored-procedure-governance) - Restrict execution of stored procedures.
+
+-   `governedProcedures` (Array) List of stored procedures to be governed.
+-   `enforce` (Boolean) Whether to enforce the policy, if false, only alerts will be raised on policy violations.
+-   `identities` (Object) Defines users, groups, or emails that are included or excluded from the policy. If included identities are defined, only those users are exempt from policy enforcement. Excluded identities are always subject to the policy. See [identities](#objects--identities).
+-   `dbAccounts` (Object) Defines database accounts to include or exclude from the policy. Excluded accounts are not subject to the policy, while included accounts must adhere to it. See [dbAccounts](#objects--dbAccounts).
+-   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
+
+### Ungoverned Statements (ungoverned-statements) - Control execution of statements not governed by other policies.
+
+-   `block` (Boolean) Indicates whether unauthorized operations should be blocked. If true, operations violating the policy are prevented.
+-   `identities` (Object) Defines users, groups, or emails that are included or excluded from the policy. If included identities are defined, only those users are exempt from policy enforcement. Excluded identities are always subject to the policy. See [identities](#objects--identities).
+-   `dbAccounts` (Object) Defines database accounts to include or exclude from the policy. Excluded accounts are not subject to the policy, while included accounts must adhere to it. See [dbAccounts](#objects--dbAccounts).
+-   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
+
+### Deprecated policy templates
+
+The remaining list of policy templates have been deprecated in v4.18.X of the Cyral Control Plane
+and can not be used for creating new policies. Managing existing policy instances is still supported.
+Please visit [`cyral_policy_set`](https://registry.terraform.io/providers/cyralinc/cyral/latest/docs/resources/policy_set)
+resource to find replacements for the deprecated policy templates.
+
+#### Data Firewall (data-firewall)
 
 -   `dataSet` (String) Data Set.
 -   `dataFilter` (String) Data filter that will be applied when anyone tries to read the specified data labels from the data set.
@@ -79,7 +126,7 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 -   `labels` (Array) Data Labels.
 -   `excludedIdentities` (Object) Identities that will be excluded from this policy. See [identityList](#objects--identityList).
 
-### Data Masking (data-masking)
+#### Data Masking (data-masking)
 
 -   `maskType` (String) Mask Type (E.g.: `NULL_MASK`, `CONSTANT_MASK`, `MASK`).
 -   `maskArguments` (Array) Mask Argument associated to the given Mask Type (E.g.: Replacement Value).
@@ -88,7 +135,7 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 -   `identities` (Object) Identities associated to the policy. If empty, the policy will be associated to all identities. See [identities](#objects--identities).
 -   `dbAccounts` (Object) Database Accounts associated to the policy. If empty, the policy will be associated to any database account. See [dbAccounts](#objects--dbAccounts).
 
-### Data Protection (data-protection)
+#### Data Protection (data-protection)
 
 -   `block` (Boolean) Policy action to block.
 -   `monitorReads` (Boolean) Monitor read operations.
@@ -100,13 +147,13 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 -   `dbAccounts` (Object) Database Accounts associated to the policy. If empty, the policy will be associated to any database account. See [dbAccounts](#objects--dbAccounts).
 -   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
 
-### Ephemeral Grant (EphemeralGrantPolicy)
+#### Ephemeral Grant (EphemeralGrantPolicy)
 
 -   `repoAccount` (String) Repository Account Name.
 -   `repo` (String) Repository Name.
 -   `allowedSensitiveAttributes` (Array) Allowed Sensitive Attributes.
 
-### Rate Limit (rate-limit)
+#### Rate Limit (rate-limit)
 
 -   `rateLimit` (Integer) Maximum number of rows that can be returned per hour. Note: the value must be an integer greater than zero.
 -   `block` (Boolean) Policy action to enforce.
@@ -116,7 +163,7 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 -   `dbAccounts` (Object) Database Accounts associated to the policy. If empty, the policy will be associated to any database account. See [dbAccounts](#objects--dbAccounts).
 -   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
 
-### Read Limit (read-limit)
+#### Read Limit (read-limit)
 
 -   `rowLimit` (Integer) Maximum number of rows that can be read per query. Note: the value must be an integer greater than zero.
 -   `block` (Boolean) Policy action to enforce.
@@ -127,7 +174,7 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 -   `dbAccounts` (Object) Database Accounts associated to the policy. If empty, the policy will be associated to any database account. See [dbAccounts](#objects--dbAccounts).
 -   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
 
-### Repository Protection (repository-protection)
+#### Repository Protection (repository-protection)
 
 -   `rowLimit` (Integer) Maximum number of rows that can be modified per query. Note: the value must be an integer greater than zero.
 -   `monitorUpdates` (Boolean) Monitor update operations.
@@ -136,13 +183,7 @@ All templates use parameters defined as JSON, below is a list of all the corresp
 -   `dbAccounts` (Object) Database Accounts associated to the policy. If empty, the policy will be associated to any database account. See [dbAccounts](#objects--dbAccounts).
 -   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
 
-### Service Account Abuse (service-account-abuse)
-
--   `block` (Boolean) Policy action to enforce.
--   `serviceAccounts` (Array) Service accounts for which end user attribution is always required.
--   `alertSeverity` (String) Policy action to alert, using the respective severity. Allowed values are: `low`, `medium`, `high`.
-
-### User Segmentation (user-segmentation)
+#### User Segmentation (user-segmentation)
 
 -   `dataSet` (String) Data Set.
 -   `dataFilter` (String) Data filter that will be applied when anyone tries to read the specified data labels from the data set.

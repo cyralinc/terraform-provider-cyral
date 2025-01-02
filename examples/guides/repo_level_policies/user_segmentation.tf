@@ -9,15 +9,21 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to filter table
+# Creates a policy set using the user segmentation wizard to filter table
 # 'finance.cards' when users in group 'Marketing' read label
 # CCN, returning only data where finance.cards.country = 'US'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "user-segmentation-policy"
-  category    = "SECURITY"
+resource "cyral_policy_set" "user_segmentation_policy" {
+  name        = "user segmentation policy"
   description = "Filter table 'finance.cards' when users in group 'Marketing' read label CCN, returning only data where finance.cards.country = 'US'"
-  template_id = "user-segmentation"
-  parameters  = "{ \"dataSet\": \"finance.cards\", \"dataFilter\": \" finance.cards.country = 'US' \", \"labels\": [\"CCN\"], \"includedIdentities\": { \"groups\": [\"Marketing\"] } }"
+  wizard_id   = "user-segmentation"
+  parameters  = jsonencode(
+    {
+      "dataset" = "finance.cards"
+      "dataFilter" = " finance.cards.country = 'US' "
+      "labels" = ["CCN"]
+      "includedIdentities" = { "groups" = ["Marketing"] }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]

@@ -68,9 +68,9 @@ var (
 	regoPolicyInstanceOnlyRequiredArguments = RegoPolicyInstanceTestParameters{
 		policy: regopolicy.RegoPolicyInstancePayload{
 			RegoPolicyInstance: regopolicy.RegoPolicyInstance{
-				Name:       "some-rate-limit-policy",
-				TemplateID: "rate-limit",
-				Parameters: "{\"rateLimit\":7,\"labels\":[\"EMAIL\"],\"alertSeverity\":\"high\",\"block\":false}",
+				Name:       "some-object-protection-policy",
+				TemplateID: "object-protection",
+				Parameters: "{\"block\":false,\"objectType\":\"role/user\",\"alertSeverity\":\"high\",\"monitorCreates\":true,\"monitorDrops\":false,\"monitorAlters\":false}",
 			},
 		},
 		policyCategory: "SECURITY",
@@ -78,10 +78,10 @@ var (
 	regoPolicyInstanceAllArguments = RegoPolicyInstanceTestParameters{
 		policy: regopolicy.RegoPolicyInstancePayload{
 			RegoPolicyInstance: regopolicy.RegoPolicyInstance{
-				Name:        "some-rate-limit-policy",
+				Name:        "some-object-protection-policy",
+				TemplateID:  "object-protection",
+				Parameters:  "{\"block\":false,\"objectType\":\"role/user\",\"alertSeverity\":\"high\",\"monitorCreates\":true,\"monitorDrops\":false,\"monitorAlters\":false}",
 				Description: "Some description.",
-				TemplateID:  "rate-limit",
-				Parameters:  "{\"rateLimit\":7,\"labels\":[\"EMAIL\"],\"alertSeverity\":\"high\",\"block\":false}",
 				Enabled:     true,
 				Scope: &regopolicy.RegoPolicyInstanceScope{
 					RepoIDs: []string{"2U4prk5o6yi1rTvvXyImz8lgbgG"},

@@ -9,15 +9,20 @@ resource "cyral_repository" "mysql1" {
   }
 }
 
-# Creates a policy instance from template to limits to 100 the
-# amount of rows that can be updated or deleted per query on
-# all repository data for anyone except group 'Admin'
-resource "cyral_rego_policy_instance" "policy" {
-  name        = "repository-protection-policy"
-  category    = "SECURITY"
-  description = "Limits to 100 the amount of rows that can be updated or deleted per query on all repository data for anyone except group 'Admin'"
-  template_id = "repository-protection"
-  parameters  = "{ \"rowLimit\": 100, \"block\": true, \"alertSeverity\": \"high\", \"monitorUpdates\": true, \"monitorDeletes\": true, \"identities\": { \"excluded\": { \"groups\": [\"Admin\"] } }}"
+# Creates a policy set using the repository protection wizard to alert if more than
+# 100 rows are updated or deleted per query on all repository data by anyone except group 'Admin'
+resource "cyral_policy_set" "repository_protection_policy" {
+  name        = "repository protection policy"
+  description = "Alert if more than 100 rows are updated or deleted per query on all repository data by anyone except group 'Admin'"
+  wizard_id   = "repository-protection"
+  parameters  = jsonencode(
+    {
+      "rowLimit" = 100
+      "datasets" = "*"
+      "governedOperations" = ["update", "delete"]
+      "identities" = { "excluded": { "groups" = ["Admin"] } }
+    }
+  )
   enabled     = true
   scope {
     repo_ids = [cyral_repository.mysql1.id]
