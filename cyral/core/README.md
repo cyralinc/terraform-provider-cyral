@@ -6,6 +6,13 @@ for resources and data sources.
 
 ## How to use to create new resources and data sources
 
+Either of HTTP and gRPC flavors of the API can be used to implement new resources
+and data sources. gRPC should be preferred in the new code in order to leverage
+strong typing. Care must be taken though that all generated
+protobuf and client code must be imported from publicly accessible git repositories.
+
+### Implementing a resource or data source using HTTP APIs.
+
 There are some main types that must be used to create new resources and data sources:
 `SchemaDescriptor`, `PackageSchema`, `SchemaReader`, `SchemaWriter` and
 `ResourceOperationConfig`. In a nutshell, these abstractions provide the means to
@@ -20,10 +27,10 @@ you create a single package to group both the resource and data sources for a gi
 feature/category and that you follow the same naming convention for all the files
 to simplify future code changes by adopting a single code convention.
 
-### contants.go
+#### constants.go
 
 ```go
-// contants.go
+// constants.go
 package newfeature
 
 const (
@@ -34,7 +41,7 @@ const (
 )
 ```
 
-### model.go
+#### model.go
 
 ```go
 // model.go
@@ -63,7 +70,7 @@ func (r *NewFeature) ReadFromSchema(d *schema.ResourceData) error {
 }
 ```
 
-### datasource.go
+#### datasource.go
 
 Use the `ReadUpdateDeleteURLFactory` to provide the URL factory to read the data source from the API.
 
@@ -71,7 +78,7 @@ Use the `ReadUpdateDeleteURLFactory` to provide the URL factory to read the data
 // datasource.go
 package newfeature
 
-var dsContextHandler = core.DefaultContextHandler{
+var dsContextHandler = core.HTTPContextHandler{
 	ResourceName:        dataSourceName,
 	ResourceType:        resourcetype.DataSource,
 	SchemaWriterFactoryGetMethod: func(_ *schema.ResourceData) core.SchemaWriter { return &NewFeature{} },
@@ -100,13 +107,13 @@ func dataSourceSchema() *schema.Resource {
 }
 ```
 
-### resource.go
+#### resource.go
 
 ```go
 // resource.go
 package newfeature
 
-var resourceContextHandler = core.DefaultContextHandler{
+var resourceContextHandler = core.HTTPContextHandler{
 	ResourceName:        resourceName,
 	ResourceType:        resourcetype.Resource,
 	SchemaReaderFactory: func() core.SchemaReader { return &NewFeature{} },
@@ -139,7 +146,7 @@ func resourceSchema() *schema.Resource {
 }
 ```
 
-### schema_loader.go
+#### schema_loader.go
 
 ```go
 // schema_loader.go
@@ -172,7 +179,7 @@ func PackageSchema() core.PackageSchema {
 }
 ```
 
-### provider/schema_loader.go
+#### provider/schema_loader.go
 
 Edit the existing `cyral/provider/schema_loader.go` file and add your new package schema
 to function `packagesSchemas` as follows:
@@ -192,5 +199,169 @@ func packagesSchemas() []core.PackageSchema {
 		newfeature.PackageSchema(),
 	}
 	return v
+}
+```
+
+### Implementing a resource or data source using gRPC APIs.
+
+The `core.ContextHandler` object can be used, in general, to implement a resource
+using any kind of API. Here is how you can use to define a resource using gRPC APIs.
+
+The files `constants.go` and `schema_loader.go` will be identical to the examples in the
+HTTP section above. In `resource.go` and `datasource.go` files, use the `core.ContextHandler`
+type instead of `core.HTTPContextHandler`. See examples below.
+
+#### model.go
+
+Assume that the generated protobuf code and client stubs are in the package
+`buf.build/gen/go/cyral/newfeature/protocolbuffers/go/newfeature/v1` and it
+defines a message `NewFeature` that corresponds to the resource definition.
+
+```go
+// model.go
+import (
+	msg "buf.build/gen/go/cyral/newfeature/protocolbuffers/go/newfeature/v1"
+)
+
+package newfeature
+
+// updateSchema writes the policy set data to the schema
+func updateSchema(nf *msg.NewFeature, d *schema.ResourceData) error {
+	if err := d.Set("description", nf.GetDescription()); err != nil {
+		return fmt.Errorf("error setting 'description' field: %w", err)
+	}
+	if err := d.Set("name", nf.GetName()); err != nil {
+		return fmt.Errorf("error setting 'name' field: %w", err)
+	}
+	// set other fields in d.
+	d.SetId(nf.GetId())
+	return nil
+}
+
+func newFeatureFromSchema(d *schema.ResourceData) *msg.NewFeature {
+	return &msg.NewFeature{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		// other fields...
+	}
+}
+
+func createNewFeature(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	nf := newFeatureFromSchema(rd)
+	req := &msg.CreateNewFeatureRequest{
+		NewFeature: nf,
+	}
+	grpcClient := methods.NewNewFeatureServiceClient(cl.GRPCClient())
+	resp, err := grpcClient.CreateNewFeature(ctx, req)
+	if err != nil {
+		return err
+	}
+	rd.SetId(resp.GetId())
+	return nil
+}
+
+func readNewFeature(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	req := &msg.ReadNewFeatureRequest{
+		Id: rd.Get("id").(string),
+	}
+	grpcClient := methods.NewNewFeatureServiceClient(cl.GRPCClient())
+	resp, err := grpcClient.ReadNewFeature(ctx, req)
+	if err != nil {
+		return err
+	}
+	return updateSchema(resp.GetNewFeature(), rd)
+}
+
+func updateNewFeature(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	nf := newFeatureFromSchema(rd)
+	req := &msg.UpdateNewFeatureRequest{
+		Id:         ps.GetId(),
+		NewFeature: nf,
+	}
+	grpcClient := methods.NewNewFeatureServiceClient(cl.GRPCClient())
+	resp, err := grpcClient.UpdateNewFeature(ctx, req)
+	if err != nil {
+		return err
+	}
+	return updateSchema(resp.GetNewFeature(), rd)
+}
+
+func deleteNewFeature(ctx context.Context, cl *client.Client, rd *schema.ResourceData) error {
+	req := &msg.DeleteNewFeatureRequest{
+		Id: rd.Get("id").(string),
+	}
+	grpcClient := methods.NewNewFeatureServiceClient(cl.GRPCClient())
+	_, err := grpcClient.DeleteNewFeature(ctx, req)
+	return err
+}
+```
+
+#### datasource.go
+
+```go
+// datasource.go
+package newfeature
+
+var dsContextHandler = core.ContextHandler{
+	ResourceName:        dataSourceName,
+	ResourceType:        resourcetype.DataSource,
+	Read:                readPolicySet,
+}
+
+func dataSourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Description: "Some description.",
+		ReadContext: dsContextHandler.ReadContext(),
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Description: "Retrieve the unique label with this name, if it exists.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+            "description": {
+                Description: "Description of the data source.",
+                Type:        schema.TypeString,
+				Optional:    true,
+			},
+		},
+	}
+}
+```
+
+#### resource.go
+
+```go
+// resource.go
+package newfeature
+
+var resourceContextHandler = core.ContextHandler{
+	ResourceName:        resourceName,
+	ResourceType:        resourcetype.Resource,
+	Create:              createPolicySet,
+	Read:                readPolicySet,
+	Update:              updatePolicySet,
+	Delete:              deletePolicySet,
+}
+
+func resourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Description: "Some description.",
+		CreateContext: resourceContextHandler.CreateContext(),
+		ReadContext:   resourceContextHandler.ReadContext(),
+		UpdateContext: resourceContextHandler.UpdateContext(),
+		DeleteContext: resourceContextHandler.DeleteContext(),
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Description: "...",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+            "description": {
+                Description: "...",
+                Type:        schema.TypeString,
+				Optional:    true,
+			},
+		},
+	}
 }
 ```
