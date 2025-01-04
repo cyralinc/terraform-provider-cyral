@@ -21,6 +21,9 @@ Data source incompatible with control planes previous to `v4.18`:
 - Bump google.golang.org/grpc from 1.68.1 to 1.69.0 ([#592](https://github.com/cyralinc/terraform-provider-cyral/pull/592))
 - Bump hashicorp/terraform from 1.9.6 to 1.10.2 ([#591](https://github.com/cyralinc/terraform-provider-cyral/pull/591))
 - Bump all dependencies to the latest version ([#598](https://github.com/cyralinc/terraform-provider-cyral/pull/598))
+
+### Documentation:
+
 - ENG-14702: Update documentation for repo level policies ([#602](https://github.com/cyralinc/terraform-provider-cyral/pull/602))
 
 ## 4.15.0 (December 10, 2024)
