@@ -16,7 +16,7 @@ resource "cyral_policy_set" "data_firewall_policy" {
   name        = "data firewall policy"
   description = "Returns only data where finance.cards.country = 'US' in table 'finance.cards' for users not in 'Admin' group"
   wizard_id   = "data-firewall"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "dataset" = "finance.cards"
       "dataFilter" = " finance.cards.country = 'US' "

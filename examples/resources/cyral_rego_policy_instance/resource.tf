@@ -1,10 +1,23 @@
 ### Global rego policy instance
 resource "cyral_rego_policy_instance" "policy" {
-  name = "some-rate-limit-policy"
+  name = "User Management"
   category = "SECURITY"
-  description = "Some policy description."
-  template_id = "rate-limit"
-  parameters = "{\"rateLimit\":7,\"labels\":[\"EMAIL\"],\"alertSeverity\":\"high\",\"block\":false,\"identities\":{\"included\":{\"groups\":[\"analysts\"]}},\"dbAccounts\":{\"included\":[\"admin\"]}}"
+  description = "Policy to govern user management operations"
+  template_id = "object-protection"
+  parameters = jsonencode(
+    {
+      "objectType" = "role/user"
+      "block" = true
+      "monitorCreates" = true
+      "monitorAlters" = true
+      "monitorDrops" = true
+      "identities" = {
+        "excluded" = {
+          "groups" = ["dba"]
+        }
+      }
+    }
+  )
   enabled = true
   tags = ["tag1", "tag2"]
 }
@@ -29,11 +42,24 @@ resource "cyral_repository" "repo" {
 }
 
 resource "cyral_rego_policy_instance" "policy" {
-  name = "some-data-masking-policy"
+  name = "User Management"
   category = "SECURITY"
-  description = "Some policy description."
-  template_id = "data-masking"
-  parameters = "{\"labels\":[\"ADDRESS\"],\"maskType\":\"NULL_MASK\"}"
+  description = "Policy to govern user management operations"
+  template_id = "object-protection"
+  parameters = jsonencode(
+    {
+      "objectType" = "role/user"
+      "block" = true
+      "monitorCreates" = true
+      "monitorAlters" = true
+      "monitorDrops" = true
+      "identities" = {
+        "excluded" = {
+          "groups" = ["dba"]
+        }
+      }
+    }
+  )
   enabled = true
   scope {
     repo_ids = [cyral_repository.repo.id]
@@ -43,11 +69,24 @@ resource "cyral_rego_policy_instance" "policy" {
 
 ### Rego policy instance with duration
 resource "cyral_rego_policy_instance" "policy" {
-  name = "some-data-masking-policy"
+  name = "User Management"
   category = "SECURITY"
-  description = "Some policy description."
-  template_id = "data-masking"
-  parameters = "{\"labels\":[\"ADDRESS\"],\"maskType\":\"NULL_MASK\"}"
+  description = "Policy to govern user management operations"
+  template_id = "object-protection"
+  parameters = jsonencode(
+    {
+      "objectType" = "role/user"
+      "block" = true
+      "monitorCreates" = true
+      "monitorAlters" = true
+      "monitorDrops" = true
+      "identities" = {
+        "excluded" = {
+          "groups" = ["dba"]
+        }
+      }
+    }
+  )
   enabled = true
   tags = ["tag1", "tag2"]
   duration = "10s"

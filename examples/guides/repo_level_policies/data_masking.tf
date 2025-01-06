@@ -15,7 +15,7 @@ resource "cyral_policy_set" "data_masking_policy" {
   name        = "data masking policy"
   description = "Apply null masking to any data labeled as CCN for users in group 'Marketing'"
   wizard_id   = "data-masking"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "maskType" = "null"
       "labels" = ["CCN"]

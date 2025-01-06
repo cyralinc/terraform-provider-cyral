@@ -16,7 +16,7 @@ resource "cyral_policy_set" "rate_limit_policy" {
   name        = "rate limit policy"
   description = "Raise an alert and set a rate limit of 500 rows per hour for group 'Marketing' and any data labeled as CCN"
   wizard_id   = "rate-limit"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "rateLimit" = 500
       "enforce" = true

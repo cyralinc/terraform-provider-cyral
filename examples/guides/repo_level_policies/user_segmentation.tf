@@ -16,7 +16,7 @@ resource "cyral_policy_set" "user_segmentation_policy" {
   name        = "user segmentation policy"
   description = "Filter table 'finance.cards' when users in group 'Marketing' read label CCN, returning only data where finance.cards.country = 'US'"
   wizard_id   = "user-segmentation"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "dataset" = "finance.cards"
       "dataFilter" = " finance.cards.country = 'US' "

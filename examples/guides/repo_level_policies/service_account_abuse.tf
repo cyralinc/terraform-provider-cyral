@@ -15,7 +15,7 @@ resource "cyral_policy_set" "service_account_abuse_policy" {
   name        = "service account abuse policy"
   description = "Alert and block whenever the service accounts john is used without end user attribution"
   wizard_id   = "service-account-abuse"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "block" = true
       "alertSeverity" = "high"

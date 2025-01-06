@@ -16,7 +16,7 @@ resource "cyral_policy_set" "read_limit_policy" {
   name        = "read limit policy"
   description = "Limits to 100 the amount of rows that can be read per query on the entire repository for group 'Devs'"
   wizard_id   = "read-limit"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "rowLimit" = 100
       "enforce" = true
