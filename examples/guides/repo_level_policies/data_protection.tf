@@ -15,7 +15,7 @@ resource "cyral_policy_set" "data_protection_policy" {
   name        = "data protection policy"
   description = "Raise an alert and block updates and deletes on label CCN"
   wizard_id   = "data-protection"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "block" = true
       "alertSeverity" = "high"

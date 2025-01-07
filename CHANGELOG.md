@@ -1,3 +1,13 @@
+## 4.16.1 (January 7, 2025)
+
+### Improvements:
+
+- ENG-14743: Bump all dependencies ([#605](https://github.com/cyralinc/terraform-provider-cyral/pull/605))
+
+### Documentation:
+
+- ENG-14743: Fix repo level policy examples ([#605](https://github.com/cyralinc/terraform-provider-cyral/pull/605))
+
 ## 4.16.0 (January 2, 2025)
 
 It is safe to use this version with all `v4` control planes as long
@@ -11,11 +21,11 @@ Data source incompatible with control planes previous to `v4.18`:
 
 - `cyral_policy_wizards`
 
-## Features:
+### Features:
 
 - ENG-14612: Implement cyral_policy_wizards datasource ([#593](https://github.com/cyralinc/terraform-provider-cyral/pull/593))
 
-## Improvements:
+### Improvements:
 
 - Bump golang.org/x/crypto from 0.30.0 to 0.31.0 ([#590](https://github.com/cyralinc/terraform-provider-cyral/pull/590))
 - Bump google.golang.org/grpc from 1.68.1 to 1.69.0 ([#592](https://github.com/cyralinc/terraform-provider-cyral/pull/592))

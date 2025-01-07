@@ -15,7 +15,7 @@ resource "cyral_policy_set" "repository_protection_policy" {
   name        = "repository protection policy"
   description = "Alert if more than 100 rows are updated or deleted per query on all repository data by anyone except group 'Admin'"
   wizard_id   = "repository-protection"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "rowLimit" = 100
       "datasets" = "*"

@@ -36,7 +36,7 @@ resource "cyral_policy_set" "data_firewall_policy" {
   name        = "data firewall policy"
   description = "Returns only data where finance.cards.country = 'US' in table 'finance.cards' for users not in 'Admin' group"
   wizard_id   = "data-firewall"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "dataset" = "finance.cards"
       "dataFilter" = " finance.cards.country = 'US' "
@@ -74,7 +74,7 @@ resource "cyral_policy_set" "data_masking_policy" {
   name        = "data masking policy"
   description = "Apply null masking to any data labeled as CCN for users in group 'Marketing'"
   wizard_id   = "data-masking"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "maskType" = "null"
       "labels" = ["CCN"]
@@ -111,7 +111,7 @@ resource "cyral_policy_set" "data_protection_policy" {
   name        = "data protection policy"
   description = "Raise an alert and block updates and deletes on label CCN"
   wizard_id   = "data-protection"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "block" = true
       "alertSeverity" = "high"
@@ -150,7 +150,7 @@ resource "cyral_policy_set" "rate_limit_policy" {
   name        = "rate limit policy"
   description = "Raise an alert and set a rate limit of 500 rows per hour for group 'Marketing' and any data labeled as CCN"
   wizard_id   = "rate-limit"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "rateLimit" = 500
       "enforce" = true
@@ -189,7 +189,7 @@ resource "cyral_policy_set" "read_limit_policy" {
   name        = "read limit policy"
   description = "Limits to 100 the amount of rows that can be read per query on the entire repository for group 'Devs'"
   wizard_id   = "read-limit"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "rowLimit" = 100
       "enforce" = true
@@ -226,7 +226,7 @@ resource "cyral_policy_set" "repository_protection_policy" {
   name        = "repository protection policy"
   description = "Alert if more than 100 rows are updated or deleted per query on all repository data by anyone except group 'Admin'"
   wizard_id   = "repository-protection"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "rowLimit" = 100
       "datasets" = "*"
@@ -263,7 +263,7 @@ resource "cyral_policy_set" "service_account_abuse_policy" {
   name        = "service account abuse policy"
   description = "Alert and block whenever the service accounts john is used without end user attribution"
   wizard_id   = "service-account-abuse"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "block" = true
       "alertSeverity" = "high"
@@ -300,7 +300,7 @@ resource "cyral_policy_set" "user_segmentation_policy" {
   name        = "user segmentation policy"
   description = "Filter table 'finance.cards' when users in group 'Marketing' read label CCN, returning only data where finance.cards.country = 'US'"
   wizard_id   = "user-segmentation"
-  parameters  = jsonencode(
+  wizard_parameters  = jsonencode(
     {
       "dataset" = "finance.cards"
       "dataFilter" = " finance.cards.country = 'US' "
