@@ -1,4 +1,4 @@
-## 4.16.1 (January 6, 2025)
+## 4.16.1 (January 7, 2025)
 
 ### Improvements:
 
