@@ -6,7 +6,7 @@ toolchain go1.23.3
 
 require (
 	buf.build/gen/go/cyral/policy/grpc/go v1.5.1-20241204234652-6dee75984790.2
-	buf.build/gen/go/cyral/policy/protocolbuffers/go v1.36.1-20241204234652-6dee75984790.1
+	buf.build/gen/go/cyral/policy/protocolbuffers/go v1.36.2-20241204234652-6dee75984790.1
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-docs v0.19.4
@@ -16,13 +16,13 @@ require (
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
 	golang.org/x/oauth2 v0.25.0
 	google.golang.org/grpc v1.69.2
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.2
 )
 
 require (
-	buf.build/gen/go/cyral/utils/protocolbuffers/go v1.36.1-20241202152456-363249a7515c.1 // indirect
-	buf.build/gen/go/envoyproxy/protoc-gen-validate/protocolbuffers/go v1.36.1-20240617172848-daf171c6cdb5.1 // indirect
-	buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.36.1-20241220201140-4c5ba75caaf8.1 // indirect
+	buf.build/gen/go/cyral/utils/protocolbuffers/go v1.36.2-20241202152456-363249a7515c.1 // indirect
+	buf.build/gen/go/envoyproxy/protoc-gen-validate/protocolbuffers/go v1.36.2-20240617172848-daf171c6cdb5.1 // indirect
+	buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.36.2-20240617172850-a48fcebcf8f1.1 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Kunde21/markdownfmt/v3 v3.1.0 // indirect
