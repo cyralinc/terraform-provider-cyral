@@ -1,3 +1,19 @@
+## 4.16.3 (March 10, 2025)
+
+### Bug Fixes:
+
+- ENG-14851: Fix panic in HTTP error handling ([#632](https://github.com/cyralinc/terraform-provider-cyral/pull/632))
+
+### Improvements:
+
+- ENG-14851: Bump all dependencies ([#632](https://github.com/cyralinc/terraform-provider-cyral/pull/632))
+
+## 4.16.2 (March 5, 2025)
+
+### Dcoumentation:
+
+- Added file LICENSE-3RD-PARTY.txt
+
 ## 4.16.1 (January 7, 2025)
 
 ### Improvements:
