@@ -2,8 +2,6 @@ module github.com/cyralinc/terraform-provider-cyral
 
 go 1.23.0
 
-toolchain go1.24.0
-
 require (
 	buf.build/gen/go/cyral/policy/grpc/go v1.5.1-20241204234652-6dee75984790.2
 	buf.build/gen/go/cyral/policy/protocolbuffers/go v1.36.5-20241204234652-6dee75984790.1
