@@ -28,8 +28,8 @@ func (h *IgnoreNotFoundByMessage) HandleError(
 	tflog.Debug(ctx, "==> Init HandleError core.IgnoreNotFoundByMessage")
 
 	// If this is a 404 already, then we don't need to actually match the error message
-	httpError, _ := err.(*client.HttpError)
-	if httpError.StatusCode == http.StatusNotFound {
+
+	if httpError, ok := err.(*client.HttpError); ok && httpError.StatusCode == http.StatusNotFound {
 		tflog.Debug(ctx, "===> Ignoring regex matching as the status code is already 404")
 		r.SetId("")
 		return nil

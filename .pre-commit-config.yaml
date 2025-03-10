@@ -13,7 +13,7 @@ repos:
     rev: v2.5.1
     hooks:
       - id: prettier
-        stages: [commit]
+        stages: [pre-commit]
   - repo: https://github.com/turo/pre-commit-hooks
     rev: v4.0.0
     hooks:
